@@ -85,6 +85,7 @@
 	$g_ui_units_pref = $req->user->getPreference('units');			// user's selected display units for measurements 	(available as global)
 	
 	if((!isset($_locale)) || ($g_ui_locale != $_COOKIE['CA_'.__CA_APP_NAME__.'_ui_locale'])) {
+		if(!initializeLocale($g_ui_locale)) die("Error loading locale ".$g_ui_locale);
 		$req->reloadAppConfig();
 	}
 
