@@ -1295,7 +1295,506 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
 
+-- -----------------------------------------------------
+-- Table `ca_locales`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_locales` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_locales` (
+  `locale_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `name` VARCHAR(255) NOT NULL ,
+  `language` VARCHAR(3) NOT NULL ,
+  `country` CHAR(2) NOT NULL ,
+  `dialect` VARCHAR(8) NULL DEFAULT NULL ,
+  `dont_use_for_cataloguing` TINYINT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`locale_id`) ,
+  INDEX `u_language_country` (`language` ASC, `country` ASC) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_application_vars`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_application_vars` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_application_vars` (
+  `vars` LONGTEXT NOT NULL )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_acl`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_acl` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_acl` (
+  `acl_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `group_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `user_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `table_num` TINYINT UNSIGNED NOT NULL ,
+  `row_id` INT UNSIGNED NOT NULL ,
+  `access` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `notes` CHAR(10) NOT NULL ,
+  `inherited_from_table_num` TINYINT UNSIGNED NULL DEFAULT NULL ,
+  `inherited_from_row_id` INT UNSIGNED NULL DEFAULT NULL ,
+  PRIMARY KEY (`acl_id`) ,
+  INDEX `i_row_id` (`row_id` ASC, `table_num` ASC) ,
+  INDEX `i_user_id` (`user_id` ASC) ,
+  INDEX `i_group_id` (`group_id` ASC) ,
+  INDEX `i_inherited_from_table_num` (`inherited_from_table_num` ASC) ,
+  INDEX `i_inherited_from_row_id` (`inherited_from_row_id` ASC) ,
+  CONSTRAINT `fk_ca_acl_group_id`
+    FOREIGN KEY (`group_id` )
+    REFERENCES `ca_user_groups` (`group_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_acl_user_id`
+    FOREIGN KEY (`user_id` )
+    REFERENCES `ca_users` (`user_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_lists`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_lists` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_lists` (
+  `list_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `list_code` VARCHAR(100) NOT NULL ,
+  `is_system_list` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `is_hierarchical` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `use_as_vocabulary` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `default_sort` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  PRIMARY KEY (`list_id`) ,
+  UNIQUE INDEX `u_code` (`list_code` ASC) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_list_labels`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_list_labels` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_list_labels` (
+  `label_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `list_id` SMALLINT UNSIGNED NOT NULL ,
+  `locale_id` SMALLINT UNSIGNED NOT NULL ,
+  `name` VARCHAR(255) NOT NULL ,
+  PRIMARY KEY (`label_id`) ,
+  INDEX `i_list_id` (`list_id` ASC) ,
+  INDEX `i_name` (`name` ASC) ,
+  UNIQUE INDEX `u_locale_id` (`list_id` ASC, `locale_id` ASC) ,
+  INDEX `fk_ca_list_labels_locale_id` (`locale_id` ASC) ,
+  CONSTRAINT `fk_ca_list_labels_list_id`
+    FOREIGN KEY (`list_id` )
+    REFERENCES `ca_lists` (`list_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_labels_locale_id`
+    FOREIGN KEY (`locale_id` )
+    REFERENCES `ca_locales` (`locale_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_list_items`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_list_items` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_list_items` (
+  `item_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `parent_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `list_id` SMALLINT UNSIGNED NOT NULL ,
+  `type_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `idno` VARCHAR(255) NOT NULL ,
+  `idno_sort` VARCHAR(255) NOT NULL ,
+  `item_value` VARCHAR(255) NOT NULL ,
+  `rank` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `hier_left` DECIMAL(30,20) NOT NULL ,
+  `hier_right` DECIMAL(30,20) NOT NULL ,
+  `is_enabled` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `is_default` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `validation_format` VARCHAR(255) NOT NULL ,
+  `color` CHAR(6) NULL DEFAULT NULL ,
+  `icon` LONGBLOB NOT NULL ,
+  `access` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `deleted` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  PRIMARY KEY (`item_id`) ,
+  INDEX `i_list_id` (`list_id` ASC) ,
+  INDEX `i_parent_id` (`parent_id` ASC) ,
+  INDEX `i_idno` (`idno` ASC) ,
+  INDEX `i_idno_sort` (`idno_sort` ASC) ,
+  INDEX `i_hier_left` (`hier_left` ASC) ,
+  INDEX `i_hier_right` (`hier_right` ASC) ,
+  INDEX `i_value_text` (`item_value` ASC) ,
+  INDEX `i_type_id` (`type_id` ASC) ,
+  CONSTRAINT `fk_ca_list_items_type_id`
+    FOREIGN KEY (`type_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_items_list_id`
+    FOREIGN KEY (`list_id` )
+    REFERENCES `ca_lists` (`list_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_items_parent_id`
+    FOREIGN KEY (`parent_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_list_item_labels`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_list_item_labels` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_list_item_labels` (
+  `label_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `item_id` INT UNSIGNED NOT NULL ,
+  `locale_id` SMALLINT UNSIGNED NOT NULL ,
+  `type_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `name_singular` VARCHAR(255) NOT NULL ,
+  `name_plural` VARCHAR(255) NOT NULL ,
+  `name_sort` VARCHAR(255) NOT NULL ,
+  `description` TEXT NOT NULL ,
+  `source_info` LONGTEXT NOT NULL ,
+  `is_preferred` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  PRIMARY KEY (`label_id`) ,
+  INDEX `i_name_singular` (`item_id` ASC, `name_singular` ASC) ,
+  INDEX `i_name` (`item_id` ASC, `name_plural` ASC) ,
+  INDEX `i_item_id` (`item_id` ASC) ,
+  UNIQUE INDEX `u_all` (`item_id` ASC, `name_singular` ASC, `name_plural` ASC, `type_id` ASC, `locale_id` ASC) ,
+  INDEX `i_name_sort` (`name_sort` ASC) ,
+  INDEX `i_type_id` (`type_id` ASC) ,
+  INDEX `fk_ca_list_item_labels_locale_id` (`locale_id` ASC) ,
+  CONSTRAINT `fk_ca_list_item_labels_item_id`
+    FOREIGN KEY (`item_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_item_labels_locale_id`
+    FOREIGN KEY (`locale_id` )
+    REFERENCES `ca_locales` (`locale_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_item_labels_type_id`
+    FOREIGN KEY (`type_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_metadata_elements`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_metadata_elements` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_metadata_elements` (
+  `element_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `parent_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `list_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `element_code` VARCHAR(30) NOT NULL ,
+  `documentation_url` VARCHAR(255) NOT NULL ,
+  `datatype` TINYINT UNSIGNED NOT NULL ,
+  `settings` LONGTEXT NOT NULL ,
+  `rank` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `hier_left` DECIMAL(30,20) NOT NULL ,
+  `hier_right` DECIMAL(30,20) NOT NULL ,
+  `hier_element_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  PRIMARY KEY (`element_id`) ,
+  INDEX `i_hier_element_id` (`hier_element_id` ASC) ,
+  UNIQUE INDEX `u_name_short` (`element_code` ASC) ,
+  INDEX `i_parent_id` (`parent_id` ASC) ,
+  INDEX `i_hier_left` (`hier_left` ASC) ,
+  INDEX `i_hier_right` (`hier_right` ASC) ,
+  INDEX `i_list_id` (`list_id` ASC) ,
+  CONSTRAINT `fk_ca_metadata_elements_list_id`
+    FOREIGN KEY (`list_id` )
+    REFERENCES `ca_lists` (`list_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_metadata_elements_parent_id`
+    FOREIGN KEY (`parent_id` )
+    REFERENCES `ca_metadata_elements` (`element_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_metadata_element_labels`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_metadata_element_labels` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_metadata_element_labels` (
+  `label_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `element_id` SMALLINT UNSIGNED NOT NULL ,
+  `locale_id` SMALLINT UNSIGNED NOT NULL ,
+  `name` VARCHAR(255) NOT NULL ,
+  `description` TEXT NOT NULL ,
+  PRIMARY KEY (`label_id`) ,
+  INDEX `i_element_id` (`element_id` ASC) ,
+  INDEX `i_name` (`name` ASC) ,
+  INDEX `i_locale_id` (`locale_id` ASC) ,
+  CONSTRAINT `fk_ca_metadata_element_labels_element_id`
+    FOREIGN KEY (`element_id` )
+    REFERENCES `ca_metadata_elements` (`element_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_metadata_element_labels_locale_id`
+    FOREIGN KEY (`locale_id` )
+    REFERENCES `ca_locales` (`locale_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_metadata_type_restrictions`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_metadata_type_restrictions` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_metadata_type_restrictions` (
+  `restriction_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `table_num` TINYINT UNSIGNED NOT NULL ,
+  `type_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `element_id` SMALLINT UNSIGNED NOT NULL ,
+  `settings` LONGTEXT NOT NULL ,
+  `include_subtypes` TINYINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `rank` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
+  PRIMARY KEY (`restriction_id`) ,
+  INDEX `i_table_num` (`table_num` ASC) ,
+  INDEX `i_type_id` (`type_id` ASC) ,
+  INDEX `i_element_id` (`element_id` ASC) ,
+  INDEX `i_include_subtypes` (`include_subtypes` ASC) ,
+  CONSTRAINT `fk_ca_metadata_type_restrictions_element_id`
+    FOREIGN KEY (`element_id` )
+    REFERENCES `ca_metadata_elements` (`element_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_attributes`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_attributes` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_attributes` (
+  `attribute_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `element_id` SMALLINT UNSIGNED NOT NULL ,
+  `locale_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `table_num` TINYINT UNSIGNED NOT NULL ,
+  `row_id` INT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`attribute_id`) ,
+  INDEX `i_locale_id` (`locale_id` ASC) ,
+  INDEX `i_row_id` (`row_id` ASC) ,
+  INDEX `i_table_num` (`table_num` ASC) ,
+  INDEX `i_element_id` (`element_id` ASC) ,
+  CONSTRAINT `fk_ca_attributes_element_id`
+    FOREIGN KEY (`element_id` )
+    REFERENCES `ca_metadata_elements` (`element_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_attributes_locale_id`
+    FOREIGN KEY (`locale_id` )
+    REFERENCES `ca_locales` (`locale_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_attribute_values`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_attribute_values` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_attribute_values` (
+  `value_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `element_id` SMALLINT UNSIGNED NOT NULL ,
+  `attribute_id` INT UNSIGNED NOT NULL ,
+  `item_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `value_longtext1` LONGTEXT NULL DEFAULT NULL ,
+  `value_longtext2` LONGTEXT NULL DEFAULT NULL ,
+  `value_blob` LONGBLOB NULL DEFAULT NULL ,
+  `value_decimal1` DECIMAL(40,20) NULL DEFAULT NULL ,
+  `value_decimal2` DECIMAL(40,20) NULL DEFAULT NULL ,
+  `value_integer1` INT UNSIGNED NULL DEFAULT NULL ,
+  `source_info` LONGTEXT NOT NULL ,
+  PRIMARY KEY (`value_id`) ,
+  INDEX `i_element_id` (`element_id` ASC) ,
+  INDEX `i_attribute_id` (`attribute_id` ASC) ,
+  INDEX `i_value_integer1` (`value_integer1` ASC) ,
+  INDEX `i_value_decimal1` (`value_decimal1` ASC) ,
+  INDEX `i_value_decimal2` (`value_decimal2` ASC) ,
+  INDEX `i_item_id` (`item_id` ASC) ,
+  INDEX `i_value_longtext1` (`value_longtext1`(500) ASC) ,
+  INDEX `i_value_longtext2` (`value_longtext2`(500) ASC) ,
+  CONSTRAINT `fk_ca_attribute_values_attribute_id`
+    FOREIGN KEY (`attribute_id` )
+    REFERENCES `ca_attributes` (`attribute_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_attribute_values_element_id`
+    FOREIGN KEY (`element_id` )
+    REFERENCES `ca_metadata_elements` (`element_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_attribute_values_item_id`
+    FOREIGN KEY (`item_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_relationship_types`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_relationship_types` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_relationship_types` (
+  `type_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `parent_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `sub_type_left_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `sub_type_right_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `hier_left` DECIMAL(30,20) UNSIGNED NOT NULL ,
+  `hier_right` DECIMAL(30,20) UNSIGNED NOT NULL ,
+  `hier_type_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `table_num` TINYINT UNSIGNED NOT NULL ,
+  `type_code` VARCHAR(30) NOT NULL ,
+  `rank` SMALLINT UNSIGNED NOT NULL DEFAULT 0 ,
+  `is_default` TINYINT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`type_id`) ,
+  UNIQUE INDEX `u_type_code` (`type_code` ASC, `table_num` ASC) ,
+  INDEX `i_table_num` (`table_num` ASC) ,
+  INDEX `i_sub_type_left_id` (`sub_type_left_id` ASC) ,
+  INDEX `i_sub_type_right_id` (`sub_type_right_id` ASC) ,
+  INDEX `i_parent_id` (`parent_id` ASC) ,
+  INDEX `i_hier_type_id` (`hier_type_id` ASC) ,
+  INDEX `i_hier_left` (`hier_left` ASC) ,
+  INDEX `i_hier_right` (`hier_right` ASC) ,
+  CONSTRAINT `fk_ca_relationship_types_parent_id`
+    FOREIGN KEY (`parent_id` )
+    REFERENCES `ca_relationship_types` (`type_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_relationship_type_labels`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_relationship_type_labels` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_relationship_type_labels` (
+  `label_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `type_id` SMALLINT UNSIGNED NOT NULL ,
+  `locale_id` SMALLINT UNSIGNED NOT NULL ,
+  `typename` VARCHAR(255) NOT NULL ,
+  `typename_reverse` VARCHAR(255) NOT NULL ,
+  `description` TEXT NOT NULL ,
+  `description_reverse` TEXT NOT NULL ,
+  PRIMARY KEY (`label_id`) ,
+  INDEX `i_type_id` (`type_id` ASC) ,
+  INDEX `i_locale_id` (`locale_id` ASC) ,
+  UNIQUE INDEX `u_typename` (`type_id` ASC, `locale_id` ASC, `typename` ASC) ,
+  UNIQUE INDEX `u_typename_reverse` (`typename_reverse` ASC, `type_id` ASC, `locale_id` ASC) ,
+  CONSTRAINT `fk_ca_relationship_type_labels_type_id`
+    FOREIGN KEY (`type_id` )
+    REFERENCES `ca_relationship_types` (`type_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_relationship_type_labels_locale_id`
+    FOREIGN KEY (`locale_id` )
+    REFERENCES `ca_locales` (`locale_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `ca_list_items_x_list_items`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ca_list_items_x_list_items` ;
+
+CREATE  TABLE IF NOT EXISTS `ca_list_items_x_list_items` (
+  `relation_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `term_left_id` INT UNSIGNED NOT NULL ,
+  `term_right_id` INT UNSIGNED NOT NULL ,
+  `type_id` SMALLINT UNSIGNED NULL DEFAULT NULL ,
+  `source_info` LONGTEXT NOT NULL ,
+  `sdatetime` DECIMAL(30,20) NULL DEFAULT NULL ,
+  `edatetime` DECIMAL(30,20) NULL DEFAULT NULL ,
+  `label_left_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `label_right_id` INT UNSIGNED NULL DEFAULT NULL ,
+  `rank` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  PRIMARY KEY (`relation_id`) ,
+  INDEX `i_term_left_id` (`term_left_id` ASC) ,
+  INDEX `i_term_right_id` (`term_right_id` ASC) ,
+  INDEX `i_type_id` (`type_id` ASC) ,
+  UNIQUE INDEX `u_all` (`term_left_id` ASC, `term_right_id` ASC, `type_id` ASC, `sdatetime` ASC, `edatetime` ASC) ,
+  INDEX `i_label_left_id` (`label_left_id` ASC) ,
+  INDEX `i_label_right_id` (`label_right_id` ASC) ,
+  CONSTRAINT `ca_ca_list_items_x_list_items_type_id`
+    FOREIGN KEY (`type_id` )
+    REFERENCES `ca_relationship_types` (`type_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `ca_ca_list_items_x_list_items_term_left_id`
+    FOREIGN KEY (`term_left_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `ca_ca_list_items_x_list_items_term_right_id`
+    FOREIGN KEY (`term_right_id` )
+    REFERENCES `ca_list_items` (`item_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_items_x_list_items_label_left_id`
+    FOREIGN KEY (`label_left_id` )
+    REFERENCES `ca_list_item_labels` (`label_id` )
+    ON DELETE restrict
+    ON UPDATE restrict,
+  CONSTRAINT `fk_ca_list_items_x_list_items_label_right_id`
+    FOREIGN KEY (`label_right_id` )
+    REFERENCES `ca_list_item_labels` (`label_id` )
+    ON DELETE restrict
+    ON UPDATE restrict)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+/* Indicate up to what migration this schema definition covers */
+/* CURRENT MIGRATION: 1 */
+INSERT IGNORE INTO ca_schema_updates (version_num, datetime) VALUES (1, unix_timestamp());
