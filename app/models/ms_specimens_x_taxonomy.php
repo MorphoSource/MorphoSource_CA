@@ -1,6 +1,6 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/models/ms_taxonomy.php
+ * app/models/ms_specimens_x_taxonomy.php
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -34,23 +34,37 @@
    *
    */
 
-BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
- 	'NAME_SINGULAR' 	=> _t('taxon'),
- 	'NAME_PLURAL' 		=> _t('taxa'),
+BaseModel::$s_ca_models_definitions['ms_specimens_x_taxonomy'] = array(
+ 	'NAME_SINGULAR' 	=> _t('specimen taxonomy'),
+ 	'NAME_PLURAL' 		=> _t('specimen taxonomies'),
  	'FIELDS' 			=> array(
- 		'taxon_id' => array(
+ 		'link_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'IDENTITY' => true, 'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('taxon reference id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this taxon.')
+				'LABEL' => _t('Link id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this record')
 		),
-		'project_id' => array(
+		'specimen_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
+				'LABEL' => 'Specimen id', 'DESCRIPTION' => 'Specimen id'
+		),
+		'taxon_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => 'Taxon id', 'DESCRIPTION' => 'Taxon id'
+		),
+		'alt_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => 'Alt id', 'DESCRIPTION' => 'Alt id'
 		),
 		'user_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
@@ -59,47 +73,18 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
 				'DEFAULT' => '',
 				'LABEL' => 'User id', 'DESCRIPTION' => 'User id'
 		),
-		'common_name' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Common name'), 'DESCRIPTION' => _t('Common name for taxon.'),
-				'BOUNDS_LENGTH' => array(0,255)
-		),
-		'is_extinct' => array(
-				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
-				"DISPLAY_WIDTH" => 1, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, 
-				"DEFAULT" => 0,
-				"LABEL" => "Is taxa extinct?", "DESCRIPTION" => "When checked, indicates the taxa is extinct."
-		),
-		'notes' => array(
+		'justification' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),
+				'LABEL' => _t('Justification'), 'DESCRIPTION' => _t('Justification.'),
 				'BOUNDS_LENGTH' => array(0,65535)
-		),
-		'created_on' => array(
-				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
-				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Created on'), 'DESCRIPTION' => _t('Date/time the specimen record was created.'),
-		),
-		'last_modified_on' => array(
-				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,
-				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Last modified on'), 'DESCRIPTION' => _t('Date/time the specimen record was last modified.'),
 		)
  	)
 );
 
-class ms_taxonomy extends BaseModel {
+class ms_specimens_x_taxonomy extends BaseModel {
 	# ---------------------------------
 	# --- Object attribute properties
 	# ---------------------------------
@@ -111,10 +96,10 @@ class ms_taxonomy extends BaseModel {
 	# --- Basic object parameters
 	# ------------------------------------------------------
 	# what table does this class represent?
-	protected $TABLE = 'ms_taxonomy';
+	protected $TABLE = 'ms_specimens_x_taxonomy';
 	      
 	# what is the primary key of the table?
-	protected $PRIMARY_KEY = 'taxon_id';
+	protected $PRIMARY_KEY = 'link_id';
 
 	# ------------------------------------------------------
 	# --- Properties used by standard editing scripts
@@ -125,7 +110,7 @@ class ms_taxonomy extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('common_name');
+	protected $LIST_FIELDS = array('link_id');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
@@ -141,7 +126,7 @@ class ms_taxonomy extends BaseModel {
 
 	# List of fields to sort listing of records by; you can use 
 	# SQL 'ASC' and 'DESC' here if you like.
-	protected $ORDER_BY = array('common_name');
+	protected $ORDER_BY = array('link_id');
 
 	# If you want to order records arbitrarily, add a numeric field to the table and place
 	# its name here. The generic list scripts can then use it to order table records.

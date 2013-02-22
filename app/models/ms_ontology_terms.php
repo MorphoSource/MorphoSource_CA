@@ -1,6 +1,6 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/models/ms_taxonomy.php
+ * app/models/ms_ontology_terms.php
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -34,23 +34,23 @@
    *
    */
 
-BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
- 	'NAME_SINGULAR' 	=> _t('taxon'),
- 	'NAME_PLURAL' 		=> _t('taxa'),
+BaseModel::$s_ca_models_definitions['ms_ontology_terms'] = array(
+ 	'NAME_SINGULAR' 	=> _t('ontology term'),
+ 	'NAME_PLURAL' 		=> _t('ontology terms'),
  	'FIELDS' 			=> array(
- 		'taxon_id' => array(
+ 		'alt_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'IDENTITY' => true, 'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('taxon reference id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this taxon.')
+				'LABEL' => _t('Alt id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this record')
 		),
-		'project_id' => array(
+		'term_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
+				'LABEL' => 'Term id', 'DESCRIPTION' => 'Term id'
 		),
 		'user_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
@@ -59,28 +59,68 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
 				'DEFAULT' => '',
 				'LABEL' => 'User id', 'DESCRIPTION' => 'User id'
 		),
-		'common_name' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+		'project_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Common name'), 'DESCRIPTION' => _t('Common name for taxon.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
 		),
-		'is_extinct' => array(
+		'term' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Term'), 'DESCRIPTION' => _t('Term.'),
+				'BOUNDS_LENGTH' => array(1,255)
+		),
+		'is_primary' => array(
 				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
 				"DISPLAY_WIDTH" => 1, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => 0, 
 				"DEFAULT" => 0,
-				"LABEL" => "Is taxa extinct?", "DESCRIPTION" => "When checked, indicates the taxa is extinct."
+				"LABEL" => "Primary taxonomic name?", "DESCRIPTION" => "When checked, indicates this is the primary name for the taxon."
 		),
-		'notes' => array(
+		'justification' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),
+				'LABEL' => _t('Justification'), 'DESCRIPTION' => _t('Justification for why this should be the promary name for the taxon.'),
 				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'review_status' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Review status'), 'DESCRIPTION' => _t('Review status'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('New') 	=> 0,
+					_t('Reviewed')	=> 1
+				)
+		),
+		'review_notes' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Review notes'), 'DESCRIPTION' => _t('Notes about the review process.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'reviewed_on' => array(
+				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Reviewed on'), 'DESCRIPTION' => _t('Date taxonomic name was reviewed on.'),
+		),
+		'reviewed_by_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => 'name reviewed by', 'DESCRIPTION' => 'User id of reviewer'
 		),
 		'created_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
@@ -99,7 +139,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
  	)
 );
 
-class ms_taxonomy extends BaseModel {
+class ms_ontology_terms extends BaseModel {
 	# ---------------------------------
 	# --- Object attribute properties
 	# ---------------------------------
@@ -111,10 +151,10 @@ class ms_taxonomy extends BaseModel {
 	# --- Basic object parameters
 	# ------------------------------------------------------
 	# what table does this class represent?
-	protected $TABLE = 'ms_taxonomy';
+	protected $TABLE = 'ms_ontology_terms';
 	      
 	# what is the primary key of the table?
-	protected $PRIMARY_KEY = 'taxon_id';
+	protected $PRIMARY_KEY = 'alt_id';
 
 	# ------------------------------------------------------
 	# --- Properties used by standard editing scripts
@@ -125,7 +165,7 @@ class ms_taxonomy extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('common_name');
+	protected $LIST_FIELDS = array('term');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
@@ -141,7 +181,7 @@ class ms_taxonomy extends BaseModel {
 
 	# List of fields to sort listing of records by; you can use 
 	# SQL 'ASC' and 'DESC' here if you like.
-	protected $ORDER_BY = array('common_name');
+	protected $ORDER_BY = array('term');
 
 	# If you want to order records arbitrarily, add a numeric field to the table and place
 	# its name here. The generic list scripts can then use it to order table records.
