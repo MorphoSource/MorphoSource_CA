@@ -97,6 +97,14 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"DEFAULT" => 0,
 				"LABEL" => "Is this media copyrighted?", "DESCRIPTION" => "When checked, indicates this media file has copyright restrictions."
 		),
+		'copyright_info' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Copyright Info'), 'DESCRIPTION' => _t('Copyright Info.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
 		'copyright_permission' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
