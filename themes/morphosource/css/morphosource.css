@@ -1,0 +1,490 @@
+/* 
+
+	colors: teal: #578686;  nav links: #04276D; gray rules: #A8A8A8; dark blue rule: #003880; dark blue heading: #00006A; teal rule: #578686; orange rules: #FF861F; orange links: #FF861F; gray text: #454545; light blue text: #689899; medium blue text: #003880;
+*/
+
+@font-face {
+    font-family: 'neuzeitbld';
+    src: url('fonts/neuzebld-webfont.eot');
+    src: url('fonts/neuzebld-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/neuzebld-webfont.woff') format('woff'),
+         url('fonts/neuzebld-webfont.ttf') format('truetype'),
+         url('fonts/neuzebld-webfont.svg#neuzeitbld') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'neuzeitblk';
+    src: url('fonts/neuzeblk-webfont.eot');
+    src: url('fonts/neuzeblk-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/neuzeblk-webfont.woff') format('woff'),
+         url('fonts/neuzeblk-webfont.ttf') format('truetype'),
+         url('fonts/neuzeblk-webfont.svg#neuzeitblk') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'neuzeitlgt';
+    src: url('fonts/neuzelgt-webfont.eot');
+    src: url('fonts/neuzelgt-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/neuzelgt-webfont.woff') format('woff'),
+         url('fonts/neuzelgt-webfont.ttf') format('truetype'),
+         url('fonts/neuzelgt-webfont.svg#neuzeitlgt') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'neuzeitrmn';
+    src: url('fonts/neuzermn-webfont.eot');
+    src: url('fonts/neuzermn-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/neuzermn-webfont.woff') format('woff'),
+         url('fonts/neuzermn-webfont.ttf') format('truetype'),
+         url('fonts/neuzermn-webfont.svg#neuzeitrmn') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+form{
+	display:inline;
+}
+body{
+	font-family: 'helvetica', sans-serif;
+	font-size:13px;
+	line-height:1.4em;
+	color:#454545;
+	background-color: #FFFFFF;
+	padding:0px;
+	margin:0px;
+}
+img{
+	border:0px;
+}
+a{
+	color: #FF861F;
+}
+H1{
+	font-family: 'neuzeitlgt';
+	color:#00006A;
+	font-size:37px;
+	line-height:1.1em;
+	margin:0px;
+	padding:10px 0px 10px 0px;
+	font-weight:normal;
+}
+H2{
+	font-family: 'neuzeitlgt', sans-serif;
+	color:#00006A;
+	font-size:16px;
+	line-height:1.3em;
+	margin:0px;
+	padding:0px 5px 10px 5px;
+	font-weight:normal;
+}
+.ltBlueText{
+	color:#689899;
+}
+.blueText{
+	color:#00006A;
+}
+/* Rules */
+.blueRule{
+	background-color:#003880;
+	background-image:url('../graphics/morphosource/triangleHeading.png');
+	background-repeat:no-repeat;
+	background-position:right top;	
+	height: 6px;
+	margin:5px 0px 0px 0px;
+	padding:0px;
+}
+.tealRule{
+	background-color:#578686;
+	background-image:url('../graphics/morphosource/triangleHeading2.png');
+	background-repeat:no-repeat;
+	background-position:right top;	
+	height: 6px;
+}
+.tealTopBottomRule{
+	border-top: 1px solid #578686;
+	border-bottom: 1px solid #578686;
+	padding-top:10px;
+	padding-bottom:10px;
+	margin-bottom:15px;
+}
+.blueTopBottomRule{
+	border-top: 1px solid #003880;
+	border-bottom: 1px solid #003880;
+	padding-top:10px;
+	padding-bottom:10px;
+	margin-bottom:15px;
+}
+.ltBlueTopRule{
+	border-top: 1px solid #689899;
+}
+/* Buttons */
+.button, .button:visited {
+	display: inline-block;
+	color: #fff !important; 
+	text-decoration: none;
+	border-radius: 5px;
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;
+	box-shadow: 0 0px 3px #828282;
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	position: relative;
+	cursor: pointer;
+	font-family:'neuzeitrmn', Helvetica, sans-serif;
+	text-transform:uppercase;
+	font-weight:normal;
+	background-color:#003880;
+}
+.button:hover{
+	background-color:#013368;
+}
+
+.buttonLarge{ 
+	padding: 5px 8px 5px;
+	font-size:15px;
+	line-height:20px;
+}
+.buttonSmall{ 
+	padding: 3px 5px 3px;
+	font-size:11px;
+	line-height:15px;
+}
+.buttonCircle{ 
+	padding: 3px;
+	font-size:11px;
+	line-height:15px;
+	border-radius: 15px;
+}
+
+#contentArea{
+	position:relative;
+	width:875px;
+	margin:0px auto 0px auto;
+}
+#footer{
+	border-top: 1px solid #003880;
+	padding:5px 10px 0px 10px;
+	width:930px;
+	margin:0px auto 50px auto;
+}
+#footer ul{
+	list-style-type: none;
+	padding:0px;
+	margin:0px;
+}
+#footer ul li{
+	float:left;
+	padding:3px 10px 3px 10px;
+	margin:0px 0px 0px 0px;
+	border-right:1px solid #FF861F;
+	font-family: 'neuzeitrmn';
+	color:#FF861F;
+	font-size:13px;
+	text-transform:uppercase;
+	line-height:1em;
+}
+#footer ul li.last{
+	border-right:0px;
+}
+#footer ul li a{
+	font-family: 'neuzeitrmn';
+	color:#FF861F;
+	font-size:13px;
+	text-transform:uppercase;
+	line-height:1em;
+	text-decoration:none;
+}
+#footer ul li a:hover{
+	color:#04276D;
+}
+#header{
+	width:910px;
+	margin:0px -45px 0px 0px;
+}
+
+#header #logo{
+	float:left;
+	width:232px;
+	height:74px;
+	padding:30px 0px 30px 0px;
+	text-align:left;
+}
+#header #nav{
+	float:right;
+	width:560px;
+}
+#header #nav #navHeaderBar{
+	height:10px;
+	background-color: #578686;
+	background-image:url('../graphics/morphosource/triangleNav.png');
+	background-repeat:no-repeat;
+	background-position:left top;
+}
+#header #nav ul.mainNav{
+	list-style-type: none;
+	padding:0px;
+	margin:0px;
+}
+#header #nav ul.mainNav li{
+	float:left;
+	margin:0px:0px;
+	padding:12px 32px 12px 32px;
+	font-family: 'neuzeitbld';
+	color:#04276D;
+	font-size:14px;
+	text-transform:uppercase;
+	line-height:1em;
+	border-right:1px solid #A8A8A8;
+}
+#header #nav ul.mainNav li a{
+	font-family: 'neuzeitbld';
+	color:#04276D;
+	font-size:14px;
+	text-transform:uppercase;
+	text-decoration:none;
+	line-height:1em;
+}
+#header #nav ul.mainNav li a:hover{
+	font-family: 'neuzeitbld';
+	color:#FF861F;
+	font-size:14px;
+	text-transform:uppercase;
+}
+#header #nav ul.mainNav li a.selected{
+	color:#FF861F;
+}
+#header #nav ul.subNav{
+	clear:both;
+	list-style-type: none;
+	padding:10px 10px 0px 0px;
+	margin:0px 0px 0px 0px;
+}
+#header #nav ul.subNav li{
+	float:right;
+	padding:3px 10px 3px 10px;
+	margin:0px 0px 0px 0px;
+	border-right:1px solid #A8A8A8;
+	font-family: 'neuzeitrmn';
+	color:#FF861F;
+	font-size:13px;
+	text-transform:uppercase;
+	line-height:1em;
+}
+#header #nav ul.subNav li.last{
+	border-right:0px;
+}
+#header #nav ul.subNav li a{
+	font-family: 'neuzeitrmn';
+	color:#FF861F;
+	font-size:13px;
+	text-transform:uppercase;
+	line-height:1em;
+	text-decoration:none;
+}
+#header #nav ul.subNav li a:hover{
+	color:#04276D;
+}
+#header #nav #searchBox{
+	float:right;
+	text-align:right;
+	width:150px;
+	padding:18px 20px 0px 0px;
+}
+#header #nav #searchBox #searchBoxBg{
+	background-color: #D1D1D1;
+	border-radius:8px;
+	height:20px;
+	padding:3px 5px 0px 5px;
+	text-align:left;
+}
+#header #nav #searchBox input{
+	width:120px;
+	border:0px;
+	margin:0px;
+	height:12px;
+	background-color: #d1d1d1;
+}
+#header #nav #searchBox .searchButtonSubmit{
+	text-decoration:none;
+}
+#pageArea{
+	padding:0px 15px 30px 0px;
+	min-height:500px;
+}
+/* home page */
+#pageArea #hpImage{
+	float:right;
+	width:400px;
+	position:relative;
+}
+#pageArea #hpImage #hpImageCaption{
+	position:absolute;
+	bottom:0px;
+	right:0px;
+	padding:10px 40px 10px 5px;
+	color:#FFF;
+	font-style:italic;
+	background: rgb(0, 0, 0); /* Fall-back for browsers that don't support rgba */
+    background: rgba(0, 0, 0, .5);
+}
+#pageArea #hpText{
+	float:left;
+	width: 440px;
+	line-height:1.8em;
+}
+#pageArea #hpFeatures{
+	clear:both;
+	padding:30px 0px 0px 0px;
+}
+#pageArea #hpFeatures .hpFeature{
+	width:195px;
+	float:left;
+}
+#pageArea #hpFeatures .hpFeaturePadding{
+	padding-right: 25px;
+}
+#pageArea #hpStats{
+	clear:both;
+	padding-top:45px;
+}
+#pageArea #hpStats #hpStatsCol1{
+	float:left;
+	width:415px;
+	padding-right:25px;
+}
+#pageArea #hpStats #hpStatsCol2{
+	float:left;
+	width:415px;
+}
+#pageArea #hpStats #hpStatsCol1 H2, #pageArea #hpStats #hpStatsCol2 H2{
+	padding-top:10px;
+}
+#pageArea #hpStats #hpStatsCol1 .tealTopBottomRule, #pageArea #hpStats #hpStatsCol2 .tealTopBottomRule{
+	padding-top:0px;
+	padding-bottom:0px;
+}
+#pageArea #hpStats #hpStatsCol1 .projectListItem{
+	padding:10px 5px 10px 5px;
+	border-bottom:1px solid #689899;
+}
+#pageArea #hpStats #hpStatsCol1 .date{
+	float:right;
+	color: #689899;
+	font-family: 'neuzeitrmn';
+	font-size:16px;
+}
+#pageArea #hpStats #hpStatsCol2 .projectListItem{
+	padding:10px 0px 10px 0px;
+	border-bottom:0px;
+	font-size:11px;
+	font-style:italic;
+	float:left;
+	width:335px;
+}
+#pageArea #hpStats #hpStatsCol2 .time{
+	clear:left;
+	float:left;
+	width:65px;
+	padding:10px 10px 10px 5px;
+	color: #003880;
+	font-family: 'neuzeitrmn';
+	font-size:13px;
+}
+/* dashboard */
+#dashboardProjectsList .blueTopBottomRule{
+	margin-bottom:0px;
+}
+#dashboardProjectsList H2{
+	padding-bottom:0px;
+}
+#dashboardProjectsList .column{
+	width: 140px;
+	margin: 0px 0px 0px 20px;
+	float:right;
+	text-align:center;
+	padding:0px;
+}
+.listItemLtBlue{
+	padding:10px 5px 10px 5px;
+	border-bottom:1px solid #689899;
+	text-align:left;
+}
+.listItemBlue{
+	padding:10px 5px 10px 5px;
+	border-bottom:1px solid #003880;
+	text-align:left;
+}
+.listItemLtBlue a, .listItemBlue a{
+	color:#689899;
+}
+.listItemRightCol{
+	float:right;
+}
+#dashboardColLeft{
+	float:left;
+	width:400px;
+}
+#dashboardColLeft #dashboardAbstract{
+	padding-bottom:20px;
+}
+#dashboardColRight{
+	float:right;
+	width:400px;
+}
+.dashboardButtons{
+	text-align:center;
+}
+#dashboardColRight .dashboardButtons{
+	margin:15px 0px 15px 0px;
+}
+#dashboardColRight .listItemLtBlue .dataCol{
+	float:right;
+	text-align:right;
+	width: 220px;
+	padding:0px 0px 0px 15px;
+	color: #689899;
+	font-family: 'neuzeitlgt', sans-serif;
+	font-size:14px;
+	line-height:1.3em;
+}
+#dashboardColRight .listItemLtBlue H2{
+	padding-bottom: 0px; 
+}
+
+/* form */
+#formArea .formLabel{
+	font-weight:bold;
+	margin:0px 0px 15px 10px;
+}
+#formArea input {
+	font-family: 'helvetica', sans-serif;
+	font-size:11px;
+	font-weight: normal;
+	padding: 2px;
+	margin: 0px;
+	border: 1px solid #828282;
+	outline-style:none;
+	outline-width:0px;
+}
+#formArea input[type="text"], #formArea textarea {
+	font-family: 'helvetica', sans-serif;
+	font-size:11px;
+	font-weight: normal;
+	padding: 2px;
+	margin: 0px;
+	border: 1px solid #828282;
+	outline-style:none;
+	outline-width:0px;
+}
+#deleteConfirmBox{
+	margin:30px auto 0px auto;
+	text-align:center;
+	font-size:14px;
+	width:500px;
+}
