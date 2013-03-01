@@ -29,10 +29,8 @@
  * 
  * ----------------------------------------------------------------------
  */
- 
- /**
-   *
-   */
+
+require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_media_x_bibliography'] = array(
  	'NAME_SINGULAR' 	=> _t('bibliography media'),

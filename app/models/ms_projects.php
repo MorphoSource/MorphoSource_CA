@@ -29,10 +29,8 @@
  * 
  * ----------------------------------------------------------------------
  */
- 
- /**
-   *
-   */
+	require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+	require_once(__CA_MODELS_DIR__."/ms_project_users.php");
 
 BaseModel::$s_ca_models_definitions['ms_projects'] = array(
  	'NAME_SINGULAR' 	=> _t('project'),
@@ -46,9 +44,9 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Project id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this project')
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => true, 
 				'DEFAULT' => '',
 				'LABEL' => 'Row id', 'DESCRIPTION' => 'Project administrator'
 		),
@@ -197,6 +195,161 @@ class ms_projects extends BaseModel {
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
+	}
+	# ----------------------------------------
+	function getProjectsForMember($pn_user_id) {
+		$pn_user_id = intval($pn_user_id);
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT p.*, pu.membership_type 
+			FROM ms_projects p
+			INNER JOIN ms_project_users AS pu ON pu.project_id = p.project_id
+			WHERE
+				(pu.user_id = ?) AND (pu.active = 1)
+			ORDER BY p.project_id DESC
+		", $pn_user_id);
+		
+		$va_projects = array();
+		while ($qr->nextRow()) {
+			$va_projects[] = $qr->getRow();
+		} 
+		return $va_projects;
+	}
+	# ----------------------------------------
+	function isMember($pn_user_id, $pn_project_id = "") {
+		$pn_user_id = intval($pn_user_id);
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if ($pn_project_id && ($pn_user_id > 0)) {
+			$o_db = $this->getDb();
+			$q = $o_db->query("
+				SELECT user_id, project_id 
+				FROM ms_project_users 
+				WHERE
+					(project_id = ?) AND (user_id = ?)
+			", $pn_project_id, $pn_user_id);
+			if ($q->nextRow()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	# ----------------------------------------
+	function getMembers() {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT u.user_id, u.user_name, u.email, u.fname, u.lname, pu.membership_type 
+			FROM ca_users u
+			INNER JOIN ms_project_users AS pu ON pu.user_id = u.user_id
+			WHERE
+				(pu.project_id = ?) AND (pu.active = 1)
+			ORDER BY u.lname, u.fname
+		", $vn_project_id);
+		
+		$va_members = array();
+		while ($qr->nextRow()) {
+			$va_members[] = $qr->getRow();
+		} 
+		return $va_members;
+	}
+	# ----------------------------------------
+	/**
+	 * Sets last_accessed_on timestamp in ms_projects and ms_projects_users for the specified user and currently loaded project to the current time
+	 */
+	function setUserAccessTime($pn_user_id) {
+		if (!($vn_project_id = $this->getPrimaryKey())) { return null; }
+		$vn_time = time();
+
+		$t_pu = new ms_project_users();
+		if ($t_pu->load(array('user_id' => (int)$pn_user_id, 'project_id' => $vn_project_id))) {
+			$t_pu->setMode(ACCESS_WRITE);
+			$t_pu->set('last_access_on', $vn_time);
+			$t_pu->update();
+			
+			if ($t_pu->numErrors()) {
+				$this->errors = $t_pu->errors;
+				return false;
+			}
+
+			$this->setMode(ACCESS_WRITE);
+			$this->set('last_modified_on', $vn_time);
+			$this->update();
+			if ($this->numErrors())
+				return false;
+
+			return true;
+		}
+		return null;
+	}
+	# ----------------------------------------
+	function numMedia($pn_project_id = "") {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media m
+			WHERE m.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_media = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_media = $qr->get("c");
+		}
+		return $vn_num_media;
+	}
+	# ----------------------------------------
+	function numSpecimens($pn_project_id = "") {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_specimens s
+			WHERE s.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_specimens = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_specimens = $qr->get("c");
+		}
+		return $vn_num_specimens;
+	}
+	# ----------------------------------------
+	function numCitations($pn_project_id = "") {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_bibliography b
+			WHERE b.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_citations = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_citations = $qr->get("c");
+		}
+		return $vn_num_citations;
 	}
 	# ----------------------------------------
 }

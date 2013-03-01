@@ -30,9 +30,7 @@
  * ----------------------------------------------------------------------
  */
  
- /**
-   *
-   */
+require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_project_users'] = array(
  	'NAME_SINGULAR' 	=> _t('project member'),
@@ -46,8 +44,8 @@ BaseModel::$s_ca_models_definitions['ms_project_users'] = array(
 				'LABEL' => _t('Membership id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this project member')
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
-				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_FIELD,
+				'DISPLAY_WIDTH' => 90, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'User id', 'DESCRIPTION' => 'Project member id'

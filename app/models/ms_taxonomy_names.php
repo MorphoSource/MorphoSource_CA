@@ -30,9 +30,8 @@
  * ----------------------------------------------------------------------
  */
  
- /**
-   *
-   */
+require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+
 BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
  	'NAME_SINGULAR' 	=> _t('taxon name'),
  	'NAME_PLURAL' 		=> _t('taxa name'),

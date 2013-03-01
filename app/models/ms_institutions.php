@@ -30,10 +30,8 @@
  * ----------------------------------------------------------------------
  */
  
- /**
-   *
-   */
-
+require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+ 
 BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
  	'NAME_SINGULAR' 	=> _t('project'),
  	'NAME_PLURAL' 		=> _t('projects'),

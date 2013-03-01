@@ -144,7 +144,7 @@ BaseModel::$s_ca_models_definitions['ca_users'] = array(
 		'registered_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_OMIT, 
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => true, 
+				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Registered on'), 'DESCRIPTION' => _t('Registered on')
 		),

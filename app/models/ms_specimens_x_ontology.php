@@ -30,9 +30,7 @@
  * ----------------------------------------------------------------------
  */
  
- /**
-   *
-   */
+require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_specimens_x_ontology'] = array(
  	'NAME_SINGULAR' 	=> _t('ontology specimen'),
