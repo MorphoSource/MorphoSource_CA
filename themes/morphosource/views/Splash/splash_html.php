@@ -60,26 +60,34 @@
 		<div id="hpStats">
 			<div id="hpStatsCol1">
 				<div class="tealRule"><!-- empty --></div>
-				<H2 style="float:right;">last updated</H2>
-				<H2>Your Project List</H2>
-				<div class="tealTopBottomRule">
-					<div class="projectListItem">
-						<div class="date">02.20.13</div>
-						Lorem ipsum dolor sit amet
-					</div><!-- end projectListItem -->
-					<div class="projectListItem">
-						<div class="date">02.20.13</div>
-						Lorem ipsum dolor sit amet
-					</div><!-- end projectListItem -->
-					<div class="projectListItem">
-						<div class="date">02.20.13</div>
-						Lorem ipsum dolor sit amet
-					</div><!-- end projectListItem -->
-					<div class="projectListItem" style="border-bottom:0px;">
-						<div class="date">02.20.13</div>
-						Lorem ipsum dolor sit amet
-					</div><!-- end projectListItem -->
-				</div><!-- end tealTopBottomRule -->
+<?php
+			if($this->request->isLoggedIn()){
+				$t_project = new ms_projects();
+				$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
+				if(sizeof($va_projects)){
+?>
+					<H2 style="float:right;">last updated</H2>
+					<H2>Your Project List</H2>
+					<div class="tealTopBottomRule">
+<?php
+					foreach($va_projects as $va_project){
+						print '<div class="projectListItem"><div class="date">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
+						print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("project_id" => $va_project["project_id"]));
+						print '</div><!-- end projectListItem -->';
+					}
+?>
+					</div><!-- end tealTopBottomRule -->
+<?php
+				}else{
+					print "<H2 style='text-align:center;'>You have no projects</H2>";	
+				}
+				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
+			}else{
+				print "<H2 style='text-align:center;'>New to MorphoSource?</H2>";
+				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Login or Register"), "button buttonLarge", "", "LoginReg", "login")."<p>";
+			}
+?>
+				
 			</div><!-- end hpStatsCol1 -->
 			<div id="hpStatsCol2">
 				<div class="tealRule"><!-- empty --></div>

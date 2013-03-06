@@ -18,7 +18,7 @@
 			$i++;
 			print "<div class='listItemLtBlue ltBlueText'>";
 			if($t_project->get("user_id") != $va_member["user_id"]){
-				print "<div class='listItemRightCol'>".caNavLink($this->request, _t("Remove"), "button buttonSmall", "MyProjects", "Members", "Delete")."</div>";
+				print "<div class='listItemRightCol'>".caNavLink($this->request, _t("Remove"), "button buttonSmall", "MyProjects", "Members", "Delete", array("user_id" => $va_member["user_id"]))."</div>";
 			}
 			print trim($va_member["fname"]." ".$va_member["lname"]).", ".$va_member["email"];
 			if($t_project->get("user_id") == $va_member["user_id"]){

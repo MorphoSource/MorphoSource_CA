@@ -76,6 +76,8 @@
 				$this->projectList();
 				return;
 			}
+			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
+			$this->view->setVar("num_projects", sizeof($va_projects));
  			$this->render('Dashboard/dashboard_html.php');
  		}
  		# -------------------------------------------------------

@@ -19,6 +19,7 @@ print caFormTag($this->request, 'lookUpMember', 'lookupMemberForm', null, 'post'
 	print "</div>";
 	
 ?>
+	<input type="hidden" name="form_submitted" value="1">
 	<div class="formButtons tealTopBottomRule">
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#lookupMemberForm').submit(); return false;"><?php print _t("Invite Member"); ?></a>
 	</div><!-- end formButtons -->

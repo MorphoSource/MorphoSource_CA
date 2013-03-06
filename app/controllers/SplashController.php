@@ -28,6 +28,7 @@
  
 	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_APP_DIR__.'/helpers/accessHelpers.php');
+ 	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  
  	class SplashController extends ActionController {
  		# -------------------------------------------------------
@@ -52,7 +53,6 @@
  			JavascriptLoadManager::register('browsable');
  			JavascriptLoadManager::register('tabUI');
  			JavascriptLoadManager::register('cycle');
- 			
  			$this->render('Splash/splash_html.php');
  		}
  		# -------------------------------------------------------

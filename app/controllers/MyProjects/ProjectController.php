@@ -76,6 +76,10 @@
 			$this->view->setvar("name_singular", $this->ops_name_singular);
 			$this->view->setvar("name_plural", $this->ops_name_plural);
 			$this->view->setvar("primary_key", $this->ops_primary_key);
+ 		} 		
+ 		# -------------------------------------------------------
+ 		public function listItems() {
+			$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
  		}
  		# -------------------------------------------------------
  		function form() {

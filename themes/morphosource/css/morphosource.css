@@ -89,6 +89,9 @@ H2{
 .blueText{
 	color:#00006A;
 }
+.capitalize{
+	text-transform:capitalize;
+}
 /* Rules */
 .blueRule{
 	background-color:#003880;
@@ -426,12 +429,16 @@ H2{
 .listItemRightCol{
 	float:right;
 }
+#itemListings{
+	margin-top:15px;
+	border-top:1px solid #689899;
+}
 #dashboardColLeft{
 	float:left;
 	width:400px;
 }
 #dashboardColLeft #dashboardAbstract{
-	padding-bottom:20px;
+	padding-bottom:10px;
 }
 #dashboardColRight{
 	float:right;
@@ -439,6 +446,9 @@ H2{
 }
 .dashboardButtons{
 	text-align:center;
+}
+.dashboardButtons a{
+	margin-top:10px;
 }
 #dashboardColRight .dashboardButtons{
 	margin:15px 0px 15px 0px;
@@ -455,6 +465,50 @@ H2{
 }
 #dashboardColRight .listItemLtBlue H2{
 	padding-bottom: 0px; 
+}
+#dashboardMedia{
+	clear:both;
+	padding-top:30px;
+}
+#dashboardMedia .projectMedia {
+	float:left;
+	width:190px;
+	height:205px;
+	padding:0px 12px 15px 12px;
+}
+#dashboardMedia .projectMedia .mediaID {
+	font-family: 'neuzeitlgt', sans-serif;
+	color: #00006A;
+	font-size:14px;
+}
+#mediaInfo #leftCol{
+	float:left;
+	width:400px;
+}
+#mediaInfo H1{
+	font-size:29px;
+}
+#mediaInfo #mediaMd{
+	font-family: 'neuzeitlgt', sans-serif;
+	border-top:1px solid #689899;
+}
+	
+#mediaInfo #mediaImage{
+	text-align:center;
+	margin-bottom:15px;
+}
+#mediaInfo #rightCol{
+	float:right;
+	width:420px;
+}
+#mediaInfo #rightCol #newMediaButton{
+	text-align:right;
+	padding:15px 0px 15px 0px;
+	
+}
+#mediaSpecimenInfo H2{
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 /* form */

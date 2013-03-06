@@ -6,8 +6,8 @@
 <?php
 	print "<p>"._t("Really delete %1: <i>%2</i>?", $this->getVar("name_singular"), $this->getVar("item_name"))."</p>";
 	
-	print caNavLink($this->request, _t("Yes"), "button buttonLarge", "MyProjects", $this->request->getController(), "Delete", array("delete_confirm" => 1, $this->getVar("primary_key") => $this->getVar("project_id")));
+	print caNavLink($this->request, _t("Yes"), "button buttonLarge", "MyProjects", $this->request->getController(), "Delete", array("delete_confirm" => 1, $this->getVar("primary_key") => $this->getVar($this->getVar("primary_key"))));
 	print "&nbsp;&nbsp;&nbsp;&nbsp;";
-	print caNavLink($this->request, _t("No"), "button buttonLarge", "MyProjects", $this->request->getController(), "Index");
+	print caNavLink($this->request, _t("No"), "button buttonLarge", "MyProjects", $this->request->getController(), "listItems");
 	print "</div><!-- end deleteConfirmBox -->"
 ?>

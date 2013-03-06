@@ -38,10 +38,13 @@
 	</div><!-- end dashboardAbstract -->
 	<div class="dashboardButtons">
 <?php
-	print caNavLink($this->request, _t("New Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1));
+	print caNavLink($this->request, _t("New Project"), "button buttonSmall", "MyProjects", "Project", "form", array("new_project" => 1));
 	if($this->request->user->get("user_id") == $t_project->get("user_id")){
-		print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonLarge", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
-		print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonLarge", "MyProjects", "Members", "listForm");
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
+	}
+	if($this->getVar("num_projects") > 1){
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
 	}
 ?>
 	</div>
@@ -49,9 +52,9 @@
 <div id="dashboardColRight">
 	<div class="dashboardButtons">
 <?php
-	print caNavLink($this->request, _t("Specimens"), "button buttonLarge", "MyProjects", "Specimens", "list");
-	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Bibliography"), "button buttonLarge", "MyProjects", "Bibliography", "list");
-	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Taxonomy"), "button buttonLarge", "MyProjects", "Taxonomy", "list");
+	print caNavLink($this->request, _t("Specimens"), "button buttonLarge", "MyProjects", "Specimens", "listItems");
+	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Bibliography"), "button buttonLarge", "MyProjects", "Bibliography", "listItems");
+	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Taxonomy"), "button buttonLarge", "MyProjects", "Taxonomy", "listItems");
 ?>
 	</div>
 	<div class="tealRule"><!-- empty --></div>
@@ -89,3 +92,19 @@
 		<H2>Created On</H2>
 	</div>
 </div><!-- end dashboardColRight -->
+<div id="dashboardMedia">
+	<div class="tealRule"><!-- empty --></div>
+	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("New Media"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div>
+	<H1>Project Media</H1>
+<?php
+	$qr_project_media = $t_project->getProjectMedia();
+	if($qr_project_media->numRows()){
+		while($qr_project_media->nextRow()){
+			print "<div class='projectMedia'>".caNavLink($this->request, $qr_project_media->getMediaTag("media", "preview190"), "", "MyProjects", "Media", "mediaInfo", array("media_id" => $qr_project_media->get("media_id")));
+			print "<span class='mediaID'>M".$qr_project_media->get("media_id")."</span></div><!-- end projectMedia -->";
+		}
+	}else{
+		print "<H2>"._t("Your project has no media.  Use the \"NEW MEDIA\" button to upload media files to your project.")."</H2>";
+	}
+?>
+</div><!-- end dashboardMedia -->

@@ -53,7 +53,7 @@
 			<ul class="mainNav">
 				<li><?php print caNavLink($this->request, _t("About"), "", "", "", ""); ?></li>
 				<li><a href="#">Browse</a></li>
-				<li><?php print caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "projectList"); ?></li>
+				<li><?php print ($this->request->session->getVar('current_project_id')) ? caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "dashboard") : caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "projectList"); ?></li>
 			</ul>
 			<ul class="subNav">
 <?php
