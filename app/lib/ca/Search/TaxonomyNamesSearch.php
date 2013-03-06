@@ -1,6 +1,6 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/lib/ca/Search/PlaceSearch.php :
+ * app/lib/ca/Search/TaxonomyNamesSearch.php :
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -35,19 +35,20 @@
   */
 
 include_once(__CA_LIB_DIR__."/ca/Search/BaseSearch.php");
-include_once(__CA_LIB_DIR__."/ca/Search/PlaceSearchResult.php");
+include_once(__CA_LIB_DIR__."/ca/Search/TaxonomyNamesSearchResult.php");
 
-class PlaceSearch extends BaseSearch {
+class TaxonomyNamesSearch extends BaseSearch {
 	# ----------------------------------------------------------------------
 	/**
 	 * Which table does this class represent?
 	 */
-	protected $ops_tablename = "ca_places";
-	protected $ops_primary_key = "place_id";
-
+	protected $ops_tablename = "ms_taxonomy_names";
+	protected $ops_primary_key = "alt_id";
+	
 	# ----------------------------------------------------------------------
 	public function &search($ps_search, $pa_options=null) {
-		return parent::doSearch($ps_search, new PlaceSearchResult(), $pa_options);
+		return parent::doSearch($ps_search, new TaxonomyNamesSearchResult(), $pa_options);
 	}
 	# ----------------------------------------------------------------------
 }
+?>

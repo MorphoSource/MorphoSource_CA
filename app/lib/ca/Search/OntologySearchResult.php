@@ -1,13 +1,13 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/lib/ca/Search/PlaceSearch.php :
+ * app/lib/ca/Search/OntologySearchResult.php :
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2008-2013 Whirl-i-Gig
+ * Copyright 2009 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -34,20 +34,21 @@
   *
   */
 
-include_once(__CA_LIB_DIR__."/ca/Search/BaseSearch.php");
-include_once(__CA_LIB_DIR__."/ca/Search/PlaceSearchResult.php");
+include_once(__CA_LIB_DIR__."/ca/Search/BaseSearchResult.php");
 
-class PlaceSearch extends BaseSearch {
-	# ----------------------------------------------------------------------
+class OntologySearchResult extends BaseSearchResult {
+	# -------------------------------------
 	/**
-	 * Which table does this class represent?
+	 * Name of table for this type of search subject
 	 */
-	protected $ops_tablename = "ca_places";
-	protected $ops_primary_key = "place_id";
-
-	# ----------------------------------------------------------------------
-	public function &search($ps_search, $pa_options=null) {
-		return parent::doSearch($ps_search, new PlaceSearchResult(), $pa_options);
+	protected $ops_table_name = 'ms_ontology';
+	# -------------------------------------
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		parent::__construct();
 	}
-	# ----------------------------------------------------------------------
+	# -------------------------------------
 }
+?>
