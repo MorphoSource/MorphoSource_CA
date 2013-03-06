@@ -44,14 +44,14 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'LABEL' => _t('Specimen reference id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this specimen.')
 		),
 		'project_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
@@ -71,7 +71,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'institution_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
+				"IS_NULL" => TRUE, "DEFAULT" => "",
 				"LABEL" => "Find the institution for this specimen", "DESCRIPTION" => "Enter words from the name or location of the institution<br /> and select institution from resulting list of possible matches."
 		),
 		'institution_code' => array(
@@ -79,7 +79,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Institution ode'), 'DESCRIPTION' => _t('Institution code of specimen.'),
+				'LABEL' => _t('Institution code'), 'DESCRIPTION' => _t('Institution code of specimen.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'collection_code' => array(
@@ -101,7 +101,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'sex' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Sex'), 'DESCRIPTION' => _t('Sex of specimen.'),
 				"BOUNDS_CHOICE_LIST"=> array(
@@ -112,7 +112,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'element' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
 				'BOUNDS_LENGTH' => array(0,255)
@@ -120,7 +120,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'side' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
 				'BOUNDS_LENGTH' => array(0,255)
@@ -136,7 +136,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Relative age'), 'DESCRIPTION' => _t('Specimen\'s relative age.'),
 				'BOUNDS_LENGTH' => array(0,255)
@@ -144,7 +144,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 45, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Absolute age'), 'DESCRIPTION' => _t('Specimen\'s absolute age.'),
 				'BOUNDS_LENGTH' => array(0,45)
@@ -152,7 +152,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'body_mass' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 45, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass'), 'DESCRIPTION' => _t('Specimen\'s body mass'),
 				'BOUNDS_LENGTH' => array(0,45)
@@ -160,7 +160,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'body_mass_comments' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass comments'), 'DESCRIPTION' => _t('Comments about the specimen\'s body mass.'),
 				'BOUNDS_LENGTH' => array(0,65535)
@@ -168,13 +168,13 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'body_mass_bibref_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
+				"IS_NULL" => TRUE, "DEFAULT" => "",
 				"LABEL" => "Find body mass bibliographic reference", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
 		),
 		'locality_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
@@ -182,7 +182,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'locality_coordinates' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality coordinates'), 'DESCRIPTION' => _t('Coordinates of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
@@ -190,7 +190,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'locality_absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality absolute age'), 'DESCRIPTION' => _t('Absolute age of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
@@ -198,13 +198,13 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'locality_absolute_age_bibref_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
+				"IS_NULL" => TRUE, "DEFAULT" => "",
 				"LABEL" => "Find bibliographic reference for the absolute age", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
 		),
 		'locality_relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
@@ -212,7 +212,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		'locality_relative_age_bibref_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
+				"IS_NULL" => TRUE, "DEFAULT" => "",
 				"LABEL" => "Find bibliographic reference for the relative age", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
 		),
 		'approval_status' => array(
@@ -274,7 +274,7 @@ class ms_specimens extends BaseModel {
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ' ';
+	protected $LIST_DELIMITER = ' - ';
 
 
 	# What you'd call a single record from this table (eg. a "person")

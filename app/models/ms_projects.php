@@ -352,5 +352,20 @@ class ms_projects extends BaseModel {
 		return $vn_num_citations;
 	}
 	# ----------------------------------------
+	function getProjectMedia() {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT m.media_id, m.media
+			FROM ms_media m
+			WHERE m.project_id = ?
+			ORDER BY m.media_id
+		", $vn_project_id);
+
+		return $qr;
+	}
+	# ----------------------------------------
 }
 ?>

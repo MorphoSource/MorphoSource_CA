@@ -44,35 +44,23 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => _t('Media id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this media')
 		),
 		'project_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'Media id', 'DESCRIPTION' => 'User that uploaded media'
 		),
-		'specimen_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
-				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
-				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
-		),
-		'facility_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
-				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, "DEFAULT" => "",
-				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
-		),
 		'media' => array(
 				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_FIELD, 
 				"DISPLAY_WIDTH" => 50, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => 0, 
+				"IS_NULL" => false, 
 				"DEFAULT" => "",
 				
 				"MEDIA_PROCESSING_SETTING" => 'media_files',
@@ -87,6 +75,22 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the media file.'),
 				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'specimen_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+				"DISPLAY_FIELD" => array('ms_specimens.institution_code', 'ms_specimens.collection_code', 'ms_specimens.catalog_number'), 
+				"DISPLAY_ORDERBY" => array('ms_specimens.institution_code', 'ms_specimens.collection_code', 'ms_specimens.catalog_number'),
+				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => false, "DEFAULT" => "",
+				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
+		),
+		'facility_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+				"DISPLAY_FIELD" => array('ms_facilities.name'), 
+				"DISPLAY_ORDERBY" => array('ms_facilities.name'),
+				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => false, "DEFAULT" => "",
+				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
 		),
 		'is_copyrighted' => array(
 				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
@@ -124,12 +128,11 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				)
 		),
 		'media_metadata' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_OMIT, 
 				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Metadata from media file'), 'DESCRIPTION' => _t('Metadata from media file.'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'LABEL' => _t('Metadata from media file'), 'DESCRIPTION' => _t('Metadata from media file.')
 		),
 		'scanner_type' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 

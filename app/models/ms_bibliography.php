@@ -33,8 +33,8 @@
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
- 	'NAME_SINGULAR' 	=> _t('project'),
- 	'NAME_PLURAL' 		=> _t('projects'),
+ 	'NAME_SINGULAR' 	=> _t('bibliographic citation'),
+ 	'NAME_PLURAL' 		=> _t('bibliographic citations'),
  	'FIELDS' 			=> array(
  		'bibref_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
@@ -44,28 +44,43 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 				'LABEL' => _t('bibliographic reference id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this bibliographic citation')
 		),
 		'project_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => 'Row id', 'DESCRIPTION' => 'Project administrator'
 		),
 		'reference_type' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => 0,
-				'LABEL' => _t('Reference type'), 'DESCRIPTION' => _t('Reference type'),
-				"BOUNDS_CHOICE_LIST"=> array(
-					_t('Reference 1') 	=> 1,
-					_t('Reference 2')	=> 2
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT,
+				'DISPLAY_WIDTH' => 100, 'DISPLAY_HEIGHT' => 3,
+				'IS_NULL' => false,
+				'DEFAULT' => '',
+				'LABEL' => 'Reference type',
+				'DESCRIPTION' => 'Choose the most specific reference type that is appropriate for the reference. If you are unsure, choose &quot;Generic&quot;.',
+				'BOUNDS_CHOICE_LIST' => array(
+					"Generic" => 0,
+					"Journal Article" => 1,
+					"Book" => 2,
+					"Book Section" => 3,
+					"Manuscript" => 4,
+					"Edited Book" => 5,
+					"Magazine Article" => 6,
+					"Newspaper Article" => 7,
+					"Conference Proceedings" => 8,
+ 					"Thesis" => 9,
+					"Report" => 10,
+					"Personal Communication" => 11,
+					"Electronic Source" => 13,
+					"Audiovisual Material" => 14,
+					"Artwork" => 16,
+					"Map" => 17
 				)
 		),
 		'article_title' => array(
@@ -322,12 +337,12 @@ class ms_bibliography extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('article_title');
+	protected $LIST_FIELDS = array('authors', 'article_title');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ' ';
+	protected $LIST_DELIMITER = ', ';
 
 
 	# What you'd call a single record from this table (eg. a "person")
@@ -338,7 +353,7 @@ class ms_bibliography extends BaseModel {
 
 	# List of fields to sort listing of records by; you can use 
 	# SQL 'ASC' and 'DESC' here if you like.
-	protected $ORDER_BY = array('article_title');
+	protected $ORDER_BY = array('authors');
 
 	# If you want to order records arbitrarily, add a numeric field to the table and place
 	# its name here. The generic list scripts can then use it to order table records.
@@ -379,6 +394,109 @@ class ms_bibliography extends BaseModel {
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
+	}
+	# ----------------------------------------
+	function getCitationText($pa_record=null) {
+		$va_titles = array();
+		if (is_array($pa_record)) {
+			if(trim($pa_record['article_title'])) { $va_titles['article_title'] = trim($pa_record['article_title']); }
+			if(trim($pa_record['article_secondary_title'])) { $va_titles['article_secondary_title'] = trim($pa_record['article_secondary_title']); }
+			if(trim($pa_record['journal_title'])) { $va_titles['journal_title'] = trim($pa_record['journal_title']); }
+			if(trim($pa_record['monograph_title'])) { $va_titles['monograph_title'] = trim($pa_record['monograph_title']); }
+			
+			$vn_reference_id = intval($pa_record['reference_id']);
+			$vs_article_title = trim($pa_record['article_title']);
+			$vs_journal_title = trim($pa_record['journal_title']);
+			$vs_monograph_title = trim($pa_record['monograph_title']);
+			
+			$vs_authors = trim($pa_record['authors']);
+			$vs_editors = trim($pa_record['editors']);
+			$vs_secondary_authors = trim($pa_record['secondary_authors']);
+			$vn_pubdate = trim($pa_record['pubyear']);
+			$vs_publisher = trim($pa_record['publisher']);
+			$vs_place_of_publication = trim($pa_record['place_of_publication']);
+			$vn_volume = trim($pa_record['vol']);
+			$vn_num = trim($pa_record['num']);
+			$vs_section = trim($pa_record['sect']);
+			$vs_edition = trim($pa_record['edition']);
+			$vs_collation = trim($pa_record['collation']);
+			$vs_reference_type = intval($pa_record['reference_type']);
+			
+		} else {
+			if ($vs_tmp = trim($this->get('article_title'))) { $va_titles['article_title'] = $vs_tmp; }
+			if ($vs_tmp = trim($this->get('article_secondary_title'))) { $va_titles['article_secondary_title'] = $vs_tmp; }
+			if ($vs_tmp = trim($this->get('journal_title'))) { $va_titles['journal_title'] = $vs_tmp; }
+			if ($vs_tmp = trim($this->get('monograph_title'))) { $va_titles['monograph_title'] = $vs_tmp; }
+			
+			$vn_reference_id = intval($this->get('reference_id'));
+			$vs_article_title = trim($this->get('article_title'));
+			$vs_journal_title = trim($this->get('journal_title'));
+			$vs_monograph_title = trim($this->get('monograph_title'));
+		
+			$vs_authors = trim($this->get('authors'));
+			$vs_editors = trim($this->get('editors'));
+			$vs_secondary_authors = trim($this->get('secondary_authors'));
+			$vn_pubdate = trim($this->get('pubyear'));
+			$vs_publisher = trim($this->get('publisher'));
+			$vs_place_of_publication = trim($this->get('place_of_publication'));
+			$vn_volume = trim($this->get('vol'));
+			$vn_num = trim($this->get('num'));
+			$vs_edition = trim($this->get('edition'));
+			$vs_section = trim($this->get('sect'));
+			$vs_collation = trim($this->get('collation'));
+			$vs_reference_type = intval($this->get('reference_type'));
+
+		}
+		
+		$vs_citation = '';
+		if ($vs_authors) { $vs_citation = $vs_authors.((preg_match("/\.$/", $vs_authors)) ? ' ' : '. '); }
+		if ($vs_secondary_authors) { $vs_citation .= $vs_secondary_authors.((preg_match("/\.$/", $vs_secondary_authors)) ? ' ' : '. '); }
+		if ($vn_pubdate) { $vs_citation .= $vn_pubdate.'. '; }
+		//if ($vs_article_title) { $vs_citation .= $vs_article_title.'. '; }
+		//if ($vs_journal_title) { $vs_citation .= $vs_journal_title.'. '; }
+		//if ($vs_monograph_title) { $vs_citation .= $vs_monograph_title.'. '; }
+		foreach($va_titles as $vs_type=>$vs_title) {
+			if($vs_type == 'journal_title')
+				$vs_citation .= ($vs_reference_type == 5 ||  $vs_reference_type == 3 || $vs_reference_type == 2 ? 'In ' : '') ."<em>".  $vs_title."</em>";
+			else
+				$vs_citation .= $vs_title;
+			if (!preg_match("/\.$/", $vs_title)) {
+				$vs_citation .= '.';
+			}
+			$vs_citation .= ' ';
+		}
+		
+		if ($vn_volume) { 
+			$vs_citation .= 'Vol. '. $vn_volume;
+		}
+		if ($vn_num) { $vs_citation .= '('.$vn_num.')'; }
+
+		if ($vs_collation) {
+			$vs_citation .= ( $vn_volume ? ', ' : ' ').(preg_match('/[\-\,]/', $vs_collation) ? ' pp. ' : ' p. ') .$vs_collation;
+		}
+		
+		if ($vs_editors) {
+			$vs_citation .= ( $vs_collation ? ', ': ' in ').$vs_editors.' <i>ed</i>';
+		}
+		if ($vn_volume || $vn_num || $vs_collation || $vs_editors) {
+			$vs_citation .= '. ';
+		}
+		if ($vs_section) { $vs_citation .= ' Section: '.$vs_section.'. '; }
+		if ($vs_edition) { $vs_citation .= ' Edition: '.$vs_edition.'. '; }
+		
+		if ($vs_publisher) { $vs_citation .= $vs_publisher; }
+		if ($vs_place_of_publication) { 
+			if ($vs_publisher) {
+				$vs_citation .= ',';
+			}
+			$vs_citation .= ' '.$vs_place_of_publication.'. '; 
+		} else {
+			if ($vs_publisher) {
+				$vs_citation .= '. ';
+			}
+		}
+		
+		return $vs_citation;
 	}
 	# ----------------------------------------
 }
