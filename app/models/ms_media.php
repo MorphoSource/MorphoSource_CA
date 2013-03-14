@@ -77,10 +77,8 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'specimen_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
-				"DISPLAY_FIELD" => array('ms_specimens.institution_code', 'ms_specimens.collection_code', 'ms_specimens.catalog_number'), 
-				"DISPLAY_ORDERBY" => array('ms_specimens.institution_code', 'ms_specimens.collection_code', 'ms_specimens.catalog_number'),
-				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
+				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => false, "DEFAULT" => "",
 				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
 		),

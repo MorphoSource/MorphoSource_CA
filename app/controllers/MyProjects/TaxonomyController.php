@@ -39,11 +39,14 @@
 			protected $ops_project_name;
 			
 			protected $opo_item;
+			protected $opo_item2;
 			protected $opn_item_id;
+			protected $opn_item2_id;
 			protected $ops_item_name;
 			protected $ops_name_singular;
 			protected $ops_name_plural;
 			protected $ops_primary_key;
+			protected $ops_primary_key2;
 
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
@@ -71,8 +74,8 @@
  			}
 			$this->view->setvar("project", $this->opo_project);
 			
-			# --- load the bib object
-			$this->opo_item = new ms_taxonomy();
+			# --- load the object
+			$this->opo_item = new ms_taxonomy_names();
 			$this->opn_item_id = $this->request->getParameter($this->opo_item->getProperty("PRIMARY_KEY"), pInteger);
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
@@ -99,6 +102,17 @@
 			}
 			$this->view->setvar("item_name", $this->ops_item_name);
 			
+			# --- load info for ms_taxonomy - some form elements will also show up in the taxonomy form
+			$this->opo_item2 = new ms_taxonomy();
+			if($this->opo_item->get("taxon_id")){
+				$this->opo_item2_id = $this->opo_item->get("taxon_id");
+				$this->opo_item2->load($this->opn_item2_id);
+			}
+			$this->view->setvar("item2", $this->opo_item2);
+			$this->ops_primary_key2 = $this->opo_item2->getProperty("PRIMARY_KEY");
+			$va_list_fields2 = $this->opo_item2->getProperty("LIST_FIELDS");
+			$this->view->setvar("list_fields2", $va_list_fields2);
+			
  		}
  		# -------------------------------------------------------
  		public function form() {
@@ -107,17 +121,46 @@
  		# -------------------------------------------------------
  		public function listItems() {
 			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_taxonomy WHERE project_id = ? ORDER BY authors", $this->opn_project_id);
+			$q_listings = $o_db->query("SELECT tn.* FROM ms_taxonomy_names tn WHERE tn.project_id = ? ORDER BY tn.variety, tn.species, tn.subspecies", $this->opn_project_id);
 			$this->view->setVar("listings", $q_listings);
 			$this->render('Taxonomy/list_html.php');
  		}
  		# -------------------------------------------------------
  		public function save() {
 			# get names of form fields
-			$va_fields = $this->opo_item->getFormFields();
+			$va_fields2 = $this->opo_item2->getFormFields();
 			$va_errors = array();
-			# loop through fields
 			
+			# loop through ms_taxonomy fields
+			while(list($vs_f,$va_attr) = each($va_fields2)) {
+				switch($vs_f) {
+					# -----------------------------------------------
+					case 'project_id':
+						if(!$this->opo_item2->get("project_id")){
+							$this->opo_item2->set($vs_f,$this->opn_project_id);
+						}
+						break;
+					# -----------------------------------------------
+					case 'user_id':
+						if(!$this->opo_item2->get("user_id")){
+							$this->opo_item2->set($vs_f,$this->request->user->get("user_id"));
+						}
+						break;
+					# -----------------------------------------------
+					default:
+						$this->opo_item2->set($vs_f,$_REQUEST[$vs_f]); # set field values
+						break;
+					# -----------------------------------------------
+				}
+				if ($this->opo_item2->numErrors() > 0) {
+					foreach ($this->opo_item2->getErrors() as $vs_e) {
+						$va_errors[$vs_f] = $vs_e;
+					}
+				}
+			}
+
+			$va_fields = $this->opo_item->getFormFields();
+			# loop through ms_taxonomy_names fields
 			while(list($vs_f,$va_attr) = each($va_fields)) {
 				
 				switch($vs_f) {
@@ -126,6 +169,11 @@
 						if(!$this->opo_item->get("project_id")){
 							$this->opo_item->set($vs_f,$this->opn_project_id);
 						}
+						break;
+					# -----------------------------------------------
+					case 'taxon_id':
+						# --- set taxon_id after insert ms_taxonomy
+						continue;
 						break;
 					# -----------------------------------------------
 					case 'user_id':
@@ -145,9 +193,31 @@
 					}
 				}
 			}
+			
+			
+					
+			if (sizeof($va_errors) == 0) {
+				# do insert or update for ms_taxonomy
+				$this->opo_item2->setMode(ACCESS_WRITE);
+				if ($this->opo_item2->get($this->ops_primary_key2)){
+					$this->opo_item2->update();
+				} else {
+					$this->opo_item2->insert();
+				}	
+				if ($this->opo_item2->numErrors()) {
+					foreach ($this->opo_item2->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					# --- set taxon_id for ms_taxonomy_names
+					if(!$this->opo_item->get("taxon_id") && $this->opo_item2->get("taxon_id")){
+						$this->opo_item->set("taxon_id",$this->opo_item2->get("taxon_id"));
+					}
+				}
+			}
 		
 			if (sizeof($va_errors) == 0) {
-				# do insert or update
+				# do insert or update for ms_taxonomy_names
 				$this->opo_item->setMode(ACCESS_WRITE);
 				if ($this->opo_item->get($this->ops_primary_key)){
 					$this->opo_item->update();

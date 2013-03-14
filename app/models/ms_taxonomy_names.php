@@ -33,8 +33,8 @@
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
- 	'NAME_SINGULAR' 	=> _t('taxon name'),
- 	'NAME_PLURAL' 		=> _t('taxa name'),
+ 	'NAME_SINGULAR' 	=> _t('taxon'),
+ 	'NAME_PLURAL' 		=> _t('taxonomy'),
  	'FIELDS' 			=> array(
  		'alt_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
@@ -106,7 +106,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_supraspecific_clade' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic supraspecific clade'), 'DESCRIPTION' => _t('Higher taxonomic supraspecific clade.'),
@@ -114,7 +114,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_kingdom' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic kingdom'), 'DESCRIPTION' => _t('Higher taxonomic kingdom.'),
@@ -122,7 +122,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_phylum' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic phylum'), 'DESCRIPTION' => _t('Higher taxonomic phylum.'),
@@ -130,7 +130,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_class' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic class'), 'DESCRIPTION' => _t('Higher taxonomic class.'),
@@ -138,7 +138,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_subclass' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic subclass'), 'DESCRIPTION' => _t('Higher taxonomic subclass.'),
@@ -146,7 +146,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_order' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic order'), 'DESCRIPTION' => _t('Higher taxonomic order.'),
@@ -154,7 +154,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_suborder' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic suborder'), 'DESCRIPTION' => _t('Higher taxonomic suborder.'),
@@ -162,7 +162,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_superfamily' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic superfamily'), 'DESCRIPTION' => _t('Higher taxonomic superfamily.'),
@@ -170,7 +170,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_family' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic family'), 'DESCRIPTION' => _t('Higher taxonomic family.'),
@@ -178,7 +178,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_subfamily' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Higher taxonomic subfamily'), 'DESCRIPTION' => _t('Higher taxonomic subfamily.'),
@@ -186,7 +186,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'source_info' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 3,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Source information'), 'DESCRIPTION' => _t('Source information.'),
@@ -194,7 +194,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 3,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),
@@ -209,7 +209,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'justification' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 3,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Justification'), 'DESCRIPTION' => _t('Justification for why this should be the promary name for the taxon.'),
@@ -235,16 +235,16 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'reviewed_on' => array(
-				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,
+				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Reviewed on'), 'DESCRIPTION' => _t('Date taxonomic name was reviewed on.'),
 		),
 		'reviewed_by_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => 'name reviewed by', 'DESCRIPTION' => 'User id of reviewer'
 		),
@@ -291,12 +291,12 @@ class ms_taxonomy_names extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('species', 'subspecies');
+	protected $LIST_FIELDS = array('variety', 'species', 'subspecies');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ' ';
+	protected $LIST_DELIMITER = ', ';
 
 
 	# What you'd call a single record from this table (eg. a "person")
@@ -307,7 +307,7 @@ class ms_taxonomy_names extends BaseModel {
 
 	# List of fields to sort listing of records by; you can use 
 	# SQL 'ASC' and 'DESC' here if you like.
-	protected $ORDER_BY = array('species', 'subspecies');
+	protected $ORDER_BY = array('variety', 'species', 'subspecies');
 
 	# If you want to order records arbitrarily, add a numeric field to the table and place
 	# its name here. The generic list scripts can then use it to order table records.

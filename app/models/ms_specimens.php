@@ -76,31 +76,47 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'institution_code' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Institution code'), 'DESCRIPTION' => _t('Institution code of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'collection_code' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Collection code'), 'DESCRIPTION' => _t('Collection code of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'catalog_number' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Catalog number'), 'DESCRIPTION' => _t('Catalog number of specimen.'),
+				'BOUNDS_LENGTH' => array(1,255)
+		),
+		'element' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'side' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'sex' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Sex'), 'DESCRIPTION' => _t('Sex of specimen.'),
@@ -109,25 +125,9 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 					_t('Female')	=> 'F'
 				)
 		),
-		'element' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => TRUE, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
-		),
-		'side' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => TRUE, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
-		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 68, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),
@@ -135,7 +135,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Relative age'), 'DESCRIPTION' => _t('Specimen\'s relative age.'),
@@ -143,7 +143,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 45, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 33, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Absolute age'), 'DESCRIPTION' => _t('Specimen\'s absolute age.'),
@@ -151,7 +151,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'body_mass' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 45, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass'), 'DESCRIPTION' => _t('Specimen\'s body mass'),
@@ -159,7 +159,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'body_mass_comments' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass comments'), 'DESCRIPTION' => _t('Comments about the specimen\'s body mass.'),
@@ -173,7 +173,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
@@ -181,7 +181,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_coordinates' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality coordinates'), 'DESCRIPTION' => _t('Coordinates of the locality of the specimen.'),
@@ -189,7 +189,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality absolute age'), 'DESCRIPTION' => _t('Absolute age of the locality of the specimen.'),
@@ -203,7 +203,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),
@@ -216,7 +216,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"LABEL" => "Find bibliographic reference for the relative age", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
 		),
 		'approval_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
@@ -274,7 +274,7 @@ class ms_specimens extends BaseModel {
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ' - ';
+	protected $LIST_DELIMITER = '/';
 
 
 	# What you'd call a single record from this table (eg. a "person")

@@ -35,9 +35,9 @@
   */
 
 include_once(__CA_LIB_DIR__."/ca/Search/BaseSearch.php");
-include_once(__CA_LIB_DIR__."/ca/Search/SpecimensSearchResult.php");
+include_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearchResult.php");
 
-class SpecimensSearch extends BaseSearch {
+class SpecimenSearch extends BaseSearch {
 	# ----------------------------------------------------------------------
 	/**
 	 * Which table does this class represent?
@@ -47,7 +47,7 @@ class SpecimensSearch extends BaseSearch {
 	
 	# ----------------------------------------------------------------------
 	public function &search($ps_search, $pa_options=null) {
-		return parent::doSearch($ps_search, new SpecimensSearchResult(), $pa_options);
+		return parent::doSearch($ps_search, new SpecimenSearchResult(), $pa_options);
 	}
 	# ----------------------------------------------------------------------
 }

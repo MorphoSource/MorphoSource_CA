@@ -501,14 +501,16 @@ H2{
 	float:right;
 	width:420px;
 }
+#mediaInfo #rightCol .tealRule{
+	margin-bottom:10px;
+}
 #mediaInfo #rightCol #newMediaButton{
 	text-align:right;
-	padding:15px 0px 15px 0px;
-	
+	padding:15px 0px 15px 0px;	
 }
-#mediaSpecimenInfo H2{
-	padding-top: 8px;
-	padding-bottom: 8px;
+#mediaSpecimenInfo .listItemLtBlue, #mediaBibliographyInfo .listItemLtBlue{
+	font-family: 'neuzeitlgt', sans-serif;
+	padding-left:10px;
 }
 
 /* form */
@@ -516,7 +518,12 @@ H2{
 	font-weight:bold;
 	margin:0px 0px 15px 10px;
 }
-#formArea input {
+#formArea .formLabelFloat{
+	float:left;
+	font-weight:bold;
+	margin:0px 0px 15px 10px;
+}
+#formArea input{
 	font-family: 'helvetica', sans-serif;
 	font-size:11px;
 	font-weight: normal;
@@ -541,4 +548,17 @@ H2{
 	text-align:center;
 	font-size:14px;
 	width:500px;
+}
+
+
+/* Autocomplete classes */
+input.lookupBg, textarea.lookupBg {
+	background-image: url('../graphics/icons/formBgLookup.gif');
+	background-repeat:no-repeat;
+	background-position:right center;
+	padding-right:15px;
+}
+
+.ui-autocomplete-loading {
+	background: white url('../graphics/icons/indicator.gif') right center no-repeat !important;
 }

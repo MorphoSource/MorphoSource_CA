@@ -29,6 +29,9 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class MediaController extends ActionController {
@@ -179,7 +182,148 @@
  		}
  		# -------------------------------------------------------
  		public function specimenLookup() {
+ 			# --- pass the name of the current specimen
+ 			if($this->opo_item->get("specimen_id")){
+ 				$t_specimen = new ms_specimens();
+ 				$t_specimen->load($this->opo_item->get("specimen_id"));
+ 				$va_name = array();
+ 				if($t_specimen->get("institution_code")){
+ 					$va_name[] = $t_specimen->get("institution_code");
+ 				}
+ 				if($t_specimen->get("collection_code")){
+ 					$va_name[] = $t_specimen->get("collection_code");
+ 				}
+ 				if($t_specimen->get("catalog_number")){
+ 					$va_name[] = $t_specimen->get("catalog_number");
+ 				}
+ 				$vs_specimen_name = implode("/", $va_name);
+ 				if($vs_specimen_name){
+ 					$this->view->setVar("specimen_name", $vs_specimen_name);
+ 				}
+ 				$ps_new_message = $this->request->getParameter('message', pString);
+ 				$this->view->setVar("new_message", urldecode($ps_new_message));
+ 			}
  			$this->render('Media/media_specimen_form_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function linkSpecimen() {
+			$va_errors = array();
+			$vs_message = "";
+			# --- set specimen that is passed from lookup form
+			if($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)){
+				$this->opo_item->set("specimen_id",$pn_specimen_id);
+				if ($this->opo_item->numErrors() > 0) {
+					foreach ($this->opo_item->getErrors() as $vs_e) {
+						$va_errors["specimen_id"] = $vs_e;
+					}
+				}
+			}else{
+				$va_errors["general"] = _t("Please select a specimen");
+			}		
+			if (sizeof($va_errors) == 0) {
+				# do update
+				$this->opo_item->setMode(ACCESS_WRITE);
+				$this->opo_item->update();
+	
+				if ($this->opo_item->numErrors()) {
+					foreach ($this->opo_item->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					$vs_message = "Saved media specimen";
+				}
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->view->setVar("message", $vs_message);
+				$this->specimenLookup();
+			}else{
+				$this->opn_item_id = $this->opo_item->get("media_id");
+				$this->view->setVar("item_id", $this->opn_item_id);
+				$this->view->setVar("item", $this->opo_item);
+				$this->view->setVar("message", $vs_message);
+				$this->specimenLookup();
+			} 			 			
+ 		}
+  		# -------------------------------------------------------
+ 		public function bibliographyLookup() {
+ 			# --- pass the list of linked bib citations
+ 			$va_bib_citations = array();
+ 			if($this->opn_item_id){
+ 				$o_db = new Db();
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
+ 				$t_bibliography = new ms_bibliography;
+ 				if($q_bib->numRows()){
+ 					while($q_bib->nextRow()){
+ 						$va_bib_citations[$q_bib->get("link_id")] = $t_bibliography->getCitationText($q_bib->getRow());
+ 					}
+ 				}
+ 				$this->view->setVar("bib_citations", $va_bib_citations);
+ 				$ps_new_message = $this->request->getParameter('message', pString);
+ 				$this->view->setVar("new_message", urldecode($ps_new_message));
+ 			}
+ 			$this->render('Media/media_bibliography_form_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function linkBibliography() {
+			$va_errors = array();
+			$vs_message = "";
+			# --- make link to bib that is passed from lookup form
+			if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
+				$t_bib_link = new ms_media_x_bibliography();
+				# --- check that there is not already a link to this bib ref
+				if($t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $this->opn_item_id))){
+					$va_errors["general"] = "There is already a link to this bibliographic citation";
+				}else{
+					$t_bib_link->set("bibref_id",$pn_bibliography_id);
+					$t_bib_link->set("media_id",$this->opn_item_id);
+					$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+					if ($t_bib_link->numErrors() > 0) {
+						foreach ($t_bib_link->getErrors() as $vs_e) {
+							$va_errors["bibliography_id"] = $vs_e;
+						}
+					}
+				}
+			}else{
+				$va_errors["general"] = _t("Please select a bibliography");
+			}		
+			if (sizeof($va_errors) == 0) {
+				# do insert
+				$t_bib_link->setMode(ACCESS_WRITE);
+				$t_bib_link->insert();
+	
+				if ($t_bib_link->numErrors()) {
+					foreach ($t_bib_link->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					$vs_message = "Saved media bibliography";
+				}
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->view->setVar("message", $vs_message);
+				$this->bibliographyLookup();
+			}else{
+				$this->opn_item_id = $this->opo_item->get("media_id");
+				$this->view->setVar("message", $vs_message);
+				$this->bibliographyLookup();
+			} 			 		
+ 		}
+ 		# -------------------------------------------------------
+ 		public function removeBibliography() {
+ 			if($pn_link_id = $this->request->getParameter('link_id', pInteger)){
+ 				$t_bib_link = new ms_media_x_bibliography($pn_link_id);
+ 				$t_bib_link->setMode(ACCESS_WRITE);
+ 				$t_bib_link->delete();
+				if ($t_bib_link->numErrors() > 0) {
+					foreach ($t_bib_link->getErrors() as $vs_e) {
+						$va_errors[] = $vs_e;
+					}
+					$this->view->setVar("message", join(", ", $va_errors));
+				}
+ 			}
+ 			$this->bibliographyLookup();
  		}
  		# -------------------------------------------------------
  		public function delete() {

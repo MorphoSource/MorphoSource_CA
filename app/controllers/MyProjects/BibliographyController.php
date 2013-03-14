@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class BibliographyController extends ActionController {
@@ -101,6 +102,7 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
+			$this->view->setVar("media_id", $this->request->getParameter('media_id', pInteger));
 			$this->render('Bibliography/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -159,7 +161,31 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
-					$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					# --- if a media_id has been passed to this form and the item is being inserted
+					# --- it means we are quick adding a bib in the context of the media form
+					# --- so load, set and save the ms_media_x_bibliography and if no errors, redirect to the media controller
+					if($pn_media_id = $this->request->getParameter('media_id', pInteger)){
+						$t_bib_link = new ms_media_x_bibliography();
+						$t_bib_link->set("bibref_id",$this->opo_item->get("bibref_id"));
+						$t_bib_link->set("media_id",$pn_media_id);
+						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+						$t_bib_link->setMode(ACCESS_WRITE);
+						$t_bib_link->insert();
+			
+						if ($t_bib_link->numErrors()) {
+							foreach ($t_bib_link->getErrors() as $vs_e) {  
+								$va_errors["general"] = $vs_e;
+							}
+							$vs_message = join(", ", $va_errors);
+						}else{
+							$vs_message = "Saved media bibliography";
+							# --- redirect to media controller
+							$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Media", "bibliographyLookup", array("message" => $vs_message, "media_id" => $pn_media_id)));
+							return;
+						}
+					}else{
+						$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					}
 				}
 			}
 			if(sizeof($va_errors) > 0){

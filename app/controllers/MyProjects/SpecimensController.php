@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class SpecimensController extends ActionController {
@@ -101,6 +102,7 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
+ 			$this->view->setVar("media_id", $this->request->getParameter('media_id', pInteger));
 			$this->render('Specimens/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -159,7 +161,29 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
-					$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					# --- if a media_id has been passed to this form and the item is being inserted
+					# --- it means we are quick adding a specimen in the context of the media form
+					# --- so load, set and save the media form and if no errors, redirect to the media controller
+					if($pn_media_id = $this->request->getParameter('media_id', pInteger)){
+						$t_media = new ms_media($pn_media_id);
+						$t_media->set("specimen_id",$this->opo_item->get("specimen_id"));
+						$t_media->setMode(ACCESS_WRITE);
+						$t_media->update();
+			
+						if ($t_media->numErrors()) {
+							foreach ($t_media->getErrors() as $vs_e) {  
+								$va_errors["general"] = $vs_e;
+							}
+							$vs_message = join(", ", $va_errors);
+						}else{
+							$vs_message = "Saved media specimen";
+						}
+						# --- redirect to media controller
+						$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Media", "specimenLookup", array("message" => $vs_message, "media_id" => $pn_media_id)));
+						return;
+					}else{
+						$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					}
 				}
 			}
 			if(sizeof($va_errors) > 0){

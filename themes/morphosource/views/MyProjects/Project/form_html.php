@@ -29,7 +29,7 @@ print caFormTag($this->request, 'save', 'projectForm', null, 'post', 'multipart/
 <?php
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
 		if($va_errors[$vs_f]){
-			print "<div class='formError'>".$va_errors[$vs_f]."</div>";
+			print "<div class='formErrors'>".$va_errors[$vs_f]."</div>";
 		}
 		switch($vs_f){
 			case "published_on":

@@ -1,6 +1,6 @@
 <?php
 /** ---------------------------------------------------------------------
- * themes/default/views/system/configuration_error_html.php : 
+ * themes/default/views/system/configuration_error_schema_update_html.php : 
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -32,39 +32,57 @@
 		$va_tmp = explode("/", str_replace("\\", "/", $_SERVER['SCRIPT_NAME']));
 		array_pop($va_tmp);
 		$vs_path = join("/", $va_tmp);
-		
-		if (!is_array($opa_error_messages)) {
-			$opa_error_messages = self::$opa_error_messages;
-		}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>CollectiveAccess configuration error display</title>
+	<title>CollectiveAccess database update</title>
 	<link href="<?php print $vs_path; ?>/themes/default/css/error.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 	<div id='box'>
 	<div id="logo"><img src="<?php print $vs_path ?>/themes/default/graphics/installLogo.gif"/></div><!-- end logo -->
 	<div id="content">
-		<?php print "<div class='error'>An error in your system configuration has been detected</div>
-			General installation instructions can be found
-			<a href='http://wiki.collectiveaccess.org/index.php?title=Installation_(Providence)' target='_blank'>here</a>.
-			For more specific hints on the existing issues please have a look at the messages below."; ?>
-		<br/><br/>
+		<div class='error'><?php print _t("Updating your database..."); ?></div>
 <?php
-foreach ($opa_error_messages as $vs_message):
+flush();
+$va_messages = self::performDatabaseSchemaUpdate();
+?>
+
+<?php
+	$vb_has_error = false;
+	foreach($va_messages as $vs_key => $vs_message) {
 ?>
 		<div class="permissionError">
+<?php
+		if(preg_match('!^error_!', $vs_key)) {
+			$vb_has_error = true;
+?>
 			<img src='<?php print $vs_path; ?>/themes/default/graphics/vorsicht.gif' class="permissionErrorIcon"/>
-			<?php print $vs_message; ?>
+<?php
+			print "{$vs_message}";
+		} else {
+?>
+			<img src='<?php print $vs_path; ?>/themes/default/graphics/info.gif' class="permissionErrorIcon"/>
+<?php
+			print "{$vs_message}";
+		}
+?>
 			<div style='clear:both; height:1px;'><!-- empty --></div>
 		</div>
-		<br/>
 <?php
-endforeach;
+	}
 ?>
-	
+
+<div class='contentSuccess' style='align: center;'>
+<?php
+	if ($vb_has_error) {
+		print _t("Errors occurred while performing the update. <a href='%1/index.php'>Return to the login screen</a>.", __CA_URL_ROOT__); 
+	} else {
+		print _t("Update complete. You can now <a href='%1/index.php'>log into your system</a>", __CA_URL_ROOT__); 
+	}
+?>
+</div>
 </div><!-- end content --></div><!-- end box -->
 </body>
 </html>

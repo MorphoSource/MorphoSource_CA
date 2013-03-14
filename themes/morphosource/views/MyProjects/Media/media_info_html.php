@@ -28,8 +28,15 @@
 	</div><!-- end leftCol -->
 	<div id="rightCol">
 		<div id="newMediaButton"><?php print caNavLink($this->request, _t("New Media"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div><!-- end newMediaButton -->
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Media Specimen</H2>
 		<div id="mediaSpecimenInfo">
 			<!-- load Specimen form here -->
+		</div><!-- end mediaSpecimenInfo -->
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Media Bibliography</H2>
+		<div id="mediaBibliographyInfo">
+			<!-- load Bib form here -->
 		</div><!-- end mediaSpecimenInfo -->
 	</div><!-- end rightCol -->
 </div><!-- end mediaInfo -->
@@ -38,6 +45,12 @@
 	jQuery(document).ready(function() {			
 		jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
+		);
+		return false;
+	});
+	jQuery(document).ready(function() {			
+		jQuery('#mediaBibliographyInfo').load(
+			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'bibliographyLookup', array('media_id' => $pn_media_id)); ?>'
 		);
 		return false;
 	});

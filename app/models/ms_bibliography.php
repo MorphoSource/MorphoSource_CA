@@ -85,15 +85,15 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'article_title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Article title'), 'DESCRIPTION' => _t('Article title.'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'BOUNDS_LENGTH' => array(1,65535)
 		),
 		'article_secondary_title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Article secondary title'), 'DESCRIPTION' => _t('Article secondary title.'),
@@ -101,7 +101,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'journal_title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Journal title'), 'DESCRIPTION' => _t('Journal title.'),
@@ -109,7 +109,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'monograph_title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Monograph title'), 'DESCRIPTION' => _t('Monograph title.'),
@@ -117,15 +117,15 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'authors' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 69, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Authors'), 'DESCRIPTION' => _t('Article authors.'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'BOUNDS_LENGTH' => array(1,65535)
 		),
 		'secondary_authors' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Secondary authors'), 'DESCRIPTION' => _t('Article secondary authors.'),
@@ -133,15 +133,23 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'editors' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Editors'), 'DESCRIPTION' => _t('Article editors.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
+		'author_address' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 69, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Author address'), 'DESCRIPTION' => _t('Author address'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
 		'vol' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Volume'), 'DESCRIPTION' => _t('Journal volume.'),
@@ -149,31 +157,39 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'num' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Number'), 'DESCRIPTION' => _t('Volume number.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
-		'publisher' => array(
+		'edition' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Publisher'), 'DESCRIPTION' => _t('Journal publisher.'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'LABEL' => _t('Edition'), 'DESCRIPTION' => _t('Edition.'),
+				'BOUNDS_LENGTH' => array(0,100)
 		),
 		'pubyear' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 4, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Publication year'), 'DESCRIPTION' => _t('Journal year of publication.'),
 				'BOUNDS_LENGTH' => array(0,4)
 		),
+		'publisher' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Publisher'), 'DESCRIPTION' => _t('Journal publisher.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
 		'place_of_publication' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Place of publication'), 'DESCRIPTION' => _t('Place of journal publication.'),
@@ -181,7 +197,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'abstract' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 68, 'DISPLAY_HEIGHT' => 3,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Abstract'), 'DESCRIPTION' => _t('Article abstract.'),
@@ -189,7 +205,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 68, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Article description.'),
@@ -197,108 +213,92 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'collation' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Collation'), 'DESCRIPTION' => _t('Article collation.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
-		'external_identifier' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('External identifier'), 'DESCRIPTION' => _t('External identifier.'),
-				'BOUNDS_LENGTH' => array(0,65535)
-		),
-		'url' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Article URL'), 'DESCRIPTION' => _t('Article URL.'),
-				'BOUNDS_LENGTH' => array(0,65535)
-		),
-		'worktype' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Worktype'), 'DESCRIPTION' => _t('Worktype.'),
-				'BOUNDS_LENGTH' => array(0,100)
-		),
-		'edition' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Edition'), 'DESCRIPTION' => _t('Edition.'),
-				'BOUNDS_LENGTH' => array(0,100)
-		),
 		'sect' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Sect'), 'DESCRIPTION' => _t('Sect.'),
 				'BOUNDS_LENGTH' => array(0,100)
 		),
+		'worktype' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Worktype'), 'DESCRIPTION' => _t('Worktype.'),
+				'BOUNDS_LENGTH' => array(0,100)
+		),
 		'isbn' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('ISBN'), 'DESCRIPTION' => _t('ISBN.'),
 				'BOUNDS_LENGTH' => array(0,100)
 		),
-		'keywords' => array(
+		'url' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Keywords'), 'DESCRIPTION' => _t('Keywords.'),
-				'BOUNDS_LENGTH' => array(0,100)
+				'LABEL' => _t('Article URL'), 'DESCRIPTION' => _t('Article URL.'),
+				'BOUNDS_LENGTH' => array(0,65535)
 		),
-		'language' => array(
+		'external_identifier' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Language'), 'DESCRIPTION' => _t('Language of article.'),
-				'BOUNDS_LENGTH' => array(0,100)
+				'LABEL' => _t('External identifier'), 'DESCRIPTION' => _t('External identifier.'),
+				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'electronic_resource_num' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Electronic resource number'), 'DESCRIPTION' => _t('Electronic resource number'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
-		'author_address' => array(
+		'language' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Author address'), 'DESCRIPTION' => _t('Author address'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'LABEL' => _t('Language'), 'DESCRIPTION' => _t('Language of article.'),
+				'BOUNDS_LENGTH' => array(0,100)
+		),
+		'keywords' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 44, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Keywords'), 'DESCRIPTION' => _t('Keywords.'),
+				'BOUNDS_LENGTH' => array(0,100)
 		),
 		'created_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Bibliography created on'), 'DESCRIPTION' => _t('Date/time the bibliography was created.'),
+				'LABEL' => _t('Created on'), 'DESCRIPTION' => _t('Date/time the bibliography was created.'),
 		),
 		'last_modified_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Bibliography last modified on'), 'DESCRIPTION' => _t('Date/time the bibliography was last modified.'),
+				'LABEL' => _t('Last modified on'), 'DESCRIPTION' => _t('Date/time the bibliography was last modified.'),
 		),
 		'approval_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
