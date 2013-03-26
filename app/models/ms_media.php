@@ -68,27 +68,38 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"LABEL" => "Select media file", 
 				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
 		),
-		'notes' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the media file.'),
-				'BOUNDS_LENGTH' => array(0,65535)
-		),
 		'specimen_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => false, "DEFAULT" => "",
+				"IS_NULL" => true, "DEFAULT" => "",
 				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
 		),
 		'facility_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_FIELD" => array('ms_facilities.name'), 
 				"DISPLAY_ORDERBY" => array('ms_facilities.name'),
 				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => false, "DEFAULT" => "",
 				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
+		),
+		'notes' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the media file.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'approval_status' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Approval status'), 'DESCRIPTION' => _t('Approval status'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('New') 	=> 0,
+					_t('Approved')	=> 1
+				)
 		),
 		'is_copyrighted' => array(
 				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
@@ -97,14 +108,6 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"DEFAULT" => 0,
 				"LABEL" => "Is this media copyrighted?", "DESCRIPTION" => "When checked, indicates this media file has copyright restrictions."
 		),
-		'copyright_info' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Copyright Info'), 'DESCRIPTION' => _t('Copyright Info.'),
-				'BOUNDS_LENGTH' => array(0,255)
-		),
 		'copyright_permission' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
@@ -112,7 +115,12 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => 0,
 				'LABEL' => _t('Copyright permission'), 'DESCRIPTION' => _t('Copyright permission'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					_t('copyright permission') 	=> 1
+					"Copyright permission not set" => 0,
+					"Person loading media owns copyright and grants permission for use of media on MorphoSource" => 1,
+					"Permission to use media on MorphoSource granted by copyright holder" => 2,
+					"Permission pending" => 3,
+					"Copyright expired or work otherwise in public domain" => 4,
+					"Copyright permission not yet requested" => 5
 				)
 		),
 		'copyright_license' => array(
@@ -122,12 +130,29 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => 0,
 				'LABEL' => _t('Copyright license'), 'DESCRIPTION' => _t('Copyright license'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					_t('copyright license') 	=> 1
+					"Media reuse policy not set" => 0,
+					"CC0 - relinquish copyright" => 1,
+					"Attribution CC BY - reuse with attribution" => 2,
+					"Attribution-NonCommercial CC BY-NC - reuse but noncommercial" => 3,
+					"Attribution-ShareAlike CC BY-SA - reuse here and applied to future uses " => 4,
+					"Attribution- CC BY-NC-SA - reuse here and applied to future uses but noncommercial" => 5,
+					"Attribution-NoDerivs CC BY-ND - reuse but no changes" => 6,
+					"Attribution-NonCommercial-NoDerivs CC BY-NC-ND - reuse noncommerical no changes" => 7,
+					"Media released for onetime use, no reuse without permission" => 8,
+					"Unknown - Will set before project publication" => 20
 				)
+		),
+		'copyright_info' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Copyright Holder'), 'DESCRIPTION' => _t('Name of copyright holder.'),
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'media_metadata' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_OMIT, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 5,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Metadata from media file'), 'DESCRIPTION' => _t('Metadata from media file.')
@@ -145,74 +170,74 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_x_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner X resolution'), 'DESCRIPTION' => _t('X resolution of scanner.'),
+				'LABEL' => _t('X res.'), 'DESCRIPTION' => _t('X resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_y_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner Y resolution'), 'DESCRIPTION' => _t('Y resolution of scanner.'),
+				'LABEL' => _t('Y res'), 'DESCRIPTION' => _t('Y resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_z_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner Z resolution'), 'DESCRIPTION' => _t('Z resolution of scanner.'),
+				'LABEL' => _t('Z res'), 'DESCRIPTION' => _t('Z resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_voltage' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner voltage'), 'DESCRIPTION' => _t('Scanner voltage.'),
+				'LABEL' => _t('Voltage'), 'DESCRIPTION' => _t('Scanner voltage.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_amperage' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner amperage'), 'DESCRIPTION' => _t('Scanner amperage.'),
+				'LABEL' => _t('Amperage'), 'DESCRIPTION' => _t('Scanner amperage.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_watts' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner watts'), 'DESCRIPTION' => _t('Scanner watts.'),
+				'LABEL' => _t('Watts'), 'DESCRIPTION' => _t('Scanner watts.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_projections' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner projections'), 'DESCRIPTION' => _t('Scanner projections.'),
+				'LABEL' => _t('Projections'), 'DESCRIPTION' => _t('Scanner projections.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_frame_averaging' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner frame averaging'), 'DESCRIPTION' => _t('Scanner frame averaging.'),
+				'LABEL' => _t('Frame averaging'), 'DESCRIPTION' => _t('Scanner frame averaging.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_wedge' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner wedge'), 'DESCRIPTION' => _t('Scanner wedge.'),
+				'LABEL' => _t('Wedge'), 'DESCRIPTION' => _t('Scanner wedge.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_calibration_check' => array(
@@ -220,7 +245,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
-				'LABEL' => _t('Scanner calibration check'), 'DESCRIPTION' => _t('Scanner calibration check'),
+				'LABEL' => _t('Calibration check'), 'DESCRIPTION' => _t('Scanner calibration check'),
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('Option 1') 	=> 1,
 					_t('Option 2')	=> 2
@@ -228,18 +253,18 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_calibration_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner calibration description'), 'DESCRIPTION' => _t('Description of scanner calibration.'),
+				'LABEL' => _t('Calibration description'), 'DESCRIPTION' => _t('Description of scanner calibration.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'scanner_technicians' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Scanner technicians'), 'DESCRIPTION' => _t('Scanner technicians.'),
+				'LABEL' => _t('Technicians'), 'DESCRIPTION' => _t('Scanner technicians.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'created_on' => array(
@@ -254,18 +279,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Project last modified on'), 'DESCRIPTION' => _t('Date/time the Project was last modified.'),
-		),
-		'approval_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => 0,
-				'LABEL' => _t('Approval status'), 'DESCRIPTION' => _t('Approval status'),
-				"BOUNDS_CHOICE_LIST"=> array(
-					_t('New') 	=> 0,
-					_t('Approved')	=> 1
-				)
+				'LABEL' => _t('Media last modified on'), 'DESCRIPTION' => _t('Date/time the Media was last modified.'),
 		)
  	)
 );

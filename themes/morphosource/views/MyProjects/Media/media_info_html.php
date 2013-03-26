@@ -10,19 +10,48 @@
 		<div id="mediaImage"><?php print $t_media->getMediaTag("media", "medium"); ?></div><!-- end mediaImage -->
 		<div id="mediaMd">
 <?php
+		print "<div class='listItemLtBlue'>";
+		print "<a href='#' class='button buttonLarge' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
+		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonLarge", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
+		print "</div>";
 		$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 		foreach($va_fields as $vs_field => $va_field_attr){
 			if(in_array($vs_field, $va_media_display_fields) && $t_media->get($vs_field)){
 				print "<div class='listItemLtBlue blueText'>";
-				print "<div class='listItemRightCol ltBlueText'>".$t_media->get($vs_field)."</div>";
+				print "<div class='listItemRightCol ltBlueText'>";
+				switch($vs_field){
+					case "facility_id":
+						if($t_media->get("facility_id")){
+							$t_facility = new ms_facilities($t_media->get("facility_id"));
+							print $t_facility->get("name");
+						}
+					break;
+					# ------------------------------
+					case "is_copyrighted":
+						if($t_media->get("is_copyrighted")){
+							print "Yes";
+						}else{
+							print "No";
+						}
+					break;
+					# ------------------------------
+					case "copyright_permission":
+					case "copyright_license":
+					case "scanner_type":
+					case "scanner_calibration_check":
+						print $t_media->getChoiceListValue($vs_field, $t_media->get($vs_field));
+					break;
+					# ------------------------------
+					default:
+						print $t_media->get($vs_field);
+					break;
+					# ------------------------------
+				}
+				print "</div>";
 				print $va_field_attr["LABEL"];
 				print "</div>";
 			}
 		}
-		print "<p>";
-		print "<a href='#' class='button buttonLarge' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
-		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonLarge", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
-		print "</p>";
 ?>
 		</div><!-- end mediaMd -->
 	</div><!-- end leftCol -->

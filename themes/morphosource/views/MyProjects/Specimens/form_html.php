@@ -8,9 +8,9 @@
 	
 	# --- formatting varibales
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_absolute_age_bibref_id", "locality_relative_age", "locality_relative_age_bibref_id", "created_on", "last_modified_on");
+	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("catalog_number", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_absolute_age_bibref_id", "locality_absolute_age_bibref_id", "last_modified_on");
+	$va_clear_fields = array("catalog_number", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_relative_age", "last_modified_on");
 	
 if (!$this->request->isAjax()) {
 ?>
@@ -22,9 +22,8 @@ if (!$this->request->isAjax()) {
 }
 ?>
 	<div id='formArea'>
-	
 <?php
-print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+print caFormTag($this->request, 'save', 'specimenItemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
 	<div class="formButtons tealTopBottomRule">
 <?php
@@ -32,7 +31,7 @@ if (!$this->request->isAjax()) {
 		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
 }
 ?>
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#specimenItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
 		if($t_item->get($ps_primary_key)){
@@ -43,6 +42,26 @@ if (!$this->request->isAjax()) {
 	</div><!-- end formButtons -->
 
 <?php
+if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
+?>
+		<div id="rightCol">
+			<div class="tealRule" style="margin-top:20px;"><!-- empty --></div>
+			<H2>Specimen Taxonomy</H2>
+			<div id="specimenTaxonomyInfo">
+				<!-- load Specimen taxonomy form/info here -->
+			</div><!-- end specimenTaxonomyInfo -->
+			<div class="tealRule" style="margin-top:40px;"><!-- empty --></div>
+			<H2>Specimen Bibliography</H2>
+			<div id="specimenBibliographyInfo">
+				<!-- load Specimen bibliography form/info here -->
+			</div><!-- end specimenBibliographyInfo -->
+		</div>
+<?php
+}
+?>
+	<div id="leftCol">
+<?php
+	$t_bib = new ms_bibliography();
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
 		if($va_errors[$vs_f]){
 			print "<div class='formErrors'>".$va_errors[$vs_f]."</div>";
@@ -53,6 +72,20 @@ if (!$this->request->isAjax()) {
 				if($t_item->get($vs_f)){
 					print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
 				}
+			break;
+			# -----------------------------------------------
+			case "body_mass_bibref_id":
+			case "locality_absolute_age_bibref_id":
+			case "locality_relative_age_bibref_id":
+				$vs_name = "";
+				if($t_item->get($vs_f)){
+					$t_bib->load($t_item->get($vs_f));
+					$vs_name = strip_tags($t_bib->getCitationText());
+				}
+				print "<div class='formLabel'>";
+				print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_'.$vs_f.'_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '380px', 'height' => 1, 'paadding-right' => '15px'));
+				print "</div>";
+				print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'>";
 			break;
 			# -----------------------------------------------
 			default:
@@ -68,8 +101,10 @@ if (!$this->request->isAjax()) {
 		print "<input type='hidden' value='".$pn_media_id."' name='media_id'>";
 	}
 ?>
+	</div>
+	<div style="clear:both;"><!-- empty --></div>
 	<div class="formButtons tealTopBottomRule">
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#specimenItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
 		if($t_item->get($ps_primary_key)){
@@ -80,21 +115,61 @@ if (!$this->request->isAjax()) {
 	</div><!-- end formButtons -->
 </form>
 </div>
+<script type='text/javascript'>
 <?php
 	if($pn_media_id){
 ?>
-<script type='text/javascript'>
 	jQuery(document).ready(function() {
-		jQuery('#itemForm').submit(function(e){		
+		jQuery('#specimenItemForm').submit(function(e){		
 			jQuery('#mediaSpecimenInfo').load(
 				'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'save'); ?>',
-				jQuery('#itemForm').serialize()
+				jQuery('#specimenItemForm').serialize()
 			);
 			e.preventDefault();
 			return false;
 		});
 	});
-</script>
+<?php
+	}
+	foreach(array("body_mass_bibref_id", "locality_absolute_age_bibref_id", "locality_relative_age_bibref_id") as $vs_field){
+?>
+		jQuery(document).ready(function() {
+			jQuery('#ms_<?php print $vs_field; ?>_lookup').autocomplete(
+				{ 
+					source: '<?php print caNavUrl($this->request, 'lookup', 'Bibliography', 'Get', array("max" => 500)); ?>', 
+					minLength: 3, delay: 800, html: true,
+					select: function(event, ui) {
+						var bib_id = parseInt(ui.item.id);
+						if (bib_id < 1) {
+							// nothing found...
+							//alert("Create new taxon since returned id was " + alt_id);
+						} else {
+							// found an id
+							//alert("found bib id: " + bib_id);
+							jQuery('#<?php print $vs_field; ?>').val(bib_id);
+							//alert("bib id set to: " + jQuery('#bib_id').val());
+						}
+					}
+				}
+			).click(function() { this.select(); });
+		});
+<?php
+	}
+	if($t_item->get("specimen_id")){
+?>
+	jQuery(document).ready(function() {			
+		jQuery('#specimenTaxonomyInfo').load(
+			'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'specimenTaxonomyLookup', array('specimen_id' => $t_item->get("specimen_id"))); ?>'
+		);
+		return false;
+	});
+	jQuery(document).ready(function() {			
+		jQuery('#specimenBibliographyInfo').load(
+			'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'specimenBibliographyLookup', array('specimen_id' => $t_item->get("specimen_id"))); ?>'
+		);
+		return false;
+	});
 <?php
 	}
 ?>
+</script>

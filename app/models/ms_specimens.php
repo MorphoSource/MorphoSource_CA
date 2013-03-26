@@ -64,8 +64,8 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DEFAULT' => 0,
 				'LABEL' => _t('Reference source'), 'DESCRIPTION' => _t('Reference source of specimen.'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					_t('Reference 1') 	=> 1,
-					_t('Reference 2')	=> 2
+					'Vouchered' => 0,
+					'Unvouchered' => 1
 				)
 		),
 		'institution_id' => array(
@@ -159,7 +159,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'body_mass_comments' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass comments'), 'DESCRIPTION' => _t('Comments about the specimen\'s body mass.'),
@@ -169,11 +169,11 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => TRUE, "DEFAULT" => "",
-				"LABEL" => "Find body mass bibliographic reference", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
+				"LABEL" => "Find the body mass bibliographic reference", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
 		),
 		'locality_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
@@ -189,10 +189,18 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality absolute age'), 'DESCRIPTION' => _t('Absolute age of the locality of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'locality_relative_age' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'locality_absolute_age_bibref_id' => array(
@@ -200,14 +208,6 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => TRUE, "DEFAULT" => "",
 				"LABEL" => "Find bibliographic reference for the absolute age", "DESCRIPTION" => "Enter words from the title, publisher, authors or editor<br /> and select reference from resulting list of possible matches."
-		),
-		'locality_relative_age' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => TRUE, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),
-				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'locality_relative_age_bibref_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
@@ -326,6 +326,40 @@ class ms_specimens extends BaseModel {
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
+	}
+	# ----------------------------------------
+	function getSpecimenName() {
+		if($this->get("specimen_id")){
+			$va_specimen_parts = array();
+			if($this->get("institution_code")){
+				$va_specimen_parts[] = $this->get("institution_code");
+			}
+			if($this->get("collection_code")){
+				$va_specimen_parts[] = $this->get("collection_code");
+			}
+			if($this->get("catalog_number")){
+				$va_specimen_parts[] = $this->get("catalog_number");
+			}
+			return join($va_specimen_parts, "-");
+		}else{
+			return false;
+		}
+	}
+	# ----------------------------------------
+	function getSpecimenTaxonomy() {
+		if($this->get("specimen_id")){
+			$o_db = new Db();
+			$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.variety, tn.species, tn.subspecies FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id = ? AND tn.is_primary = 1", $this->get("specimen_id"));
+			$va_taxonomic_names = array();
+			if($q_specimen_taxonomy->numRows()){
+				while($q_specimen_taxonomy->nextRow()){
+					$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("variety")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
+				}
+			}
+			return $va_taxonomic_names;
+		}else{
+			return false;
+		}
 	}
 	# ----------------------------------------
 }

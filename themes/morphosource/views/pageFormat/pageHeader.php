@@ -58,7 +58,7 @@
 			<ul class="subNav">
 <?php
 			if($this->request->isLoggedIn()){
-				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "", "LoginReg", "logout")."</li>";
+				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
 				print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";

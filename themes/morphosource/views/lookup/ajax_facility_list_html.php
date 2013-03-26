@@ -1,13 +1,13 @@
 <?php
-/** ---------------------------------------------------------------------
- * app/lib/ca/Search/FacilitySearch.php :
+/* ----------------------------------------------------------------------
+ * lookup/ajax_facility_list_html.php : 
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2008-2013 Whirl-i-Gig
+ * Copyright 2013 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -23,32 +23,7 @@
  * the "license.txt" file for details, or visit the CollectiveAccess web site at
  * http://www.CollectiveAccess.org
  *
- * @package CollectiveAccess
- * @subpackage Search
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License version 3
- *
  * ----------------------------------------------------------------------
  */
- 
- /**
-  *
-  */
-
-include_once(__CA_LIB_DIR__."/ca/Search/BaseSearch.php");
-include_once(__CA_LIB_DIR__."/ca/Search/FacilitySearchResult.php");
-
-class FacilitySearch extends BaseSearch {
-	# ----------------------------------------------------------------------
-	/**
-	 * Which table does this class represent?
-	 */
-	protected $ops_tablename = "ms_facilities";
-	protected $ops_primary_key = "facility_id";
-	
-	# ----------------------------------------------------------------------
-	public function &search($ps_search, $pa_options=null) {
-		return parent::doSearch($ps_search, new FacilitySearchResult(), $pa_options);
-	}
-	# ----------------------------------------------------------------------
-}
+ 	print json_encode($this->getVar('facility_list'));
 ?>

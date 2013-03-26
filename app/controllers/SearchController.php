@@ -27,8 +27,10 @@
  */
  	require_once(__CA_LIB_DIR__."/ca/BaseSearchController.php");
  	require_once(__CA_LIB_DIR__."/ca/Browse/ObjectBrowse.php");
+ 	require_once(__CA_LIB_DIR__."/ca/Browse/MediaBrowse.php");
 	require_once(__CA_LIB_DIR__."/ca/Search/DidYouMean.php");
 	require_once(__CA_LIB_DIR__."/core/Datamodel.php");
+ 	require_once(__CA_LIB_DIR__."/ca/Search/MediaSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/ObjectSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/EntitySearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/PlaceSearch.php");
@@ -40,8 +42,7 @@
  	require_once(__CA_LIB_DIR__."/ca/Browse/CollectionBrowse.php");
  	require_once(__CA_LIB_DIR__."/ca/Browse/OccurrenceBrowse.php");
  	require_once(__CA_LIB_DIR__.'/core/GeographicMap.php');
-	require_once(__CA_MODELS_DIR__."/ca_objects.php");
- 	
+	
  	class SearchController extends BaseSearchController {
  		# -------------------------------------------------------
  		/**
@@ -119,123 +120,14 @@
 			);
  			
  			switch($vs_search_target) {
- 				case 'ca_entities':
- 					$this->ops_tablename = 'ca_entities';
- 					$this->opo_result_context = new ResultContext($po_request, $this->ops_tablename, $this->ops_find_type);
- 					$this->opo_browse = new EntityBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');
- 					
- 					// get configured result views, if specified
-					if ($va_result_views_for_ca_entities = $po_request->config->getAssoc('result_views_for_ca_entities')) {
-						$this->opa_views = $va_result_views_for_ca_entities;
-					}else{
-						$this->opa_views = array(
-							'full' => _t('List')
-						 );
-					}
-					// get configured result sort options, if specified
-					if ($va_sort_options_for_ca_entities = $po_request->config->getAssoc('result_sort_options_for_ca_entities')) {
-						$this->opa_sorts = $va_sort_options_for_ca_entities;
-					}else{						
-						$this->opa_sorts = array(
-							'ca_entity_labels.displayname' => _t('Name'),
-							'ca_entities.type_id' => _t('Type'),
-							'ca_entities.idno_sort' => _t('Idno')
-						);
-					}
-					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ca_entities"))) {
-						$this->opa_views_options = array_merge($this->opa_views_options, $va_view_opts);
-					}
- 					break;
- 				case 'ca_places':
- 					$this->ops_tablename = 'ca_places';
- 					$this->opo_result_context = new ResultContext($po_request, $this->ops_tablename, $this->ops_find_type);
- 			
- 					$this->opo_browse = new PlaceBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');
- 					
- 					// get configured result views, if specified
-					if ($va_result_views_for_ca_places = $po_request->config->getAssoc('result_views_for_ca_places')) {
-						$this->opa_views = $va_result_views_for_ca_places;
-					}else{
-						$this->opa_views = array(
-							'full' => _t('List')
-						 );
-					}
-					// get configured result sort options, if specified
-					if ($va_sort_options_for_ca_places = $po_request->config->getAssoc('result_sort_options_for_ca_places')) {
-						$this->opa_sorts = $va_sort_options_for_ca_places;
-					}else{						
-						$this->opa_sorts = array(
-							'ca_place_labels.name' => _t('Name'),
-							'ca_places.type_id' => _t('Type'),
-							'ca_places.idno_sort' => _t('Idno')
-						);
-					}
-					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ca_places"))) {
-						$this->opa_views_options = array_merge($this->opa_views_options, $va_view_opts);
-					}
- 					break;
- 				case 'ca_occurrences':
- 					$this->ops_tablename = 'ca_occurrences';
- 					$this->opo_result_context = new ResultContext($po_request, $this->ops_tablename, $this->ops_find_type);
- 					$this->opo_browse = new OccurrenceBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');
- 					
- 					// get configured result views, if specified
-					if ($va_result_views_for_ca_occurrences = $po_request->config->getAssoc('result_views_for_ca_occurrences')) {
-						$this->opa_views = $va_result_views_for_ca_occurrences;
-					}else{
-						$this->opa_views = array(
-							'full' => _t('List')
-						 );
-					}
-					// get configured result sort options, if specified
-					if ($va_sort_options_for_ca_occurrences = $po_request->config->getAssoc('result_sort_options_for_ca_occurrences')) {
-						$this->opa_sorts = $va_sort_options_for_ca_occurrences;
-					}else{						
-						$this->opa_sorts = array(
-							'ca_occurrence_labels.name' => _t('Title'),
-							'ca_occurrences.idno_sort' => _t('Idno')
-						);
-					}
-					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ca_occurrences"))) {
-						$this->opa_views_options = array_merge($this->opa_views_options, $va_view_opts);
-					}
- 					break;
- 				case 'ca_collections':
- 					$this->ops_tablename = 'ca_collections';
- 					$this->opo_result_context = new ResultContext($po_request, $this->ops_tablename, $this->ops_find_type);
- 					$this->opo_browse = new CollectionBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');
- 					
- 					// get configured result views, if specified
-					if ($va_result_views_for_ca_collections = $po_request->config->getAssoc('result_views_for_ca_collections')) {
-						$this->opa_views = $va_result_views_for_ca_collections;
-					}else{
-						$this->opa_views = array(
-							'full' => _t('List')
-						 );
-					}
-					// get configured result sort options, if specified
-					if ($va_sort_options_for_ca_collections = $po_request->config->getAssoc('result_sort_options_for_ca_collections')) {
-						$this->opa_sorts = $va_sort_options_for_ca_collections;
-					}else{						
-						$this->opa_sorts = array(
-							'ca_collection_labels.name' => _t('Name'),
-							'ca_collections.type_id' => _t('Type'),
-							'ca_collections.idno_sort' => _t('Idno')
-						);
-					}
-					
-					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ca_collections"))) {
-						$this->opa_views_options = array_merge($this->opa_views_options, $va_view_opts);
-					}
- 					break;
  				default:
- 					$this->ops_tablename = 'ca_objects';
+ 					$this->ops_tablename = 'ms_media';
  					$this->opo_result_context = new ResultContext($po_request, $this->ops_tablename, $this->ops_find_type);
- 					$this->opo_browse = new ObjectBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');	
+ 					$this->opo_browse = new MediaBrowse($this->opo_result_context->getParameter('browse_id', true), 'pawtucket2');	
  					
  					// get configured result views, if specified
-					if ($va_result_views_for_ca_objects = $po_request->config->getAssoc('result_views_for_ca_objects')) {
-						$this->opa_views = $va_result_views_for_ca_objects;
+					if ($va_result_views_for_ms_media = $po_request->config->getAssoc('result_views_for_ms_media')) {
+						$this->opa_views = $va_result_views_for_ms_media;
 					}else{
 						$this->opa_views = array(
 							'thumbnail' => _t('Thumbnails'),
@@ -243,25 +135,15 @@
 						 );
 					}
 					// get configured result sort options, if specified
-					if ($va_sort_options_for_ca_objects = $po_request->config->getAssoc('result_sort_options_for_ca_objects')) {
-						$this->opa_sorts = $va_sort_options_for_ca_objects;
+					if ($va_sort_options_for_ms_media = $po_request->config->getAssoc('result_sort_options_for_ms_media')) {
+						$this->opa_sorts = $va_sort_options_for_ms_media;
 					}else{
 						$this->opa_sorts = array(
-							'ca_object_labels.name' => _t('Title'),
-							'ca_objects.type_id' => _t('Type'),
-							'ca_objects.idno_sort' => _t('Idno')
+							'ms_media.media_id' => _t('ID')
 						);
 					}
 					
-					if($po_request->config->get("show_map_object_search_results")){
- 						JavascriptLoadManager::register('maps');
-						$this->opa_views['map'] = _t('Map');
-						if(!$this->opa_views_options['map']){
-							$this->opa_views_options['map'] = array("description" => _t("View results plotted on a map"), "icon" => "icon_map.gif");
-						}
-					}
-					
-					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ca_objects"))) {
+					if (is_array($va_view_opts = $po_request->config->get("result_views_options_for_ms_media"))) {
 						$this->opa_views_options = array_merge($this->opa_views_options, $va_view_opts);
 					}
  					break;

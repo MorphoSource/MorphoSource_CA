@@ -59,7 +59,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
 		),
 		'common_name' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Common name'), 'DESCRIPTION' => _t('Common name for taxon.'),

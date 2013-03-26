@@ -30,6 +30,8 @@
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_taxonomy.php");
  	require_once(__CA_MODELS_DIR__."/ms_taxonomy_names.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens_x_taxonomy.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class TaxonomyController extends ActionController {
@@ -116,6 +118,16 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
+			# --- if specimen_id is passed this form is being loaded as a quick add in another form and the new taxon needs to be linked to the specimen
+			if($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)){
+				$this->view->setVar("specimen_id", $pn_specimen_id);
+				$t_specimen = new ms_specimens($pn_specimen_id);
+				$this->view->setVar("specimen_name", $t_specimen->getSpecimenName());
+			}
+			# --- if media_id is passed this form is being loaded as a quick add in the specimen form of the media info page - need to redirect back to media info page
+			if($pn_media_id = $this->request->getParameter('media_id', pInteger)){
+				$this->view->setVar("media_id", $pn_media_id);
+			}
 			$this->render('Taxonomy/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -130,6 +142,14 @@
 			# get names of form fields
 			$va_fields2 = $this->opo_item2->getFormFields();
 			$va_errors = array();
+			# --- if specimen_id is passed this form is being loaded as a quick add in another form and the new taxon needs to be linked to the specimen
+			if($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)){
+				$this->view->setVar("specimen_id", $pn_specimen_id);
+			}
+			# --- if media_id is passed this form is being loaded as a quick add in the specimen form of the media info page - need to redirect back to media info page
+			if($pn_media_id = $this->request->getParameter('media_id', pInteger)){
+				$this->view->setVar("media_id", $pn_media_id);
+			}
 			
 			# loop through ms_taxonomy fields
 			while(list($vs_f,$va_attr) = each($va_fields2)) {
@@ -180,6 +200,10 @@
 						if(!$this->opo_item->get("user_id")){
 							$this->opo_item->set($vs_f,$this->request->user->get("user_id"));
 						}
+						break;
+					# -----------------------------------------------
+					case 'is_primary':
+						$this->opo_item->set($vs_f,1);
 						break;
 					# -----------------------------------------------
 					default:
@@ -234,10 +258,46 @@
 				}
 			}
 			if(sizeof($va_errors) > 0){
-				$this->notification->addNotification("There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+				if(!$pn_media_id && !$pn_specimen_id){
+					$this->notification->addNotification("There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+				}
 				$this->view->setVar("errors", $va_errors);
 				$this->form();
 			}else{
+				if($pn_specimen_id){
+					# --- if specimen_id is passed, need to add link to it
+					# --- first remove exisiting links
+					$o_db = new Db();
+					$t_remove_specimen_links = $o_db->query("DELETE FROM ms_specimens_x_taxonomy WHERE specimen_id = ?", $pn_specimen_id);
+					$t_specimens_x_taxonomy = new ms_specimens_x_taxonomy();
+					$t_specimens_x_taxonomy->set("specimen_id",$pn_specimen_id);
+					$t_specimens_x_taxonomy->set("alt_id",$this->opo_item->get("alt_id"));
+					$t_specimens_x_taxonomy->set("user_id",$this->request->user->get("user_id"));
+					$t_specimens_x_taxonomy->set("taxon_id",$this->opo_item->get("taxon_id"));
+	
+					# do insert
+					$t_specimens_x_taxonomy->setMode(ACCESS_WRITE);
+					$t_specimens_x_taxonomy->insert();
+		
+					if ($t_specimens_x_taxonomy->numErrors()) {
+						foreach ($t_specimens_x_taxonomy->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$vs_message = "Saved specimen taxonomy";
+					}
+				}
+				if($pn_media_id){
+					# --- redirect to media controller
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Media", "specimenLookup", array("message" => $vs_message, "media_id" => $pn_media_id)));
+					return;
+				}elseif($pn_specimen_id){
+					# --- redirect to specimens controller
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Specimens", "specimenTaxonomyLookup", array("message" => $vs_message, "specimen_id" => $pn_specimen_id)));
+					return;
+				}
+				
+				
 				$this->opn_item_id = $this->opo_item->get($this->ops_primary_key);
 				$this->view->setVar("item_id", $this->opn_item_id);
 				$this->view->setVar("item", $this->opo_item);

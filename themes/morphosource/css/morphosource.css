@@ -126,6 +126,9 @@ H2{
 .ltBlueTopRule{
 	border-top: 1px solid #689899;
 }
+.ltBlueBottomRule{
+	border-bottom: 1px solid #689899;
+}
 /* Buttons */
 .button, .button:visited {
 	display: inline-block;
@@ -417,6 +420,7 @@ H2{
 	padding:10px 5px 10px 5px;
 	border-bottom:1px solid #689899;
 	text-align:left;
+	clear:both;
 }
 .listItemBlue{
 	padding:10px 5px 10px 5px;
@@ -490,7 +494,6 @@ H2{
 }
 #mediaInfo #mediaMd{
 	font-family: 'neuzeitlgt', sans-serif;
-	border-top:1px solid #689899;
 }
 	
 #mediaInfo #mediaImage{
@@ -549,10 +552,17 @@ H2{
 	font-size:14px;
 	width:500px;
 }
-
+#formArea #rightCol{
+	float:right;
+	width:420px;
+}
+#formArea #leftCol{
+	float:left;
+	width:420px;
+}
 
 /* Autocomplete classes */
-input.lookupBg, textarea.lookupBg {
+input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	background-image: url('../graphics/icons/formBgLookup.gif');
 	background-repeat:no-repeat;
 	background-position:right center;

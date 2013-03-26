@@ -66,15 +66,15 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'species' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Species'), 'DESCRIPTION' => _t('Species.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'subspecies' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Subspecies'), 'DESCRIPTION' => _t('Subspecies.'),
@@ -82,7 +82,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'variety' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Variety'), 'DESCRIPTION' => _t('Variety.'),
@@ -90,7 +90,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'author' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Author'), 'DESCRIPTION' => _t('Author.'),
@@ -106,87 +106,87 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'ht_supraspecific_clade' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic supraspecific clade'), 'DESCRIPTION' => _t('Higher taxonomic supraspecific clade.'),
+				'LABEL' => _t('Higher ss. clade'), 'DESCRIPTION' => _t('Higher taxonomic supraspecific clade.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_kingdom' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic kingdom'), 'DESCRIPTION' => _t('Higher taxonomic kingdom.'),
+				'LABEL' => _t('Higher kingdom'), 'DESCRIPTION' => _t('Higher taxonomic kingdom.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_phylum' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic phylum'), 'DESCRIPTION' => _t('Higher taxonomic phylum.'),
+				'LABEL' => _t('Higher phylum'), 'DESCRIPTION' => _t('Higher taxonomic phylum.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_class' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic class'), 'DESCRIPTION' => _t('Higher taxonomic class.'),
+				'LABEL' => _t('Higher class'), 'DESCRIPTION' => _t('Higher taxonomic class.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_subclass' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 33, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic subclass'), 'DESCRIPTION' => _t('Higher taxonomic subclass.'),
+				'LABEL' => _t('Higher subclass'), 'DESCRIPTION' => _t('Higher taxonomic subclass.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_order' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic order'), 'DESCRIPTION' => _t('Higher taxonomic order.'),
+				'LABEL' => _t('Higher order'), 'DESCRIPTION' => _t('Higher taxonomic order.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_suborder' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 33, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic suborder'), 'DESCRIPTION' => _t('Higher taxonomic suborder.'),
+				'LABEL' => _t('Higher suborder'), 'DESCRIPTION' => _t('Higher taxonomic suborder.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_superfamily' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic superfamily'), 'DESCRIPTION' => _t('Higher taxonomic superfamily.'),
+				'LABEL' => _t('Higher superfamily'), 'DESCRIPTION' => _t('Higher taxonomic superfamily.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_family' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic family'), 'DESCRIPTION' => _t('Higher taxonomic family.'),
+				'LABEL' => _t('Higher family'), 'DESCRIPTION' => _t('Higher taxonomic family.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'ht_subfamily' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Higher taxonomic subfamily'), 'DESCRIPTION' => _t('Higher taxonomic subfamily.'),
+				'LABEL' => _t('Higher subfamily'), 'DESCRIPTION' => _t('Higher taxonomic subfamily.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'source_info' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 3,
+				'DISPLAY_WIDTH' => 70, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Source information'), 'DESCRIPTION' => _t('Source information.'),
@@ -194,7 +194,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 3,
+				'DISPLAY_WIDTH' => 70, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),

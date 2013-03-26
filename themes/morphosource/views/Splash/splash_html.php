@@ -54,7 +54,7 @@
 			</div><!-- end hpfeature -->
 			<div class="hpFeature">
 				<H2 class="tealTopBottomRule">Featured Member</H2>
-				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature4.jpg">
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature3.jpg">
 			</div><!-- end hpfeature -->
 		</div><!-- end hpfeatures -->
 		<div id="hpStats">
@@ -84,7 +84,7 @@
 				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
 			}else{
 				print "<H2 style='text-align:center;'>New to MorphoSource?</H2>";
-				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Login or Register"), "button buttonLarge", "", "LoginReg", "login")."<p>";
+				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Login or Register"), "button buttonLarge", "", "LoginReg", "form")."<p>";
 			}
 ?>
 				

@@ -53,8 +53,9 @@
 	<div class="dashboardButtons">
 <?php
 	print caNavLink($this->request, _t("Specimens"), "button buttonLarge", "MyProjects", "Specimens", "listItems");
-	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Bibliography"), "button buttonLarge", "MyProjects", "Bibliography", "listItems");
-	print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Taxonomy"), "button buttonLarge", "MyProjects", "Taxonomy", "listItems");
+	print "&nbsp;".caNavLink($this->request, _t("Bibliography"), "button buttonLarge", "MyProjects", "Bibliography", "listItems");
+	print "&nbsp;".caNavLink($this->request, _t("Taxonomy"), "button buttonLarge", "MyProjects", "Taxonomy", "listItems");
+	print "&nbsp;".caNavLink($this->request, _t("Facilities"), "button buttonLarge", "MyProjects", "Facilities", "listItems");
 ?>
 	</div>
 	<div class="tealRule"><!-- empty --></div>

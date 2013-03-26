@@ -30,8 +30,11 @@
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_taxonomy_names.php");
  	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens_x_taxonomy.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class MediaController extends ActionController {
@@ -107,6 +110,11 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
+ 			# --- pass the facility name for preloading lookup if available
+ 			if($this->opo_item->get("facility_id")){
+ 				$t_facility = new ms_facilities($this->opo_item->get("facility_id"));
+ 				$this->view->setVar("facility_name", $t_facility->get("name").(($t_facility->get("name") && $t_facility->get("institution")) ? ", " : "").$t_facility->get("institution"));
+ 			}
 			$this->render('Media/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -121,7 +129,11 @@
 				switch($vs_f) {
 					# -----------------------------------------------
 					case 'media':
-						$this->opo_item->set('media', $_FILES['media']['tmp_name']);
+						if($_FILES['media']['tmp_name']){
+							$this->opo_item->set('media', $_FILES['media']['tmp_name']);
+						}elseif(!$this->opo_item->get('media')){
+							$va_errors[$vs_f] = "Please upload a media file";
+						}
 						break;
 					# -----------------------------------------------
 					case 'project_id':
@@ -133,6 +145,56 @@
 					case 'user_id':
 						if(!$this->opo_item->get("user_id")){
 							$this->opo_item->set($vs_f,$this->request->user->get("user_id"));
+						}
+						break;
+					# -----------------------------------------------
+					case 'facility_id':
+						if($_REQUEST["facility_id"]){
+							$this->opo_item->set("facility_id",$_REQUEST["facility_id"]);
+						}elseif($_REQUEST["name"]){
+							# --- check if facility info was entered in AJAX form
+							$t_facility = new ms_facilities();
+							$va_facility_fields = $t_facility->getFormFields();
+							$va_facility_errors = array();
+							while(list($vs_facility_f,$va_facility_attr) = each($va_facility_fields)) {
+								switch($vs_facility_f) {
+									# -----------------------------------------------
+									case 'project_id':
+										if(!$t_facility->get("project_id")){
+											$t_facility->set($vs_facility_f,$this->opn_project_id);
+										}
+										break;
+									# -----------------------------------------------
+									case 'user_id':
+										if(!$t_facility->get("user_id")){
+											$t_facility->set($vs_facility_f,$this->request->user->get("user_id"));
+										}
+										break;
+									# -----------------------------------------------
+									default:
+										$t_facility->set($vs_facility_f,$_REQUEST[$vs_facility_f]); # set field values
+										break;
+									# -----------------------------------------------
+								}
+								if ($t_facility->numErrors() > 0) {
+									foreach ($t_facility->getErrors() as $vs_e) {
+										$va_facility_errors[$vs_facility_f] = $vs_e;
+									}
+								}
+							}
+							if (sizeof($va_facility_errors) == 0) {
+								$t_facility->setMode(ACCESS_WRITE);
+								$t_facility->insert();
+							}
+							if ($t_facility->numErrors()) {
+								foreach ($t_facility->getErrors() as $vs_e) {  
+									$va_errors["general"] = $vs_e;
+								}
+							}else{
+								$this->opo_item->set("facility_id",$t_facility->get("facility_id"));
+							}
+						}else{
+							$va_errors[$vs_f] = "Please enter the facility the media was scanned at";
 						}
 						break;
 					# -----------------------------------------------
@@ -200,6 +262,10 @@
  				if($vs_specimen_name){
  					$this->view->setVar("specimen_name", $vs_specimen_name);
  				}
+ 				# --- check if there is a taxonommic name for the specimen
+ 				$va_specimen_taxonomy = $t_specimen->getSpecimenTaxonomy();
+ 				$this->view->setVar("specimen_taxonomy", $va_specimen_taxonomy);
+ 				
  				$ps_new_message = $this->request->getParameter('message', pString);
  				$this->view->setVar("new_message", urldecode($ps_new_message));
  			}
@@ -242,6 +308,46 @@
 				$this->view->setVar("item_id", $this->opn_item_id);
 				$this->view->setVar("item", $this->opo_item);
 				$this->view->setVar("message", $vs_message);
+				$this->specimenLookup();
+			} 			 			
+ 		}
+ 		# -------------------------------------------------------
+ 		public function linkSpecimenTaxon() {
+			$va_errors = array();
+			$vs_message = "";
+			# --- check the specimen_id and alt_id (key for ms_taxonomy_names) are passed through lookup form
+			if(($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)) && ($pn_alt_id = $this->request->getParameter('alt_id', pInteger))){
+				$t_specimens_x_taxonomy = new ms_specimens_x_taxonomy();
+				$t_specimens_x_taxonomy->set("specimen_id",$pn_specimen_id);
+				$t_specimens_x_taxonomy->set("alt_id",$pn_alt_id);
+				$t_specimens_x_taxonomy->set("user_id",$this->request->user->get("user_id"));
+				# --- get the taxon_id from the ms_taxonomy_names records
+				$t_taxonomy_names = new ms_taxonomy_names($pn_alt_id);
+				$t_specimens_x_taxonomy->set("taxon_id",$t_taxonomy_names->get("taxon_id"));
+
+				# do insert
+				$t_specimens_x_taxonomy->setMode(ACCESS_WRITE);
+				$t_specimens_x_taxonomy->insert();
+	
+				if ($t_specimens_x_taxonomy->numErrors()) {
+					foreach ($t_specimens_x_taxonomy->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					$vs_message = "Saved specimen taxonomy";
+				}
+			}else{
+				$va_errors["general"] = _t("Please select a taxonomic name");
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->view->setVar("taxonomy_message", $vs_message);
+				$this->specimenLookup();
+			}else{
+				#$this->opn_item_id = $this->opo_item->get("media_id");
+				$this->view->setVar("item_id", $this->opn_item_id);
+				$this->view->setVar("item", $this->opo_item);
+				$this->view->setVar("taxonomy_message", $vs_message);
 				$this->specimenLookup();
 			} 			 			
  		}

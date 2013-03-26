@@ -1,13 +1,13 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/lib/ca/Search/FacilitySearch.php :
+ * app/lib/ca/Search/TaxonomyNamesSearchResult.php :
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2008-2013 Whirl-i-Gig
+ * Copyright 2009 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -34,21 +34,21 @@
   *
   */
 
-include_once(__CA_LIB_DIR__."/ca/Search/BaseSearch.php");
-include_once(__CA_LIB_DIR__."/ca/Search/FacilitySearchResult.php");
+include_once(__CA_LIB_DIR__."/ca/Search/BaseSearchResult.php");
 
-class FacilitySearch extends BaseSearch {
-	# ----------------------------------------------------------------------
+class TaxonomyNamesSearchResult extends BaseSearchResult {
+	# -------------------------------------
 	/**
-	 * Which table does this class represent?
+	 * Name of table for this type of search subject
 	 */
-	protected $ops_tablename = "ms_facilities";
-	protected $ops_primary_key = "facility_id";
-	
-	# ----------------------------------------------------------------------
-	public function &search($ps_search, $pa_options=null) {
-		return parent::doSearch($ps_search, new FacilitySearchResult(), $pa_options);
+	protected $ops_table_name = 'ms_taxonomy_names';
+	# -------------------------------------
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		parent::__construct();
 	}
-	# ----------------------------------------------------------------------
+	# -------------------------------------
 }
 ?>
