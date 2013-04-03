@@ -1,13 +1,14 @@
 <?php
 /* ----------------------------------------------------------------------
- * default/views/mailTemplates/reg_conf_html.tpl
+ * themes/default/views/ms_media_search_no_results_html.php :
+ * 		thumbnail search results
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2009-2010 Whirl-i-Gig
+ * Copyright 2008-2010 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -25,15 +26,6 @@
  *
  * ----------------------------------------------------------------------
  */
- 
-print _t("<p>Thank you for registering for \"%1\".</p>
 
-<p>As a member you can create your own projects and share media with others in the MorphoSource community.</p>
-
-<p>Regards,<br/>
-the Staff</p>
-
-", $this->request->config->get("app_display_name"));
-
-	print "<p>".$this->request->config->get("site_host")."</p>";
+	print "<p>"._t("To search the collection, simply type in the words that best describe what you are looking for and click on the \"search\" button. By default, the search engine will return only matches that contain all of the words in your search. The more words entered, the more restrictive the search.")."</p>";
 ?>

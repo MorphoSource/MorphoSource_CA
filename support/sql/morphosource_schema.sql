@@ -115,7 +115,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `ms_institutions` ;
 
 CREATE  TABLE IF NOT EXISTS `ms_institutions` (
-  `institution_id` INT NOT NULL ,
+  `institution_id` INT NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(255) NOT NULL ,
   `description` TEXT NOT NULL ,
   `location_city` VARCHAR(255) NOT NULL ,
@@ -245,6 +245,7 @@ CREATE  TABLE IF NOT EXISTS `ms_taxonomy_names` (
   `taxon_id` INT UNSIGNED NOT NULL ,
   `user_id` INT UNSIGNED NOT NULL ,
   `notes` TEXT NOT NULL ,
+  `genus` VARCHAR(255) NOT NULL ,
   `species` VARCHAR(255) NOT NULL ,
   `subspecies` VARCHAR(255) NOT NULL ,
   `variety` VARCHAR(255) NOT NULL ,
@@ -1120,10 +1121,7 @@ CREATE  TABLE IF NOT EXISTS `ca_search_log` (
   PRIMARY KEY (`search_id`) ,
   INDEX `i_log_datetime` (`log_datetime` ASC) ,
   INDEX `i_user_id` (`user_id` ASC) ,
-  INDEX `i_form_id` (`form_id` ASC) ,
-  CONSTRAINT `fk_B69B610E-29FD-4515-84C1-47ABE824B941`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `ca_users` (`user_id` ))
+  INDEX `i_form_id` (`form_id` ASC)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 

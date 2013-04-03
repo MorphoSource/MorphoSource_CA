@@ -184,6 +184,14 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 				'LABEL' => _t('Higher subfamily'), 'DESCRIPTION' => _t('Higher taxonomic subfamily.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
+		'genus' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Genus'), 'DESCRIPTION' => _t('Genus.'),
+				'BOUNDS_LENGTH' => array(1,255)
+		),
 		'source_info' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 70, 'DISPLAY_HEIGHT' => 1,

@@ -35,7 +35,7 @@
   */
 
 	require_once(__CA_LIB_DIR__.'/core/Configuration.php');
-	require_once(__CA_MODELS_DIR__.'/ca_bundle_mappings.php');
+#	require_once(__CA_MODELS_DIR__.'/ca_bundle_mappings.php');
 	require_once(__CA_LIB_DIR__.'/core/BaseObject.php');
 	
 	class DataMover extends BaseObject {
@@ -47,7 +47,7 @@
 		 */
 		public function __construct() {
 			parent::__construct();
-			$this->opo_bundle_mapping = new ca_bundle_mappings();
+#			$this->opo_bundle_mapping = new ca_bundle_mappings();
 		}
 		# -------------------------------------------------------
 		/**

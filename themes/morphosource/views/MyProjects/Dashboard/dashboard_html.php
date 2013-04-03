@@ -98,11 +98,17 @@
 	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("New Media"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div>
 	<H1>Project Media</H1>
 <?php
+	$t_specimen = new ms_specimens();
 	$qr_project_media = $t_project->getProjectMedia();
 	if($qr_project_media->numRows()){
 		while($qr_project_media->nextRow()){
 			print "<div class='projectMedia'>".caNavLink($this->request, $qr_project_media->getMediaTag("media", "preview190"), "", "MyProjects", "Media", "mediaInfo", array("media_id" => $qr_project_media->get("media_id")));
-			print "<span class='mediaID'>M".$qr_project_media->get("media_id")."</span></div><!-- end projectMedia -->";
+			print "<span class='mediaID'>M".$qr_project_media->get("media_id")."</span>";
+			if($qr_project_media->get("specimen_id")){
+				$t_specimen->load($qr_project_media->get("specimen_id"));
+				print ", ".$t_specimen->getSpecimenName();
+			}
+			print "</div><!-- end projectMedia -->";
 		}
 	}else{
 		print "<H2>"._t("Your project has no media.  Use the \"NEW MEDIA\" button to upload media files to your project.")."</H2>";

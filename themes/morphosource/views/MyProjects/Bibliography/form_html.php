@@ -5,6 +5,8 @@
 	$ps_primary_key = $this->getVar("primary_key");
 	# --- media means this is a quick add for the media form being loaded via ajax
 	$pn_media_id = $this->getVar("media_id");
+	# --- specimen_id means this is a quick add for the specimen form being loaded via ajax
+	$pn_specimen_id = $this->getVar("specimen_id");
 	
 	# --- formatting varibales
 	# --- all fields in float_fields array  will be floated to the left
@@ -24,15 +26,21 @@ if (!$this->request->isAjax()) {
 	<div id='formArea'>
 	
 <?php
-print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+print caFormTag($this->request, 'save', 'bibItemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
 	<div class="formButtons tealTopBottomRule">
 <?php
 if (!$this->request->isAjax()) {
 		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+}else{
+	if($pn_media_id){
+		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#mediaBibliographyInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'bibliographyLookup', array('media_id' => $pn_media_id))."\");'>"._t("Cancel")."</a></div>";
+	}elseif($pn_specimen_id){
+		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#specimenBibliographyInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Specimens', 'bibliographyLookup', array('specimen_id' => $pn_specimen_id))."\");'>"._t("Cancel")."</a></div>";
+	}
 }
 ?>
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#bibItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
 		if($t_item->get($ps_primary_key)){
@@ -67,9 +75,15 @@ if (!$this->request->isAjax()) {
 	if($pn_media_id){
 		print "<input type='hidden' value='".$pn_media_id."' name='media_id'>";
 	}
+	if($pn_specimen_id){
+		print "<input type='hidden' value='".$pn_specimen_id."' name='specimen_id'>";
+	}
+	if($pn_media_id || $pn_specimen_id){
+		print "<div class='formLabel'>Page(s)<br/><input type='text' name='page' style='width:40px;'></div>";	
+	}
 ?>
 	<div class="formButtons tealTopBottomRule">
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#bibItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
 		if($t_item->get($ps_primary_key)){
@@ -85,10 +99,26 @@ if (!$this->request->isAjax()) {
 ?>
 <script type='text/javascript'>
 	jQuery(document).ready(function() {
-		jQuery('#itemForm').submit(function(e){		
+		jQuery('#bibItemForm').submit(function(e){		
 			jQuery('#mediaBibliographyInfo').load(
 				'<?php print caNavUrl($this->request, 'MyProjects', 'Bibliography', 'save'); ?>',
-				jQuery('#itemForm').serialize()
+				jQuery('#bibItemForm').serialize()
+			);
+			e.preventDefault();
+			return false;
+		});
+	});
+</script>
+<?php
+	}
+	if($pn_specimen_id){
+?>
+<script type='text/javascript'>
+	jQuery(document).ready(function() {
+		jQuery('#bibItemForm').submit(function(e){		
+			jQuery('#specimenBibliographyInfo').load(
+				'<?php print caNavUrl($this->request, 'MyProjects', 'Bibliography', 'save'); ?>',
+				jQuery('#bibItemForm').serialize()
 			);
 			e.preventDefault();
 			return false;

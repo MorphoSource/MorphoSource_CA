@@ -148,6 +148,19 @@
 						}
 						break;
 					# -----------------------------------------------
+					case 'published':
+						if($_REQUEST['published'] != $this->opo_item->get('published')){
+							if(($_REQUEST['published'] == 1)){
+								# --- publishing media so set published on date
+								$this->opo_item->set("published_on",'now');
+							}else{
+								# --- unpublishing media so clear published_on date
+								$this->opo_item->set("published_on",null);
+							}
+						}
+						$this->opo_item->set($vs_f,$_REQUEST[$vs_f]); # set field values
+						break;
+					# -----------------------------------------------
 					case 'facility_id':
 						if($_REQUEST["facility_id"]){
 							$this->opo_item->set("facility_id",$_REQUEST["facility_id"]);
@@ -241,6 +254,35 @@
  		# -------------------------------------------------------
  		public function mediaInfo() {
  			$this->render('Media/media_info_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function publish() {
+			if($this->opo_item->get("media_id") && $this->opo_item->get("media")){
+				$this->opo_item->set('published', 1);
+				$this->opo_item->set('published_on', 'now');
+				if (sizeof($va_errors) == 0) {
+					# do update
+					$this->opo_item->setMode(ACCESS_WRITE);
+					$this->opo_item->update();
+					if ($this->opo_item->numErrors()) {
+						foreach ($this->opo_item->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					}
+				}
+				if(sizeof($va_errors) > 0){
+					$this->notification->addNotification("Could not publish media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+					$this->view->setVar("errors", $va_errors);
+					$this->form();
+				}else{
+					$this->opn_item_id = $this->opo_item->get("media_id");
+					$this->view->setVar("item_id", $this->opn_item_id);
+					$this->view->setVar("item", $this->opo_item);
+					$this->mediaInfo();
+				}
+			}
  		}
  		# -------------------------------------------------------
  		public function specimenLookup() {
@@ -357,11 +399,11 @@
  			$va_bib_citations = array();
  			if($this->opn_item_id){
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					while($q_bib->nextRow()){
- 						$va_bib_citations[$q_bib->get("link_id")] = $t_bibliography->getCitationText($q_bib->getRow());
+ 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "page" => $q_bib->get("pp"), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
  				$this->view->setVar("bib_citations", $va_bib_citations);
@@ -384,6 +426,9 @@
 					$t_bib_link->set("bibref_id",$pn_bibliography_id);
 					$t_bib_link->set("media_id",$this->opn_item_id);
 					$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+					if($vs_page = $this->request->getParameter('page', pString)){
+						$t_bib_link->set("pp",$vs_page);
+					}
 					if ($t_bib_link->numErrors() > 0) {
 						foreach ($t_bib_link->getErrors() as $vs_e) {
 							$va_errors["bibliography_id"] = $vs_e;

@@ -82,32 +82,32 @@
  			$po_search = isset($pa_options['search']) ? $pa_options['search'] : null;
  			
  			$t_model 				= $this->opo_datamodel->getInstanceByTableName($this->ops_tablename, true);
- 			$vn_display_id 			= $this->opo_result_context->getCurrentBundleDisplay();
-			
-			$va_display_list = array();
-			$t_display = $this->opo_datamodel->getInstanceByTableName('ca_bundle_displays', true); 
-			$t_display->load($vn_display_id);
-			
-			if ($vn_display_id && ($t_display->haveAccessToDisplay($this->request->getUserID(), __CA_BUNDLE_DISPLAY_READ_ACCESS__))) {
-				$va_placements = $t_display->getPlacements(array('settingsOnly' => true));
-				foreach($va_placements as $vn_placement_id => $va_display_item) {
-					$va_settings = caUnserializeForDatabase($va_display_item['settings']);
-					
-					// get column header text
-					$vs_header = $va_display_item['display'];
-					if (isset($va_settings['label']) && is_array($va_settings['label'])) {
-						$va_tmp = caExtractValuesByUserLocale(array($va_settings['label']));
-						if ($vs_tmp = array_shift($va_tmp)) { $vs_header = $vs_tmp; }
-					}
-					
-					$va_display_list[$vn_placement_id] = array(
-						'placement_id' => $vn_placement_id,
-						'bundle_name' => $va_display_item['bundle_name'],
-						'display' => $vs_header,
-						'settings' => $va_settings
-					);
-				}
-			}
+//  			$vn_display_id 			= $this->opo_result_context->getCurrentBundleDisplay();
+// 			
+// 			$va_display_list = array();
+// 			$t_display = $this->opo_datamodel->getInstanceByTableName('ca_bundle_displays', true); 
+// 			$t_display->load($vn_display_id);
+// 			
+// 			if ($vn_display_id && ($t_display->haveAccessToDisplay($this->request->getUserID(), __CA_BUNDLE_DISPLAY_READ_ACCESS__))) {
+// 				$va_placements = $t_display->getPlacements(array('settingsOnly' => true));
+// 				foreach($va_placements as $vn_placement_id => $va_display_item) {
+// 					$va_settings = caUnserializeForDatabase($va_display_item['settings']);
+// 					
+// 					// get column header text
+// 					$vs_header = $va_display_item['display'];
+// 					if (isset($va_settings['label']) && is_array($va_settings['label'])) {
+// 						$va_tmp = caExtractValuesByUserLocale(array($va_settings['label']));
+// 						if ($vs_tmp = array_shift($va_tmp)) { $vs_header = $vs_tmp; }
+// 					}
+// 					
+// 					$va_display_list[$vn_placement_id] = array(
+// 						'placement_id' => $vn_placement_id,
+// 						'bundle_name' => $va_display_item['bundle_name'],
+// 						'display' => $vs_header,
+// 						'settings' => $va_settings
+// 					);
+// 				}
+// 			}
 			
 			//
 			// Default display list (if none are specifically defined)
@@ -180,9 +180,9 @@
  			
  			// Get current display list
  			$va_displays = array('0' => _t('Default'));
- 			foreach(caExtractValuesByUserLocale($t_display->getBundleDisplays(array('table' => $this->ops_tablename, 'user_id' => $this->request->getUserID(), 'access' => __CA_BUNDLE_DISPLAY_READ_ACCESS__))) as $va_display) {
- 				$va_displays[$va_display['display_id']] = $va_display['name'];
- 			}
+//  			foreach(caExtractValuesByUserLocale($t_display->getBundleDisplays(array('table' => $this->ops_tablename, 'user_id' => $this->request->getUserID(), 'access' => __CA_BUNDLE_DISPLAY_READ_ACCESS__))) as $va_display) {
+//  				$va_displays[$va_display['display_id']] = $va_display['name'];
+//  			}
  			
  			$this->view->setVar('display_lists', $va_displays);	
  			
@@ -191,8 +191,8 @@
  			
  			# --- export options used to export search results - in tools show hide under page bar
  			$vn_table_num = $this->opo_datamodel->getTableNum($this->ops_tablename);
- 			$t_mappings = new ca_bundle_mappings();
-			$va_mappings = $t_mappings->getAvailableMappings($vn_table_num, array('E', 'X'));
+//  			$t_mappings = new ca_bundle_mappings();
+// 			$va_mappings = $t_mappings->getAvailableMappings($vn_table_num, array('E', 'X'));
 			
 			$va_export_options = array(
 				array(
@@ -217,20 +217,20 @@
 				)
 			);
 			
-			foreach($va_mappings as $vn_mapping_id => $va_mapping_info) {
-				$va_export_options[] = array(
-					'name' => $va_mapping_info['name'],
-					'code' => $va_mapping_info['mapping_id']
-				);
-			}
+// 			foreach($va_mappings as $vn_mapping_id => $va_mapping_info) {
+// 				$va_export_options[] = array(
+// 					'name' => $va_mapping_info['name'],
+// 					'code' => $va_mapping_info['mapping_id']
+// 				);
+// 			}
 		
 			$this->view->setVar('export_formats', $va_export_options);
 			
  			//
  			// Available sets
  			//
- 			$t_set = new ca_sets();
- 			$this->view->setVar('available_sets', caExtractValuesByUserLocale($t_set->getSets(array('table' => $this->ops_tablename, 'user_id' => $this->request->getUserID(), 'access' => __CA_SET_EDIT_ACCESS__, 'omitCounts' => true))));
+//  			$t_set = new ca_sets();
+//  			$this->view->setVar('available_sets', caExtractValuesByUserLocale($t_set->getSets(array('table' => $this->ops_tablename, 'user_id' => $this->request->getUserID(), 'access' => __CA_SET_EDIT_ACCESS__, 'omitCounts' => true))));
 
 			if(strlen($this->ops_tablename)>0){
 				if(!$this->request->user->canDoAction("can_edit_{$this->ops_tablename}")){

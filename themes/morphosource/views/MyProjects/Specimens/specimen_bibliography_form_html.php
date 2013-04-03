@@ -1,22 +1,22 @@
 <?php
-	$pn_media_id = $this->getVar("item_id");
-	$t_media = $this->getVar("item");
+	$pn_specimen_id = $this->getVar("item_id");
+	$t_specimen = $this->getVar("item");
 	$vs_message = $this->getVar("message");
 	$vs_new_message = $this->getVar("new_message");
 	$va_bib_citations = $this->getVar("bib_citations");
 ?>
-<div id="formArea" class='mediaBibFormContainer'><div class="ltBlueTopRule"><br/>
+<div id="formArea" class='specimenBibFormContainer'><div class="ltBlueTopRule"><br/>
 <?php
 	if($vs_message || $vs_new_message){
 		print "<div class='formErrors'>".$vs_message.$vs_new_message."</div>";
 	}
-	print caFormTag($this->request, 'linkBibliography', 'mediaBibForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+	print caFormTag($this->request, 'linkBibliography', 'specimenBibForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
 	print "<div class='formLabel'>";
 	print "Look up a bibliographic citation".":<br/>".caHTMLTextInput("bibliography_lookup", array("id" => 'msBibliograpnyID', 'class' => 'lookupBg'), array('width' => "200px", 'height' => 1));
 	print "&nbsp;&nbsp;&nbsp;Page(s): <input type='text' style='width:30px;' value='' name='page'>";
-	print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaBibForm\").submit(); return false;'>"._t("Save")."</a></div>";
+	print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#specimenBibForm\").submit(); return false;'>"._t("Save")."</a></div>";
 	print "<input type='hidden' value='' name='bibliography_id' id='bibliography_id'>";
-	print "<input type='hidden' value='".$pn_media_id."' name='media_id'>"
+	print "<input type='hidden' value='".$pn_specimen_id."' name='specimen_id'>"
 ?>
 </form></div><!-- end ltBlueTopRule -->
 <?php
@@ -25,12 +25,12 @@
 		print "<div class='ltBlueTopRule'>";
 		foreach($va_bib_citations as $vn_link_id => $va_bib_info){
 			print "<div class='listItemLtBlue'>";
-			print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onClick='jQuery(\".mediaBibFormContainer\").load(\"".caNavUrl($this->request, "MyProjects", "Media", "removeBibliography", array("media_id" => $pn_media_id, "link_id" => $va_bib_info["link_id"]))."\"); return false;'>Remove</a></div>";			
-			print "<div class='citationIndent'>".caNavLink($this->request, $va_bib_info["citation"], "", "MyProjects", "Bibliography", "form", array('bibref_id' => $va_bib_info["bibref_id"]));
+			print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onClick='jQuery(\".specimenBibFormContainer\").load(\"".caNavUrl($this->request, "MyProjects", "Specimens", "removeBibliography", array("specimen_id" => $pn_specimen_id, "link_id" => $va_bib_info["link_id"]))."\"); return false;'>Remove</a></div>";			
+			print caNavLink($this->request, $va_bib_info["citation"], "", "MyProjects", "Bibliography", "form", array('bibref_id' => $va_bib_info["bibref_id"]));
 			if($va_bib_info["page"]){
 				print "<br/>Page(s): ".$va_bib_info["page"];
 			}
-			print "</div></div>";
+			print "</div>";
 		}
 		print "</div>";
 	}	
@@ -47,7 +47,7 @@
 				if (bibliography_id < 1) {
 					// nothing found...
 					//alert("Create new bibliography since returned id was " + bibliography_id);
-					jQuery(".mediaBibFormContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Bibliography', 'form', array('media_id' => $pn_media_id)); ?>");
+					jQuery(".specimenBibFormContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Bibliography', 'form', array('specimen_id' => $pn_specimen_id)); ?>");
 				} else {
 					// found an id
 					jQuery('#bibliography_id').val(bibliography_id);
@@ -58,10 +58,10 @@
 	).click(function() { this.select(); });
 
 	jQuery(document).ready(function() {
-		jQuery('#mediaBibForm').submit(function(e){		
-			jQuery('#mediaBibliographyInfo').load(
-				'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'linkBibliography'); ?>',
-				jQuery('#mediaBibForm').serialize()
+		jQuery('#specimenBibForm').submit(function(e){		
+			jQuery('#specimenBibliographyInfo').load(
+				'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'linkBibliography'); ?>',
+				jQuery('#specimenBibForm').serialize()
 			);
 			e.preventDefault();
 			return false;

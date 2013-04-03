@@ -53,6 +53,28 @@
  			JavascriptLoadManager::register('browsable');
  			JavascriptLoadManager::register('tabUI');
  			JavascriptLoadManager::register('cycle');
+ 			# --- get a recent media image to display
+ 			$vn_recent = "";
+ 			$vs_recent_media = "";
+ 			$o_db = new Db();
+ 			$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
+ 			if($q_recent_media->numRows()){
+ 				$q_recent_media->nextRow();
+ 				$vn_recent = $q_recent_media->get("media_id");
+ 				$vs_recent_media = $q_recent_media->getMediaTag("media", "preview190");
+ 			}
+ 			$this->view->setVar("recent_media", $vs_recent_media);
+ 			$this->view->setVar("recent_media_id", $vn_recent);
+ 			$vn_random = "";
+ 			$vs_random_media = "";
+ 			$q_random_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY RAND() DESC LIMIT 1");
+ 			if($q_random_media->numRows()){
+ 				$q_random_media->nextRow();
+ 				$vn_random = $q_random_media->get("media_id");
+ 				$vs_random_media = $q_random_media->getMediaTag("media", "preview190");
+ 			}
+ 			$this->view->setVar("random_media", $vs_random_media);
+ 			$this->view->setVar("random_media_id", $vn_random);
  			$this->render('Splash/splash_html.php');
  		}
  		# -------------------------------------------------------

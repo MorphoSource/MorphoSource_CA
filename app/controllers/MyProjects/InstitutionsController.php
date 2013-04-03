@@ -1,6 +1,6 @@
 <?php
 /* ----------------------------------------------------------------------
- * controllers/MyProjects/BibliographyController.php
+ * controllers/MyProjects/InstitutionsController.php
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -28,12 +28,10 @@
  
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
- 	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
- 	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
- 	require_once(__CA_MODELS_DIR__."/ms_specimens_x_bibliography.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_institutions.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
- 	class BibliographyController extends ActionController {
+ 	class InstitutionsController extends ActionController {
  		# -------------------------------------------------------
 			protected $opo_project;
 			protected $opn_project_id;
@@ -72,8 +70,8 @@
  			}
 			$this->view->setvar("project", $this->opo_project);
 			
-			# --- load the bib object
-			$this->opo_item = new ms_bibliography();
+			# --- load the object
+			$this->opo_item = new ms_institutions();
 			$this->opn_item_id = $this->request->getParameter($this->opo_item->getProperty("PRIMARY_KEY"), pInteger);
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
@@ -95,7 +93,7 @@
 				$this->ops_item_name .= $this->opo_item->get($vs_field);
 				$i++;
 				if(($i < sizeof($va_list_fields)) && ($this->opo_item->get($vs_field))){
-					$this->ops_item_name .= $this->opo_item->getProperty("LIST_DELIMITER");
+					$this->ops_item_name .= ", ";
 				}
 			}
 			$this->view->setvar("item_name", $this->ops_item_name);
@@ -103,16 +101,15 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
-			$this->view->setVar("media_id", $this->request->getParameter('media_id', pInteger));
-			$this->view->setVar("specimen_id", $this->request->getParameter('specimen_id', pInteger));
-			$this->render('Bibliography/form_html.php');
+ 			$this->view->setVar("specimen_id", $this->request->getParameter('specimen_id', pInteger));
+			$this->render('Institutions/form_html.php');
  		}
  		# -------------------------------------------------------
  		public function listItems() {
 			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_bibliography WHERE project_id = ? ORDER BY authors", $this->opn_project_id);
+			$q_listings = $o_db->query("SELECT * FROM ms_institutions ORDER BY name, location_city");
 			$this->view->setVar("listings", $q_listings);
-			$this->render('Bibliography/list_html.php');
+			$this->render('Institutions/list_html.php');
  		}
  		# -------------------------------------------------------
  		public function save() {
@@ -124,12 +121,6 @@
 			while(list($vs_f,$va_attr) = each($va_fields)) {
 				
 				switch($vs_f) {
-					# -----------------------------------------------
-					case 'project_id':
-						if(!$this->opo_item->get("project_id")){
-							$this->opo_item->set($vs_f,$this->opn_project_id);
-						}
-						break;
 					# -----------------------------------------------
 					case 'user_id':
 						if(!$this->opo_item->get("user_id")){
@@ -163,56 +154,7 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
-					# --- if a media_id or specimen_id has been passed to this form and the item is being inserted
-					# --- it means we are quick adding a bib in the context of the media/specimen form
-					# --- so load, set and save the ms_media_x_bibliography/ ms_specimen_x_bibliography and if no errors, redirect to the media/specimen controller
-					if($pn_media_id = $this->request->getParameter('media_id', pInteger)){
-						$t_bib_link = new ms_media_x_bibliography();
-						$t_bib_link->set("bibref_id",$this->opo_item->get("bibref_id"));
-						$t_bib_link->set("media_id",$pn_media_id);
-						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
-						if($_REQUEST["page"]){
-							$t_bib_link->set("pp",$_REQUEST["page"]);
-						}
-						$t_bib_link->setMode(ACCESS_WRITE);
-						$t_bib_link->insert();
-			
-						if ($t_bib_link->numErrors()) {
-							foreach ($t_bib_link->getErrors() as $vs_e) {  
-								$va_errors["general"] = $vs_e;
-							}
-							$vs_message = join(", ", $va_errors);
-						}else{
-							$vs_message = "Saved media bibliography";
-							# --- redirect to media controller
-							$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Media", "bibliographyLookup", array("message" => $vs_message, "media_id" => $pn_media_id)));
-							return;
-						}
-					}elseif($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)){
-						$t_bib_link = new ms_specimens_x_bibliography();
-						$t_bib_link->set("bibref_id",$this->opo_item->get("bibref_id"));
-						$t_bib_link->set("specimen_id",$pn_specimen_id);
-						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
-						if($_REQUEST["page"]){
-							$t_bib_link->set("pp",$_REQUEST["page"]);
-						}
-						$t_bib_link->setMode(ACCESS_WRITE);
-						$t_bib_link->insert();
-			
-						if ($t_bib_link->numErrors()) {
-							foreach ($t_bib_link->getErrors() as $vs_e) {  
-								$va_errors["general"] = $vs_e;
-							}
-							$vs_message = join(", ", $va_errors);
-						}else{
-							$vs_message = "Saved specimen bibliography";
-							# --- redirect to specimen controller
-							$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Specimens", "bibliographyLookup", array("message" => $vs_message, "specimen_id" => $pn_specimen_id)));
-							return;
-						}
-					}else{
-						$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
-					}
+					$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
 				}
 			}
 			if(sizeof($va_errors) > 0){
@@ -245,7 +187,7 @@
 					$this->listItems();
 				}				
 			}else{
-				$this->view->setVar("item_name", $this->opo_item->getCitationText());
+				$this->view->setVar("item_name", $this->ops_item_name);
 				$this->render('General/delete_html.php');
 			}
  		}

@@ -128,6 +128,9 @@ class SearchEngine extends SearchBase {
 	public function doSearch($ps_search, $po_result=null, $pa_options=null) {
 		global $AUTH_CURRENT_USER_ID;
 		
+		if ($vs_append_to_search = (isset($pa_options['appendToSearch'])) ? ' '.$pa_options['appendToSearch'] : '') {
+			$ps_search .= $vs_append_to_search;
+		}
 		$t = new Timer();
 		if (!is_array($pa_options)) { $pa_options = array(); }
 		$vn_limit = (isset($pa_options['limit']) && ($pa_options['limit'] > 0)) ? (int)$pa_options['limit'] : null;

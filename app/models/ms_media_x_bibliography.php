@@ -66,7 +66,7 @@ BaseModel::$s_ca_models_definitions['ms_media_x_bibliography'] = array(
 		),
 		'pp' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Page number'), 'DESCRIPTION' => _t('Page media appears on.'),

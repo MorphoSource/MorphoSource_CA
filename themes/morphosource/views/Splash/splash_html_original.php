@@ -40,34 +40,32 @@
 			</div>
 		</div><!-- end hptext -->
 		<div id="hpFeatures">
-<?php
-		if($this->getVar("recent_media")){
-?>
 			<div class="hpFeature hpFeaturePadding">
-				<H2 class="tealTopBottomRule">Recently Published</H2>
-				<?php print caNavLink($this->request, $this->getVar("recent_media"), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar("recent_media_id"))); ?>
+				<H2 class="tealTopBottomRule">Most Recent Project</H2>
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature1.jpg">
 			</div><!-- end hpfeature -->
-<?php
-		}
-		if($this->getVar("random_media")){
-?>
 			<div class="hpFeature hpFeaturePadding">
-				<H2 class="tealTopBottomRule">Random Media</H2>
-				<?php print caNavLink($this->request, $this->getVar("random_media"), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar("random_media_id"))); ?>
+				<H2 class="tealTopBottomRule">Most Viewed Project</H2>
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature2.jpg">
 			</div><!-- end hpfeature -->
-<?php
-		}
-?>
+			<div class="hpFeature hpFeaturePadding">
+				<H2 class="tealTopBottomRule">Project Spotlight</H2>
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature3.jpg">
+			</div><!-- end hpfeature -->
+			<div class="hpFeature">
+				<H2 class="tealTopBottomRule">Featured Member</H2>
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpFeature3.jpg">
+			</div><!-- end hpfeature -->
 		</div><!-- end hpfeatures -->
 		<div id="hpStats">
-			<div id="hpStatsCol2">
+			<div id="hpStatsCol1">
+				<div class="tealRule"><!-- empty --></div>
 <?php
 			if($this->request->isLoggedIn()){
 				$t_project = new ms_projects();
 				$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
 				if(sizeof($va_projects)){
 ?>
-					<div class="tealRule"><!-- empty --></div>
 					<H2 style="float:right;">last updated</H2>
 					<H2>Your Project List</H2>
 					<div class="tealTopBottomRule">
@@ -83,13 +81,32 @@
 				}else{
 					print "<H2 style='text-align:center;'>You have no projects</H2>";	
 				}
-				print "<p style='text-align:center; margin-top:30px;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
+				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
 			}else{
-				print "<H2 style='text-align:center; margin-top:50px;'>New to MorphoSource?</H2>";
+				print "<H2 style='text-align:center;'>New to MorphoSource?</H2>";
 				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Login or Register"), "button buttonLarge", "", "LoginReg", "form")."<p>";
 			}
 ?>
 				
-			</div><!-- end hpStatsCol2 -->
+			</div><!-- end hpStatsCol1 -->
+			<div id="hpStatsCol2">
+				<div class="tealRule"><!-- empty --></div>
+				<H2>Recent Messages</H2>
+				<div class="tealTopBottomRule">
+					<div class="time">02.20.13</div>
+					<div class="projectListItem" style="border-bottom:0px;">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nibh arcu, mollis nec sodales id, commodo non erat. 
+					</div><!-- end projectListItem -->
+					<div class="time">02.20.13</div>
+					<div class="projectListItem" style="border-bottom:0px;">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nibh arcu, mollis nec sodales id, commodo non erat. 
+					</div><!-- end projectListItem -->
+					<div class="time">02.20.13</div>
+					<div class="projectListItem" style="border-bottom:0px;">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nibh arcu, mollis nec sodales id, commodo non erat. 
+					</div><!-- end projectListItem -->
+					<div style="clear:both; height:1px;"><!-- empty --></div>
+				</div><!-- end tealTopBottomRule -->
+			</div><!-- end hpStatsCol1 -->
 		</div><!-- end hpStats -->
 		<div style="clear:both; height:1px;"><!-- empty --></div>

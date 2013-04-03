@@ -68,6 +68,24 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"LABEL" => "Select media file", 
 				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
 		),
+		'published' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Publication status'), 'DESCRIPTION' => _t('Release to public search?'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"Not published/ Not available in public search" => 0,
+					"Published/ available in public search" => 1
+				)
+		),
+		'published_on' => array(
+				'FIELD_TYPE' => FT_DATETIME, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Media published on'), 'DESCRIPTION' => _t('Date/time the Media was published.'),
+		),
 		'specimen_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
@@ -110,7 +128,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'copyright_permission' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Copyright permission'), 'DESCRIPTION' => _t('Copyright permission'),
@@ -125,7 +143,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'copyright_license' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Copyright license'), 'DESCRIPTION' => _t('Copyright license'),
@@ -159,7 +177,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_type' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Scanner type'), 'DESCRIPTION' => _t('Scanner type'),
@@ -173,7 +191,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('X res.'), 'DESCRIPTION' => _t('X resolution of scanner.'),
+				'LABEL' => _t('X res'), 'DESCRIPTION' => _t('X resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'scanner_y_resolution' => array(
@@ -242,7 +260,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_calibration_check' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Calibration check'), 'DESCRIPTION' => _t('Scanner calibration check'),
@@ -272,7 +290,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Project created on'), 'DESCRIPTION' => _t('Date/time the Project was created.'),
+				'LABEL' => _t('Media created on'), 'DESCRIPTION' => _t('Date/time the Media was created.'),
 		),
 		'last_modified_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,

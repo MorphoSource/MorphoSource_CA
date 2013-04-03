@@ -29,6 +29,10 @@ print caFormTag($this->request, 'save', 'specimenItemForm', null, 'post', 'multi
 <?php
 if (!$this->request->isAjax()) {
 		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+}else{
+	if($pn_media_id){
+		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#mediaSpecimenInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id))."\");'>"._t("Cancel")."</a></div>";
+	}
 }
 ?>
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#specimenItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
@@ -62,6 +66,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 	<div id="leftCol">
 <?php
 	$t_bib = new ms_bibliography();
+	$t_institution = new ms_institutions();
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
 		if($va_errors[$vs_f]){
 			print "<div class='formErrors'>".$va_errors[$vs_f]."</div>";
@@ -83,9 +88,21 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					$vs_name = strip_tags($t_bib->getCitationText());
 				}
 				print "<div class='formLabel'>";
-				print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_'.$vs_f.'_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '380px', 'height' => 1, 'paadding-right' => '15px'));
+				print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_'.$vs_f.'_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '354px', 'height' => 1, 'paadding-right' => '15px'));
 				print "</div>";
 				print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'>";
+			break;
+			# -----------------------------------------------
+			case "institution_id":
+				$vs_name = "";
+				if($t_item->get($vs_f)){
+					$t_institution->load($t_item->get($vs_f));
+					$vs_name = strip_tags($t_institution->get("name"));
+				}
+				print "<div id='specimenInstitutionFormContainer'><div class='formLabel'>";
+				print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_institution_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '354px', 'height' => 1, 'paadding-right' => '15px'));
+				print "</div>";
+				print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'></div>";
 			break;
 			# -----------------------------------------------
 			default:
@@ -155,6 +172,29 @@ if (!$this->request->isAjax()) {
 		});
 <?php
 	}
+?>
+	jQuery(document).ready(function() {
+		jQuery('#ms_institution_lookup').autocomplete(
+			{ 
+				source: '<?php print caNavUrl($this->request, 'lookup', 'Institution', 'Get', array("max" => 500, "quickadd" => true)); ?>', 
+				minLength: 3, delay: 800, html: true,
+				select: function(event, ui) {
+					var institution_id = parseInt(ui.item.id);
+					if (institution_id < 1) {
+						// nothing found...
+						//alert("Create new taxon since returned id was " + alt_id);
+						jQuery("#specimenInstitutionFormContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Institutions', 'form', array('specimen_id' => $pn_specimen_id)); ?>");
+					} else {
+						// found an id
+						//alert("found institution id: " + institution_id);
+						jQuery('#institution_id').val(institution_id);
+						//alert("institution id set to: " + jQuery('#institution_id').val());
+					}
+				}
+			}
+		).click(function() { this.select(); });
+	});
+<?php
 	if($t_item->get("specimen_id")){
 ?>
 	jQuery(document).ready(function() {			
@@ -165,7 +205,7 @@ if (!$this->request->isAjax()) {
 	});
 	jQuery(document).ready(function() {			
 		jQuery('#specimenBibliographyInfo').load(
-			'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'specimenBibliographyLookup', array('specimen_id' => $t_item->get("specimen_id"))); ?>'
+			'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'bibliographyLookup', array('specimen_id' => $t_item->get("specimen_id"))); ?>'
 		);
 		return false;
 	});

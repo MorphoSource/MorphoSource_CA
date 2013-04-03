@@ -479,7 +479,8 @@ td.advSearchElement{
 /* ------------------------------------- */
 #searchNavBg{
 	clear:both;
-	background-color: #E2E2E2;
+	border-bottom: 1px solid #689899;
+	border-top: 1px solid #689899;
 }
 .searchNav{
 	text-align:center;
@@ -676,47 +677,43 @@ input.addItemToSetControlInThumbnails {
 	margin: 1px 2px 0px 10px;
 	text-decoration:none;
 	text-transform:uppercase;
-	color:#828282;
+	color:#689899;
 	font-size:11px;
 	
 }
 #hideOptions, #hideTools{
 	position:absolute;
 	right:20px;
-	top:20px;
+	top:0px;
 	margin: 3px 0px 0px 10px;
 	text-decoration:none;
 	text-transform:uppercase;
-	color:#828282;
+	color:#689899;
 	font-size:12px;
 	
 }
 #searchOptionsBox, #searchToolsBox{
 	position:relative;
 	clear:both;
-	margin: 0px 0px 0px 0px;
+	margin: 10px 0px 0px 0px;
 	display:none;
 	font-size:12px;
-	color:#828282;
+	border-bottom: 1px solid #689899;
 }
 #browse #searchOptionsBox{	/* need extra space above this box in the browse */
 	margin: 10px 0px 0px 0px;
 }
 #searchOptionsBox .col, #searchToolsBox .col{
 	float:left;
-	width:38%;
-	color:#828282;
+	width:40%;
 }
 #searchOptionsBox .col .unit, #searchToolsBox .col .unit{
 	float:left;
 	padding:0px 20px 20px 10px;
-	color:#828282;
 }
 #searchOptionsBox .layout{
 	float:left;
 	width:62%;
-	color:#828282;
-	
 }
 
 #searchOptionsBox .layout table{
@@ -728,7 +725,6 @@ input.addItemToSetControlInThumbnails {
 	border:0px;
 }
 #searchOptionsBox .col .heading, #searchOptionsBox .layout .heading, #searchToolsBox .col .heading{
-	font-size:14px;
 	font-weight:bold;
 	color:#000000;
 	margin-bottom:10px;
@@ -744,16 +740,14 @@ input.addItemToSetControlInThumbnails {
 	padding:15px;
 }
 #searchOptionsBox .apply{
-	margin:0px -20px 0px -20px;
-	border-top:2px solid #F1F1F1;
-	padding:10px 10px 0px 10px;
+	padding:10px 10px 20px 10px;
 	text-align:center;
 }
 #searchOptionsBox .apply a{
 	text-decoration: none;
 	font-weight:bold;
 	font-size:14px;
-	color:#000000;
+	color:#689899;
 	text-transform:uppercase;
 }
 #searchToolsBox a.apply{

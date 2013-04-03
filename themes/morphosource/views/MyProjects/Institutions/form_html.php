@@ -6,26 +6,26 @@
 	
 	# --- formatting varibales
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("address1", "address2", "city", "stateprov", "postalcode", "country", "created_on", "last_modified_on");
+	$va_float_fields = array("location_city", "location_state", "location_country");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("address2", "stateprov", "country", "last_modified_on");
+	$va_clear_fields = array("location_country");
 	
 if (!$this->request->isAjax()) {
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1>
-		<?php print _t("Facility"); ?>
+		<?php print _t("Institution"); ?>
 	</H1>
 	<div id='formArea'>
 	
 <?php
-print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+print caFormTag($this->request, 'save', 'institutionForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
 	<div class="formButtons tealTopBottomRule">
 <?php
 		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
 ?>
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#institutionForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
 			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
@@ -36,7 +36,7 @@ print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/for
 }else{
 ?>
 	<H2 class="ltBlueBottomRule" style="margin-bottom:10px;">
-		<?php print _t("Facility Information"); ?>
+		<?php print _t("Institution Information"); ?>
 	</H2>
 	<div class="ltBlueBottomRule" style="margin-bottom:15px;">
 <?php
@@ -66,7 +66,7 @@ print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/for
 if (!$this->request->isAjax()) {
 ?>
 	<div class="formButtons tealTopBottomRule">
-		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
+		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#institutionForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
 			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
@@ -79,23 +79,6 @@ if (!$this->request->isAjax()) {
 }else{
 ?>
 	</div><!-- end ltBlueBottomRule -->
-	<!-- form is loaded via AJAX as part of media form - check name of facility is entered to avoid errors when loaded in the media info form -->
 <?php
-	if($this->getVar("media_id")){
-?>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			$('#mediaForm').submit(function(){
-				if($('#name').val() == ''){
-					alert("Pease enter the name of the facility");
-					return false;
-				}else{
-					return true;
-				}
-			});
-		});
-	</script>
-<?php
-	}
 }
 ?>

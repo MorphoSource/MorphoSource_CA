@@ -52,7 +52,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 		),
 		'name' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 83, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Name'), 'DESCRIPTION' => _t('Project name.'),
@@ -74,7 +74,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Published on'), 'DESCRIPTION' => _t('Project publication date.'),
 		),
 		'publication_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
@@ -99,7 +99,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Project last modified on'), 'DESCRIPTION' => _t('Date/time the Project was last modified.'),
 		),
 		'approval_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
@@ -358,7 +358,7 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-			SELECT m.media_id, m.media
+			SELECT m.media_id, m.media, m.specimen_id
 			FROM ms_media m
 			WHERE m.project_id = ?
 			ORDER BY m.media_id

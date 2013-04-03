@@ -28,6 +28,7 @@
  
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class DashboardController extends ActionController {

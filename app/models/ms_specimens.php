@@ -68,15 +68,9 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 					'Unvouchered' => 1
 				)
 		),
-		'institution_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
-				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => TRUE, "DEFAULT" => "",
-				"LABEL" => "Find the institution for this specimen", "DESCRIPTION" => "Enter words from the name or location of the institution<br /> and select institution from resulting list of possible matches."
-		),
 		'institution_code' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Institution code'), 'DESCRIPTION' => _t('Institution code of specimen.'),
@@ -84,15 +78,15 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'collection_code' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Collection code'), 'DESCRIPTION' => _t('Collection code of specimen.'),
-				'BOUNDS_LENGTH' => array(1,255)
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'catalog_number' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Catalog number'), 'DESCRIPTION' => _t('Catalog number of specimen.'),
@@ -100,7 +94,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'element' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
@@ -108,7 +102,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'side' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
@@ -116,7 +110,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'sex' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => 0,
 				'LABEL' => _t('Sex'), 'DESCRIPTION' => _t('Sex of specimen.'),
@@ -125,9 +119,15 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 					_t('Female')	=> 'F'
 				)
 		),
+		'institution_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
+				"DISPLAY_WIDTH" => 4, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => TRUE, "DEFAULT" => "",
+				"LABEL" => "Find the institution for this specimen", "DESCRIPTION" => "Enter words from the name or location of the institution<br /> and select institution from resulting list of possible matches."
+		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 68, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 62, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the specimen.'),
@@ -135,7 +135,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Relative age'), 'DESCRIPTION' => _t('Specimen\'s relative age.'),
@@ -143,7 +143,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 33, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Absolute age'), 'DESCRIPTION' => _t('Specimen\'s absolute age.'),
@@ -151,7 +151,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'body_mass' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass'), 'DESCRIPTION' => _t('Specimen\'s body mass'),
@@ -159,7 +159,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'body_mass_comments' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Body mass comments'), 'DESCRIPTION' => _t('Comments about the specimen\'s body mass.'),
@@ -173,7 +173,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
@@ -181,7 +181,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_coordinates' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality coordinates'), 'DESCRIPTION' => _t('Coordinates of the locality of the specimen.'),
@@ -189,7 +189,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality absolute age'), 'DESCRIPTION' => _t('Absolute age of the locality of the specimen.'),
@@ -197,7 +197,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_relative_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),

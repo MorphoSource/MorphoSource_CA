@@ -63,7 +63,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Common name'), 'DESCRIPTION' => _t('Common name for taxon.'),
-				'BOUNDS_LENGTH' => array(1,255)
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'is_extinct' => array(
 				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 

@@ -32,8 +32,7 @@
 	}
 ?>
 <div id="searchOptionsBox">
-		<div class="bg">
-			<a href='#' id='hideOptions' onclick='$("#searchOptionsBox").slideUp(250); $("#showOptions").slideDown(1); return false;'><?php print _t("Hide"); ?> <img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/arrow_right_gray.gif" width="9" height="10" border="0"></a>
+			<a href='#' id='hideOptions' onclick='$("#searchOptionsBox").slideUp(250); $("#showOptions").slideDown(1); return false;'><?php print _t("Hide"); ?> &rsaquo;</a>
 <?php
 			print caFormTag($this->request, 'Index', 'caSearchOptionsForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true)); 
 
@@ -66,7 +65,8 @@
 			}
 			print "</select>\n";
 			print "</div><!-- end unit -->";
-	
+			print "</div><!-- end col -->";
+			print "<div class='col'>";
 			$va_search_history = $this->getVar('search_history');
 			$vs_cur_search = $vo_result_context->getSearchExpression();
 			if (is_array($va_search_history) && sizeof($va_search_history) > 0) {
@@ -82,36 +82,10 @@
 				print "</div><!-- end unit -->";
 			}
 			print "</div><!-- end col -->";
-
-			print "<div class='layout'>";
-			$va_views = $this->getVar("views");
-			$vs_current_view = $vo_result_context->getCurrentView();
-			print "<div class='heading'>"._t("Layout options:")."</div>";
-			if(is_array($va_views) && sizeof($va_views) > 0){
-				foreach($va_views as $vs_view => $vs_name){
-?>								
-				<table cellpadding="2px" cellspacing="2px">
-					<tbody><tr>
-						<td align="left" valign="top"><input name="view" value="<?php print $vs_view; ?>" type="radio" <?php print (($vs_view == $vs_current_view) ? "checked" : ""); ?>></td>
-						<td colspan="2" align="left" valign="top"><b><?php print $vs_name; ?></b></td>
-					</tr>
-					<tr>
-						<td><!-- empty --></td>
-						<td align="left" valign="top"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/<?php print $va_result_views_options[$vs_view]["icon"]; ?>"></td>
-						<td align="left" valign="top"><?php print $va_result_views_options[$vs_view]["description"]; ?></td>
-					</tr>
-				</tbody></table>
-<?php								
-				}
-			}
-			print "</div>";		
-			
-
 			print "</form>\n";
 	?>
 			<div style='clear:both;height:1px;'>&nbsp;</div>
 			<div class="apply">
 				<a href="#" onclick="document.forms.caSearchOptionsForm.submit(); return false;"><?php print _t("Apply"); ?> &rsaquo;</a>
 			</div>
-		</div><!-- end bg -->
 </div><!-- end searchOptionsBox -->

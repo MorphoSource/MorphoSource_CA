@@ -33,8 +33,8 @@
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
  
 BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
- 	'NAME_SINGULAR' 	=> _t('project'),
- 	'NAME_PLURAL' 		=> _t('projects'),
+ 	'NAME_SINGULAR' 	=> _t('institution'),
+ 	'NAME_PLURAL' 		=> _t('institutions'),
  	'FIELDS' 			=> array(
  		'institution_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
@@ -45,15 +45,15 @@ BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
 		),
 		'name' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Name'), 'DESCRIPTION' => _t('Institution name.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 5,
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Article description.'),
@@ -61,7 +61,7 @@ BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
 		),
 		'location_city' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('City'), 'DESCRIPTION' => _t('City of institution.'),
@@ -69,7 +69,7 @@ BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
 		),
 		'location_state' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('State'), 'DESCRIPTION' => _t('State of institution.'),
@@ -77,14 +77,14 @@ BaseModel::$s_ca_models_definitions['ms_institutions'] = array(
 		),
 		'location_country' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 80, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Country'), 'DESCRIPTION' => _t('Country of institution.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'user_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',

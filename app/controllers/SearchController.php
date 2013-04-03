@@ -224,7 +224,7 @@
 				}
 			}
  			$this->view->setVar('secondaryItemsPerPage', $this->opa_items_per_secondary_search_page);
- 			
+ 			$pa_options["appendToSearch"] = "ms_media.published:1";
  			$pa_options['search'] = $this->opo_browse;
  			return parent::Index($pa_options);
  		}

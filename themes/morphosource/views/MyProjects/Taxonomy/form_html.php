@@ -9,11 +9,11 @@
 	$pn_specimen_id = $this->getVar("specimen_id");
 	$ps_specimen_name = $this->getVar("specimen_name");
 
-	# --- formatting varibales
+	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
 	$va_float_fields = array("common_name", "is_extinct", "species", "subspecies", "variety", "author", "year", "ht_supraspecific_clade", "ht_kingdom", "ht_phylum", "ht_class", "ht_subclass", "ht_order", "ht_suborder", "ht_superfamily", "ht_family", "ht_subfamily", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("is_extinct", "variety", "year", "ht_phylum", "ht_subclass", "ht_suborder", "ht_subfamily", "last_modified_on");
+	$va_clear_fields = array("is_extinct", "variety", "year", "ht_phylum", "ht_subclass", "ht_suborder", "ht_subfamily", "genus", "last_modified_on");
 
 	if($ps_specimen_name){
 		print "<H2>Taxonomic Information For ".$ps_specimen_name."</H2>";
@@ -31,6 +31,12 @@ print caFormTag($this->request, 'save', 'taxonomyItemForm', null, 'post', 'multi
 <?php
 if (!$this->request->isAjax()) {
 		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+}else{
+	if($pn_media_id){
+		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#mediaSpecimenInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id))."\");'>"._t("Cancel")."</a></div>";
+	}elseif($pn_specimen_id){
+		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#specimenTaxonomyInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Specimens', 'specimenTaxonomyLookup', array('specimen_id' => $pn_specimen_id))."\");'>"._t("Cancel")."</a></div>";
+	}
 }
 ?>
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#taxonomyItemForm').submit(); return false;"><?php print _t("Save"); ?></a>

@@ -1,6 +1,7 @@
 <?php
 /* ----------------------------------------------------------------------
- * default/views/mailTemplates/reg_conf_html.tpl
+ * themes/default/views/Results/ms_media_result_tooltip_html.php :
+ * 		thumbnail search results
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -25,15 +26,8 @@
  *
  * ----------------------------------------------------------------------
  */
- 
-print _t("<p>Thank you for registering for \"%1\".</p>
-
-<p>As a member you can create your own projects and share media with others in the MorphoSource community.</p>
-
-<p>Regards,<br/>
-the Staff</p>
-
-", $this->request->config->get("app_display_name"));
-
-	print "<p>".$this->request->config->get("site_host")."</p>";
 ?>
+<div>
+	<H2>M<?php print $this->getVar('tooltip_id'); ?></H2>
+	<?php print $this->getVar('tooltip_representation'); ?>
+</div>

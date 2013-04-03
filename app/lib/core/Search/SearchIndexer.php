@@ -39,6 +39,7 @@ require_once(__CA_LIB_DIR__.'/core/Utils/Graph.php');
 require_once(__CA_LIB_DIR__.'/core/Utils/Timer.php');
 require_once(__CA_LIB_DIR__.'/core/Zend/Cache.php');
 require_once(__CA_APP_DIR__.'/helpers/utilityHelpers.php');
+require_once(__CA_LIB_DIR__.'/ca/Utils/CLIUtils.php');
 
 class SearchIndexer extends SearchBase {
 	# ------------------------------------------------
