@@ -18,7 +18,7 @@
 	if($vs_media){
 		$va_media_info = $t_media->getMediaInfo("media", "medium");
 		$vn_width = $va_media_info["WIDTH"];
-		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'>".$vs_media."</div>";
+		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'><a href='#' onclick='caMediaPanel.showPanel(\"".caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey()))."\"); return false;'>".$vs_media."</a></div>";
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
 	if($t_media->get("specimen_id")){

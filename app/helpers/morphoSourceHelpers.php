@@ -41,18 +41,18 @@
 	  * checks access and sets session variable to select project as current working project
 	  * this is for logged in users who are accessing the 'Dashboard' section of the site for doing cataloguing
 	  */
-	function msSelectProject($o_request, $pn_project_id="") {
+	function msSelectProject($o_controller, $o_request, $pn_project_id="") {
 		if(!$pn_project_id){
 			$pn_project_id = $o_request->getParameter('project_id', pInteger);
 		}
 		$t_project = new ms_projects($pn_project_id);
 		if (!$t_project->getPrimaryKey()) {
-			$this->notification->addNotification("Project does not exist!", __NOTIFICATION_TYPE_ERROR__);
-			$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+			$o_controller->notification->addNotification("Project does not exist!", __NOTIFICATION_TYPE_ERROR__);
+			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
 		}
 		if(!$t_project->isMember($o_request->user->get("user_id"))){
-			$this->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
-			$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+			$o_controller->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
+			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
 		}
 		
 		if ($t_project->getPrimaryKey()) {

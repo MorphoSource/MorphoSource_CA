@@ -28,15 +28,19 @@
 ?>
 		<div id="hpImage">
 			<div id="hpImageCaption">
-				Quisque egestas arcu non est venenatis eget molestie nulla aliquet.
+				foot of <span style="font-style:normal;">Daubentonia madagscariensis</span> scanned at 38micron resolution at Duke Evolutionary Anthropology department's new high resolution microCt facility. <a href="https://smif.lab.duke.edu/Description.asp?ID=88" target="_blank">Click here if you are interested in details on the facility</a>
 			</div><!-- end hpImageCaption -->
-			<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/hpMainImage.jpg">
+			<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/homePageFeaured.jpg">
 		</div><!-- end hpImage -->
 		<div id="hpText">
 			<div class="blueRule"><!-- empty --></div>
 			<H1>Welcome</H1>
 			<div>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id sapien erat, eu ultricies nibh. Aliquam erat volutpat. Mauris nisi diam, luctus non varius vel, dapibus vel nunc. Ut libero elit, sollicitudin non sodales eget, tristique a est. Ut at tellus magna. Nullam mauris purus, mattis eu venenatis ut, volutpat in orci. Nam cursus varius accumsan. Donec eu eros eu purus interdum tristique. Pellentesque lacus lorem, venenatis ut tempus vitae, fermentum a sapien. Integer ut dolor eu est varius aliquet. 
+				<b>MorphoSource</b> is a project-based data archive that allows researchers to store and organize, share, and distribute their own 3d data. Furthermore any registered user can immediately search for and download 3d morphological data sets that have been made accessible through the consent of data authors.
+
+				<br/><br/>The goal of <b>MorphoSource</b> is to provide rapid access to as many researchers as possible, large numbers of raw microCt data and surface meshes representing vouchered specimens.
+
+				<br/><br/>File formats include tiff, dicom, stanford ply, and stl. The website is designed to be self explanatory and to assist you through the process of uploading media and associating it with meta data. If you are interested in using the site for your own data but have questions about security or anything else contact the site administrator. Otherwise please download whatever data you need and check back frequently to see what's new.
 			</div>
 		</div><!-- end hptext -->
 		<div id="hpFeatures">

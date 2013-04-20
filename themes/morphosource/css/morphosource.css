@@ -325,6 +325,7 @@ H2{
 }
 /* home page */
 #pageArea #hpImage{
+	padding-top:12px;
 	float:right;
 	width:400px;
 	position:relative;
@@ -333,16 +334,19 @@ H2{
 	position:absolute;
 	bottom:0px;
 	right:0px;
-	padding:10px 40px 10px 5px;
+	padding:10px 40px 5px 5px;
 	color:#FFF;
 	font-style:italic;
 	background: rgb(0, 0, 0); /* Fall-back for browsers that don't support rgba */
     background: rgba(0, 0, 0, .5);
 }
+#pageArea #hpImage #hpImageCaption a{
+	color:#FFF;
+}
 #pageArea #hpText{
 	float:left;
 	width: 440px;
-	line-height:1.8em;
+	line-height:1.4em;
 }
 /*
 styles for original hp layout

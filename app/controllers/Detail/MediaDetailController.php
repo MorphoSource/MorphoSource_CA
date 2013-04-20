@@ -53,6 +53,9 @@
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
  			parent::__construct($po_request, $po_response, $pa_view_paths);
+ 			JavascriptLoadManager::register("panel");
+ 			JavascriptLoadManager::register("3dmodels");
+ 			
  			# --- load the media object
 			$this->opo_item = new ms_media();
 			$this->opn_item_id = $this->request->getParameter('media_id', pInteger);
@@ -120,6 +123,14 @@
 			$vn_rc = $this->render('media_download_binary.php');
 			return $vn_rc;
 		}
+ 		# -------------------------------------------------------
+ 		public function mediaViewer() {
+ 			$pn_media_id = $this->request->getParameter('media_id', pInteger);
+ 			// TODO: does user own this media?
+ 			$t_media = new ms_media($pn_media_id);
+ 			$this->view->setVar('t_media', $t_media);
+ 			$this->render('../MyProjects/Media/ajax_media_viewer_html.php');
+ 		}
  		# -------------------------------------------------------
  	}
  ?>

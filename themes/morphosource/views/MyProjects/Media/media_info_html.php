@@ -7,7 +7,7 @@
 	<div id="leftCol">
 		<div class="blueRule"><!-- empty --></div>
 		<H1><?php print _t("Project Media: M%1", $t_media->get("media_id")); ?></H1>
-		<div id="mediaImage"><?php print $t_media->getMediaTag("media", "medium"); ?></div><!-- end mediaImage -->
+		<div id="mediaImage"><a href="#" onclick="caMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey())); ?>'); return false;"><?php print $t_media->getMediaTag("media", "medium"); ?></a></div><!-- end mediaImage -->
 		<div id="mediaMd">
 <?php
 		print "<div class='listItemLtBlue'>";

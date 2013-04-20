@@ -52,6 +52,10 @@
 
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
+ 			JavascriptLoadManager::register("panel");
+ 			JavascriptLoadManager::register("3dmodels");
+ 			
+ 			
  			parent::__construct($po_request, $po_response, $pa_view_paths);
  			if(!$this->request->isLoggedIn()){
  				$this->notification->addNotification("You must be logged in to access the Dashboard", __NOTIFICATION_TYPE_ERROR__);
@@ -62,7 +66,7 @@
 			$vn_project_id = $this->request->getParameter('project_id', pInteger);
 			if($vn_project_id){
 				# --- select project
-				msSelectProject($this->request);
+				msSelectProject($this, $this->request);
 			}
  			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
@@ -81,6 +85,11 @@
 			$this->opn_item_id = $this->request->getParameter('media_id', pInteger);
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
+				# --- check if the media is part of the current project
+				if($this->opo_item->get("project_id") != $this->opn_project_id){
+					$this->notification->addNotification("The media record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
+				}
 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
@@ -130,7 +139,7 @@
 					# -----------------------------------------------
 					case 'media':
 						if($_FILES['media']['tmp_name']){
-							$this->opo_item->set('media', $_FILES['media']['tmp_name']);
+							$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
 						}elseif(!$this->opo_item->get('media')){
 							$va_errors[$vs_f] = "Please upload a media file";
 						}
@@ -250,6 +259,15 @@
 				$this->view->setVar("item", $this->opo_item);
 				$this->mediaInfo();
 			} 			 			
+ 		}
+ 		
+ 		# -------------------------------------------------------
+ 		public function mediaViewer() {
+ 			$pn_media_id = $this->request->getParameter('media_id', pInteger);
+ 			// TODO: does user own this media?
+ 			$t_media = new ms_media($pn_media_id);
+ 			$this->view->setVar('t_media', $t_media);
+ 			$this->render('Media/ajax_media_viewer_html.php');
  		}
  		# -------------------------------------------------------
  		public function mediaInfo() {

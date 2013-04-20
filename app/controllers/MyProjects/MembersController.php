@@ -53,7 +53,7 @@
 			$vn_project_id = $this->request->getParameter('project_id', pInteger);
 			if($vn_project_id){
 				# --- select project
-				msSelectProject($this->request);
+				msSelectProject($this, $this->request);
 			}
  			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');

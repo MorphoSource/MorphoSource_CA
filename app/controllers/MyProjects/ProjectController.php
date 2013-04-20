@@ -58,7 +58,7 @@
 				$vn_project_id = $this->request->getParameter('project_id', pInteger);
 				if($vn_project_id){
 					# --- select project
-					msSelectProject($this->request);
+					msSelectProject($this, $this->request);
 				}
 			}
  			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
@@ -142,7 +142,7 @@
 						if($t_project_users->numErrors()){
 							$va_errors["general"] = join(", ", $t_project_users->getErrors());
 						}else{
-							msSelectProject($this->request, $this->opo_project->get("project_id"));
+							msSelectProject($this, $this->request, $this->opo_project->get("project_id"));
 						}
 					}
 				}

@@ -29,6 +29,7 @@
 	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_APP_DIR__.'/helpers/accessHelpers.php');
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media.php");
  
  	class SplashController extends ActionController {
  		# -------------------------------------------------------
@@ -57,22 +58,33 @@
  			$vn_recent = "";
  			$vs_recent_media = "";
  			$o_db = new Db();
- 			$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
- 			if($q_recent_media->numRows()){
- 				$q_recent_media->nextRow();
- 				$vn_recent = $q_recent_media->get("media_id");
- 				$vs_recent_media = $q_recent_media->getMediaTag("media", "preview190");
- 			}
+ 			$t_media = new ms_media();
+ 			if($vn_recent = $this->request->config->get("recently_published_media_id")){
+ 				$t_media->load($vn_recent);
+ 				$vs_recent_media = $t_media->getMediaTag("media", "preview190");
+ 			}else{
+				$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
+				if($q_recent_media->numRows()){
+					$q_recent_media->nextRow();
+					$vn_recent = $q_recent_media->get("media_id");
+					$vs_recent_media = $q_recent_media->getMediaTag("media", "preview190");
+				}
+			}
  			$this->view->setVar("recent_media", $vs_recent_media);
  			$this->view->setVar("recent_media_id", $vn_recent);
  			$vn_random = "";
  			$vs_random_media = "";
- 			$q_random_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY RAND() DESC LIMIT 1");
- 			if($q_random_media->numRows()){
- 				$q_random_media->nextRow();
- 				$vn_random = $q_random_media->get("media_id");
- 				$vs_random_media = $q_random_media->getMediaTag("media", "preview190");
- 			}
+ 			if($vn_random = $this->request->config->get("random_media_media_id")){
+ 				$t_media->load($vn_random);
+ 				$vs_random_media = $t_media->getMediaTag("media", "preview190");
+ 			}else{
+				$q_random_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY RAND() DESC LIMIT 1");
+				if($q_random_media->numRows()){
+					$q_random_media->nextRow();
+					$vn_random = $q_random_media->get("media_id");
+					$vs_random_media = $q_random_media->getMediaTag("media", "preview190");
+				}
+			}
  			$this->view->setVar("random_media", $vs_random_media);
  			$this->view->setVar("random_media_id", $vn_random);
  			$this->render('Splash/splash_html.php');

@@ -58,7 +58,7 @@
 			$vn_project_id = $this->request->getParameter('project_id', pInteger);
 			if($vn_project_id){
 				# --- select project
-				msSelectProject($this->request);
+				msSelectProject($this, $this->request);
 			}
  			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
@@ -77,6 +77,11 @@
 			$this->opn_item_id = $this->request->getParameter($this->opo_item->getProperty("PRIMARY_KEY"), pInteger);
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
+				# --- check if the bib is part of the current project
+				if($this->opo_item->get("project_id") != $this->opn_project_id){
+					$this->notification->addNotification("The bibliography record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
+				}
 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);

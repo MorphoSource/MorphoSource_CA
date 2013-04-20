@@ -1454,6 +1454,10 @@ a.browseSelectPanelLink:hover { /*  used in browse and details with browse */
 
 
 /* overlay (for object representations) */
+.viewerControls{
+	margin-top:30px;
+	margin-right:30px;
+}
 #caMediaPanel {
 	position: fixed; 
 	top: 0; 
@@ -1465,12 +1469,17 @@ a.browseSelectPanelLink:hover { /*  used in browse and details with browse */
 	padding: 0px;
 	z-index: 31000;			/* needs to be on top of menu bar, which has z-index=30000 */
 }
-#caMediaPanel #close{
-	float: right;
+#caMediaPanel #caMediaPanelContentArea .close{
+	position: absolute;
 	width:15px;
 	height:16px;
-	margin:10px;
+	top: 5px;
+	right: 5px;
 	background-image:url("../graphics/buttons/x.png");
+	z-index:33000;
+}
+#caMediaPanel #caMediaPanelContentArea .close a{
+	text-decoration:none;
 }
 #caMediaPanel #close a{
 	text-decoration:none;
@@ -1479,6 +1488,7 @@ a.browseSelectPanelLink:hover { /*  used in browse and details with browse */
 #caMediaPanelContentArea {
 	width: 100%; 
 	height: 100%;
+	background: #ffffff;
 }
 
 #caMediaOverlayContent {

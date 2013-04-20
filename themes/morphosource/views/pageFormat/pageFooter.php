@@ -2,6 +2,7 @@
 	</div><!-- end pageArea -->
 </div><!-- end contentArea -->
 <div id="footer">
+	<div style="float: right;"><em>Commercial use of MorphoSource media is strictly prohibited.</em></div>
 	<ul>
 <?php
 		if($this->request->isLoggedIn()){
