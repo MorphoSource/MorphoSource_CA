@@ -68,6 +68,17 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"LABEL" => "Select media file", 
 				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
 		),
+		'preview' => array(
+				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_FIELD, 
+				"DISPLAY_WIDTH" => 50, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => false, 
+				"DEFAULT" => "",
+				
+				"MEDIA_PROCESSING_SETTING" => 'ms_media_previews',
+				
+				"LABEL" => "Select media file", 
+				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
+		),
 		'published' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
@@ -91,6 +102,14 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => true, "DEFAULT" => "",
 				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
+		),
+		'element' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'facility_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,

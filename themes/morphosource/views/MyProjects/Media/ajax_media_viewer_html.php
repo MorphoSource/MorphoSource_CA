@@ -8,13 +8,13 @@
 	switch($t_media->getMediaInfo("media", "original", "MIMETYPE")) {
 		case 'application/stl':
 		case 'application/surf':
-			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '100%', 'id' => 'msMediaViewer'));
+			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer'));
 		case 'application/ply':
-			print $t_media->getMediaTag('media', 'stl', array('viewer_width' => '1000', 'viewer_height' => '100%', 'id' => 'msMediaViewer'));
+			print $t_media->getMediaTag('media', 'stl', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer'));
 			break;
 		default:
 			$vb_force_resize = true;
-			print $t_media->getMediaTag('media', 'tilepic', array('viewer_width' => '1000', 'viewer_height' => '100%', 'id' => 'msMediaViewer'));
+			print $t_media->getMediaTag('media', 'tilepic', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer'));
 			break;
 	}
 ?>

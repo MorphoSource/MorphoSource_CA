@@ -329,21 +329,31 @@ class ms_specimens extends BaseModel {
 	}
 	# ----------------------------------------
 	function getSpecimenName() {
-		if($this->get("specimen_id")){
-			$va_specimen_parts = array();
-			if($this->get("institution_code")){
-				$va_specimen_parts[] = $this->get("institution_code");
-			}
-			if($this->get("collection_code")){
-				$va_specimen_parts[] = $this->get("collection_code");
-			}
-			if($this->get("catalog_number")){
-				$va_specimen_parts[] = $this->get("catalog_number");
-			}
-			return join($va_specimen_parts, "-");
+		if($vn_specimen_id = $this->get("specimen_id")){
+			return $this->formatSpecimenName(array(
+				'specimen_id' => $vn_specimen_id,
+				'institution_code' => $this->get("institution_code"),
+				'collection_code' => $this->get("collection_code"),
+				'catalog_number' => $this->get("catalog_number")
+			));
 		}else{
 			return false;
 		}
+	}
+	
+	# ----------------------------------------
+	function formatSpecimenName($pa_specimen) {
+		$va_specimen_parts = array();
+		if($pa_specimen["institution_code"]){
+			$va_specimen_parts[] = $pa_specimen["institution_code"];
+		}
+		if($pa_specimen["collection_code"]){
+			$va_specimen_parts[] = $pa_specimen["collection_code"];
+		}
+		if($pa_specimen["catalog_number"]){
+			$va_specimen_parts[] = $pa_specimen["catalog_number"];
+		}
+		return join($va_specimen_parts, "-");
 	}
 	# ----------------------------------------
 	function getSpecimenTaxonomy() {

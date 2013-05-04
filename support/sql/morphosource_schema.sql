@@ -256,6 +256,7 @@ CREATE  TABLE IF NOT EXISTS `ms_taxonomy_names` (
   `ht_phylum` VARCHAR(255) NOT NULL ,
   `ht_class` VARCHAR(255) NOT NULL ,
   `ht_subclass` VARCHAR(255) NOT NULL ,
+  `ht_superorder` VARCHAR(255) NOT NULL ,
   `ht_order` VARCHAR(255) NOT NULL ,
   `ht_suborder` VARCHAR(255) NOT NULL ,
   `ht_superfamily` VARCHAR(255) NOT NULL ,
@@ -350,7 +351,9 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
   `specimen_id` INT UNSIGNED NOT NULL ,
   `facility_id` INT UNSIGNED NOT NULL ,
   `media` LONGBLOB NOT NULL ,
+  `preview` LONGBLOB NOT NULL ,
   `notes` TEXT NOT NULL ,
+  `element` VARCHAR(255) NULL ,
   `is_copyrighted` TINYINT UNSIGNED NOT NULL ,
   `copyright_info` VARCHAR(255) NOT NULL ,
   `copyright_permission` TINYINT UNSIGNED NOT NULL ,
@@ -399,6 +402,25 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
     ON DELETE RESTRICT
     ON UPDATE RESTRICT)
 ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ms_media_multifiles`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ms_media_multifiles` ;
+
+create table ms_media_multifiles (
+	multifile_id		int unsigned not null auto_increment,
+	media_id			int unsigned not null references ms_media(media_id),
+	resource_path		text not null,
+	media				longblob not null,
+	media_metadata		longblob not null,
+	media_content		longtext not null,
+	rank				int unsigned not null default 0,	
+	primary key (multifile_id),
+	key i_resource_path ca_object_representation_multifiles(resource_path(255)),
+	key i_media_id ca_object_representation_multifiles(media_id)
+) engine=innodb CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 
 -- -----------------------------------------------------

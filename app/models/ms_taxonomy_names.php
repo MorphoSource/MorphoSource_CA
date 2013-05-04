@@ -144,6 +144,14 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 				'LABEL' => _t('Higher subclass'), 'DESCRIPTION' => _t('Higher taxonomic subclass.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
+		'ht_superorder' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Higher superorder'), 'DESCRIPTION' => _t('Higher taxonomic superorder.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
 		'ht_order' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,

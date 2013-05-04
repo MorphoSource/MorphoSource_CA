@@ -367,5 +367,43 @@ class ms_projects extends BaseModel {
 		return $qr;
 	}
 	# ----------------------------------------
+	function getProjectSpecimens($pa_versions=null) {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT s.*, m.media_id, m.media
+			FROM ms_specimens s
+			LEFT JOIN ms_media AS m ON s.specimen_id = m.specimen_id
+			WHERE s.project_id = ?
+			ORDER BY s.specimen_id
+		", $vn_project_id);
+			
+			
+		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
+			$pa_versions = array('small', 'preview190');
+		}
+		
+		$va_specimens = array();
+		while($qr->nextRow()) {
+			$va_specimen = $qr->getRow();
+			
+			if(!isset($va_specimens[$va_specimen['specimen_id']])) {
+				$va_specimen['media'] = array();
+				$va_specimens[$va_specimen['specimen_id']] = $va_specimen;
+			}
+			if ($vn_media_id = $va_specimen['media_id']) {
+				$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
+				foreach($pa_versions as $vs_version) {
+					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'][$vs_version] = $qr->getMediaTag('media', $vs_version);
+					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'][$vs_version] = $qr->getMediaUrl('media', $vs_version);
+				}
+			}
+		}
+
+		return $va_specimens;
+	}
+	# ----------------------------------------
 }
 ?>
