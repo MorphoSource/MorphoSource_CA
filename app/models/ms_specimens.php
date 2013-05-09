@@ -356,17 +356,52 @@ class ms_specimens extends BaseModel {
 		return join($va_specimen_parts, "-");
 	}
 	# ----------------------------------------
-	function getSpecimenTaxonomy() {
-		if($this->get("specimen_id")){
+	function getSpecimenTaxonomy($pn_specimen_id=null) {
+		if(!$pn_specimen_id) { $pn_specimen_id = $this->get("specimen_id"); }
+		if($pn_specimen_id){
 			$o_db = new Db();
-			$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.variety, tn.species, tn.subspecies FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id = ? AND tn.is_primary = 1", $this->get("specimen_id"));
+			$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.genus, tn.species, tn.subspecies FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id = ? AND tn.is_primary = 1", array($pn_specimen_id));
 			$va_taxonomic_names = array();
 			if($q_specimen_taxonomy->numRows()){
 				while($q_specimen_taxonomy->nextRow()){
-					$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("variety")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
+					$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("genus")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
 				}
 			}
 			return $va_taxonomic_names;
+		}else{
+			return false;
+		}
+	}
+	# ----------------------------------------
+	/**
+	 *
+	 */
+	function getSpecimenMedia($pn_specimen_id=null, $pa_options=null) {
+		if(!$pn_specimen_id) { $pn_specimen_id = $this->get("specimen_id"); }
+		
+		$va_versions = (isset($pa_options['versions']) && is_array($pa_options['versions']) && sizeof($pa_options['versions'])) ? $pa_options['versions'] : array('thumbnail', 'small', 'preview190');
+		
+		if($pn_specimen_id){
+			$o_db = new Db();
+			$q_media = $o_db->query("
+				SELECT *
+				FROM ms_media m 
+				WHERE m.specimen_id = ?", array($pn_specimen_id));
+			$va_media = array();
+			if($q_media->numRows()){
+				while($q_media->nextRow()){
+					$va_media_info = $q_media->getRow();
+					unset($va_media_info['media']);
+					
+					foreach($va_versions as $vs_version) {
+						$va_media_info['tags'][$vs_version] = $q_media->getMediaTag('media', $vs_version);
+						$va_media_info['urls'][$vs_version] = $q_media->getMediaUrl('media', $vs_version);
+					}
+				
+					$va_media[$q_media->get("media_id")] = $va_media_info;
+				}
+			}
+			return $va_media;
 		}else{
 			return false;
 		}

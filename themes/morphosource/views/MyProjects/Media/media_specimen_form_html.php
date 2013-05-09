@@ -5,6 +5,7 @@
 	$vs_new_message = $this->getVar("new_message");
 	$vs_taxonomy_message = $this->getVar("taxonomy_message");
 	$vs_taxonomy_new_message = $this->getVar("taxonomy_new_message");
+	$vn_specimen_id = $t_media->get("specimen_id");
 	$vs_specimen_name = $this->getVar("specimen_name");
 	$va_specimen_taxonomy = $this->getVar("specimen_taxonomy");
 ?>
@@ -17,8 +18,8 @@
 	print "<div class='formLabel'>";
 	print $t_media->getDisplayLabel("ms_media.specimen_id").":<br/>".caHTMLTextInput("specimen_lookup", array("id" => 'msSpecimenID', 'class' => 'lookupBg', 'value' => $vs_specimen_name), array('width' => "200px", 'height' => 1));
 	print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaSpecimenForm\").submit(); return false;'>"._t("Save")."</a></div>";
-	print "<input type='hidden' value='".$t_media->get("specimen_id")."' name='specimen_id' id='specimen_id'>";
-	print "<input type='hidden' value='".$pn_media_id."' name='media_id'>";
+	print "<input type='hidden' value='{$vn_specimen_id}' name='specimen_id' id='specimen_id'>";
+	print "<input type='hidden' value='{$pn_media_id}' name='media_id'>";
 ?>
 </form>
 <?php
@@ -27,8 +28,8 @@
 		print "<div class='formErrors'>".$vs_taxonomy_message.$vs_taxonomy_new_message."</div>";
 	}
 	if(is_array($va_specimen_taxonomy) && sizeof($va_specimen_taxonomy)){
-		print "<div class='formLabel'>Specimen taxonomy for ".$vs_specimen_name.":<br/><span style='font-weight:normal;'>".join($va_specimen_taxonomy, "<br/>")."</span></div>";
-	}elseif($t_media->get("specimen_id")){
+		print "<div class='formLabel'>Specimen taxonomy for ".caNavLink($this->request, $vs_specimen_name, '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id)).":<br/><span style='font-weight:normal;'>".join($va_specimen_taxonomy, "<br/>")."</span></div>";
+	}elseif($vn_specimen_id){
 		if($vs_taxon_message || $vs_new_taxon_message){
 			print "<div class='formErrors'>".$vs_taxon_message.$vs_new_taxon_message."</div>";
 		}
@@ -37,8 +38,8 @@
 		print "Select a taxonomic name for this specimen:<br/>".caHTMLTextInput("specimen_taxonomy_lookup", array("id" => 'msSpecimenTaxonomyID', 'class' => 'lookupBg'), array('width' => "200px", 'height' => 1));
 		print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaSpecimenTaxonomyForm\").submit(); return false;'>"._t("Save")."</a></div>";
 		print "<input type='hidden' value='' name='alt_id' id='alt_id'>";
-		print "<input type='hidden' value='".$t_media->get("specimen_id")."' name='specimen_id' id='specimen_id'>";
-		print "<input type='hidden' value='".$pn_media_id."' name='media_id'>";
+		print "<input type='hidden' value='{$vn_specimen_id}' name='specimen_id' id='specimen_id'>";
+		print "<input type='hidden' value='{$pn_media_id}' name='media_id'>";
 ?>
 	</div>
 </form>
@@ -79,7 +80,7 @@
 		});
 	});
 <?php
-	if($t_media->get("specimen_id")){
+	if($vn_specimen_id){
 ?>
 	jQuery('#msSpecimenTaxonomyID').autocomplete(
 		{ 
@@ -90,7 +91,7 @@
 				if (alt_id < 1) {
 					// nothing found...
 					//alert("Create new taxon since returned id was " + alt_id);
-					jQuery("#mediaSpecimenInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Taxonomy', 'form', array('specimen_id' => $t_media->get("specimen_id"), 'media_id' => $pn_media_id)); ?>");
+					jQuery("#mediaSpecimenInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Taxonomy', 'form', array('specimen_id' => $vn_specimen_id, 'media_id' => $pn_media_id)); ?>");
 				} else {
 					// found an id
 					//alert("found alt id: " + aslt_id);

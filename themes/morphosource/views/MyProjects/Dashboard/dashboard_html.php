@@ -100,19 +100,39 @@
 <?php
 	$t_specimen = new ms_specimens();
 	$va_specimens = $t_project->getProjectSpecimens();
-	if(is_array($va_specimens) && sizeof($va_specimens)){
+	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
 		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
-			foreach($va_specimen['media'] as $vn_media_id => $va_media) {
-				print "<div class='projectMedia'>".caNavLink($this->request, $va_media['tags']['preview190'], "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id));
-				print "<span class='mediaID'>M{$vn_media_id}</span>";
+			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
 			
-				print ", ".$t_specimen->formatSpecimenName($va_specimen);
-				print "</div><!-- end projectMedia -->";
-				break;
+			print "<div class='projectMediaContainer'>";
+			print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
+			
+			if (is_array($va_specimen['media']) && ($vn_num_media > 0)) {
+				foreach($va_specimen['media'] as $vn_media_id => $va_media) {
+					if (!($vs_media_tag = $va_media['tags']['preview190'])) {
+						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+					}
+					print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+					//print "<span class='mediaID'>M{$vn_media_id}</span>";
+				}
+			} else {
+				print "<div class='projectMediaPlaceholder'> </div>";
 			}
+			print "</div><!-- end projectMedia -->";
+			
+			$vs_specimen_taxonomy = join(" ", $t_specimen->getSpecimenTaxonomy($vn_specimen_id));
+			print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
+			if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
+			print "</div>\n";
+			print "</div><!-- end projectMediaContainer -->";
 		}
 	}else{
 		print "<H2>"._t("Your project has no media.  Use the \"NEW MEDIA\" button to upload media files to your project.")."</H2>";
 	}
 ?>
 </div><!-- end dashboardMedia -->
+<script type="text/javascript">
+	jQuery(document).ready(function() {
+		jQuery('.projectMediaSlideCycle').cycle();
+	});
+</script>

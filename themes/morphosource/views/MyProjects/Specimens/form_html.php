@@ -59,6 +59,30 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 			<div id="specimenBibliographyInfo">
 				<!-- load Specimen bibliography form/info here -->
 			</div><!-- end specimenBibliographyInfo -->
+			
+<?php
+	// Media list
+?>
+			<div class="tealRule" style="margin-top:40px;"><!-- empty --></div>
+			<H2>Specimen Media</H2>
+			<div id="specimenMediaList">
+<?php
+			$va_media_list = $t_item->getSpecimenMedia(null, array('versions' => array('preview190')));
+			if (is_array($va_media_list) && sizeof($va_media_list)) {
+				foreach($va_media_list as $vn_media_id => $va_media_info) {
+					print '<div class="specimenMediaListContainer">';
+					if (!($vs_media_tag = $va_media_info['tags']['preview190'])) {
+						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+					}
+					print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+					print "<span class='mediaID'>M{$vn_media_id}</span>";
+					print "</div>\n";
+				}
+			} else {
+				print "<H2>"._t("This specimen has no media.  Use the \"NEW MEDIA\" button to add media files for this specimen.")."</H2>";
+			}
+?>
+			</div><!-- end specimenMediaListContainer -->
 		</div>
 <?php
 }
@@ -159,12 +183,9 @@ if (!$this->request->isAjax()) {
 						var bib_id = parseInt(ui.item.id);
 						if (bib_id < 1) {
 							// nothing found...
-							//alert("Create new taxon since returned id was " + alt_id);
 						} else {
 							// found an id
-							//alert("found bib id: " + bib_id);
 							jQuery('#<?php print $vs_field; ?>').val(bib_id);
-							//alert("bib id set to: " + jQuery('#bib_id').val());
 						}
 					}
 				}
@@ -182,13 +203,10 @@ if (!$this->request->isAjax()) {
 					var institution_id = parseInt(ui.item.id);
 					if (institution_id < 1) {
 						// nothing found...
-						//alert("Create new taxon since returned id was " + alt_id);
 						jQuery("#specimenInstitutionFormContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Institutions', 'form', array('specimen_id' => $pn_specimen_id)); ?>");
 					} else {
 						// found an id
-						//alert("found institution id: " + institution_id);
 						jQuery('#institution_id').val(institution_id);
-						//alert("institution id set to: " + jQuery('#institution_id').val());
 					}
 				}
 			}

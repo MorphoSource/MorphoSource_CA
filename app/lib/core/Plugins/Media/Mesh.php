@@ -374,6 +374,8 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 		if(in_array($pa_properties['mimetype'], array("application/stl"))){
 			ob_start();
+			
+			if(false) {
 ?>
 <canvas id="<?php print $vs_id; ?>" style="border: 1px solid;" width="<?php print $vn_width; ?>" height="<?php print $vn_height; ?>" ></canvas>
 <script type="text/javascript">
@@ -385,6 +387,141 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 	viewer.update();
 </script>
 <?php
+			} else {
+?>
+		<div id="viewer"></div>
+<script type="text/javascript">
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats;
+
+			var camera, cameraTarget, scene, renderer;
+
+			
+			init();
+			animate();
+
+			function init() {
+				container = document.getElementById('viewer');
+
+				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
+				camera.position.set( 3, 0.15, 3 );
+
+				cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
+
+				scene = new THREE.Scene();
+
+				// ASCII file
+
+				var loader = new THREE.STLLoader();
+				loader.addEventListener( 'load', function ( event ) {
+
+					var geometry = event.content;
+					var material = new THREE.MeshPhongMaterial( { ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 } );
+					var mesh = new THREE.Mesh( geometry, material );
+					
+					console.log(mesh);
+					mesh.position.set( 0, 0, 0 );
+					mesh.scale.set( 0.25, 0.25, 0.25 );
+	
+					mesh.castShadow = false;
+					mesh.receiveShadow = false;
+
+					scene.add( mesh );
+					console.log("loaded " + '<?php print $ps_url; ?>');
+
+				} );
+				loader.load( '<?php print $ps_url; ?>' );
+
+				// Lights
+
+				scene.add( new THREE.AmbientLight( 0x777777 ) );
+
+				addShadowedLight( 1, 1, 1, 0xffffff, 1.35 );
+				addShadowedLight( 0.5, 1, -1, 0xffaa00, 1 );
+
+				// renderer
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+				renderer.physicallyBasedShading = true;
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapCullFace = THREE.CullFaceBack;
+
+				controls = new THREE.TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 0.5;
+				controls.zoomSpeed = 0.5;
+				controls.panSpeed = 0.2;
+ 
+				controls.noZoom = false;
+				controls.noPan = false;
+ 
+				controls.staticMoving = false;
+				controls.dynamicDampingFactor = 0.3;
+ 
+				controls.minDistance = 1.1;
+				controls.maxDistance = 100;
+ 
+				controls.keys = [ 16, 17, 18 ]; // [ rotateKey, zoomKey, panKey ]
+
+				container.appendChild( renderer.domElement );
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function addShadowedLight( x, y, z, color, intensity ) {
+
+				var directionalLight = new THREE.DirectionalLight( color, intensity );
+				directionalLight.position.set( x, y, z )
+				scene.add( directionalLight );
+
+				directionalLight.castShadow = true;
+				// directionalLight.shadowCameraVisible = true;
+
+				var d = 1;
+				directionalLight.shadowCameraLeft = -d;
+				directionalLight.shadowCameraRight = d;
+				directionalLight.shadowCameraTop = d;
+				directionalLight.shadowCameraBottom = -d;
+
+				directionalLight.shadowCameraNear = 1;
+				directionalLight.shadowCameraFar = 4;
+
+				directionalLight.shadowMapWidth = 1024;
+				directionalLight.shadowMapHeight = 1024;
+
+				directionalLight.shadowBias = -0.005;
+				directionalLight.shadowDarkness = 0.15;
+
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function render() {
+				controls.update(); 
+				camera.lookAt( cameraTarget );
+				renderer.render( scene, camera );
+			}
+</script>
+<?php
+			}
 			return ob_get_clean();
 		} else {
 			return caGetDefaultMediaIconTag(__CA_MEDIA_3D_DEFAULT_ICON__,$vn_width,$vn_height);

@@ -512,13 +512,39 @@ styles for original hp layout
 	clear:both;
 	padding-top:30px;
 }
-#dashboardMedia .projectMedia {
-	float:left;
-	width:190px;
+
+#dashboardMedia .projectMediaContainer {
+	float: left;
+	width: 190px;
 	height:215px;
-	padding:0px 12px 15px 12px;
 	font-size:11px;
+	
+	padding:0px 12px 15px 11px;
+	margin: 0px;
 }
+
+#dashboardMedia .projectMedia {
+	width: 190px;
+	padding: 0px;
+	margin: 0px;
+}
+
+#dashboardMedia .projectMediaSlide {
+	padding: 0px;
+	margin: 0px;
+}
+
+#dashboardMedia .projectMediaSlideCaption {
+	padding: 2px;
+}
+
+#dashboardMedia .projectMediaPlaceholder {
+	width: 190px;
+	height: 190px;
+	border: 1px #ccc solid;
+	background-color: #eee;
+}
+
 #dashboardMedia .projectMedia .mediaID {
 	font-family: 'neuzeitlgt', sans-serif;
 	color: #00006A;
@@ -659,4 +685,26 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 .citationIndent{
 	text-indent:-15px;
 	padding-left:15px;
+}
+
+
+#specimenMediaList {
+	max-height: 600px;
+	overflow-y: auto;
+	margin-bottom: 10px;
+}
+
+.specimenMediaListContainer {
+	float: left;
+	width: 190px;
+	height:215px;
+	font-size:11px;
+	
+	padding:0px 10px 7px 10px;
+	margin: 0px;
+}
+
+.specimenMediaListSlide {
+	padding:0px;
+	margin: 0px;
 }

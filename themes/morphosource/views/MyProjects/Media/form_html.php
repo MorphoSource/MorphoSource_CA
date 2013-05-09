@@ -10,7 +10,7 @@ if (!$this->request->isAjax()) {
 	</H1>
 <?php
 }
-# --- formatting varibales
+# --- formatting variables
 # --- all fields in float_fields array  will be floated to the left
 $va_float_fields = array("scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "created_on", "approval_status");
 # --- all fields in clear_fields array  will have a clear output after them

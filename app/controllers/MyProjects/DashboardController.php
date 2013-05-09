@@ -73,6 +73,7 @@
  		}
  		# -------------------------------------------------------
  		function dashboard() {
+ 			JavascriptLoadManager::register("cycle");
 			if(!$this->opn_project_id){
 				$this->projectList();
 				return;
