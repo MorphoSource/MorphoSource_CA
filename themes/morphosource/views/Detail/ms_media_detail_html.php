@@ -59,6 +59,16 @@
 		<H2>Scan Information</H2>
 			<div class="unit">
 <?php
+
+					$vs_mimetype = $t_media->getMediaInfo('media', 'original', 'MIMETYPE');
+					$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+					$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+					print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
+					
+
+					$va_properties = $t_media->getMediaInfo('media', 'original');
+					print "<b>Filesize: </b>".caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
+					
 	$va_fields = $t_media->getFormFields();
 	$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 	foreach($va_fields as $vs_field => $va_field_attr){

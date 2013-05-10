@@ -64,6 +64,14 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 				'DEFAULT' => '',
 				'LABEL' => 'User id', 'DESCRIPTION' => 'User id'
 		),
+		'genus' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Genus'), 'DESCRIPTION' => _t('Genus.'),
+				'BOUNDS_LENGTH' => array(1,255)
+		),
 		'species' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
@@ -192,14 +200,6 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 				'LABEL' => _t('Higher subfamily'), 'DESCRIPTION' => _t('Higher taxonomic subfamily.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
-		'genus' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Genus'), 'DESCRIPTION' => _t('Genus.'),
-				'BOUNDS_LENGTH' => array(1,255)
-		),
 		'source_info' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 70, 'DISPLAY_HEIGHT' => 1,
@@ -307,7 +307,7 @@ class ms_taxonomy_names extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('variety', 'species', 'subspecies');
+	protected $LIST_FIELDS = array('genus', 'species', 'subspecies');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.

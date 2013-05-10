@@ -24,7 +24,7 @@
 				if($q_listings->get($vs_field)){
 					print $q_listings->get($vs_field);
 					if($i < sizeof($pa_list_fields)){
-						print $t_item->getProperty("LIST_DELIMITER");
+						print ' '; //$t_item->getProperty("LIST_DELIMITER");
 					}
 				}
 			}

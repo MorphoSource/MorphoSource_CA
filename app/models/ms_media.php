@@ -43,6 +43,14 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Media id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this media')
 		),
+		'title' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 2,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Title'), 'DESCRIPTION' => _t('Optional display title for image.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
 		'project_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
@@ -76,8 +84,8 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				
 				"MEDIA_PROCESSING_SETTING" => 'ms_media_previews',
 				
-				"LABEL" => "Select media file", 
-				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
+				"LABEL" => "Select optional media preview", 
+				"DESCRIPTION" => "Use the button below to select a file to use as a preview for the uploaded media. This is optional. If you do not provide a preview image then Morphosource will attempt to extract one automatically from the uploaded media."
 		),
 		'published' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
@@ -110,6 +118,18 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
 				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'side' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => "UNKNOWN",
+				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen depicted by media'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"Unknown" => "UNKNOWN",
+					"Left" => "LEFT",
+					"Right" => "RIGHT"
+				)
 		),
 		'facility_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,

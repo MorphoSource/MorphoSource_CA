@@ -58,6 +58,15 @@ if($vo_result) {
 		if($vo_result->get("ms_facilities.name")){
 			print "<b>Facility: </b>".$vo_result->get("ms_facilities.name")."<br/>";
 		}
+		
+		$vs_mimetype = $vo_result->getMediaInfo('ms_media.media', 'original', 'MIMETYPE');
+					$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+					$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+					print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
+					
+		$va_properties = $vo_result->getMediaInfo('ms_media.media', 'original');
+					print "<b>Filesize: </b>".caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
+					
 		print "</div><!-- end searchFullText -->";
 		print "</div><!-- end searchResultFull -->";
 		

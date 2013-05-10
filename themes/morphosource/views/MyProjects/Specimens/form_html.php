@@ -1,12 +1,14 @@
 <?php
 	$t_item = $this->getVar("item");
+	$t_media = new ms_media();
+	
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
 	$ps_primary_key = $this->getVar("primary_key");
 	# --- media means this is a quick add for the media form being loaded via ajax
 	$pn_media_id = $this->getVar("media_id");
 	
-	# --- formatting varibales
+	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
 	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
@@ -64,22 +66,28 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 	// Media list
 ?>
 			<div class="tealRule" style="margin-top:40px;"><!-- empty --></div>
+<?php
+	print caNavLink($this->request, _t("Add media"), "button buttonSmall", "MyProjects", 'Media', "form", array('specimen_id' => $t_item->get('specimen_id')), array('style' => 'float: right;'));
+?>
 			<H2>Specimen Media</H2>
 			<div id="specimenMediaList">
 <?php
 			$va_media_list = $t_item->getSpecimenMedia(null, array('versions' => array('preview190')));
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
+					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
+			
 					print '<div class="specimenMediaListContainer">';
 					if (!($vs_media_tag = $va_media_info['tags']['preview190'])) {
 						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
 					print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 					print "<span class='mediaID'>M{$vn_media_id}</span>";
+					print " {$va_media_info['title']}".($vs_side ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					print "</div>\n";
 				}
 			} else {
-				print "<H2>"._t("This specimen has no media.  Use the \"NEW MEDIA\" button to add media files for this specimen.")."</H2>";
+				print "<H2>"._t("This specimen has no media.  Use the \"ADD MEDIA\" button to add media files for this specimen.")."</H2>";
 			}
 ?>
 			</div><!-- end specimenMediaListContainer -->

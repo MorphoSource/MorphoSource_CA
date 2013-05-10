@@ -1,5 +1,14 @@
-<?php
+`<?php
+	$vn_specimen_id = $this->request->getParameter("specimen_id", pInteger);
+	$t_specimen = new ms_specimens();
+	
 	$t_item = $this->getVar("item");
+	$vn_media_id = $t_item->get("media_id");
+	
+	if (!$vn_media_id) { // new media
+		$t_item->set('specimen_id', $vn_specimen_id);	// if specimen_id is present on request for newly created media set it here
+	}
+	
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
 if (!$this->request->isAjax()) {
@@ -27,14 +36,20 @@ print caFormTag($this->request, 'save', 'mediaForm', null, 'post', 'multipart/fo
 if (!$this->request->isAjax()) {
 	print "<div style='float:right;'>".caNavLink($this->request, _t("Back to Project Page"), "button buttonSmall", "MyProjects", "Dashboard", "Dashboard")."</div>";
 }else{
-	print "<div style='float:right;'>".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $t_item->get("media_id")))."</div>";
+	print "<div style='float:right;'>".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $vn_media_id))."</div>";
 }
 ?>
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#mediaForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
-		if($t_item->get("media_id")){
-			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("id" => $t_item->get("media_id")));
+		if (($vn_specimen_id > 0) && (!$vn_media_id)) {
+?>
+	<div style="width: 100%; text-align: center;"><h2><em>Will be added to specimen <strong><?php print $t_specimen->getSpecimenName($vn_specimen_id); ?></strong> upon save</em></h2>
+<?php
+		}
+
+		if($vn_media_id){
+			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("id" => $vn_media_id));
 		}
 }
 ?>
@@ -105,8 +120,8 @@ if (!$this->request->isAjax()) {
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#mediaForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
-		if($t_item->get("media_id")){
-			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("id" => $t_item->get("media_id")));
+		if($vn_media_id){
+			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("id" => $vn_media_id));
 		}
 }
 ?>

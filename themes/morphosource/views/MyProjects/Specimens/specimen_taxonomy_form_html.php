@@ -42,13 +42,10 @@
 				var alt_id = parseInt(ui.item.id);
 				if (alt_id < 1) {
 					// nothing found...
-					//alert("Create new taxon since returned id was " + alt_id);
 					jQuery("#specimenTaxonomyInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Taxonomy', 'form', array('specimen_id' => $pn_specimen_id)); ?>");
 				} else {
 					// found an id
-					//alert("found alt id: " + aslt_id);
 					jQuery('#alt_id').val(alt_id);
-					//alert("alt id set to: " + jQuery('#alt_id').val());
 				}
 			}
 		}

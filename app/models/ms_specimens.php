@@ -328,16 +328,40 @@ class ms_specimens extends BaseModel {
 		parent::__construct($pn_id);
 	}
 	# ----------------------------------------
-	function getSpecimenName() {
-		if($vn_specimen_id = $this->get("specimen_id")){
-			return $this->formatSpecimenName(array(
-				'specimen_id' => $vn_specimen_id,
+	function getSpecimenName($pn_specimen_id=null) {
+		$va_name = array();
+		if(!$pn_specimen_id) { 
+			if (!($pn_specimen_id = $this->get("specimen_id"))) { return null; }
+			
+			$va_name = array(
+				'specimen_id' => $pn_specimen_id,
 				'institution_code' => $this->get("institution_code"),
 				'collection_code' => $this->get("collection_code"),
 				'catalog_number' => $this->get("catalog_number")
-			));
+			);
+		} else {
+			$o_db = new Db();
+			$q_specimen = $o_db->query("SELECT * FROM ms_specimens WHERE specimen_id = ?", array($pn_specimen_id));
+			$va_taxonomic_names = array();
+			if($q_specimen->numRows()){
+				if($q_specimen->nextRow()){
+					$va_name = array(
+						'specimen_id' => $pn_specimen_id,
+						'institution_code' => $q_specimen->get("institution_code"),
+						'collection_code' => $q_specimen->get("collection_code"),
+						'catalog_number' => $q_specimen->get("catalog_number")
+					);
+				}
+			}
+			
+		}
+		
+		$va_name['taxa'] = $this->getSpecimenTaxonomy($pn_specimen_id);
+		
+		if($pn_specimen_id){
+			return $this->formatSpecimenName($va_name);
 		}else{
-			return false;
+			return null;
 		}
 	}
 	
@@ -353,7 +377,13 @@ class ms_specimens extends BaseModel {
 		if($pa_specimen["catalog_number"]){
 			$va_specimen_parts[] = $pa_specimen["catalog_number"];
 		}
-		return join($va_specimen_parts, "-");
+		$vs_num =  join("-", $va_specimen_parts);
+		
+		if(is_array($pa_specimen["taxa"])){
+			$vs_num .= "<em>".join("; ", $pa_specimen["taxa"])."</em>";
+		}
+		
+		return $vs_num;
 	}
 	# ----------------------------------------
 	function getSpecimenTaxonomy($pn_specimen_id=null) {
@@ -367,6 +397,7 @@ class ms_specimens extends BaseModel {
 					$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("genus")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
 				}
 			}
+			
 			return $va_taxonomic_names;
 		}else{
 			return false;

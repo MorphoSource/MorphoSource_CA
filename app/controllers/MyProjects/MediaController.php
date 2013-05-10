@@ -234,11 +234,13 @@
 		
 			if (sizeof($va_errors) == 0) {
 				# do insert or update
+				$vb_was_insert = false;
 				$this->opo_item->setMode(ACCESS_WRITE);
 				if ($this->opo_item->get($this->ops_primary_key)){
 					$this->opo_item->update();
 				} else {
 					$this->opo_item->insert();
+					$vb_was_insert = true;
 				}
 	
 				if ($this->opo_item->numErrors()) {
@@ -517,6 +519,39 @@
 				$this->render('General/delete_html.php');
 			}
  		}
+ 		# -------------------------------------------------------
+		/**
+		 * Download media
+		 */ 
+		public function DownloadMedia() {
+			$ps_version = "original";
+			
+			$va_versions = $this->opo_item->getMediaVersions('media');
+			
+			if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+			$this->view->setVar('version', $ps_version);
+			
+			$va_version_info = $this->opo_item->getMediaInfo('media', $ps_version);
+			$this->view->setVar('version_info', $va_version_info);
+
+			$va_info = $this->opo_item->getMediaInfo('media');
+			$vs_idno_proc = $this->opo_item->get('media_id');
+			if ($va_info['ORIGINAL_FILENAME']) {
+				$va_tmp = explode('.', $va_info['ORIGINAL_FILENAME']);
+				if (sizeof($va_tmp) > 1) { 
+					if (strlen($vs_ext = array_pop($va_tmp)) < 3) {
+						$va_tmp[] = $vs_ext;
+					}
+				}
+				$this->view->setVar('version_download_name', join('_', $va_tmp).'.'.$va_version_info['EXTENSION']);					
+			} else {
+				$this->view->setVar('version_download_name', 'morphosourceM'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
+			}
+			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
+			
+			$vn_rc = $this->render('Media/media_download_binary.php');
+			return $vn_rc;
+		}
  		# -------------------------------------------------------
  	}
  ?>

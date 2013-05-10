@@ -11,13 +11,44 @@
 		<div id="mediaMd">
 <?php
 		print "<div class='listItemLtBlue'>";
+		
+		if($t_media->getMediaUrl("media", "original")){
+			print caNavLink($this->request, _t("Download"), "button buttonLarge", "MyProjects", "Media", "DownloadMedia", array("media_id" => $t_media->get("media_id")));
+		}
 		if(!$t_media->get("published")){
-			print caNavLink($this->request, _t("Publish"), "button buttonLarge", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id))."&nbsp;&nbsp;&nbsp";
+			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonLarge", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id))."&nbsp;&nbsp;&nbsp";
 		}
 		print "<a href='#' class='button buttonLarge' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
 		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonLarge", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
 		print "</div>";
-		$va_media_display_fields = array("published", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
+		
+		// Output file size and type first
+?>
+		<div class='listItemLtBlue blueText'>
+			<div class='listItemRightCol ltBlueText'>
+				<?php 
+					$vs_mimetype = $t_media->getMediaInfo('media', 'original', 'MIMETYPE');
+					$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+					$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+					
+					print "{$vs_media_class} ({$vs_mimetype_name})";
+				?>
+			</div>
+			Type
+			<div style='clear:both;'><!-- empty --></div>
+		</div>
+		<div class='listItemLtBlue blueText'>
+			<div class='listItemRightCol ltBlueText'>
+				<?php 
+					$va_properties = $t_media->getMediaInfo('media', 'original');
+					print caFormatFilesize($va_properties['PROPERTIES']['filesize']);
+				?>
+			</div>
+			Filesize
+			<div style='clear:both;'><!-- empty --></div>
+		</div>
+<?php	
+		$va_media_display_fields = array("title", "published", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 		foreach($va_fields as $vs_field => $va_field_attr){
 			if(in_array($vs_field, $va_media_display_fields) && ($vs_field == "published" || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";

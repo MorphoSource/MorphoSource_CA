@@ -36,6 +36,7 @@
    
 require_once(__CA_LIB_DIR__.'/core/Datamodel.php');
 require_once(__CA_LIB_DIR__.'/core/Configuration.php');
+require_once(__CA_LIB_DIR__.'/core/Media.php');
 require_once(__CA_LIB_DIR__.'/core/Parsers/ZipFile.php');
 require_once(__CA_LIB_DIR__.'/core/Logging/Eventlog.php');
 
@@ -887,6 +888,21 @@ function caFileIsIncludable($ps_file) {
 	}
 	# ---------------------------------------
 	/**
+	 *
+	 */
+	function caFormatFilesize($pn_bytes, $pn_precision = 2) { 
+		$va_units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+		$pn_bytes = max($pn_bytes, 0); 
+		$pn_pow = floor(($pn_bytes ? log($pn_bytes) : 0) / log(1024)); 
+		$pn_pow = min($pn_pow, count($va_units) - 1); 
+
+		$pn_bytes /= (1 << (10 * $pn_pow)); 
+
+		return round($pn_bytes, $pn_precision) . ' ' . $va_units[$pn_pow]; 
+	} 
+	# ---------------------------------------
+	/**
 	 * Parses string for form element dimension. If a simple integer is passed then it is considered
 	 * to be expressed as the number of characters to display. If an integer suffixed with 'px' is passed
 	 * then the dimension is considered to be expressed in pixesl. If non-integers are passed they will
@@ -1040,6 +1056,18 @@ function caFileIsIncludable($ps_file) {
 	 *
 	 * @return string The media class that includes the specified MIME type, or null if the MIME type does not belong to a class. Returned classes are 'image', 'video', 'audio' and 'document'
 	 */
+	function caGetDisplayNameForMimetype($ps_mimetype) {
+		$t_media = new Media();
+		return $t_media->getMimetypeTypename($ps_mimetype);
+	}
+	# ------------------------------------------------------------------------------------------------
+	/**
+	 * Returns the media class to which a MIME type belongs, or null if the MIME type does not belong to a class. Possible classes are 'image', 'video', 'audio' and 'document'
+	 *
+	 * @param string $ps_mimetype A media MIME type
+	 *
+	 * @return string The media class that includes the specified MIME type, or null if the MIME type does not belong to a class. Returned classes are 'image', 'video', 'audio' and 'document'
+	 */
 	function caGetMediaClass($ps_mimetype) {
 		$va_tmp = explode("/", $ps_mimetype);
 		
@@ -1063,9 +1091,59 @@ function caFileIsIncludable($ps_file) {
 					case 'application/msword':
 						return 'document';
 						break;
+					case 'application/ply':
+					case 'application/stl':
+					case 'application/surf':
+						return 'mesh';
+						break;
 					case 'x-world/x-qtvr':
 					case 'application/x-shockwave-flash':
 						return 'video';
+						break;
+				}
+				break;
+		}
+		return null;
+	}
+	# ------------------------------------------------------------------------------------------------
+	/**
+	 * Returns the media class to which a MIME type belongs, or null if the MIME type does not belong to a class. Possible classes are 'image', 'video', 'audio' and 'document'
+	 *
+	 * @param string $ps_mimetype A media MIME type
+	 *
+	 * @return string The media class that includes the specified MIME type, or null if the MIME type does not belong to a class. Returned classes are 'image', 'video', 'audio' and 'document'
+	 */
+	function caGetMediaClassForDisplay($ps_mimetype) {
+		$va_tmp = explode("/", $ps_mimetype);
+		
+		switch($va_tmp[0]) {
+			case 'image':
+				return 'Image';
+				break;
+			case 'video':
+				return 'Video';
+				break;
+			case 'audio':
+				return 'Audio';
+				break;
+			default:
+				switch($ps_mimetype) {
+					case 'application/pdf':
+					case 'application/postscript':
+					case 'text/xml':
+					case 'text/html':
+					case 'text/plain':
+					case 'application/msword':
+						return 'document';
+						break;
+					case 'application/ply':
+					case 'application/stl':
+					case 'application/surf':
+						return '3D Mesh';
+						break;
+					case 'x-world/x-qtvr':
+					case 'application/x-shockwave-flash':
+						return 'Video';
 						break;
 				}
 				break;
@@ -1112,6 +1190,13 @@ function caFileIsIncludable($ps_file) {
 					return 'application/pdf|application/postscript|text/xml|text/html|text/plain|application/msword';
 				} else {
 					return array('application/pdf', 'application/postscript', 'text/xml', 'text/html', 'text/plain', 'application/msword');
+				}
+				break;
+			case 'mesh':
+				if ($vb_return_as_regex) {
+					return 'application/ply|application/stl|application/surf';
+				} else {
+					return array('application/ply', 'application/stl', 'application/surf');
 				}
 				break;
 		}
