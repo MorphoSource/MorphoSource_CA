@@ -103,7 +103,8 @@ if (!$this->request->isAjax()) {
 			break;
 			# -----------------------------------------------
 			default:
-				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
+				$vs_suffix = $t_item->getFieldInfo($vs_f, 'SUFFIX');
+				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT {$vs_suffix}</div>");
 			break;
 			# -----------------------------------------------
 		}

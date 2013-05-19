@@ -230,6 +230,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "µM",
 				'LABEL' => _t('X res'), 'DESCRIPTION' => _t('X resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
@@ -238,6 +239,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "µM",
 				'LABEL' => _t('Y res'), 'DESCRIPTION' => _t('Y resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
@@ -246,6 +248,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "µM",
 				'LABEL' => _t('Z res'), 'DESCRIPTION' => _t('Z resolution of scanner.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
@@ -254,6 +257,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "kV",
 				'LABEL' => _t('Voltage'), 'DESCRIPTION' => _t('Scanner voltage.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
@@ -262,6 +266,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "µA",
 				'LABEL' => _t('Amperage'), 'DESCRIPTION' => _t('Scanner amperage.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
@@ -270,6 +275,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
+				'SUFFIX' => "W",
 				'LABEL' => _t('Watts'), 'DESCRIPTION' => _t('Scanner watts.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),

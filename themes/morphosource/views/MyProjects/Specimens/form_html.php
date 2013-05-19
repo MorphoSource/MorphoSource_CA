@@ -83,7 +83,13 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					}
 					print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 					print "<span class='mediaID'>M{$vn_media_id}</span>";
-					print " {$va_media_info['title']}".($vs_side ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
+					print " {$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
+					
+					$vs_media_class = caGetMediaClassForDisplay($va_media_info['mimetype']); 
+					$vs_mimetype_name = caGetDisplayNameForMimetype($va_media_info['mimetype']);
+					
+					print "<br/>{$vs_media_class} ({$vs_mimetype_name})";
+					print "<br/>".caFormatFilesize($va_media_info['filesize']);
 					print "</div>\n";
 				}
 			} else {

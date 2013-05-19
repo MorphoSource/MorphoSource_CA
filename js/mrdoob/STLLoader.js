@@ -64,7 +64,7 @@ THREE.STLLoader.prototype.load = function (url, callback) {
 	xhr.addEventListener( 'load', onloaded, false );
 
 	xhr.addEventListener( 'progress', function ( event ) {
-		console.log("progress", event.loaded, event.total);
+		//console.log("progress", event.loaded, event.total);
 
 		scope.dispatchEvent( { type: 'progress', loaded: event.loaded, total: event.total } );
 
@@ -174,7 +174,7 @@ THREE.STLLoader.prototype.parseASCII = function (data) {
 	geometry.computeBoundingBox();
 	geometry.computeBoundingSphere();
 	
-	console.log(THREE.GeometryUtils.center( geometry ));
+	//console.log(THREE.GeometryUtils.center( geometry ));
 
 	return geometry;
 

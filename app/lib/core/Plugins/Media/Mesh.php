@@ -367,12 +367,19 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 		if (!is_array($pa_options)) { $pa_options = array(); }
 		
-		$vn_width = $pa_options["viewer_width"] ? $pa_options["viewer_width"] : 820;
-		$vn_height = $pa_options["viewer_height"] ? $pa_options["viewer_height"] : 520;
+		$vn_width = (isset($pa_options["viewer_width"]) && ($pa_options["viewer_width"] > 0)) ? $pa_options["viewer_width"] : 820;
+		$vn_height = (isset($pa_options["viewer_height"]) && ($pa_options["viewer_height"] > 0)) ? $pa_options["viewer_height"] : 520;
 
-		$vs_id = $pa_options["id"] ? $pa_options["id"] : "mesh_canvas";
+		$vs_id = (isset($pa_options["id"]) && $pa_options["id"]) ? $pa_options["id"] : "mesh_canvas";
+		
+		$vs_bgcolor = (isset($pa_options["background_color"]) && $pa_options["background_color"]) ? preg_replace("![^A-Fa-f0-9]+!", "", $pa_options["background_color"]) : "CCCCCC";
+		
+		$vs_progress_id = (isset($pa_options["progress_id"]) && $pa_options["progress_id"]) ? $pa_options["progress_id"] : "msMediaOverlayProgress";
+		
+		$vn_progress_total_filesize = (isset($pa_options["progress_total_filesize"]) && ($pa_options["progress_total_filesize"] > 0)) ? $pa_options["progress_total_filesize"] : 0;
+		
 
-		if(in_array($pa_properties['mimetype'], array("application/stl"))){
+		if(in_array($pa_properties['mimetype'], array("application/ply", "application/stl"))){
 			ob_start();
 			
 			if(false) {
@@ -391,20 +398,17 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 ?>
 		<div id="viewer"></div>
 <script type="text/javascript">
-			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
 			var container, stats;
-
 			var camera, cameraTarget, scene, renderer;
-
+			var total_filesize = <?php print $vn_progress_total_filesize; ?>;
 			
 			init();
 			animate();
-
+			
 			function init() {
 				container = document.getElementById('viewer');
 
-				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
+				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 150 );
 				camera.position.set( 3, 0.15, 3 );
 
 				cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
@@ -413,14 +417,24 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 				// ASCII file
 
+<?php
+	if ($pa_properties['mimetype'] == 'application/stl') {
+?>
 				var loader = new THREE.STLLoader();
+<?php
+	} else {
+?>
+				var loader = new THREE.PLYLoader();
+<?php
+	}
+?>
 				loader.addEventListener( 'load', function ( event ) {
 
 					var geometry = event.content;
+					THREE.GeometryUtils.center(geometry);
 					var material = new THREE.MeshPhongMaterial( { ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 } );
 					var mesh = new THREE.Mesh( geometry, material );
 					
-					console.log(mesh);
 					mesh.position.set( 0, 0, 0 );
 					mesh.scale.set( 0.25, 0.25, 0.25 );
 	
@@ -428,21 +442,36 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 					mesh.receiveShadow = false;
 
 					scene.add( mesh );
-					console.log("loaded " + '<?php print $ps_url; ?>');
+					//console.log("loaded " + '<?php print $ps_url; ?>');
+					jQuery('#<?php print $vs_progress_id; ?> div').html("Loaded model");
+					setTimeout(function() {
+						jQuery('#<?php print $vs_progress_id; ?>').fadeOut(500);
+					}, 3000);
 
 				} );
+				
+				loader.addEventListener( 'progress', function ( event ) {
+					var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded, true);
+					if(total_filesize > 0) {
+						msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
+					}
+					jQuery('#<?php print $vs_progress_id; ?> div').html(msg);
+				});
 				loader.load( '<?php print $ps_url; ?>' );
 
 				// Lights
-
 				scene.add( new THREE.AmbientLight( 0x777777 ) );
 
-				addShadowedLight( 1, 1, 1, 0xffffff, 1.35 );
-				addShadowedLight( 0.5, 1, -1, 0xffaa00, 1 );
+				addShadowedLight( 10, 10, 10, 0xffffff, 1.35 );
+				addShadowedLight( -7, 7, -7, 0xffaa00, 1 );
 
 				// renderer
 
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+				if (Detector.webgl) {
+					renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+				} else {
+					renderer = new THREE.CanvasRenderer( { antialias: false, alpha: false } );
+				}
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 				renderer.gammaInput = true;
@@ -463,13 +492,14 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				controls.staticMoving = false;
 				controls.dynamicDampingFactor = 0.3;
  
-				controls.minDistance = 1.1;
+				controls.minDistance = 1.5;
 				controls.maxDistance = 100;
+				
+				renderer.setClearColor( 0x<?php print $vs_bgcolor; ?>, 1 );
  
 				controls.keys = [ 16, 17, 18 ]; // [ rotateKey, zoomKey, panKey ]
 
 				container.appendChild( renderer.domElement );
-
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -482,7 +512,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				scene.add( directionalLight );
 
 				directionalLight.castShadow = true;
-				// directionalLight.shadowCameraVisible = true;
+				directionalLight.shadowCameraVisible = false;
 
 				var d = 1;
 				directionalLight.shadowCameraLeft = -d;

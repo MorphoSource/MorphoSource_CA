@@ -423,6 +423,9 @@ class ms_specimens extends BaseModel {
 				while($q_media->nextRow()){
 					$va_media_info = $q_media->getRow();
 					unset($va_media_info['media']);
+					$va_media_info['mimetype'] = $q_media->getMediaInfo('media', 'original', 'MIMETYPE');
+					$va_props = $q_media->getMediaInfo('media', 'original', 'PROPERTIES');
+					$va_media_info['filesize'] = $va_props['filesize'];
 					
 					foreach($va_versions as $vs_version) {
 						$va_media_info['tags'][$vs_version] = $q_media->getMediaTag('media', $vs_version);

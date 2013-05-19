@@ -204,27 +204,16 @@
 					$this->view->setVar('secondary_search_ca_entities', $qr_res);
 					$this->_setResultContextForSecondarySearch('ca_entities', $ps_search, $qr_res);
 				}
-				if ($this->request->config->get('do_secondary_search_for_ca_places')) {
-					$o_search = new PlaceSearch();
-					$qr_res = $o_search->search($ps_search, array('no_cache' => true, 'checkAccess' => $va_access_values));
-					$this->view->setVar('secondary_search_ca_places', $qr_res);
-					$this->_setResultContextForSecondarySearch('ca_places', $ps_search, $qr_res);
-				}
-				if ($this->request->config->get('do_secondary_search_for_ca_occurrences')) {
-					$o_search = new OccurrenceSearch();
-					$qr_res = $o_search->search($ps_search, array('no_cache' => true, 'checkAccess' => $va_access_values));
-					$this->view->setVar('secondary_search_ca_occurrences', $qr_res);
-					$this->_setResultContextForSecondarySearch('ca_occurrences', $ps_search, $qr_res);
-				}
-				if ($this->request->config->get('do_secondary_search_for_ca_collections')) {
-					$o_search = new CollectionSearch();
-					$qr_res = $o_search->search($ps_search, array('no_cache' => true, 'checkAccess' => $va_access_values));
-					$this->view->setVar('secondary_search_ca_collections', $qr_res);
-					$this->_setResultContextForSecondarySearch('ca_collections', $ps_search, $qr_res);
-				}
 			}
  			$this->view->setVar('secondaryItemsPerPage', $this->opa_items_per_secondary_search_page);
+ 			
+ 			$vn_project_id = $this->request->session->getVar('current_project_id');
+ 			
  			$pa_options["appendToSearch"] = "ms_media.published:1";
+ 			if ($vn_project_id > 0) {
+ 				$pa_options["appendToSearch"] .= " OR ms_media.project_id:{$vn_project_id}";
+ 			}
+ 			
  			$pa_options['search'] = $this->opo_browse;
  			return parent::Index($pa_options);
  		}
@@ -242,18 +231,6 @@
  			switch($ps_type) {
 				case 'ca_entities':
 					$o_search = new EntitySearch();
-					$qr_res = $o_search->search($ps_search, array('checkAccess' => $va_access_values));
-					break;
-				case 'ca_places':
-					$o_search = new PlaceSearch();
-					$qr_res = $o_search->search($ps_search, array('checkAccess' => $va_access_values));
-					break;
-				case 'ca_occurrences':
-					$o_search = new OccurrenceSearch();
-					$qr_res = $o_search->search($ps_search, array('checkAccess' => $va_access_values));
-					break;
-				case 'ca_collections':
-					$o_search = new CollectionSearch();
 					$qr_res = $o_search->search($ps_search, array('checkAccess' => $va_access_values));
 					break;
 				default:
@@ -341,22 +318,6 @@
  			$this->view->setVar('matches', $va_data);
  			$this->render('Search/ajax_search_lookup_json.php');
  		}
- 		# -------------------------------------------------------
- 		/**
- 		 * Ajax action that returns info on a mapped location based upon the 'id' request parameter.
- 		 * 'id' is a list of object_ids to display information before. Each integer id is separated by a semicolon (";")
- 		 * The "ca_objects_results_map_balloon_html" view in Results/ is used to render the content.
- 		 */ 
- 		public function getMapItemInfo() {
- 			$pa_object_ids = explode(';', $this->request->getParameter('id', pString));
- 			
- 			$va_access_values = caGetUserAccessValues($this->request);
- 			
- 			$this->view->setVar('ids', $pa_object_ids);
- 			$this->view->setVar('access_values', $va_access_values);
- 			
- 		 	$this->render("Results/ca_objects_results_map_balloon_html.php");
- 		 }
  		# -------------------------------------------------------
 		public function searchName($ps_mode='singular') {
  			return ($ps_mode == 'singular') ? _t('search') : _t('searches');

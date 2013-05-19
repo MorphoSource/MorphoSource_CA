@@ -89,7 +89,7 @@
 		<H2>Number of Citations</H2>
 	</div>
 	<div class="listItemLtBlue">
-		<div class="dataCol"><?php print $t_project->get("created_on"); ?></div>
+		<div class="dataCol"><?php print caGetLocalizedDate(($vn_created_on = (int)$t_project->get("created_on", array("GET_DIRECT_DATE" => true))), array('timeOmit' => true))." (".caFormatInterval(time() - $vn_created_on, 2).")"; ?></div>
 		<H2>Created On</H2>
 	</div>
 </div><!-- end dashboardColRight -->

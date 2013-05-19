@@ -18,7 +18,7 @@
 	if($vs_media){
 		$va_media_info = $t_media->getMediaInfo("media", "medium");
 		$vn_width = $va_media_info["WIDTH"];
-		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'><a href='#' onclick='caMediaPanel.showPanel(\"".caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey()))."\"); return false;'>".$vs_media."</a></div>";
+		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey()))."\"); return false;'>".$vs_media."</a></div>";
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
 	if($t_media->get("specimen_id")){
@@ -99,7 +99,11 @@
 				break;
 				# ------------------------------
 				default:
-					print "<b>".$va_field_attr["LABEL"].": </b>".$t_media->get($vs_field)."<br/>";
+					print "<b>".$va_field_attr["LABEL"].": </b>".($vs_field_value = $t_media->get($vs_field));
+					if (is_numeric($vs_field_value) && ($vs_suffix = $t_media->getFieldInfo($vs_field, 'SUFFIX'))) {
+						print " {$vs_suffix}";
+					}
+					print "<br/>";
 				break;
 				# ------------------------------
 			}

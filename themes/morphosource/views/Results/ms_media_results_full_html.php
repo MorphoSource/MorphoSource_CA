@@ -42,7 +42,7 @@ if($vo_result) {
 		$va_taxonomy = array();
 		$vs_specimen_name = "";
 		$vn_media_id = $vo_result->get('media_id');
-		print "<div class='searchResultFull searchResult".$vn_media_id."'>";
+		print "<div class='searchResultFull' id='searchResult".$vn_media_id."'>";
 		print "<div class='searchFullThumb'>".caNavLink($this->request, $vo_result->getMediaTag('ms_media.media', 'thumbnail'), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";
 		print "<div class='searchFullText'>";
 		print caNavLink($this->request, "M".$vn_media_id, 'blueText', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."<br/>";
@@ -55,6 +55,10 @@ if($vo_result) {
 				print "<b>Specimen taxonomy:</b> ".join(", ", $va_taxonomy)."<br/>";
 			}
 		}
+		if($vo_result->get("ms_media.element")){
+			print "<b>Element: </b>".$vo_result->get("ms_media.element")."<br/>";
+		}
+
 		if($vo_result->get("ms_facilities.name")){
 			print "<b>Facility: </b>".$vo_result->get("ms_facilities.name")."<br/>";
 		}
