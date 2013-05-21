@@ -7236,9 +7236,9 @@ $pa_options["display_form_field_tips"] = true;
 								}
 								if (!$vs_element && (isset($va_attr["BOUNDS_CHOICE_LIST"]) && is_array($va_attr["BOUNDS_CHOICE_LIST"]))) {
 	
-									if (sizeof($va_attr["BOUNDS_CHOICE_LIST"]) == 0) {
-										$vs_element = isset($pa_options['empty_message']) ? $pa_options['empty_message'] : 'No options available';
-									} else {
+									//if (sizeof($va_attr["BOUNDS_CHOICE_LIST"]) == 0) {
+									//	$vs_element = isset($pa_options['empty_message']) ? $pa_options['empty_message'] : 'No options available';
+									//} else {
 										$vs_element = "<select name='".$pa_options["name"].$vs_multiple_name_extension."' ".$vs_js." ".$vs_is_multiple." ".$ps_size." id='".$pa_options['id'].$vs_multiple_name_extension."' {$vs_css_class_attr} style='{$vs_dim_style}'".($pa_options['readonly'] ? ' disabled="disabled" ' : '').">\n";
 	
 										if ($pa_options["select_item_text"]) {
@@ -7262,7 +7262,7 @@ $pa_options["display_form_field_tips"] = true;
 											$vs_element.= "<option value='$vs_value' $vs_selected>".$this->escapeHTML($vs_option)."</option>\n";
 										}
 										$vs_element .= "</select>\n";
-									}
+									//}
 								} 
 							}
 						}

@@ -167,6 +167,11 @@
 				$va_items = caProcessRelationshipLookupLabel($qr_res, $this->opo_item_instance, $va_opts);
 			}
 			if (!is_array($va_items)) { $va_items = array(); }
+			
+			if (method_exists($this, "postProcessItems")) {
+				$va_items = $this->postProcessItems($va_items);
+			}
+			
 			$this->view->setVar(str_replace(' ', '_', $this->ops_name_singular).'_list', $va_items);
  			return $this->render(str_replace(' ', '_', 'ajax_'.$this->ops_name_singular.'_list_html.php'));
 		}

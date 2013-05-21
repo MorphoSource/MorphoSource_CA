@@ -34,5 +34,27 @@
  		protected $ops_name_singular = 'facility';
  		protected $ops_search_class = 'FacilitySearch';
  		# -------------------------------------------------------
+ 		/**
+ 		 *
+ 		 */
+ 		protected function postProcessItems($pa_items) {
+ 			// Add scanner list to each facility
+ 			
+ 			$o_db = new Db();
+ 			foreach($pa_items as $vn_facility_id => $va_facility) {
+ 				$qr_scanners = $o_db->query("
+ 					SELECT * 
+ 					FROM ms_scanners 
+ 					WHERE
+ 						facility_id = ?
+ 					ORDER BY
+ 						name
+ 				", array($vn_facility_id));
+ 				if (!$qr_scanners) { continue; }
+ 				$pa_items[$vn_facility_id]['scanners'] = $qr_scanners->getAllRows();
+ 			}
+ 			return $pa_items;
+ 		}
+ 		# -------------------------------------------------------
  	}
  ?>

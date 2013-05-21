@@ -64,12 +64,21 @@ if (!$this->request->isAjax()) {
 			print "<div class='formErrors'>".$va_errors[$vs_f]."</div>";
 		}
 		switch($vs_f){
-			case "scanner_type":
+			# -----------------------------------------------
+			case "facility_id":
 				if (!$this->request->isAjax()) {
 					print "</div><!-- end float --><div style='float:left; width:420px;'>";
 				}
 				print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>Scanner Information</H2>";
-				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
+				print "<div id='facilityInfo'><div class='formLabel'>";
+				print "Enter the facility this file was created at:<br/>".caHTMLTextInput("media_facility_lookup", array("id" => 'msFacilityID', 'class' => 'lookupBg', 'value' => $this->getVar("facility_name")), array('width' => "375px", 'height' => 1));
+				print "</div>";
+				print "<input type='hidden' id='facility_id' name='facility_id' value='".$t_item->get("facility_id")."'>";
+				print "</div>";
+			break;
+			# -----------------------------------------------
+			case "scanner_id":
+				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>", array('id' => 'msScannerID', 'nullOption' => '-'));
 			break;
 			# -----------------------------------------------
 			case "is_copyrighted":
@@ -88,14 +97,6 @@ if (!$this->request->isAjax()) {
 				if($t_item->get($vs_f)){
 					print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."' style='padding-right:25px;'>^LABEL<br>^ELEMENT</div>");
 				}
-			break;
-			# -----------------------------------------------
-			case "facility_id":
-				print "<div id='facilityInfo'><div class='formLabel'>";
-				print "Enter the facility this file was created at:<br/>".caHTMLTextInput("media_facility_lookup", array("id" => 'msFacilityID', 'class' => 'lookupBg', 'value' => $this->getVar("facility_name")), array('width' => "200px", 'height' => 1));
-				print "</div>";
-				print "<input type='hidden' id='facility_id' name='facility_id' value='".$t_item->get("facility_id")."'>";
-				print "</div>";
 			break;
 			# -----------------------------------------------
 			case "media":
@@ -154,13 +155,19 @@ if (!$this->request->isAjax()) {
 				var facility_id = parseInt(ui.item.id);
 				if (facility_id < 1) {
 					// nothing found...
-					//alert("Create new facility since returned id was " + facility_id);
 					jQuery("#facilityInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Facilities', 'form', array('media_id' => $t_item->get('media_id'))); ?>");
 				} else {
 					// found an id
-					//alert("found facility id: " + facility_id);
 					jQuery('#facility_id').val(facility_id);
-					//alert("facility id set to: " + jQuery('#facility_id').val());
+					
+					// Load scanner list into drop-down
+					var optionsAsString = "<option value=''>-</option>";
+					if (ui.item.scanners && ui.item.scanners.length) {
+						for(var i = 0; i < ui.item.scanners.length; i++) {
+							optionsAsString += "<option value='" + ui.item.scanners[i].scanner_id + "'>" + ui.item.scanners[i].name + "</option>";
+						}
+					}
+					jQuery("select#msScannerID").find('option').remove().end().append(jQuery(optionsAsString));
 				}
 			}
 		}

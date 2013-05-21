@@ -31,6 +31,7 @@
  */
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+require_once(__CA_MODELS_DIR__."/ms_facilities.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
@@ -76,17 +77,6 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"LABEL" => "Select media file", 
 				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
 		),
-		'preview' => array(
-				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_FIELD, 
-				"DISPLAY_WIDTH" => 50, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => false, 
-				"DEFAULT" => "",
-				
-				"MEDIA_PROCESSING_SETTING" => 'ms_media_previews',
-				
-				"LABEL" => "Select optional media preview", 
-				"DESCRIPTION" => "Use the button below to select a file to use as a preview for the uploaded media. This is optional. If you do not provide a preview image then Morphosource will attempt to extract one automatically from the uploaded media."
-		),
 		'published' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
@@ -113,7 +103,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'element' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
@@ -130,14 +120,6 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 					"Left" => "LEFT",
 					"Right" => "RIGHT"
 				)
-		),
-		'facility_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
-				"DISPLAY_FIELD" => array('ms_facilities.name'), 
-				"DISPLAY_ORDERBY" => array('ms_facilities.name'),
-				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => false, "DEFAULT" => "",
-				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
 		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -214,16 +196,20 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Metadata from media file'), 'DESCRIPTION' => _t('Metadata from media file.')
 		),
-		'scanner_type' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => 0,
-				'LABEL' => _t('Scanner type'), 'DESCRIPTION' => _t('Scanner type'),
-				"BOUNDS_CHOICE_LIST"=> array(
-					_t('Scanner 1') 	=> 1,
-					_t('Scanner 2')	=> 2
-				)
+		'facility_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
+				"DISPLAY_FIELD" => array('ms_facilities.name'), 
+				"DISPLAY_ORDERBY" => array('ms_facilities.name'),
+				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => false, "DEFAULT" => "",
+				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
+		),
+		'scanner_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+				"BOUNDS_CHOICE_LIST" => array(),
+				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => true, "DEFAULT" => "",
+				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner at the selected facility used to create this media."
 		),
 		'scanner_x_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -430,6 +416,23 @@ class ms_media extends BaseModel {
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
+	}
+	# ----------------------------------------
+	public function htmlFormElement($ps_field, $ps_format=null, $pa_options=null) {
+		switch($ps_field){ 
+			case 'scanner_id':
+				$va_choice_list = array();
+				if ($vn_facility_id = $this->get('facility_id')) {
+					$va_scanners = ms_facilities::scannerList($vn_facility_id);
+					foreach($va_scanners as $vn_scanner_id => $va_scanner) {
+						$va_choice_list[$va_scanner['name']] = $vn_scanner_id;
+					}
+				}
+				BaseModel::$s_ca_models_definitions['ms_media']['FIELDS']['scanner_id']['BOUNDS_CHOICE_LIST'] = $va_choice_list; 
+				break;
+		}
+		
+		return parent::htmlFormElement($ps_field, $ps_format, $pa_options);
 	}
 	# ----------------------------------------
 }

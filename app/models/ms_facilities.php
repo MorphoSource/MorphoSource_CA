@@ -256,8 +256,16 @@ class ms_facilities extends BaseModel {
 	public function getScanners() {
 		if (!($vn_facility_id = $this->getPrimaryKey())) { return null; }
 		
-		$o_db = $this->getDb();
-		$qr_res = $o_db->query("SELECT * FROM ms_scanners WHERE facility_id = ?", (int)$vn_facility_id);
+		return ms_facilities::scannerList($vn_facility_id);
+	}
+	# ----------------------------------------
+	/**
+	 * Returns list of scanners associated with the currently loaded facility
+	 */
+	static public function scannerList($pn_facility_id) {
+		
+		$o_db = new Db();
+		$qr_res = $o_db->query("SELECT * FROM ms_scanners WHERE facility_id = ?", (int)$pn_facility_id);
 		
 		$va_rows = array();
 		while($qr_res->nextRow()) {

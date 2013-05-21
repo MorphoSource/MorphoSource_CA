@@ -380,9 +380,7 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
   `project_id` INT UNSIGNED NOT NULL ,
   `user_id` INT UNSIGNED NOT NULL ,
   `specimen_id` INT UNSIGNED NOT NULL ,
-  `facility_id` INT UNSIGNED NOT NULL ,
   `media` LONGBLOB NOT NULL ,
-  `preview` LONGBLOB NOT NULL ,
   `notes` TEXT NOT NULL ,
   `element` VARCHAR(255) NULL ,
   `is_copyrighted` TINYINT UNSIGNED NOT NULL ,
@@ -393,7 +391,8 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
   `created_on` INT NOT NULL ,
   `last_modified_on` INT NOT NULL ,
   `approval_status` TINYINT UNSIGNED NOT NULL ,
-  `scanner_type` TINYINT UNSIGNED NULL ,
+  `facility_id` INT UNSIGNED NOT NULL ,
+  `scanner_id` INT UNSIGNED NULL ,
   `scanner_x_resolution` VARCHAR(45) NULL ,
   `scanner_y_resolution` VARCHAR(45) NULL ,
   `scanner_z_resolution` VARCHAR(45) NULL ,
@@ -431,7 +430,13 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
     FOREIGN KEY (`facility_id` )
     REFERENCES `ms_facilities` (`facility_id` )
     ON DELETE RESTRICT
-    ON UPDATE RESTRICT)
+    ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ms_media_ms_scanners1`
+    FOREIGN KEY (`scanner_id` )
+    REFERENCES `ms_scanner` (`scanner_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT
+)
 ENGINE = InnoDB;
 
 
