@@ -1,4 +1,4 @@
-`<?php
+<?php
 	$vn_specimen_id = $this->request->getParameter("specimen_id", pInteger);
 	$t_specimen = new ms_specimens();
 	
@@ -100,7 +100,15 @@ if (!$this->request->isAjax()) {
 			break;
 			# -----------------------------------------------
 			case "media":
-				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL".(($t_item->get("media")) ? " replacement" : "")."<br>^ELEMENT</div>");
+				$vs_media_url = $t_item->getMediaUrl('media', 'original');
+				
+				print "<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>";
+				print $t_item->htmlFormElement($vs_f, "^LABEL".(($vs_media_url) ? " replacement" : "")."<br>^ELEMENT");
+				
+				if ($vs_media_url) {
+					print "<div style='float: right; width: 125px;'>".caHTMLCheckboxInput("updatePreviews", array('value' => '1'))." Update preview icons only</div>";
+				}
+				print "</div>";
 			break;
 			# -----------------------------------------------
 			default:

@@ -25,7 +25,7 @@
  *
  * ----------------------------------------------------------------------
  */
- 
+	require_once(__CA_APP_DIR__."/helpers/htmlFormHelpers.php");
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
@@ -133,13 +133,19 @@
 			$va_errors = array();
 			# loop through fields
 			
-			while(list($vs_f,$va_attr) = each($va_fields)) {
-				
+			while(list($vs_f,$va_attr) = each($va_fields)) {		
 				switch($vs_f) {
 					# -----------------------------------------------
 					case 'media':
 						if($_FILES['media']['tmp_name']){
-							$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+							if ($this->request->getParameter('updatePreviews', pInteger) == 1) {
+								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array(
+									'original_filename' => $_FILES['media']['name'],
+									'updateOnlyMediaVersions' => array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large')
+								));
+							} else {
+								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+							}
 						}elseif(!$this->opo_item->get('media')){
 							$va_errors[$vs_f] = "Please upload a media file";
 						}
