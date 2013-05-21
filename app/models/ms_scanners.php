@@ -1,13 +1,13 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/models/ms_facilities.php
+ * app/models/ms_scanners.php
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2011 Whirl-i-Gig
+ * Copyright 2013 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -32,23 +32,23 @@
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
-BaseModel::$s_ca_models_definitions['ms_facilities'] = array(
- 	'NAME_SINGULAR' 	=> _t('facility'),
- 	'NAME_PLURAL' 		=> _t('facilities'),
+BaseModel::$s_ca_models_definitions['ms_scanners'] = array(
+ 	'NAME_SINGULAR' 	=> _t('scanner'),
+ 	'NAME_PLURAL' 		=> _t('scanners'),
  	'FIELDS' 			=> array(
- 		'facility_id' => array(
+ 		'scanner_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'IDENTITY' => true, 'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Facility id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this facility')
+				'LABEL' => _t('Scanner'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this scanner')
 		),
-		'project_id' => array(
+		'facility_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => 'Project id', 'DESCRIPTION' => 'Project id'
+				'LABEL' => 'Facility', 'DESCRIPTION' => 'Facility to which this scanner belongs'
 		),
 		'user_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
@@ -59,83 +59,19 @@ BaseModel::$s_ca_models_definitions['ms_facilities'] = array(
 		),
 		'name' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Name'), 'DESCRIPTION' => _t('Project name.'),
+				'LABEL' => _t('Scanner make and model'), 'DESCRIPTION' => _t('The maker and model number of the scanner at this facility.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 2,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Description of facility.'),
+				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Optional description of scanner.'),
 				'BOUNDS_LENGTH' => array(0,65535)
-		),
-		'institution' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Institution'), 'DESCRIPTION' => _t('Institution facility is located at.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'address1' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Address line 1'), 'DESCRIPTION' => _t('First line of facility\'s address.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'address2' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Address line 2'), 'DESCRIPTION' => _t('Second line of facility\'s address.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'city' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('City'), 'DESCRIPTION' => _t('City the facility is located in.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'stateprov' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('State/Province'), 'DESCRIPTION' => _t('State or province the facility is locates in.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'postalcode' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Postal code'), 'DESCRIPTION' => _t('Postal code of the facility.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'country' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Country'), 'DESCRIPTION' => _t('Country the facility is located in.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'contact' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Contact person'), 'DESCRIPTION' => _t('Contact person for the facility.'),
-				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'created_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
@@ -165,7 +101,7 @@ BaseModel::$s_ca_models_definitions['ms_facilities'] = array(
  	)
 );
 
-class ms_facilities extends BaseModel {
+class ms_scanners extends BaseModel {
 	# ---------------------------------
 	# --- Object attribute properties
 	# ---------------------------------
@@ -177,10 +113,10 @@ class ms_facilities extends BaseModel {
 	# --- Basic object parameters
 	# ------------------------------------------------------
 	# what table does this class represent?
-	protected $TABLE = 'ms_facilities';
+	protected $TABLE = 'ms_scanners';
 	      
 	# what is the primary key of the table?
-	protected $PRIMARY_KEY = 'facility_id';
+	protected $PRIMARY_KEY = 'scanner_id';
 
 	# ------------------------------------------------------
 	# --- Properties used by standard editing scripts
@@ -228,10 +164,10 @@ class ms_facilities extends BaseModel {
 	# Change logging
 	# ------------------------------------------------------
 	protected $UNIT_ID_FIELD = null;
-	protected $LOG_CHANGES_TO_SELF = false;
+	protected $LOG_CHANGES_TO_SELF = true;
 	protected $LOG_CHANGES_USING_AS_SUBJECT = array(
 		"FOREIGN_KEYS" => array(
-		
+			'facility_id'
 		),
 		"RELATED_TABLES" => array(
 		
@@ -248,22 +184,6 @@ class ms_facilities extends BaseModel {
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
-	}
-	# ----------------------------------------
-	/**
-	 * Returns list of scanners associated with the currently loaded facility
-	 */
-	public function getScanners() {
-		if (!($vn_facility_id = $this->getPrimaryKey())) { return null; }
-		
-		$o_db = $this->getDb();
-		$qr_res = $o_db->query("SELECT * FROM ms_scanners WHERE facility_id = ?", (int)$vn_facility_id);
-		
-		$va_rows = array();
-		while($qr_res->nextRow()) {
-			$va_rows[(int)$qr_res->get('scanner_id')] = $qr_res->getRow();
-		}
-		return $va_rows;
 	}
 	# ----------------------------------------
 }

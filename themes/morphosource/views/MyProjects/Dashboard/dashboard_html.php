@@ -81,6 +81,10 @@
 		<H2>Number of Media</H2>
 	</div>
 	<div class="listItemLtBlue">
+		<div class="dataCol"><?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?></div>
+		<H2>Storage used</H2>
+	</div>
+	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print $t_project->numSpecimens(); ?></div>
 		<H2>Number of Specimens</H2>
 	</div>

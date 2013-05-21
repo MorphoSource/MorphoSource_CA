@@ -846,3 +846,13 @@ div.msMediaOverlayProgress div {
 	border-radius: 10px;
 	border: 1px solid #cccccc;
 }
+
+/* Style for labels on form fields where an error has occurred */
+.formLabelError {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight: bold;
+	color: #cc0000;
+	margin-bottom: 5px;
+	text-align: left;
+}

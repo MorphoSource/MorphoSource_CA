@@ -73,6 +73,13 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Published on'), 'DESCRIPTION' => _t('Project publication date.'),
 		),
+		'total_storage_allocation' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Storage used by project'), 'DESCRIPTION' => _t('Total storage used by project, in bytes.'),
+		),
 		'publication_status' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,

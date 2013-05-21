@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_scanners.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class FacilitiesController extends ActionController {
@@ -80,6 +81,9 @@
 					$this->notification->addNotification("The facility record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
 					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
 				}
+				
+				// load related scanners
+				$this->view->setVar('scannerList', $this->opo_item->getScanners());
 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
@@ -173,6 +177,65 @@
 				$this->view->setVar("errors", $va_errors);
 				$this->form();
 			}else{
+				
+					//print_r($_REQUEST);
+					$va_errors = array();
+				// Save scanners
+					foreach($_REQUEST as $vs_key => $vm_val) {
+					
+						// look for new scanners
+						if (preg_match("!^scanner_name_new_([\d]+)$!", $vs_key, $va_matches)) {
+							$vs_name = $this->request->getParameter($vs_key, pString);
+							if (!strlen(trim($vs_name))) { continue; } 
+							$vs_desc = $this->request->getParameter('scanner_description_new_'.$va_matches[1], pString);
+							
+							$t_scanner = new ms_scanners();
+							$t_scanner->setMode(ACCESS_WRITE);
+							$t_scanner->set('facility_id', $this->opo_item->getPrimaryKey());
+							$t_scanner->set('name', $vs_name);
+							$t_scanner->set('description', $vs_desc);
+							$t_scanner->set('user_id', $this->request->getUserID());
+							$t_scanner->insert();
+							
+							if ($t_scanner->numErrors()) {
+								$va_errors['new_'.$va_matches[1]][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
+							}
+						}
+						
+						// look for scanners to edit
+						if (preg_match("!^scanner_name_([\d]+)$!", $vs_key, $va_matches)) {
+							$vs_name = $this->request->getParameter($vs_key, pString);
+							$vs_desc = $this->request->getParameter('scanner_description_'.$va_matches[1], pString);
+							
+							$t_scanner = new ms_scanners($va_matches[1]);
+							if (!$t_scanner->getPrimaryKey() || ($t_scanner->get('facility_id') != $this->opo_item->getPrimaryKey())) { continue; }
+							$t_scanner->setMode(ACCESS_WRITE);
+							$t_scanner->set('name', $vs_name);
+							$t_scanner->set('description', $vs_desc);
+							$t_scanner->update();
+							
+							if ($t_scanner->numErrors()) {
+								$va_errors[$t_scanner->getPrimaryKey()][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
+							}
+						}
+						
+						// look for scanners to delete
+						if (preg_match("!^msFacilityScannerList_([\d]+)_delete$!", $vs_key, $va_matches)) {
+							$t_scanner = new ms_scanners($va_matches[1]);
+							if (!$t_scanner->getPrimaryKey() || ($t_scanner->get('facility_id') != $this->opo_item->getPrimaryKey())) { $t_scanner->dump();  continue; }
+							$t_scanner->setMode(ACCESS_WRITE);
+							$t_scanner->delete();
+							
+							if ($t_scanner->numErrors()) {
+								$va_errors[$t_scanner->getPrimaryKey()][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
+							}
+						}
+					}
+					$this->view->setVar('scannerErrors', $va_errors);
+					
+					// load related scanners
+					$this->view->setVar('scannerList', $this->opo_item->getScanners());
+				
 				$this->opn_item_id = $this->opo_item->get($this->ops_primary_key);
 				$this->view->setVar("item_id", $this->opn_item_id);
 				$this->view->setVar("item", $this->opo_item);

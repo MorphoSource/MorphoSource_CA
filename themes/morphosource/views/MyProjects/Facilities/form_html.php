@@ -1,10 +1,14 @@
 <?php
+	require_once(__CA_MODELS_DIR__."/ms_scanners.php");
+	
 	$t_item = $this->getVar("item");
+	$t_scanner = new ms_scanners();
+	
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
 	$ps_primary_key = $this->getVar("primary_key");
 	
-	# --- formatting varibales
+	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
 	$va_float_fields = array("address1", "address2", "city", "stateprov", "postalcode", "country", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
@@ -64,7 +68,45 @@ print caFormTag($this->request, 'save', 'itemForm', null, 'post', 'multipart/for
 		}
 	}
 if (!$this->request->isAjax()) {
+	// Controls to add scanners
 ?>
+	<H2 class="ltBlueBottomRule" style="margin-bottom:10px;">
+		<?php print _t("Scanners at this facility"); ?>
+	</H2>
+	<div style="margin: 0 0 15px 0;">
+	
+	<div id="msFacilityScannerList">
+		<textarea class='caItemTemplate' style='display: none;'>
+			<div id="msFacilityScannerListItem_{n}" class="labelInfo">	
+				<span class="formLabelError">{error}</span>
+
+				<div style="float: right;">
+					<a href="#" class="caDeleteItemButton"><?php print caNavIcon($this->request, __CA_NAV_BUTTON_DEL_BUNDLE__); ?></a>
+				</div>
+				
+				<table>
+					<tr>
+						<td>
+							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('name', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_name_{n}', 'value' => '{name}'))); ?>		
+						</td><td>
+							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{description}'))); ?>		
+						</td>
+					</tr>
+				</table>
+			</div>
+		</textarea>
+	
+		<div class="bundleContainer">
+			<div class="caItemList">
+		
+			</div>
+
+			<div class='labelInfo caAddItemButton'><a href='#'><?php print caNavIcon($this->request, __CA_NAV_BUTTON_ADD__); ?> <?php print _t('Add scanner'); ?></a></div>
+
+		</div>
+
+	</div>
+
 	<div class="formButtons tealTopBottomRule">
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#itemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
@@ -75,6 +117,27 @@ if (!$this->request->isAjax()) {
 	</div><!-- end formButtons -->
 </form>
 </div>
+
+<script type="text/javascript">
+	caUI.initBundle('#msFacilityScannerList', {
+		fieldNamePrefix: 'msFacilityScannerList_',
+		templateValues: ['name', 'description', 'scanner_id'],
+		initialValues: <?php print (is_array($va_scanner_list = $this->getVar('scannerList'))) ? json_encode($va_scanner_list) : "null"; ?>,
+		forceNewValues: {},
+		errors: <?php print json_encode($this->getVar('scannerErrors')); ?>,
+		itemID: 'msFacilityScannerListItem_',
+		templateClassName: 'caItemTemplate',
+		itemListClassName: 'caItemList',
+		addButtonClassName: 'caAddItemButton',
+		deleteButtonClassName: 'caDeleteItemButton',
+		minRepeats: 0,
+		maxRepeats: 9999,
+		showEmptyFormsOnLoad: 1,
+		readonly: 0,
+		defaultLocaleID: 1
+	});
+</script>
+
 <?php
 }else{
 ?>
@@ -87,7 +150,7 @@ if (!$this->request->isAjax()) {
 		$(document).ready(function(){
 			$('#mediaForm').submit(function(){
 				if($('#name').val() == ''){
-					alert("Pease enter the name of the facility");
+					alert("Please enter the name of the facility");
 					return false;
 				}else{
 					return true;

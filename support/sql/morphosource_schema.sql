@@ -39,6 +39,7 @@ CREATE  TABLE IF NOT EXISTS `ms_projects` (
   `user_id` INT UNSIGNED NOT NULL ,
   `name` VARCHAR(255) NOT NULL ,
   `abstract` TEXT NOT NULL ,
+  `total_storage_allocation` int unsigned not null,
   `published_on` INT UNSIGNED NULL ,
   `publication_status` TINYINT UNSIGNED NOT NULL ,
   `created_on` INT UNSIGNED NOT NULL ,
@@ -329,6 +330,36 @@ CREATE  TABLE IF NOT EXISTS `ms_facilities` (
   CONSTRAINT `fk_ms_facilities_ms_projects1`
     FOREIGN KEY (`project_id` )
     REFERENCES `ms_projects` (`project_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ms_facilities_ms_users1`
+    FOREIGN KEY (`user_id` )
+    REFERENCES `ca_users` (`user_id` )
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ms_scanners`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ms_scanners` ;
+CREATE  TABLE IF NOT EXISTS `ms_scanners` (
+  `scanner_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `facility_id` INT UNSIGNED NOT NULL ,
+  `name` VARCHAR(45) NOT NULL ,
+  `description` TEXT NOT NULL ,
+  `created_on` INT UNSIGNED NOT NULL ,
+  `last_modified_on` INT UNSIGNED NOT NULL ,
+  `user_id` INT UNSIGNED NOT NULL ,
+  `approval_status` TINYINT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`scanner_id`) ,
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC, `facility_id` ASC) ,
+  INDEX `fk_ms_scanners_ms_faciltities1_idx` (`facility_id` ASC) ,
+  INDEX `fk_ms_scanners_ms_users1_idx` (`user_id` ASC) ,
+  CONSTRAINT `fk_ms_scanners_ms_faciltities1_idx`
+    FOREIGN KEY (`facility_id` )
+    REFERENCES `ms_facilities` (`facility_id` )
     ON DELETE RESTRICT
     ON UPDATE RESTRICT,
   CONSTRAINT `fk_ms_facilities_ms_users1`
