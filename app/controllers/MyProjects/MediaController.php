@@ -133,6 +133,7 @@
 			$va_errors = array();
 			# loop through fields
 			
+			$va_update_opts = array();
 			while(list($vs_f,$va_attr) = each($va_fields)) {		
 				switch($vs_f) {
 					# -----------------------------------------------
@@ -140,9 +141,9 @@
 						if($_FILES['media']['tmp_name']){
 							if ($this->request->getParameter('updatePreviews', pInteger) == 1) {
 								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array(
-									'original_filename' => $_FILES['media']['name'],
-									'updateOnlyMediaVersions' => array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large')
+									'original_filename' => $_FILES['media']['name']
 								));
+								$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
 							} else {
 								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
 							}
@@ -243,7 +244,7 @@
 				$vb_was_insert = false;
 				$this->opo_item->setMode(ACCESS_WRITE);
 				if ($this->opo_item->get($this->ops_primary_key)){
-					$this->opo_item->update();
+					$this->opo_item->update($va_update_opts);
 				} else {
 					$this->opo_item->insert();
 					$vb_was_insert = true;
