@@ -60,6 +60,8 @@ var caUI = caUI || {};
 			defaultValues: {},
 			readonly: 0,
 			
+			disableUnsavedChangesWarning: false,
+			
 			sortInitialValuesBy: null,
 			
 			isSortable: false,
@@ -80,6 +82,7 @@ var caUI = caUI || {};
 		}
 		
 		that.showUnsavedChangesWarning = function(b) {
+			if (that.disableUnsavedChangesWarning) { return; }
 			if(caUI && caUI.utils && typeof caUI.utils.showUnsavedChangesWarning === 'function') {
 				if (b === undefined) { b = true; }
 				caUI.utils.showUnsavedChangesWarning(b);

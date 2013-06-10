@@ -32,6 +32,7 @@
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_facilities.php");
+require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
@@ -418,6 +419,80 @@ class ms_media extends BaseModel {
 		parent::__construct($pn_id);
 	}
 	# ----------------------------------------
+	public function insert ($pa_options=null) {
+		if ($vn_rc = parent::insert($pa_options)) {
+			if (is_array($va_versions = $this->getMediaVersions("media"))) {
+		
+				$vn_alloc = 0;
+				foreach($va_versions as $vs_version) {
+					$va_info = $this->getMediaInfo("media", $vs_version);
+					$vn_alloc += $va_info['PROPERTIES']['filesize'];
+				}
+				$t_project = new ms_projects($this->get('project_id'));
+				$t_project->setMode(ACCESS_WRITE);
+				$t_project->set('total_storage_allocation', (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc);
+				$t_project->update();
+			}
+		}
+		return $vn_rc;
+	}
+	# ----------------------------------------
+	public function update ($pa_options=null) {
+		$vn_old_alloc = 0;
+		if (is_array($va_versions = $this->getMediaVersions("media"))) {
+			foreach($va_versions as $vs_version) {
+				$va_info = $this->getMediaInfo("media", $vs_version);
+				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
+			}
+		}
+		if ($vn_rc = parent::update($pa_options)) {
+			if (is_array($va_versions = $this->getMediaVersions("media"))) {
+		
+				$vn_alloc = 0;
+				foreach($va_versions as $vs_version) {
+					$va_info = $this->getMediaInfo("media", $vs_version);
+					$vn_alloc += $va_info['PROPERTIES']['filesize'];
+				}
+				
+				$t_project = new ms_projects($this->get('project_id'));
+				
+				if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc - (int)$vn_old_alloc) < 0) {
+					$vn_new_alloc = 0;
+				}
+				
+				$t_project->setMode(ACCESS_WRITE);
+				$t_project->set('total_storage_allocation', $vn_new_alloc);
+				$t_project->update();
+			}
+		}
+		return $vn_rc;
+	}
+	# ----------------------------------------
+	public function delete ($pb_delete_related=false, $pa_options=null, $pa_fields=null, $pa_table_list=null) {
+		$vn_project_id = $this->get('project_id');
+		$vn_old_alloc = 0;
+		if (is_array($va_versions = $this->getMediaVersions("media"))) {
+			foreach($va_versions as $vs_version) {
+				$va_info = $this->getMediaInfo("media", $vs_version);
+				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
+			}
+		}
+		if ($vn_rc = parent::delete($pb_delete_related, $pa_options, $pa_fields, $pa_table_list)) {			
+			
+			$t_project = new ms_projects($vn_project_id);
+			
+			if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') - (int)$vn_old_alloc) < 0) {
+				$vn_new_alloc = 0;
+			}
+			
+			$t_project->setMode(ACCESS_WRITE);
+			$t_project->set('total_storage_allocation', $vn_new_alloc);
+			$t_project->update();
+		}
+		
+		return $vn_rc;
+	}
+	# ----------------------------------------
 	public function htmlFormElement($ps_field, $ps_format=null, $pa_options=null) {
 		switch($ps_field){ 
 			case 'scanner_id':
@@ -434,6 +509,180 @@ class ms_media extends BaseModel {
 		
 		return parent::htmlFormElement($ps_field, $ps_format, $pa_options);
 	}
+	# ------------------------------------------------------
+ 	# Multifiles
+ 	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function addFile($ps_filepath, $ps_resource_path='/', $pb_allow_duplicates=true) {
+ 		if(!$this->getPrimaryKey()) { return null; }
+ 		if (!trim($ps_resource_path)) { $ps_resource_path = '/'; }
+ 		
+ 		$t_multifile = new ms_media_multifiles();
+ 		if (!$pb_allow_duplicates) {
+ 			if ($t_multifile->load(array('resource_path' => $ps_resource_path, 'media_id' => $this->getPrimaryKey()))) {
+ 				return null;
+ 			}
+ 		}
+ 		$t_multifile->setMode(ACCESS_WRITE);
+ 		$t_multifile->set('media_id', $this->getPrimaryKey());
+ 		$t_multifile->set('media', $ps_filepath);
+ 		$t_multifile->set('resource_path', $ps_resource_path);
+ 		
+ 		$t_multifile->insert();
+ 		
+ 		if ($t_multifile->numErrors()) {
+ 			$this->errors = array_merge($this->errors, $t_multifile->errors);
+ 			return false;
+ 		}
+ 		
+ 		return $t_multifile;
+ 	}
+ 	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function removeFile($pn_multifile_id) {
+ 		if(!$this->getPrimaryKey()) { return null; }
+ 		
+ 		$t_multifile = new ms_media_multifiles($pn_multifile_id);
+ 		
+ 		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
+ 			$t_multifile->setMode(ACCESS_WRITE);
+ 			$t_multifile->delete();
+ 			
+			if ($t_multifile->numErrors()) {
+				$this->errors = array_merge($this->errors, $t_multifile->errors);
+				return false;
+			}
+		} else {
+			$this->postError(2720, _t('File is not part of this media'), 'ms_media->removeFile()');
+			return false;
+		}
+		return true;
+ 	}
+ 	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function removeAllFiles() {
+ 		if(!$this->getPrimaryKey()) { return null; }
+ 		
+ 		$va_file_ids = array_keys($this->getFileList());
+ 		
+ 		foreach($va_file_ids as $vn_id) {
+ 			$this->removeFile($vn_id);
+ 			
+ 			if($this->numErrors()) {
+ 				return false;
+ 			}
+ 		}
+ 		
+ 		return true;
+ 	}
+ 	# ------------------------------------------------------
+ 	/**
+ 	 * Returns list of additional files (page or frame previews for documents or videos, typically) attached to a media item
+ 	 * The return value is an array key'ed on the multifile_id (a unique identifier for each attached file); array values are arrays
+ 	 * with keys set to values for each file version returned. They keys are:
+ 	 *		<version name>_path = The absolute file path to the file
+ 	 *		<version name>_tag = An HTML tag that will display the file
+ 	 *		<version name>_url = The URL for the file
+ 	 *		<version name>_width = The pixel width of the file when displayed
+ 	 *		<version name>_height = The pixel height of the file when displayed
+ 	 * The available versions are set in media_processing.conf
+ 	 *
+ 	 * @param int $pn_media_id The media_id of the media to return files for. If omitted the currently loaded media is used. If no media_id is specified and no row is loaded null will be returned.
+ 	 * @param int $pn_start The index of the first file to return. Files are numbered from zero. If omitted the first file found is returned.
+ 	 * @param int $pn_num_files The maximum number of files to return. If omitted all files are returned.
+ 	 * @param array $pa_versions A list of file versions to return. If omitted only the "preview" version is returned.
+ 	 * @return array A list of files attached to the media. If no files are associated an empty array is returned.
+ 	 */
+ 	public function getFileList($pn_media_id=null, $pn_start=null, $pn_num_files=null, $pa_versions=null) {
+ 		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+ 		
+ 		if (!is_array($pa_versions)) {
+ 			$pa_versions = array('preview');
+ 		}
+ 		
+ 		$vs_limit_sql = '';
+ 		if (!is_null($pn_start) && !is_null($pn_num_files)) {
+ 			if (($pn_start >= 0) && ($pn_num_files >= 1)) {
+ 				$vs_limit_sql = "LIMIT {$pn_start}, {$pn_num_files}";
+ 			}
+ 		}
+ 		
+ 		$o_db= $this->getDb();
+ 		$qr_res = $o_db->query("
+ 			SELECT *
+ 			FROM ms_media_multifiles
+ 			WHERE
+ 				media_id = ?
+ 			{$vs_limit_sql}
+ 		", (int)$vn_media_id);
+ 		
+ 		$va_files = array();
+ 		while($qr_res->nextRow()) {
+ 			$vn_multifile_id = $qr_res->get('multifile_id');
+ 			$va_files[$vn_multifile_id] = $qr_res->getRow();
+ 			unset($va_files[$vn_multifile_id]['media']);
+ 			
+ 			foreach($pa_versions as $vn_i => $vs_version) {
+ 				$va_files[$vn_multifile_id][$vs_version.'_path'] = $qr_res->getMediaPath('media', $vs_version);
+ 				$va_files[$vn_multifile_id][$vs_version.'_tag'] = $qr_res->getMediaTag('media', $vs_version);
+ 				$va_files[$vn_multifile_id][$vs_version.'_url'] = $qr_res->getMediaUrl('media', $vs_version);
+ 				
+ 				$va_info = $qr_res->getMediaInfo('media', $vs_version);
+ 				$va_files[$vn_multifile_id][$vs_version.'_width'] = $va_info['WIDTH'];
+ 				$va_files[$vn_multifile_id][$vs_version.'_height'] = $va_info['HEIGHT'];
+ 				$va_files[$vn_multifile_id][$vs_version.'_mimetype'] = $va_info['MIMETYPE'];
+ 			}
+ 		}
+ 		return $va_files;
+ 	}
+ 	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function getFileInstance($pn_multifile_id) {
+ 		if(!$this->getPrimaryKey()) { return null; }
+ 	
+ 		$t_multifile = new ms_media_multifiles($pn_multifile_id);
+ 		
+ 		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
+ 			return $t_multifile;
+ 		}
+ 		return null;
+ 	}
+ 	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function numFiles($pn_media_id=null) { 		
+ 		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+ 		
+ 		$o_db= $this->getDb();
+ 		$qr_res = $o_db->query("
+ 			SELECT count(*) c
+ 			FROM ms_media_multifiles
+ 			WHERE
+ 				media_id = ?
+ 		", (int)$vn_media_id);
+ 		
+ 		if($qr_res->nextRow()) {
+ 			return intval($qr_res->get('c'));
+ 		}
+ 		return 0;
+ 	}
 	# ----------------------------------------
 }
 ?>

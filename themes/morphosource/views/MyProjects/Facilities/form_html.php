@@ -134,7 +134,7 @@ if (!$this->request->isAjax()) {
 		maxRepeats: 9999,
 		showEmptyFormsOnLoad: 1,
 		readonly: 0,
-		defaultLocaleID: 1
+		disableUnsavedChangesWarning: true
 	});
 </script>
 

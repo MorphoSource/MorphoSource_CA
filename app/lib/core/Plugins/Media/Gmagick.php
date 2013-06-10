@@ -980,15 +980,14 @@ class WLPlugMediaGmagick Extends BaseMediaPlugin Implements IWLPlugMedia {
 		} else if(caMediaPluginImageMagickInstalled($this->ops_imagemagick_path)){
 			$vo_plugin = new WLPlugMediaImageMagick();
 		}
-
 		if(is_object($vo_plugin) && file_exists($this->filepath)){
 			$vo_plugin->register();
 
 			// read original file
 			$vo_plugin->divineFileFormat($this->filepath);
 			$vo_plugin->read($this->filepath);
-
-			$va_return = $vo_plugin->writePreviews($ps_filepath,$pa_options);
+			$va_return = $vo_plugin->writePreviews($this->filepath,$pa_options);
+			
 			return $va_return;
 		} else {
 			return null;

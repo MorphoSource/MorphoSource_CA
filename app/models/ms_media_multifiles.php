@@ -1,6 +1,6 @@
 <?php
 /** ---------------------------------------------------------------------
- * app/models/ms_media.php
+ * app/models/ms_media_multifiles.php : table access class for table ms_media_multifiles
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
@@ -30,7 +30,13 @@
  * ----------------------------------------------------------------------
  */
  
-require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+ /**
+   *
+   */
+
+require_once(__CA_LIB_DIR__."/ca/IBundleProvider.php");
+require_once(__CA_LIB_DIR__."/ca/BundlableLabelableBaseModelWithAttributes.php");
+
 
 BaseModel::$s_ca_models_definitions['ms_media_multifiles'] = array(
  	'NAME_SINGULAR' 	=> _t('media multifile'),
@@ -91,7 +97,7 @@ BaseModel::$s_ca_models_definitions['ms_media_multifiles'] = array(
  	)
 );
 
-class ms_media_multifiles extends BaseModel {
+class ms_media_multifiles extends BundlableLabelableBaseModelWithAttributes implements IBundleProvider {
 	# ---------------------------------
 	# --- Object attribute properties
 	# ---------------------------------
@@ -117,13 +123,12 @@ class ms_media_multifiles extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('multifile_id');
+	protected $LIST_FIELDS = array('media');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
 	protected $LIST_DELIMITER = ' ';
-
 
 	# What you'd call a single record from this table (eg. a "person")
 	protected $NAME_SINGULAR;
@@ -133,11 +138,20 @@ class ms_media_multifiles extends BaseModel {
 
 	# List of fields to sort listing of records by; you can use 
 	# SQL 'ASC' and 'DESC' here if you like.
-	protected $ORDER_BY = array('created_on');
+	protected $ORDER_BY = array('media');
+
+	# Maximum number of record to display per page in a listing
+	protected $MAX_RECORDS_PER_PAGE = 20; 
+
+	# How do you want to page through records in a listing: by number pages ordered
+	# according to your setting above? Or alphabetically by the letters of the first
+	# LIST_FIELD?
+	protected $PAGE_SCHEME = 'alpha'; # alpha [alphabetical] or num [numbered pages; default]
 
 	# If you want to order records arbitrarily, add a numeric field to the table and place
 	# its name here. The generic list scripts can then use it to order table records.
-	protected $RANK = '';
+	protected $RANK = 'rank';
+	
 	
 	# ------------------------------------------------------
 	# Hierarchical table properties
@@ -157,24 +171,44 @@ class ms_media_multifiles extends BaseModel {
 	protected $LOG_CHANGES_TO_SELF = false;
 	protected $LOG_CHANGES_USING_AS_SUBJECT = array(
 		"FOREIGN_KEYS" => array(
-		
+			"media_id"
 		),
 		"RELATED_TABLES" => array(
 		
 		)
-	);	
+	);
 	
+	# ------------------------------------------------------
+	# Labeling
+	# ------------------------------------------------------
+	protected $LABEL_TABLE_NAME = null;
 	
+	# ------------------------------------------------------
+	# Attributes
+	# ------------------------------------------------------
+	protected $ATTRIBUTE_TYPE_ID_FLD = null;			// name of type field for this table - attributes system uses this to determine via ca_metadata_type_restrictions which attributes are applicable to rows of the given type
+	protected $ATTRIBUTE_TYPE_LIST_CODE = null;			// list code (ca_lists.list_code) of list defining types for this table
+
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields
 	# are listed here is the order in which they will be returned using getFields()
 
 	protected $FIELDS;
 	
-	# ----------------------------------------
+	# ------------------------------------------------------
+	# --- Constructor
+	#
+	# This is a function called when a new instance of this object is created. This
+	# standard constructor supports three calling modes:
+	#
+	# 1. If called without parameters, simply creates a new, empty objects object
+	# 2. If called with a single, valid primary key value, creates a new objects object and loads
+	#    the record identified by the primary key value
+	#
+	# ------------------------------------------------------
 	public function __construct($pn_id=null) {
-		parent::__construct($pn_id);
+		parent::__construct($pn_id);	# call superclass constructor
 	}
-	# ----------------------------------------
+	# ------------------------------------------------------
 }
 ?>
