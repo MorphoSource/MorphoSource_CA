@@ -56,7 +56,7 @@
 			break;
 		case 'video/mp4':
 			$vb_force_resize = true;
-			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			print $t_media->getMediaTag('media', 'h264_hi', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
 			break;
 		default:
 			if (preg_match("!^video!", $vs_mimetype)) {

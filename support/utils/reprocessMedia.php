@@ -12,21 +12,21 @@
 	require_once("./setup.php");
 	
 	require_once(__CA_LIB_DIR__."/core/Db.php");
-	require_once(__CA_MODELS_DIR__."/ca_object_representations.php");
+	require_once(__CA_MODELS_DIR__."/ms_media.php");
 	
 	$o_db = new Db();
 	
-	$t_rep = new ca_object_representations();
+	$t_rep = new ms_media();
 	$t_rep->setMode(ACCESS_WRITE);
 	
-	$qr_reps = $o_db->query("SELECT * FROM ca_object_representations ORDER BY representation_id");
+	$qr_reps = $o_db->query("SELECT * FROM ms_media ORDER BY media_id");
 	while($qr_reps->nextRow()) {
 		$vs_mimetype = $qr_reps->getMediaInfo('media', 'original', 'MIMETYPE');
 		if(($argv[3]) && (!preg_match("/^".$argv[3]."/", $vs_mimetype))) {
 			continue;
 		}
-		print "Re-processing ".$vs_mimetype." media for representation id=".$qr_reps->get('representation_id')."\n";
-		$t_rep->load($qr_reps->get('representation_id'));
+		print "Re-processing ".$vs_mimetype." media for media id=".$qr_reps->get('media_id')."\n";
+		$t_rep->load($qr_reps->get('media_id'));
 		$t_rep->set('media', $qr_reps->getMediaPath('media', 'original'));
 		$t_rep->update(array('update_only_media_versions' => array($argv[2])));
 		
