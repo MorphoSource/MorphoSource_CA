@@ -92,21 +92,29 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'LABEL' => _t('Catalog number'), 'DESCRIPTION' => _t('Catalog number of specimen.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
-		'element' => array(
+		// 'element' => array(
+// 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+// 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+// 				'IS_NULL' => TRUE, 
+// 				'DEFAULT' => '',
+// 				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
+// 				'BOUNDS_LENGTH' => array(0,255)
+// 		),
+// 		'side' => array(
+// 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+// 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+// 				'IS_NULL' => TRUE, 
+// 				'DEFAULT' => '',
+// 				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
+// 				'BOUNDS_LENGTH' => array(0,255)
+// 		),
+		'description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => TRUE, 
+				'DISPLAY_WIDTH' => 62, 'DISPLAY_HEIGHT' => 6,
+				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
-		),
-		'side' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => TRUE, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Description of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'sex' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 

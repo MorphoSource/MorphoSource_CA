@@ -37,16 +37,35 @@
 	</div>
 <?php
 	$vb_force_resize = false;
-	switch($t_media->getMediaInfo("media", "original", "MIMETYPE")) {
+	$vb_show_progress_bar = false;
+	switch($vs_mimetype = $t_media->getMediaInfo("media", "original", "MIMETYPE")) {
 		case 'application/stl':
 		case 'application/surf':
 			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
+			
+			$vb_show_progress_bar = true;
+			break;
 		case 'application/ply':		// We could also load the original PLY here but the 3d viewer won't render textures for it so we'll use STL instead
 			print $t_media->getMediaTag('media', 'stl', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
+			
+			$vb_show_progress_bar = true;
+			break;
+		case 'application/pdf':
+			$vb_force_resize = true;
+			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			break;
+		case 'video/mp4':
+			$vb_force_resize = true;
+			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
 			break;
 		default:
-			$vb_force_resize = true;
-			print $t_media->getMediaTag('media', 'tilepic', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			if (preg_match("!^video!", $vs_mimetype)) {
+				$vb_force_resize = true;
+				print $t_media->getMediaTag('media', 'h264_hi', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			} else {
+				$vb_force_resize = true;
+				print $t_media->getMediaTag('media', 'tilepic', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			}
 			break;
 	}
 ?>
@@ -56,6 +75,12 @@
 	if ($vb_force_resize) {
 ?>
 		jQuery("#msMediaViewer").width(jQuery("#msMediaViewer").parent().width()).height(jQuery("#msMediaViewer").parent().height());
+<?php
+	}
+	
+	if ($vb_show_progress_bar) {
+?>
+		jQuery("#msMediaOverlayProgress").css("display", "block");	
 <?php
 	}
 ?>

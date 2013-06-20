@@ -1406,7 +1406,7 @@ class SearchResult extends BaseObject {
 	/**
 	 * 
 	 */
-	function getMediaInfo($ps_field, $ps_version=null, $ps_key=null, $pa_options=null) {
+	function getMediaInfo($ps_field, $ps_version=null, $ps_key=null, $pa_options=null) { 
 		$vn_index = (isset($pa_options['index']) && ((int)$pa_options['index'] > 0)) ? (int)$pa_options['index'] : 0;
 		$va_media_info = $this->get($ps_field, array("unserialize" => true, 'returnAsArray' => true));
 		return $GLOBALS["_DbResult_mediainfocoder"]->getMediaInfo($va_media_info[$vn_index], $ps_version, $ps_key, $pa_options);

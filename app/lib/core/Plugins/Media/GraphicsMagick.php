@@ -886,6 +886,9 @@ class WLPlugMediaGraphicsMagick Extends BaseMediaPlugin Implements IWLPlugMedia 
 		return $va_files;
 	}
 	# ------------------------------------------------
+	/**
+	 *
+	 */
 	public function joinArchiveContents($pa_files, $pa_options = array()) {
 		if(!is_array($pa_files)) { return false; }
 

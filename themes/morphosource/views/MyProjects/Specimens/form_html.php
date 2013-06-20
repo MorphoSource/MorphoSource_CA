@@ -75,6 +75,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 			$va_media_list = $t_item->getSpecimenMedia(null, array('versions' => array('preview190')));
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
+					$t_media = new ms_media($vn_media_id);
 					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
 			
 					print '<div class="specimenMediaListContainer">';
@@ -85,10 +86,8 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					print "<span class='mediaID'>M{$vn_media_id}</span>";
 					print " {$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					
-					$vs_media_class = caGetMediaClassForDisplay($va_media_info['mimetype']); 
-					$vs_mimetype_name = caGetDisplayNameForMimetype($va_media_info['mimetype']);
-					
-					print "<br/>{$vs_media_class} ({$vs_mimetype_name})";
+				
+					print "<br/>".msGetMediaFormatDisplayString($t_media);
 					print "<br/>".caFormatFilesize($va_media_info['filesize']);
 					print "</div>\n";
 				}

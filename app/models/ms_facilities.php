@@ -274,5 +274,20 @@ class ms_facilities extends BaseModel {
 		return $va_rows;
 	}
 	# ----------------------------------------
+	/**
+	 * Returns list of scanners indexed by facility_id, and then by scanner_id
+	 */
+	static public function scannerListByFacilityID() {
+		
+		$o_db = new Db();
+		$qr_res = $o_db->query("SELECT * FROM ms_scanners ORDER BY name");
+		
+		$va_rows = array();
+		while($qr_res->nextRow()) {
+			$va_rows[(int)$qr_res->get('facility_id')][(int)$qr_res->get('scanner_id')] = $qr_res->getRow();
+		}
+		return $va_rows;
+	}
+	# ----------------------------------------
 }
 ?>

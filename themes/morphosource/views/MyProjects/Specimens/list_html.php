@@ -19,15 +19,8 @@
 			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			print "</div>";
 			$i = 0;
-			foreach($pa_list_fields as $vs_field){
-				$i++;
-				if($q_listings->get($vs_field)){
-					print $q_listings->get($vs_field);
-					if($i < sizeof($pa_list_fields)){
-						print $t_item->getProperty("LIST_DELIMITER");
-					}
-				}
-			}
+			print $t_item->getSpecimenName($q_listings->get('specimen_id'));
+			
 			print '</div><!-- end itemListings -->';
 		}
 	}else{

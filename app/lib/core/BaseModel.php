@@ -3767,7 +3767,7 @@ class BaseModel extends BaseObject {
 								$this->postError(1600, _t("Couldn't extract first file from archive. There is probably a invalid character in a directory or file name inside the archive"),"BaseModel->_processMedia()");
 								set_time_limit($vn_max_execution_time);
 								if ($vb_is_fetched_file) { @unlink($vs_tmp_file); }
-								if ($vb_is_archive) { @unlink($vs_archive); @unlink($vs_primary_file_tmp); }
+								if ($vb_is_archive) { @unlink($vs_primary_file_tmp); }
 								return false;
 							}
 							
@@ -3818,7 +3818,7 @@ class BaseModel extends BaseObject {
 					$this->postError(1600, ($input_mimetype) ? _t("File type %1 not accepted by %2", $input_mimetype, $ps_field) : _t("Unknown file type not accepted by %1", $ps_field),"BaseModel->_processMedia()");
 					set_time_limit($vn_max_execution_time);
 					if ($vb_is_fetched_file) { @unlink($vs_tmp_file); }
-					if ($vb_is_archive) { @unlink($vs_archive); @unlink($vs_primary_file_tmp); }
+					if ($vb_is_archive) {  @unlink($vs_primary_file_tmp); }
 					return false;
 				}
 
@@ -3889,6 +3889,34 @@ class BaseModel extends BaseObject {
 
 				if (!($va_media_write_options = $this->_FILES[$ps_field]['options'])) {
 					$va_media_write_options = $this->_SET_FILES[$ps_field]['options'];
+				}
+				
+				
+				
+				if ($vb_is_archive) {
+					if ($volume = $version_info['original']['VOLUME']) {
+						$vi = $this->_MEDIA_VOLUMES->getVolumeInformation($volume);
+						if ($vi["absolutePath"] && (strlen($dirhash = $this->_getDirectoryHash($vi["absolutePath"], $this->getPrimaryKey())))) {
+							$magic = rand(0,99999);
+							$vs_filename = $this->_genMediaName($ps_field)."_archive_";
+							$va_pathinfo = pathinfo($vs_archive);
+							$ext = $va_pathinfo['extension'];
+							$filepath = $vi["absolutePath"]."/".$dirhash."/".$magic."_".$vs_filename.".".$ext;
+							if (copy($vs_archive, $filepath)) {
+								$va_pathinfo = pathinfo($vs_original_filename);
+								$media_desc['_archive_'] = array(
+									"VOLUME" => $volume,
+									"FILENAME" => $vs_filename.".".$ext,
+									"FILESIZE" => filesize($filepath),
+									"HASH" => $dirhash,
+									"MAGIC" => $magic,
+									"EXTENSION" => $ext,
+									"ORIGINAL_FILENAME" => $va_pathinfo['filename'],
+									"MD5" => md5_file($filepath)
+								);
+							}
+						}
+					}
 				}
 				
 				# Is an "undo" version set in options?
@@ -4017,7 +4045,7 @@ class BaseModel extends BaseObject {
 							$m->cleanup();
 							set_time_limit($vn_max_execution_time);
 							if ($vb_is_fetched_file) { @unlink($vs_tmp_file); }
-							if ($vb_is_archive) { @unlink($vs_archive); @unlink($vs_primary_file_tmp); @unlink($vs_archive_original); }
+							if ($vb_is_archive) {  @unlink($vs_primary_file_tmp); @unlink($vs_archive_original); }
 							return false;
 						}
 

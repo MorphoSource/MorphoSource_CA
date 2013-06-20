@@ -99,7 +99,7 @@
 </div><!-- end dashboardColRight -->
 <div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
-	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("New Media"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div>
+	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
 	<H1>Project Specimens</H1>
 <?php
 	$t_specimen = new ms_specimens();
@@ -116,7 +116,7 @@
 					if (!($vs_media_tag = $va_media['tags']['preview190'])) {
 						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
-					print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+					print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id))."</div>";
 					//print "<span class='mediaID'>M{$vn_media_id}</span>";
 				}
 			} else {
@@ -132,7 +132,7 @@
 			print "</div><!-- end projectMediaContainer -->";
 		}
 	}else{
-		print "<H2>"._t("Your project has no media.  Use the \"NEW MEDIA\" button to upload media files to your project.")."</H2>";
+		print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
 	}
 ?>
 </div><!-- end dashboardMedia -->

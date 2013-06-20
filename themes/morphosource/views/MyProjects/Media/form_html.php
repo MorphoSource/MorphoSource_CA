@@ -70,11 +70,12 @@ if (!$this->request->isAjax()) {
 					print "</div><!-- end float --><div style='float:left; width:420px;'>";
 				}
 				print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>Scanner Information</H2>";
-				print "<div id='facilityInfo'><div class='formLabel'>";
-				print "Enter the facility this file was created at:<br/>".caHTMLTextInput("media_facility_lookup", array("id" => 'msFacilityID', 'class' => 'lookupBg', 'value' => $this->getVar("facility_name")), array('width' => "375px", 'height' => 1));
+				print "<div id='facilityInfo'>"; //<div class='formLabel'>";
+				//print "Enter the facility this file was created at:<br/>".caHTMLTextInput("media_facility_lookup", array("id" => 'msFacilityID', 'class' => 'lookupBg', 'value' => $this->getVar("facility_name")), array('width' => "375px", 'height' => 1));
+				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>", array('id' => 'msFacilityID', 'nullOption' => '-'));
 				print "</div>";
-				print "<input type='hidden' id='facility_id' name='facility_id' value='".$t_item->get("facility_id")."'>";
-				print "</div>";
+				//print "<input type='hidden' id='facility_id' name='facility_id' value='".$t_item->get("facility_id")."'>";
+				//print "</div>";
 			break;
 			# -----------------------------------------------
 			case "scanner_id":
@@ -139,7 +140,7 @@ if (!$this->request->isAjax()) {
 </form>
 </div>
 <script type='text/javascript'>
-	$(document).ready(function(){
+	jQuery(document).ready(function(){
 		if ($('input[name="is_copyrighted"]').attr('checked')) {
 			$('#copyrightBlock').slideDown(200);
 		}
@@ -155,29 +156,25 @@ if (!$this->request->isAjax()) {
 		});
 	});
 
-	jQuery('#msFacilityID').autocomplete(
-		{ 
-			source: '<?php print caNavUrl($this->request, 'lookup', 'Facilities', 'Get', array("max" => 500, "quickadd" => true)); ?>', 
-			minLength: 3, delay: 800, html: true,
-			select: function(event, ui) {
-				var facility_id = parseInt(ui.item.id);
+	var scannerListByFacilityID = <?php print json_encode($this->getVar('scannerListByFacilityID')); ?>;
+	
+	jQuery('#msFacilityID').bind('change', function(event) {
+				var facility_id = jQuery('#msFacilityID').val();
+				console.log("facilityID", facility_id);
 				if (facility_id < 1) {
-					// nothing found...
-					jQuery("#facilityInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Facilities', 'form', array('media_id' => $t_item->get('media_id'))); ?>");
+					return;
 				} else {
-					// found an id
-					jQuery('#facility_id').val(facility_id);
-					
 					// Load scanner list into drop-down
 					var optionsAsString = "<option value=''>-</option>";
-					if (ui.item.scanners && ui.item.scanners.length) {
-						for(var i = 0; i < ui.item.scanners.length; i++) {
-							optionsAsString += "<option value='" + ui.item.scanners[i].scanner_id + "'>" + ui.item.scanners[i].name + "</option>";
+					var scannerList = scannerListByFacilityID[facility_id];
+					console.log(scannerList);
+					if (scannerList) {
+						for(var scanner_id in scannerList) {
+							optionsAsString += "<option value='" + scanner_id + "'>" + scannerList[scanner_id].name + "</option>";
 						}
 					}
 					jQuery("select#msScannerID").find('option').remove().end().append(jQuery(optionsAsString));
 				}
 			}
-		}
-	).click(function() { this.select(); });
+	);
 </script>

@@ -119,11 +119,14 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
- 			# --- pass the facility name for preloading lookup if available
- 			if($this->opo_item->get("facility_id")){
- 				$t_facility = new ms_facilities($this->opo_item->get("facility_id"));
- 				$this->view->setVar("facility_name", $t_facility->get("name").(($t_facility->get("name") && $t_facility->get("institution")) ? ", " : "").$t_facility->get("institution"));
- 			}
+ 			//# --- pass the facility name for preloading lookup if available
+ 			//if($this->opo_item->get("facility_id")){
+ 			//	$t_facility = new ms_facilities($this->opo_item->get("facility_id"));
+ 			//	$this->view->setVar("facility_name", $t_facility->get("name").(($t_facility->get("name") && $t_facility->get("institution")) ? ", " : "").$t_facility->get("institution"));
+ 			//}
+ 			
+ 			// Pass list of scanners by facility_id
+ 			$this->view->setVar('scannerListByFacilityID', ms_facilities::scannerListByFacilityID());
 			$this->render('Media/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -531,11 +534,13 @@
 		 * Download media
 		 */ 
 		public function DownloadMedia() {
-			$ps_version = "original";
+			$ps_version = "_archive_";
 			
 			$va_versions = $this->opo_item->getMediaVersions('media');
 			
+			if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
 			if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+			
 			$this->view->setVar('version', $ps_version);
 			
 			$va_version_info = $this->opo_item->getMediaInfo('media', $ps_version);
@@ -543,20 +548,16 @@
 
 			$va_info = $this->opo_item->getMediaInfo('media');
 			$vs_idno_proc = $this->opo_item->get('media_id');
-			if ($va_info['ORIGINAL_FILENAME']) {
-				$va_tmp = explode('.', $va_info['ORIGINAL_FILENAME']);
-				if (sizeof($va_tmp) > 1) { 
-					if (strlen($vs_ext = array_pop($va_tmp)) < 3) {
-						$va_tmp[] = $vs_ext;
-					}
-				}
-				$this->view->setVar('version_download_name', join('_', $va_tmp).'.'.$va_version_info['EXTENSION']);					
+			if ($va_version_info['ORIGINAL_FILENAME']) {
+				$this->view->setVar('version_download_name', $va_version_info['ORIGINAL_FILENAME'].'.'.$va_version_info['EXTENSION']);					
 			} else {
 				$this->view->setVar('version_download_name', 'morphosourceM'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
 			}
 			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
 			
 			$vn_rc = $this->render('Media/media_download_binary.php');
+			
+			$this->response->sendContent();
 			return $vn_rc;
 		}
  		# -------------------------------------------------------

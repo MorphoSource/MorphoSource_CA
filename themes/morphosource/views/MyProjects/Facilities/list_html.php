@@ -31,6 +31,6 @@
 			print '</div><!-- end itemListings -->';
 		}
 	}else{
-		print "<br/><br/><H2>"._t("There are no %1 associated with this project.  Use the button above to enter a %2.", $this->getVar("name_plural"), $this->getVar("name_singular"))."</H2>";
+		print "<br/><br/><H2>"._t("There are no %1 created within this project.  If a facility used in your project is not already present in the facilities drop-down menu you may add it to MorphoSource here using the button above.", $this->getVar("name_plural"), $this->getVar("name_singular"))."</H2>";
 	}
 ?>

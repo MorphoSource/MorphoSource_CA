@@ -383,6 +383,7 @@ CREATE  TABLE IF NOT EXISTS `ms_media` (
   `media` LONGBLOB NOT NULL ,
   `notes` TEXT NOT NULL ,
   `element` VARCHAR(255) NULL ,
+  `grant_support` LONGTEXT NOT NULL,
   `is_copyrighted` TINYINT UNSIGNED NOT NULL ,
   `copyright_info` VARCHAR(255) NOT NULL ,
   `copyright_permission` TINYINT UNSIGNED NOT NULL ,

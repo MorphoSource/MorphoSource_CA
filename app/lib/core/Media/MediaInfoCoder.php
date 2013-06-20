@@ -73,7 +73,6 @@ class MediaInfoCoder {
 		if (!($va_media_info = $this->getMediaArray($ps_data))) {
 			return false;
 		}	
-		
 		#
 		# Use icon
 		#
