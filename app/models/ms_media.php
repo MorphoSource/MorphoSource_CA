@@ -138,6 +138,14 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => _t('Grant support'), 'DESCRIPTION' => _t('List any grant support used in the creation of your media here.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
+		'media_citation_instructions' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 6,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Media citation instructions'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
 		'approval_status' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
