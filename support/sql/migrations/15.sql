@@ -1,4 +1,4 @@
-ALTER TABLE ms_media ADD COLUMN media_citation_instruction longtext not null;
+ALTER TABLE ms_media ADD COLUMN media_citation_instructions longtext not null;
 
 /* -------------------------------------------------------------------------------- */
 /* Always add the update to ca_schema_updates at the end of the file */
