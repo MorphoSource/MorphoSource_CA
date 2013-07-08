@@ -27,6 +27,7 @@
  */
  
 	$t_project = $this->getVar("project");
+	$va_media_counts = $this->getVar('media_counts');
 ?>
 <div id="dashboardColLeft">
 	<div class="blueRule"><!-- empty --></div>
@@ -39,15 +40,22 @@
 	<div class="dashboardButtons">
 <?php
 	print caNavLink($this->request, _t("New Project"), "button buttonSmall", "MyProjects", "Project", "form", array("new_project" => 1));
-	if($this->request->user->get("user_id") == $t_project->get("user_id")){
+	if($this->request->user->canDoAction("is_administrator") || ($this->request->user->get("user_id") == $t_project->get("user_id"))){
 		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
 		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
 	}
 	if($this->getVar("num_projects") > 1){
 		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
 	}
+	
+	if ($va_media_counts[0] > 0) {
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish unpublished media (%1)", (int)$va_media_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id")));
+	}
 ?>
 	</div>
+<?php
+	print $this->render('Dashboard/pending_download_requests_html.php');
+?>
 </div><!-- end dashboardColLeft -->
 <div id="dashboardColRight">
 	<div class="dashboardButtons">
@@ -77,8 +85,15 @@
 	}
 ?>
 	<div class="listItemLtBlue">
-		<div class="dataCol"><?php print $t_project->numMedia(); ?></div>
+		<div class="dataCol"><?php 
+			if ($va_media_counts[0] > 0) {
+				print _t('%1 published / %2 unpublished<br/><em>(%3 total)</em>', (int)$va_media_counts[1], (int)$va_media_counts[0], (int)$t_project->numMedia()); 
+			} else {
+				print _t('%1 published', (int)$t_project->numMedia()); 
+			}
+?></div>
 		<H2>Number of Media</H2>
+		<div style="clear:both; height:1px;"><!-- empty --></div>
 	</div>
 	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?></div>

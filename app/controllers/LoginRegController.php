@@ -34,9 +34,7 @@
  		function form($t_user = "") {
  			if ($vs_last_page = $this->request->getParameter("site_last_page", pString)) { # --- last_page is passed as "Sets" if was trying to add an image to set, "Bookmarks" if user was trying to bookmark an item
 				$this->request->session->setVar('site_last_page', $vs_last_page);
-				$this->request->session->setVar('site_last_page_object_id', $this->request->getParameter("object_id", pInteger));
-				$this->request->session->setVar('site_last_page_row_id', $this->request->getParameter("row_id", pInteger));
-				$this->request->session->setVar('site_last_page_tablename', $this->request->getParameter("tablename", pString));
+				$this->request->session->setVar('site_last_page_media_id', $this->request->getParameter("media_id", pInteger));
 			}
  			
  			if(!is_object($t_user)){
@@ -90,8 +88,8 @@
 							$this->response->setRedirect(caNavUrl($this->request, "", "Sets", "addItem", array("object_id" => $vo_session->getVar('site_last_page_object_id'))));
 						break;
 						# --------------------
-						case "ObjectDetail":
-							$this->response->setRedirect(caNavUrl($this->request, "Detail", "Object", "Show", array("object_id" => $vo_session->getVar('site_last_page_object_id'))));
+						case "MediaDetail":
+							$this->response->setRedirect(caNavUrl($this->request, "Detail", "MediaDetail", "Show", array("media_id" => $vo_session->getVar('site_last_page_media_id'))));
 						break;
 						# --------------------
 						default:

@@ -84,18 +84,18 @@
  		# -------------------------------------------------------
  		function form() {
 			# --- only project owner can edit project info
-			if ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id"))) {
-				$this->form();
+			if ($this->request->user->canDoAction("is_administrator") || ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") == $this->request->user->get("user_id")))) {
+				$this->render('Project/form_html.php');
 				return;
  			}
-
-			$this->render('Project/form_html.php');
+ 			$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
  		}
  		# -------------------------------------------------------
  		public function save() {
 			# --- only project owner can edit project info
-			if ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id"))) {
-				$this->form();
+			if (!$this->request->user->canDoAction("is_administrator") && ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id")))) {
+				//$this->form();
+				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 				return;
  			}
 
@@ -167,8 +167,9 @@
  		# -------------------------------------------------------
  		public function delete() {
 			# --- only project owner can edit project info
-			if ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id"))) {
-				$this->form();
+			if (!$this->request->user->canDoAction("is_administrator") && ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id")))) {
+				//$this->form();
+				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 				return;
  			}
 

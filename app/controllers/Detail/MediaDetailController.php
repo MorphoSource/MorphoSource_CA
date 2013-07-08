@@ -95,6 +95,11 @@
 		 * Download media
 		 */ 
 		public function DownloadMedia() {
+			if (!$this->request->isLoggedIn() || !$this->opo_item->userCanDownloadMedia($this->request->getUserID())) {
+				$this->notification->addNotification("You may not download this media", __NOTIFICATION_TYPE_ERROR__);
+				$this->show();
+				return;
+			}
 			$ps_version = "_archive_";
 			
 			$va_versions = $this->opo_item->getMediaVersions('media');
@@ -120,6 +125,29 @@
 			
 			$this->response->sendContent();
 			return $vn_rc;
+		}
+		# -------------------------------------------------------
+		/**
+		 * Request access to media
+		 */ 
+		public function RequestDownload() {
+			if (!$this->request->isLoggedIn()) {
+				$this->notification->addNotification("You must login to request download of this media", __NOTIFICATION_TYPE_ERROR__);
+				$this->show();
+				return;
+			}
+			if ($this->opo_item->userCanDownloadMedia($this->request->getUserID())) {
+				$this->DownloadMedia();
+				return;
+			}
+			
+			// record request
+			if (!$this->opo_item->requestDownload($this->request->getUserID(), $this->request->getParameter('request', pString), null, array('request' => $this->request))) {
+				$this->notification->addNotification("Could not save media request. Try again later.", __NOTIFICATION_TYPE_ERROR__);
+			} else {
+				$this->notification->addNotification("Sent your request to the author.", __NOTIFICATION_TYPE_INFO__);
+			}
+			$this->Show();
 		}
  		# -------------------------------------------------------
  		public function mediaViewer() {

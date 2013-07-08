@@ -51,7 +51,7 @@ a.caption{
 	text-decoration:underline;
 }
 a.caption:hover{
-	color: #000000;
+	color: #000;
 }
 
 /* -------------------------------------------------*/
@@ -314,7 +314,7 @@ div.searchlight-results div.searchlight-selected {
 #objUserData #numComments{
 	float:right;
 	font-size:12px;
-	color: #000000;
+	color: #000;
 	font-weight:normal;
 	text-transform: none;
 }
@@ -391,7 +391,7 @@ div.searchlight-results div.searchlight-selected {
 	padding: 0px;
 }
 #objUserData form a:hover{
-	color: #000000;
+	color: #000;
 	text-decoration:none;
 }
 
@@ -520,7 +520,7 @@ td.advSearchElement{
 .searchNav a{
 	font-family: Arial, sans-serif;
 	font-size:14px;
-	color: #000000;
+	color: #000;
 	font-weight:bold;
 	text-decoration:none;
 }
@@ -566,7 +566,7 @@ td.advSearchElement{
 .searchSecNav a{
 	font-family: Arial, sans-serif;
 	font-size:14px;
-	color: #000000;
+	color: #000;
 	font-weight:bold;
 	text-decoration:none;
 	text-transform:uppercase;
@@ -579,7 +579,7 @@ td.advSearchElement{
 	line-height:1.6em;
 }
 .searchSec .results a{
-	color:#000000;
+	color:#000;
 }
 
 
@@ -594,7 +594,7 @@ td.advSearchElement{
 	position: relative;
 }
 .searchThumbCaption{
-	color: #000000;
+	color: #000;
 	padding:3px 0px 0px 0px;
 	font-size:11px;
 	text-align:left;
@@ -627,7 +627,7 @@ td.advSearchElement{
 .searchFullTitle, .searchFullTitle a{
 	font-size:14px;
 	font-weight:bold;
-	color: #000000;
+	color: #000;
 	margin:0px 0px 10px 0px;
 	text-decoration:none;
 }
@@ -636,7 +636,7 @@ td.advSearchElement{
 }
 .searchFullTextTitle{
 	font-size:12px;
-	color: #000000;
+	color: #000;
 	font-weight: bold;
 }
 .searchFullTextTextBlock{
@@ -726,7 +726,7 @@ input.addItemToSetControlInThumbnails {
 }
 #searchOptionsBox .col .heading, #searchOptionsBox .layout .heading, #searchToolsBox .col .heading{
 	font-weight:bold;
-	color:#000000;
+	color:#000;
 	margin-bottom:10px;
 }
 #searchOptionsBox .bg{
@@ -754,7 +754,7 @@ input.addItemToSetControlInThumbnails {
 	text-decoration: none;
 	font-weight:bold;
 	font-size:12px;
-	color:#000000;
+	color:#000;
 	text-transform:uppercase;
 }
 
@@ -973,7 +973,7 @@ input.addItemToSetControlInThumbnails {
 }
 #galleryOverlayNextPrevious a{
 	font-weight:bold;
-	color:#000000;
+	color:#000;
 	font-size:12px;
 	text-decoration:none;
 }
@@ -988,7 +988,7 @@ input.addItemToSetControlInThumbnails {
 }
 .galleryOverlayContent {	
 	font-size:11px;
-	color:#000000;
+	color:#000;
 	text-align:left;
 	margin: 10px 10px 0px 10px;
 	overflow:auto;
@@ -999,7 +999,7 @@ input.addItemToSetControlInThumbnails {
 .galleryOverlayContent a{	
 	text-decoration:underline;
 	font-size:11px;
-	color:#000000;
+	color:#000;
 }
 
 /* ------------------------------------- */
@@ -1031,7 +1031,7 @@ input.addItemToSetControlInThumbnails {
 	text-decoration:none;
 }
 .favoritesColumn a.title:hover{
-	color: #000000;
+	color: #000;
 }
 .favoritesColumn table{
 	width:180px;
@@ -1046,7 +1046,7 @@ input.addItemToSetControlInThumbnails {
 	float:right;
 }
 .favoritesColumn a.title:hover{
-	color: #000000;
+	color: #000;
 }
 #featuredCol #scrollFeatured, #userFavsCol #scrollUserFavs, #mostViewedCol #scrollMostViewed, #recentlyAddedCol #scrollRecentlyAdded{
 	height:600px;
@@ -1128,16 +1128,16 @@ input.addItemToSetControlInThumbnails {
 }
 #refineBrowse .refineHeading{
 	font-weight:bold;
-	color:#000000;
+	color:#000;
 	font-size:14px;
 }
 #refineBrowse a.facetLink{
 	font-size:14px;
-	color:#000000;
+	color:#000;
 	text-decoration:underline;
 }
 #refineBrowse a.facetLink:hover{
-	color:#000000;
+	color:#000;
 }
 #browseCriteria{
 	margin:0px;
@@ -1160,7 +1160,7 @@ input.addItemToSetControlInThumbnails {
 	font-weight:bold;
 }
 #browseCriteria a.startOver{
-	color:#000000;
+	color:#000;
 	text-decoration:underline;
 	font-size:12px;
 }
@@ -1299,7 +1299,7 @@ input.addItemToSetControlInThumbnails {
 	position: absolute; 
 	top: 100px; 
 	left: 50%; 
-	border: 3px solid #000000; 
+	border: 3px solid #000; 
 	background-color: #FFFFFF; 
 	width: 900px; 
 	height: 400px; 
@@ -1646,7 +1646,7 @@ div.hierarchyBrowserSmall {
 }
 
 div.hierarchyBrowserLarge {
-	border: 1px solid #000000;
+	border: 1px solid #000;
 	width: 100%;
 	height: 400px;
 	margin: 0px 0px 10px 0px;
@@ -2002,3 +2002,90 @@ div.jGrowl div.jGrowl-closer {
 }
 
 /* end autocompleter styles */
+
+/* Media request form styles */
+#msMediaDownloadRequestFormContainer {
+	clear: both;
+	border: 1px solid #ccc;
+	float: right;
+	width: 200px;
+	line-height: 16px;
+	padding: 10px;
+	display: none;
+}
+
+#msMediaDownloadRequestFormContainer textarea {
+	padding: 0px;
+}
+
+.msMediaDownloadRequestFormLabel {
+	font-size: 12px;
+	font-weight: bold;
+	color: #000;
+	margin: 0px;
+	padding: 0px;
+}
+
+.msMediaDownloadRequestFormSubmit {
+	font-size: 12px;
+	font-weight: bold;
+	color: #000;
+	margin: 0px;
+	padding: 0px;
+}
+
+a.msMediaDownloadRequestFormSubmit {
+	text-transform:uppercase;
+	font-size:14px;
+	color: #828282;
+	font-weight:bold;
+	text-decoration:none;
+}
+
+a.msMediaDownloadRequestFormCancel {
+	text-transform:uppercase;
+	font-size:14px;
+	color: #828282;
+	font-weight:bold;
+	text-decoration:none;
+	margin-left: 15px;
+}
+
+a.msMediaDownloadRequestFormSubmit:hover{
+	color: #545454;
+	text-decoration:none;
+}
+
+div.msMediaDownloadRequestFormHelpText {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	color: #000;
+	margin-bottom: 10px;
+}
+
+table.msMediaDownloadRequestDashboard {
+	width: 100%;
+	border: 1px solid #000;
+	border-collapse: collapse;
+}
+
+table.msMediaDownloadRequestDashboard th {
+	border: 1px solid #000;
+	padding: 3px;
+	font-size: 11px;
+	text-align: center;
+}
+
+table.msMediaDownloadRequestDashboard td {
+	border: 1px solid #000;
+	padding: 3px;
+	font-size: 10px;
+	text-align: center;
+}
+
+h2.msMediaDownloadRequestDashboard {
+	font-size: 18px;
+	text-align: center;
+	margin: 10px 0 0 0;
+}

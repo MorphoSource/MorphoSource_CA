@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2011 Whirl-i-Gig
+ * Copyright 2013 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -31,6 +31,7 @@
  */
 	require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 	require_once(__CA_MODELS_DIR__."/ms_project_users.php");
+	require_once(__CA_MODELS_DIR__."/ms_media.php");
 
 BaseModel::$s_ca_models_definitions['ms_projects'] = array(
  	'NAME_SINGULAR' 	=> _t('project'),
@@ -81,7 +82,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Storage used by project'), 'DESCRIPTION' => _t('Total storage used by project, in bytes.'),
 		),
 		'publication_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
@@ -296,7 +297,7 @@ class ms_projects extends BaseModel {
 		return null;
 	}
 	# ----------------------------------------
-	function numMedia($pn_project_id = "") {
+	function numMedia($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
 		}
@@ -317,7 +318,7 @@ class ms_projects extends BaseModel {
 		return $vn_num_media;
 	}
 	# ----------------------------------------
-	function numSpecimens($pn_project_id = "") {
+	function numSpecimens($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
 		}
@@ -338,7 +339,7 @@ class ms_projects extends BaseModel {
 		return $vn_num_specimens;
 	}
 	# ----------------------------------------
-	function numCitations($pn_project_id = "") {
+	function numCitations($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
 		}
@@ -411,6 +412,96 @@ class ms_projects extends BaseModel {
 
 		return $va_specimens;
 	}
+	# ----------------------------------------
+	function getProjectMediaCounts($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c, published
+			FROM ms_media b
+			WHERE b.project_id = ?
+			GROUP BY published
+		", $pn_project_id);
+		
+		$va_counts = array();
+		while($qr->nextRow()){
+			$va_counts[$qr->get('published')] = (int)$qr->get('c');
+		}
+		return $va_counts;
+	}
+	# ----------------------------------------
+	function publishAllProjectMedia($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = new Db();
+		$qr_res = $o_db->query("
+			SELECT media_id
+			FROM ms_media
+			WHERE 
+				project_id = ? AND published = 0
+		", $pn_project_id);
+		
+		$vn_pub_count = 0;
+		while($qr_res->nextRow()){ 
+			$t_media = new ms_media($qr_res->get('media_id'));
+			$t_media->setMode(ACCESS_WRITE);
+			$t_media->set('published', 1);
+			$t_media->update();
+			if ($t_media->numErrors() == 0) {
+				$vn_pub_count++;
+			}
+		}
+		
+		return $vn_pub_count;
+	}
+	# ------------------------------------------------------
+ 	/**
+ 	 * @param int $pn_project_id
+ 	 * @param array $pa_options Options are:
+ 	 *		status = limits returned requests to a given status. Possible values are these constants (not strings!): __MS_DOWNLOAD_REQUEST_NEW__, __MS_DOWNLOAD_REQUEST_APPROVED__, __MS_DOWNLOAD_REQUEST_DENIED__, __MS_DOWNLOAD_REQUEST_ALL__
+ 	 */
+ 	public function getDownloadRequestsForProject($pn_project_id=null, $pa_options=null) {
+ 		if(!($vn_project_id = $pn_project_id)) { 
+ 			if (!($vn_project_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+
+		$vs_status_sql = '';
+ 		if (isset($pa_options['status'])) {
+ 			switch((int)$pa_options['status']) {
+ 				case __MS_DOWNLOAD_REQUEST_NEW__:
+ 					$vs_status_sql = " AND (r.status = 0)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_APPROVED__:
+ 					$vs_status_sql = " AND (r.status = 1)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_DENIED__:
+ 					$vs_status_sql = " AND (r.status = 2)";
+ 					break;
+ 			}
+ 		}
+ 		
+ 		$o_db = $this->getDb();
+ 		
+ 		$qr_res = $o_db->query("
+ 			SELECT r.*, u.*
+ 			FROM ms_media_download_requests r
+ 			INNER JOIN ms_media AS m ON m.media_id = r.media_id 
+ 			INNER JOIN ca_users AS u ON u.user_id = r.user_id
+ 			WHERE 
+ 				m.project_id = ? {$vs_status_sql}
+ 			ORDER BY r.requested_on DESC
+ 		", array((int)$vn_project_id));
+ 		return $qr_res->getAllRows();
+ 	}
 	# ----------------------------------------
 }
 ?>

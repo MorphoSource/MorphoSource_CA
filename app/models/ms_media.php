@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2011 Whirl-i-Gig
+ * Copyright 2013 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -31,7 +31,8 @@
  */
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
-require_once(__CA_MODELS_DIR__."/ms_facilities.php");
+require_once(__CA_MODELS_DIR__."/ms_projects.php");
+require_once(__CA_MODELS_DIR__."/ms_media_download_requests.php");
 require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
@@ -85,8 +86,9 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => 0,
 				'LABEL' => _t('Publication status'), 'DESCRIPTION' => _t('Release to public search?'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					"Not published/ Not available in public search" => 0,
-					"Published/ available in public search" => 1
+					"Not published / Not available in public search" => 0,
+					"Published / available in public search and for download" => 1,
+					"Published / available in public search / users must request download permission" => 2
 				)
 		),
 		'published_on' => array(
@@ -700,6 +702,167 @@ class ms_media extends BaseModel {
  		}
  		return 0;
  	}
-	# ----------------------------------------
+	# ------------------------------------------------------
+	# Download requests
+	# ------------------------------------------------------
+ 	/**
+ 	 *
+ 	 */
+ 	public function requestDownload($pn_user_id, $ps_request_text=null, $pn_media_id=null, $pa_options=null) {
+ 		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+ 		
+ 		if ($this->userAccessToMediaIsPending($pn_user_id, $vn_media_id)) { return false; }
+ 	
+ 		$t_req = new ms_media_download_requests();
+ 		$t_req->setMode(ACCESS_WRITE);
+ 		$t_req->set('media_id', $vn_media_id);
+ 		$t_req->set('user_id', $pn_user_id);
+ 		$t_req->set('request', $ps_request_text);
+ 		$t_req->set('status', 0);
+ 		$t_req->insert();
+ 		
+ 		if ($t_req->numErrors()) {
+ 			$this->errors = $t_req->errors;
+ 			return false;
+ 		}
+ 		
+ 		// Send email to author
+ 		if ($this->getPrimaryKey() != $vn_media_id) {
+ 			$t_media = new ms_media($vn_media_id);
+ 		} else {
+ 			$t_media = $this;
+ 		}
+ 		$t_author = new ca_users($t_media->get('user_id'));
+ 		$t_user = new ca_users($pn_user_id);
+ 		if ($vs_email = $t_author->get('email')) {
+ 			$t_project = new ms_projects($t_media->get('project_id'));
+ 			caSendMessageUsingView($pa_options['request'], $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] ".$t_user->get('fname').' '.$t_user->get('lname').' has requested download of media', 'author_download_request_notification.tpl', array(
+ 				'user' => $t_user,
+ 				'author' => $t_author,
+ 				'media' => $t_media,
+ 				'project' => $t_project,
+ 				'downloadRequest' => $t_req
+ 			));
+ 		}
+ 		
+ 		return true;
+ 	}
+	# ------------------------------------------------------
+ 	/**
+ 	 * @param int $pn_media_id
+ 	 * @param array $pa_options Options are:
+ 	 *		status = limits returned requests to a given status. Possible values are these constants (not strings!): __MS_DOWNLOAD_REQUEST_NEW__, __MS_DOWNLOAD_REQUEST_APPROVED__, __MS_DOWNLOAD_REQUEST_DENIED__, __MS_DOWNLOAD_REQUEST_ALL__
+ 	 *		user_id = restrict to a specific user_id
+ 	 */
+ 	public function getDownloadRequests($pn_media_id=null, $pa_options=null) {
+ 		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		$vs_user_sql = '';
+		if (isset($pa_options['user_id'])) {
+			$vs_user_sql = " AND (user_id = ".(int)$pa_options['user_id'].")";
+		}
+		
+		$vs_status_sql = '';
+ 		if (isset($pa_options['status'])) {
+ 			switch((int)$pa_options['status']) {
+ 				case __MS_DOWNLOAD_REQUEST_NEW__:
+ 					$vs_status_sql = " AND (status = 0)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_APPROVED__:
+ 					$vs_status_sql = " AND (status = 1)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_DENIED__:
+ 					$vs_status_sql = " AND (status = 2)";
+ 					break;
+ 			}
+ 		}
+ 		
+ 		$o_db = $this->getDb();
+ 		
+ 		$qr_res = $o_db->query("
+ 			SELECT * 
+ 			FROM ms_media_download_requests
+ 			WHERE 
+ 				media_id = ? {$vs_status_sql} {$vs_user_sql}
+ 		", array((int)$vn_media_id));
+ 		return $qr_res->getAllRows();
+ 	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function userCanDownloadMedia($pn_user_id, $pn_media_id=null) {
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		
+		if ($t_media->get('published') == 1) { return true; }
+ 		
+ 		$o_db = $this->getDb();
+ 		
+ 		$qr_res = $o_db->query("
+ 			SELECT * 
+ 			FROM ms_media_download_requests
+ 			WHERE 
+ 				media_id = ? AND status = ? AND user_id = ? 
+ 		", array((int)$vn_media_id, __MS_DOWNLOAD_REQUEST_APPROVED__, $pn_user_id));
+ 		
+ 		if ($qr_res->numRows() > 0) {
+ 			return true;
+ 		}
+ 		
+ 		return false;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function userAccessToMediaIsPending($pn_user_id, $pn_media_id=null) {
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		
+		if ($t_media->get('published') == 1) { return false; }
+ 		
+ 		$o_db = $this->getDb();
+ 		
+ 		$qr_res = $o_db->query("
+ 			SELECT * 
+ 			FROM ms_media_download_requests
+ 			WHERE 
+ 				media_id = ? AND status = ? AND user_id = ? 
+ 		", array((int)$vn_media_id, __MS_DOWNLOAD_REQUEST_NEW__, $pn_user_id));
+ 		
+ 		if ($qr_res->numRows() > 0) {
+ 			return true;
+ 		}
+ 		
+ 		return false;
+	}
+	# ------------------------------------------------------
 }
 ?>

@@ -80,7 +80,78 @@
 			}
 			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
 			$this->view->setVar("num_projects", sizeof($va_projects));
+			$this->view->setVar("media_counts", $this->opo_project->getProjectMediaCounts());
  			$this->render('Dashboard/dashboard_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function publishAllMedia() {
+ 			if($this->opn_project_id){
+ 				$vn_num_published = $this->opo_project->publishAllProjectMedia();	
+ 				
+ 				if($vn_num_published > 0) {
+ 					$this->opo_project->setMode(ACCESS_WRITE);
+ 					$this->opo_project->set('published', 1);
+ 					$this->opo_project->update();
+ 					$this->notification->addNotification(_t('Published %1 media', $vn_num_published), __NOTIFICATION_TYPE_INFO__);
+ 					if ($this->opo_project->numErrors() > 0) {
+ 						$this->notification->addNotification(_t('Could not mark project as published: %1', join('; ', $this->opo_project->getErrors())), __NOTIFICATION_TYPE_ERROR__);
+ 					} 
+ 				} else {
+ 					$this->notification->addNotification(_t('Could not publish media'), __NOTIFICATION_TYPE_ERROR__);
+ 				}
+ 			}
+ 			$this->dashboard();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function ApproveDownloadRequest() {
+ 			$this->MarkDownloadRequest(1);
+ 		}
+ 		# -------------------------------------------------------
+ 		public function DenyDownloadRequest() {
+ 			$this->MarkDownloadRequest(2);
+ 		}
+ 		# -------------------------------------------------------
+ 		public function MarkDownloadRequest($pn_value) {
+ 			if($this->opn_project_id){
+ 				$vn_request_id = $this->request->getParameter('request_id', pInteger);
+ 				$t_req = new ms_media_download_requests($vn_request_id);
+ 				$t_media = new ms_media($t_req->get('media_id'));
+ 				if ($t_media->get('project_id') == $this->opn_project_id) {
+ 					$t_req->setMode(ACCESS_WRITE);
+ 					$t_req->set('status', $pn_value);
+ 					$t_req->update();
+ 					
+ 					if (!$t_req->numErrors()) {
+ 						// send mail
+						$t_user = new ca_users($t_req->get('user_id'));
+						if ($vs_email = $t_user->get('email')) {
+							$t_project = new ms_projects($t_media->get('project_id'));
+							switch($pn_value) {
+								case 1:
+									caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] APPROVED request for download of media M".$t_req->get('media_id'), 'user_download_request_approved_notification.tpl', array(
+										'user' => $this->request->user,
+										'media' => $t_media,
+										'project' => $this->opo_project,
+										'downloadRequest' => $t_req,
+										'request' => $this->request
+									));
+									break;
+								case 2:
+									caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] DENIED request for download of media M".$t_req->get('media_id'), 'user_download_request_denied_notification.tpl', array(
+										'user' => $this->request->user,
+										'media' => $t_media,
+										'project' => $this->opo_project,
+										'downloadRequest' => $t_req,
+										'request' => $this->request
+									));
+									break;
+							}
+						}
+ 					}
+ 				}
+ 			}
+ 			
+ 			$this->render('Dashboard/pending_download_requests_html.php');
  		}
  		# -------------------------------------------------------
  	}
