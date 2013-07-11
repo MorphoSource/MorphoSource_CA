@@ -318,6 +318,7 @@ class ms_projects extends BaseModel {
 		return $vn_num_media;
 	}
 	# ----------------------------------------
+	# --- returns count of all specimens used in project NOT created by project
 	function numSpecimens($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
@@ -325,20 +326,21 @@ class ms_projects extends BaseModel {
 		if (!$pn_project_id) { return null; }
 		
 		$o_db = $this->getDb();
-		$qr = $o_db->query("
-			SELECT count(*) c
-			FROM ms_specimens s
-			WHERE s.project_id = ?
-		", $pn_project_id);
+
 		
-		$vn_num_specimens = 0;
-		if($qr->numRows()){
-			$qr->nextRow();
-			$vn_num_specimens = $qr->get("c");
-		}
+		$qr = $o_db->query("
+			SELECT DISTINCT s.specimen_id
+			FROM ms_specimens s
+			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+			WHERE s.project_id = ?
+			OR m.project_id = ?
+		", $pn_project_id, $pn_project_id);
+		
+		$vn_num_specimens = $qr->numRows();
 		return $vn_num_specimens;
 	}
 	# ----------------------------------------
+	# --- returns count of all citations used in project NOT created by project
 	function numCitations($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
@@ -346,17 +348,49 @@ class ms_projects extends BaseModel {
 		if (!$pn_project_id) { return null; }
 		
 		$o_db = $this->getDb();
-		$qr = $o_db->query("
-			SELECT count(*) c
-			FROM ms_bibliography b
-			WHERE b.project_id = ?
-		", $pn_project_id);
+		$va_bibref_ids = array();
+		# --- get bib refs created by projects in case they are not in use
+		$q_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b WHERE b.project_id = ?", $pn_project_id);
 		
-		$vn_num_citations = 0;
-		if($qr->numRows()){
-			$qr->nextRow();
-			$vn_num_citations = $qr->get("c");
+		# --- get media bib refs - in case they were made in another project
+		$q_media_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b INNER JOIN ms_media_x_bibliography AS mxb ON mxb.bibref_id = b.bibref_id INNER JOIN ms_media AS m ON mxb.media_id = m.media_id WHERE m.project_id = ?", $pn_project_id);
+		
+		# -- get specimen bib refs
+		$q_specimen_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id INNER JOIN ms_media AS m ON sxb.specimen_id = m.specimen_id WHERE m.project_id = ?", $pn_project_id);
+		
+		# -- get specimen meta bib refs
+		$q_specimen_meta_bibs = $o_db->query("SELECT s.body_mass_bibref_id, s.locality_absolute_age_bibref_id, s.locality_relative_age_bibref_id FROM ms_specimens s INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id WHERE m.project_id = ?", $pn_project_id);
+		
+		if($q_bibs->numRows() > 0){
+			while($q_bibs->nextRow()){
+				$va_bibref_ids[$q_bibs->get("bibref_id")] = $q_bibs->get("bibref_id");
+			}
 		}
+		if($q_media_bibs->numRows() > 0){
+			while($q_media_bibs->nextRow()){
+				$va_bibref_ids[$q_media_bibs->get("bibref_id")] = $q_media_bibs->get("bibref_id");
+			}
+		}
+		if($q_specimen_bibs->numRows() > 0){
+			while($q_specimen_bibs->nextRow()){
+				$va_bibref_ids[$q_specimen_bibs->get("bibref_id")] = $q_specimen_bibs->get("bibref_id");
+			}
+		}
+		if($q_specimen_meta_bibs->numRows() > 0){
+			while($q_specimen_meta_bibs->nextRow()){
+				if($q_specimen_meta_bibs->get("body_mass_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("body_mass_bibref_id")] = $q_specimen_meta_bibs->get("body_mass_bibref_id");
+				}
+				if($q_specimen_meta_bibs->get("locality_absolute_age_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("locality_absolute_age_bibref_id")] = $q_specimen_meta_bibs->get("locality_absolute_age_bibref_id");
+				}
+				if($q_specimen_meta_bibs->get("locality_relative_age_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("locality_relative_age_bibref_id")] = $q_specimen_meta_bibs->get("locality_relative_age_bibref_id");
+				}
+			}
+		}
+		$vn_num_citations = sizeof($va_bibref_ids);
+
 		return $vn_num_citations;
 	}
 	# ----------------------------------------
@@ -380,13 +414,24 @@ class ms_projects extends BaseModel {
 		if (!$vn_project_id) { return null; }
 		
 		$o_db = $this->getDb();
+// 		$qr = $o_db->query("
+// 			SELECT s.*, m.media_id, m.media
+// 			FROM ms_specimens s
+// 			LEFT JOIN ms_media AS m ON s.specimen_id = m.specimen_id
+// 			WHERE m.project_id = ?
+// 			ORDER BY s.specimen_id
+// 		", $vn_project_id);
+		
+		
 		$qr = $o_db->query("
-			SELECT s.*, m.media_id, m.media
+			SELECT DISTINCT s.*, m.media_id, m.media, p.name project_name
 			FROM ms_specimens s
-			LEFT JOIN ms_media AS m ON s.specimen_id = m.specimen_id
+			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
 			WHERE s.project_id = ?
-			ORDER BY s.specimen_id
-		", $vn_project_id);
+			OR m.project_id = ?
+			ORDER BY s.institution_code, s.collection_code, s.catalog_number
+		", $vn_project_id, $vn_project_id);
 			
 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
@@ -411,6 +456,92 @@ class ms_projects extends BaseModel {
 		}
 
 		return $va_specimens;
+	}
+	# ----------------------------------------
+	function getProjectTaxonomy() {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+				SELECT tn.*, p.name
+				FROM ms_taxonomy_names tn 
+				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.taxon_id = tn.taxon_id
+				LEFT JOIN ms_media AS m ON m.specimen_id = sxt.specimen_id
+				LEFT JOIN ms_projects AS p ON tn.project_id = p.project_id
+				WHERE m.project_id = ? OR tn.project_id = ? 
+				ORDER BY tn.genus, tn.species, tn.subspecies
+		", $vn_project_id, $vn_project_id);
+
+		return $qr;
+	}
+	# ----------------------------------------
+	function getProjectFacilities() {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+				SELECT DISTINCT f.*
+				FROM ms_facilities f
+				LEFT JOIN ms_media AS m ON m.facility_id = f.facility_id
+				WHERE m.project_id = ? OR f.project_id = ?
+				ORDER BY f.name, f.institution
+		", $vn_project_id, $vn_project_id);
+
+		return $qr;
+	}
+	# ----------------------------------------
+	# --- returns all citation ids used in project NOT created by project
+	function getProjectCitationIDs($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$va_bibref_ids = array();
+		# --- get bib refs created by projects in case they are not in use
+		$q_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b WHERE b.project_id = ?", $pn_project_id);
+		
+		# --- get media bib refs - in case they were made in another project
+		$q_media_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b INNER JOIN ms_media_x_bibliography AS mxb ON mxb.bibref_id = b.bibref_id INNER JOIN ms_media AS m ON mxb.media_id = m.media_id WHERE m.project_id = ?", $pn_project_id);
+		
+		# -- get specimen bib refs
+		$q_specimen_bibs = $o_db->query("SELECT b.bibref_id FROM ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id INNER JOIN ms_media AS m ON sxb.specimen_id = m.specimen_id WHERE m.project_id = ?", $pn_project_id);
+		
+		# -- get specimen meta bib refs
+		$q_specimen_meta_bibs = $o_db->query("SELECT s.body_mass_bibref_id, s.locality_absolute_age_bibref_id, s.locality_relative_age_bibref_id FROM ms_specimens s INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id WHERE m.project_id = ?", $pn_project_id);
+		
+		if($q_bibs->numRows() > 0){
+			while($q_bibs->nextRow()){
+				$va_bibref_ids[$q_bibs->get("bibref_id")] = $q_bibs->get("bibref_id");
+			}
+		}
+		if($q_media_bibs->numRows() > 0){
+			while($q_media_bibs->nextRow()){
+				$va_bibref_ids[$q_media_bibs->get("bibref_id")] = $q_media_bibs->get("bibref_id");
+			}
+		}
+		if($q_specimen_bibs->numRows() > 0){
+			while($q_specimen_bibs->nextRow()){
+				$va_bibref_ids[$q_specimen_bibs->get("bibref_id")] = $q_specimen_bibs->get("bibref_id");
+			}
+		}
+		if($q_specimen_meta_bibs->numRows() > 0){
+			while($q_specimen_meta_bibs->nextRow()){
+				if($q_specimen_meta_bibs->get("body_mass_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("body_mass_bibref_id")] = $q_specimen_meta_bibs->get("body_mass_bibref_id");
+				}
+				if($q_specimen_meta_bibs->get("locality_absolute_age_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("locality_absolute_age_bibref_id")] = $q_specimen_meta_bibs->get("locality_absolute_age_bibref_id");
+				}
+				if($q_specimen_meta_bibs->get("locality_relative_age_bibref_id")){
+					$va_bibref_ids[$q_specimen_meta_bibs->get("locality_relative_age_bibref_id")] = $q_specimen_meta_bibs->get("locality_relative_age_bibref_id");
+				}
+			}
+		}
+		return $va_bibref_ids;
 	}
 	# ----------------------------------------
 	function getProjectMediaCounts($pn_project_id=null) {

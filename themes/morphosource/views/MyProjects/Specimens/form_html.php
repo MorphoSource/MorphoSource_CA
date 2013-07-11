@@ -95,8 +95,8 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				print "<H2>"._t("This specimen has no media.  Use the \"ADD MEDIA\" button to add media files for this specimen.")."</H2>";
 			}
 ?>
-			</div><!-- end specimenMediaListContainer -->
-		</div>
+				</div><!-- end specimenMediaListContainer -->
+			</div>
 <?php
 }
 ?>

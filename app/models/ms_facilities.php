@@ -191,12 +191,12 @@ class ms_facilities extends BaseModel {
 	# ------------------------------------------------------
 
 	# Array of fields to display in a listing of records from this table
-	protected $LIST_FIELDS = array('name');
+	protected $LIST_FIELDS = array('name', 'institution');
 
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ' ';
+	protected $LIST_DELIMITER = ', ';
 
 
 	# What you'd call a single record from this table (eg. a "person")

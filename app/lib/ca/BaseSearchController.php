@@ -164,8 +164,7 @@
 					$vs_browse_classname = get_class($po_search);
  					$po_search = new $vs_browse_classname;
  					if (is_subclass_of($po_search, "BrowseEngine")) {
- 						print "c=$vs_search.$vs_append_to_search";
- 						$po_search->addCriteria('_search', $vs_search.$vs_append_to_search);
+ 						$po_search->addCriteria('_search', $vs_search);
  						
  						if (method_exists($this, "hookBeforeNewSearch")) {
  							$this->hookBeforeNewSearch($po_search);
@@ -199,7 +198,7 @@
  					
 					$vo_result = $po_search->getResults($va_search_opts);
 				} else {
-					$vo_result = $po_search->search($vs_search.$vs_append_to_search, $va_search_opts);
+					$vo_result = $po_search->search($vs_search, $va_search_opts);
 				}
 				$this->opo_result_context->validateCache();
 				

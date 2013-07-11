@@ -518,20 +518,18 @@ td.advSearchElement{
 	margin-bottom:2px;
 }
 .searchNav a{
-	font-family: Arial, sans-serif;
-	font-size:14px;
-	color: #000;
-	font-weight:bold;
+	color:#689899;
+	font-size:15px;
+	font-family: neuzeitrmn;
 	text-decoration:none;
 }
 .searchNav a:hover{
 	color: #828282;
 }
 .searchNav .linkOff{
-	font-family: Arial, sans-serif;
-	font-size:14px;
-	color: #B1B1B1;
-	font-weight:bold;
+	color:#b1b1b1;
+	font-size:15px;
+	font-family: neuzeitrmn;
 	text-decoration:none;
 }
 .sectionBox{
@@ -544,42 +542,37 @@ td.advSearchElement{
 	width:2%;
 }
 .searchSec{
-	float:left;
-	width:440px;
-	padding-top:5px;
-	height:250px;
+	float:right;
+	width:270px;
 }
 .searchSecNav{
 	clear:both;
-	background-color: #E2E2E2;
+	border-bottom: 1px solid #689899;
+	border-top: 1px solid #689899;
 	margin: 0px;
-	padding:6px 10px 5px 10px;
+	padding:8px 10px 5px 10px;
 	font-size:13px;
 	text-align:left;
 }
 .searchSecNav .nav{
 	float:right;
 	text-align:right;
-	font-weight:bold;
-	font-size:14px;
+	font-size:15px;
+	color:#b1b1b1;
 }
 .searchSecNav a{
-	font-family: Arial, sans-serif;
-	font-size:14px;
-	color: #000;
-	font-weight:bold;
+	color:#689899;
+	font-size:15px;
+	font-family: neuzeitrmn;
 	text-decoration:none;
-	text-transform:uppercase;
-}
-.searchSecNav a:hover{
-	color: #828282;
+	font-weight:normal;
 }
 .searchSec .results{
 	padding: 10px;
 	line-height:1.6em;
 }
 .searchSec .results a{
-	color:#000;
+	color:#00006A;
 }
 
 
@@ -679,6 +672,7 @@ input.addItemToSetControlInThumbnails {
 	text-transform:uppercase;
 	color:#689899;
 	font-size:11px;
+	font-family: neuzeitlgt;
 	
 }
 #hideOptions, #hideTools{
@@ -688,8 +682,9 @@ input.addItemToSetControlInThumbnails {
 	margin: 3px 0px 0px 10px;
 	text-decoration:none;
 	text-transform:uppercase;
-	color:#689899;
 	font-size:12px;
+	color:#689899;
+	font-family: neuzeitlgt;
 	
 }
 #searchOptionsBox, #searchToolsBox{
@@ -742,12 +737,15 @@ input.addItemToSetControlInThumbnails {
 #searchOptionsBox .apply{
 	padding:10px 10px 20px 10px;
 	text-align:center;
+	color:#689899;
+	font-family: neuzeitlgt;
 }
 #searchOptionsBox .apply a{
 	text-decoration: none;
-	font-weight:bold;
 	font-size:14px;
 	color:#689899;
+	font-size:14px;
+	font-family: neuzeitbld;
 	text-transform:uppercase;
 }
 #searchToolsBox a.apply{
@@ -2002,90 +2000,3 @@ div.jGrowl div.jGrowl-closer {
 }
 
 /* end autocompleter styles */
-
-/* Media request form styles */
-#msMediaDownloadRequestFormContainer {
-	clear: both;
-	border: 1px solid #ccc;
-	float: right;
-	width: 200px;
-	line-height: 16px;
-	padding: 10px;
-	display: none;
-}
-
-#msMediaDownloadRequestFormContainer textarea {
-	padding: 0px;
-}
-
-.msMediaDownloadRequestFormLabel {
-	font-size: 12px;
-	font-weight: bold;
-	color: #000;
-	margin: 0px;
-	padding: 0px;
-}
-
-.msMediaDownloadRequestFormSubmit {
-	font-size: 12px;
-	font-weight: bold;
-	color: #000;
-	margin: 0px;
-	padding: 0px;
-}
-
-a.msMediaDownloadRequestFormSubmit {
-	text-transform:uppercase;
-	font-size:14px;
-	color: #828282;
-	font-weight:bold;
-	text-decoration:none;
-}
-
-a.msMediaDownloadRequestFormCancel {
-	text-transform:uppercase;
-	font-size:14px;
-	color: #828282;
-	font-weight:bold;
-	text-decoration:none;
-	margin-left: 15px;
-}
-
-a.msMediaDownloadRequestFormSubmit:hover{
-	color: #545454;
-	text-decoration:none;
-}
-
-div.msMediaDownloadRequestFormHelpText {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-	font-weight: normal;
-	color: #000;
-	margin-bottom: 10px;
-}
-
-table.msMediaDownloadRequestDashboard {
-	width: 100%;
-	border: 1px solid #000;
-	border-collapse: collapse;
-}
-
-table.msMediaDownloadRequestDashboard th {
-	border: 1px solid #000;
-	padding: 3px;
-	font-size: 11px;
-	text-align: center;
-}
-
-table.msMediaDownloadRequestDashboard td {
-	border: 1px solid #000;
-	padding: 3px;
-	font-size: 10px;
-	text-align: center;
-}
-
-h2.msMediaDownloadRequestDashboard {
-	font-size: 18px;
-	text-align: center;
-	margin: 10px 0 0 0;
-}

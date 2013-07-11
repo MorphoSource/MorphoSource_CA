@@ -28,12 +28,14 @@ if ($this->request->isLoggedIn()) {
 					break;
 				case 2:
 					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
-						print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</a></div>";
+						print "<div style='float:right; clear: right; cursor:default;' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</div>";
 					} else {
 						if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
 							print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 						} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
 							print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge'>"._t('You may not download this media')."</a></div>";
+						} else {
+							print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideDown(250); return false;'>"._t("Request Download of Media")."</a></div>";
 						}
 					}
 					print "<div id='msMediaDownloadRequestFormContainer'>\n";
@@ -66,10 +68,10 @@ if ($this->request->isLoggedIn()) {
 		<H2>Specimen Information</H2>
 			<div class="unit">
 <?php
-		$t_specimen = new ms_specimens($t_media->get("specimen_id"));
+		$t_specimen = new ms_specimens($vn_specimen_id = $t_media->get("specimen_id"));
 		$vs_specimen_name = $t_specimen->getSpecimenName();
 		if($vs_specimen_name){
-			print "<b>Specimen:</b> ".$vs_specimen_name."<br/>";
+			print "<b>Specimen:</b> ".caNavLink($this->request, $vs_specimen_name, '', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $vn_specimen_id))."<br/>";
 		}
 		$va_specimen_taxonomy = $t_specimen->getSpecimenTaxonomy();
 		if(is_array($va_specimen_taxonomy) && sizeof($va_specimen_taxonomy)){

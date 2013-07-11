@@ -16,7 +16,7 @@
 			print caNavLink($this->request, _t("Download"), "button buttonLarge", "MyProjects", "Media", "DownloadMedia", array("media_id" => $t_media->get("media_id"), 'download' => 1));
 		}
 		if(!$t_media->get("published")){
-			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonLarge", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id))."&nbsp;&nbsp;&nbsp";
+			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonLarge", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id));
 		}
 		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonLarge' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
 		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonLarge", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));

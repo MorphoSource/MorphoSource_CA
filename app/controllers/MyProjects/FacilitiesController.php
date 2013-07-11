@@ -116,7 +116,7 @@
  		# -------------------------------------------------------
  		public function listItems() {
 			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_facilities WHERE project_id = ? ORDER BY name, institution", $this->opn_project_id);
+			$q_listings = $this->opo_project->getProjectFacilities();
 			$this->view->setVar("listings", $q_listings);
 			$this->render('Facilities/list_html.php');
  		}

@@ -38,16 +38,17 @@
 <?php
 	$vb_force_resize = false;
 	$vb_show_progress_bar = false;
+	$vb_would_like_webgl = false;
 	switch($vs_mimetype = $t_media->getMediaInfo("media", "original", "MIMETYPE")) {
 		case 'application/stl':
 		case 'application/surf':
 			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
-			
+			$vb_would_like_webgl = true;
 			$vb_show_progress_bar = true;
 			break;
 		case 'application/ply':		// We could also load the original PLY here but the 3d viewer won't render textures for it so we'll use STL instead
 			print $t_media->getMediaTag('media', 'stl', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
-			
+			$vb_would_like_webgl = true;
 			$vb_show_progress_bar = true;
 			break;
 		case 'application/pdf':
@@ -83,9 +84,14 @@
 		jQuery("#msMediaOverlayProgress").css("display", "block");	
 <?php
 	}
+		
+	if ($vb_would_like_webgl) {
 ?>
 		if (Detector && !Detector.webgl) {
 			jQuery('#msMediaOverlayWebGLWarning').html("<a href='http://get.webgl.org'>WebGL</a> is not available. <a href='http://get.webgl.org' class='msMediaOverlayGetWebGLLink'>Get it</a> to improve rendering speed.");
 		}
+<?php
+	}
+?>
 	});
 </script>

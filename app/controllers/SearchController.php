@@ -31,6 +31,7 @@
 	require_once(__CA_LIB_DIR__."/ca/Search/DidYouMean.php");
 	require_once(__CA_LIB_DIR__."/core/Datamodel.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/MediaSearch.php");
+ 	require_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/ObjectSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/EntitySearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/PlaceSearch.php");
@@ -198,11 +199,11 @@
  			$va_access_values = caGetUserAccessValues($this->request);
  			
  			if ($this->request->config->get('do_secondary_searches')) {
-				if ($this->request->config->get('do_secondary_search_for_ca_entities')) {
-					$o_search = new EntitySearch();
+				if ($this->request->config->get('do_secondary_search_for_ms_specimens')) {
+					$o_search = new SpecimenSearch();
 					$qr_res = $o_search->search($ps_search, array('no_cache' => true, 'checkAccess' => $va_access_values));
-					$this->view->setVar('secondary_search_ca_entities', $qr_res);
-					$this->_setResultContextForSecondarySearch('ca_entities', $ps_search, $qr_res);
+					$this->view->setVar('secondary_search_ms_specimens', $qr_res);
+					$this->_setResultContextForSecondarySearch('ms_specimens', $ps_search, $qr_res);
 				}
 			}
  			$this->view->setVar('secondaryItemsPerPage', $this->opa_items_per_secondary_search_page);
@@ -229,8 +230,8 @@
  			
  			$ps_search = $this->opo_result_context->getSearchExpression();
  			switch($ps_type) {
-				case 'ca_entities':
-					$o_search = new EntitySearch();
+				case 'ms_specimens':
+					$o_search = new SpecimenSearch();
 					$qr_res = $o_search->search($ps_search, array('checkAccess' => $va_access_values));
 					break;
 				default:

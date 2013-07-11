@@ -25,6 +25,6 @@
 		}
 		
 		$vn_num_hits = $this->getVar('num_hits');
-		print '<div style="margin-top:2px;">'._t('Your %1 found %2 %3.', $this->getVar('mode_type_singular'), $vn_num_hits, ($vn_num_hits == 1) ? _t('result') : _t('results'))."</div>";
+		print '<div style="margin-top:2px;">'._t('%2 %3', $this->getVar('mode_type_singular'), $vn_num_hits, ($vn_num_hits == 1) ? _t('result') : _t('results'))."</div>";
 ?>
 	</div><!-- end searchNav --></div><!-- end searchNavBg -->

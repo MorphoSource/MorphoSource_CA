@@ -388,7 +388,7 @@ class ms_specimens extends BaseModel {
 		$vs_num =  join("-", $va_specimen_parts);
 		
 		if(is_array($pa_specimen["taxa"])){
-			$vs_num .= "<em>".join("; ", $pa_specimen["taxa"])."</em>";
+			$vs_num .= ", <em>".join("; ", $pa_specimen["taxa"])."</em>";
 		}
 		
 		return $vs_num;

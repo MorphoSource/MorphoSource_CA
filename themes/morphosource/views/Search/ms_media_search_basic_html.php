@@ -35,27 +35,30 @@
 	if($vo_result) {
 ?>
 		<div class="blueRule"><!-- empty --></div>
-		<h1><?php print _t("Media results"); ?></h1>
 <?php
-		print $this->render('Results/paging_controls_html.php');
-		if($vo_result->numHits() > 0){
+		print $this->render('Results/ms_media_search_secondary_results.php');
 ?>
-			<a href='#' id='showOptions' style='margin-right:10px;' onclick='$("#searchOptionsBox").slideDown(250); $("#showOptions").hide();  $("#searchRefineBox").slideUp(250); $("#showRefine").show(); jQuery("#searchToolsBox").slideUp(250); jQuery("input.addItemToSetControl").hide(); jQuery("#showTools").show(); return false;'><?php print _t("Options"); ?> &rsaquo;</a>
+		<div id="mediaResultsContainer">
+			<h1><?php print _t("Media results"); ?></h1>
 <?php
-			print $this->render('Search/search_controls_html.php');
-		}
+			print $this->render('Results/paging_controls_html.php');
+			if($vo_result->numHits() > 0){
 ?>
-	<div class="sectionBox">
+				<a href='#' id='showOptions' style='margin-right:10px;' onclick='$("#searchOptionsBox").slideDown(250); $("#showOptions").hide();  $("#searchRefineBox").slideUp(250); $("#showRefine").show(); jQuery("#searchToolsBox").slideUp(250); jQuery("input.addItemToSetControl").hide(); jQuery("#showTools").show(); return false;'><?php print _t("Options"); ?> &rsaquo;</a>
 <?php
-		if ((!$vs_view) || ($vo_result->numHits() == 0) || (!in_array($vs_view, array_keys($this->getVar('result_views'))))) {
-			print $this->render('Results/ms_media_search_no_results_html.php');
-		}else{
-			print $this->render('Results/ms_media_results_'.$vs_view.'_html.php');
-		}
-		
-		#print $this->render('Results/ca_objects_search_secondary_results.php');
+				print $this->render('Search/search_controls_html.php');
+			}
+?>
+			<div class="sectionBox">
+<?php
+			if ((!$vs_view) || ($vo_result->numHits() == 0) || (!in_array($vs_view, array_keys($this->getVar('result_views'))))) {
+				print $this->render('Results/ms_media_search_no_results_html.php');
+			}else{
+				print $this->render('Results/ms_media_results_'.$vs_view.'_html.php');
+			}
 ?>		
-	</div><!-- end sectionbox -->
+			</div><!-- end sectionbox -->
+		</div><!-- end mediaResultsContainer -->
 <?php
 	}
 ?>

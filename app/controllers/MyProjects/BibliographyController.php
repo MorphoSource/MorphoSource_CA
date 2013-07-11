@@ -115,8 +115,15 @@
  		# -------------------------------------------------------
  		public function listItems() {
 			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_bibliography WHERE project_id = ? ORDER BY authors", $this->opn_project_id);
-			$this->view->setVar("listings", $q_listings);
+			$va_bibref_ids = $this->opo_project->getProjectCitationIDs();
+			
+			if(sizeof($va_bibref_ids)){
+				$q_listings = $o_db->query("SELECT b.*, p.name FROM ms_bibliography b INNER JOIN ms_projects AS p ON b.project_id = p.project_id WHERE b.bibref_id IN (".join(", ", $va_bibref_ids).") ORDER BY b.authors");
+				$this->view->setVar("listings", $q_listings);
+				$this->view->setVar("num_listings", $q_listings->numRows());
+			}else{
+				$this->view->setVar("num_listings", 0);
+			}
 			$this->render('Bibliography/list_html.php');
  		}
  		# -------------------------------------------------------

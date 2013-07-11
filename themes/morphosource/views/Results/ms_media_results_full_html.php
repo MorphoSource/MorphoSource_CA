@@ -45,33 +45,34 @@ if($vo_result) {
 		print "<div class='searchResultFull' id='searchResult".$vn_media_id."'>";
 		print "<div class='searchFullThumb'>".caNavLink($this->request, $vo_result->getMediaTag('ms_media.media', 'thumbnail'), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";
 		print "<div class='searchFullText'>";
-		print caNavLink($this->request, "M".$vn_media_id, 'blueText', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."<br/>";
-		if($vo_result->get("specimen_id")){
-			$t_specimen->load($vo_result->get("specimen_id"));
+		print "<b>".caNavLink($this->request, "M".$vn_media_id, 'blueText', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</b><br/>";
+		if($vn_specimen_id = $vo_result->get("specimen_id")){
+			$t_specimen->load($vn_specimen_id);
 			if($vs_specimen_name = $t_specimen->getSpecimenName()){
-				print "<b>Specimen:</b> ".$vs_specimen_name."<br/>";
+				print caNavLink($this->request, $vs_specimen_name, 'blueText', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $vn_specimen_id))."<br/>";
 			}
-			if($va_taxonomy = $t_specimen->getSpecimenTaxonomy()){
-				print "<b>Specimen taxonomy:</b> ".join(", ", $va_taxonomy)."<br/>";
-			}
+			#if($va_taxonomy = $t_specimen->getSpecimenTaxonomy()){
+			#	print "<b>Specimen taxonomy:</b> ".join(", ", $va_taxonomy)."<br/>";
+			#}
 		}
 		if($vo_result->get("ms_media.element")){
-			print "<b>Element: </b>".$vo_result->get("ms_media.element")."<br/>";
+			print $vo_result->get("ms_media.element")."<br/>";
 		}
 
 		if($vo_result->get("ms_facilities.name")){
-			print "<b>Facility: </b>".$vo_result->get("ms_facilities.name")."<br/>";
+			print $vo_result->get("ms_facilities.name")."<br/>";
 		}
 		
 		//$vs_mimetype = $vo_result->getMediaInfo('ms_media.media', 'original', 'MIMETYPE');
 		//			$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
 		//			$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
 		//			print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
-		print "<b>Type: </b>". msGetMediaFormatDisplayString($vo_result)."<br/>\n";
+		print msGetMediaFormatDisplayString($vo_result)."<br/>\n";
 					
 		$va_properties = $vo_result->getMediaInfo('ms_media.media', 'original');
-					print "<b>Filesize: </b>".caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
-					
+		if(caFormatFilesize($va_properties['PROPERTIES']['filesize'])){
+			print caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
+		}			
 		print "</div><!-- end searchFullText -->";
 		print "</div><!-- end searchResultFull -->";
 		

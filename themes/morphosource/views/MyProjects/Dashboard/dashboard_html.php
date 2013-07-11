@@ -60,7 +60,7 @@
 <div id="dashboardColRight">
 	<div class="dashboardButtons">
 <?php
-	print caNavLink($this->request, _t("Specimens"), "button buttonLarge", "MyProjects", "Specimens", "listItems");
+	print caNavLink($this->request, _t("Media"), "button buttonLarge", "MyProjects", "Media", "listItems");
 	print "&nbsp;".caNavLink($this->request, _t("Bibliography"), "button buttonLarge", "MyProjects", "Bibliography", "listItems");
 	print "&nbsp;".caNavLink($this->request, _t("Taxonomy"), "button buttonLarge", "MyProjects", "Taxonomy", "listItems");
 	print "&nbsp;".caNavLink($this->request, _t("Facilities"), "button buttonLarge", "MyProjects", "Facilities", "listItems");
@@ -146,6 +146,7 @@
 			print "</div>\n";
 			print "</div><!-- end projectMediaContainer -->";
 		}
+		print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems");
 	}else{
 		print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
 	}

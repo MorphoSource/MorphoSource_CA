@@ -89,6 +89,9 @@ H2{
 .blueText{
 	color:#00006A;
 }
+a.blueText:hover{
+	color:#FF861F;
+}
 .capitalize{
 	text-transform:capitalize;
 }
@@ -468,6 +471,12 @@ styles for original hp layout
 	float:right;
 	text-align:right;
 }
+.listItemRightCol .editMessage{
+	font-size:11px;
+	line-height:1em;
+	font-style:italic;
+	width:350px;
+}
 #mediaInfo .listItemRightCol{
 	width:150px;
 }
@@ -512,8 +521,11 @@ styles for original hp layout
 	clear:both;
 	padding-top:30px;
 }
+#mediaListings{
+	margin-top:15px;
+}
 
-#dashboardMedia .projectMediaContainer {
+#dashboardMedia .projectMediaContainer, #mediaListings .projectMediaContainer {
 	float: left;
 	width: 190px;
 	height:235px;
@@ -523,10 +535,16 @@ styles for original hp layout
 	margin: 0px;
 }
 
-#dashboardMedia .projectMedia {
+#dashboardMedia .projectMedia, #mediaListings .projectMedia {
 	width: 190px;
 	padding: 0px;
 	margin: 0px;
+}
+#mediaListings .projectMedia a{
+	color:#689899;
+	text-decoration:none;
+	font-weight:bold;
+	font-size:12px;
 }
 
 #dashboardMedia .projectMediaSlide {
@@ -645,13 +663,17 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 }
 
 /* search */
-.searchResultFull{
-	width:390px;
+#mediaResultsContainer{
 	float:left;
-	height:190px;
+	width:550px;
+}
+.searchResultFull{
+	width:245px;
+	float:left;
+	height:130px;
 	border-bottom:1px solid #689899;
 	padding:5px;
-	margin:0px 10px 0px 10px;
+	margin:0px 10px 10px 10px;
 	
 	overflow: auto;
 }
@@ -664,25 +686,36 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 .searchFullText{
 	float:left;
 	text-align:left;
-	width:260px;
+	width:115px;
 	margin:0px;
+	padding:0px;
+	font-size:11px;
+	line-height:1.2em;
 }
 #mediaDetail .mediaDetailMedia{
 	float:right;
 	padding:0px 0px 20px 20px;
 }
-#mediaDetail .tealRule{
+#mediaDetail .tealRule, #specimenDetail .tealRule{
 	margin-bottom:10px;
 }
-#mediaDetail .unit{
+#mediaDetail .unit, #specimenDetail .unit{
 	border-top: 1px solid #689899;
 	padding:10px;
 	margin-bottom:10px;
 }
-#mediaDetail .mediaDetailcitation{
+#mediaDetail .mediaDetailcitation, #specimenDetail .specimenDetailcitation{
 	padding-bottom:8px;
 	text-indent:-15px;
 	padding-left:15px;
+}
+#specimenDetailBibContainer{
+	float:right;
+	width:400px;
+}
+#specimenDetailInfoContainer{
+	float:left;
+	width:400px;
 }
 .citationIndent{
 	text-indent:-15px;
@@ -706,11 +739,12 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	
 	padding:0px 10px 7px 10px;
 	margin: 0px;
+	line-height:1.1em;
 }
 
 .specimenMediaListSlide {
 	padding:0px;
-	margin: 0px;
+	margin: 0px 0px 4px 0px;
 }
 
 /* Media viewer */
@@ -856,4 +890,79 @@ div.msMediaOverlayProgress div {
 	color: #cc0000;
 	margin-bottom: 5px;
 	text-align: left;
+}
+
+/* Media request form styles */
+#msMediaDownloadRequestFormContainer {
+	clear: both;
+	border: 1px solid #ccc;
+	float: right;
+	width: 200px;
+	line-height: 16px;
+	padding: 10px;
+	display: none;
+}
+
+#msMediaDownloadRequestFormContainer textarea {
+	padding: 0px;
+	margin-bottom:4px;
+	font-family:arial;
+	font-size:11px;
+}
+
+.msMediaDownloadRequestFormLabel {
+	font-size: 12px;
+	font-weight: bold;
+	color: #000;
+	margin: 0px;
+	padding: 0px;
+}
+
+.msMediaDownloadRequestFormSubmit {
+	font-size: 12px;
+	font-weight: bold;
+	color: #000;
+	margin: 0px;
+	padding: 0px;
+}
+
+a.msMediaDownloadRequestFormSubmit {
+	font-size:14px;
+	color: #003880;
+	font-weight:bold;
+	text-decoration:none;
+}
+
+a.msMediaDownloadRequestFormCancel {
+	font-size:14px;
+	color: #003880;
+	font-weight:bold;
+	text-decoration:none;
+	margin-left: 15px;
+}
+
+a.msMediaDownloadRequestFormSubmit:hover{
+	color: #545454;
+	text-decoration:none;
+}
+
+div.msMediaDownloadRequestFormHelpText {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	color: #000;
+	margin-bottom: 10px;
+}
+
+#msMediaDownloadRequestDashboardContainer{
+	padding-top:20px;
+}
+h2.msMediaDownloadRequestDashboard {
+	font-size: 22px;
+	margin: 10px 0 0 0;
+	border-bottom:1px solid #689899;
+}
+#msMediaDownloadRequestDashboardContainer .listItemLtBlue{
+	font-size:12px;
+	line-height:1.2em;
 }

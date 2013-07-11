@@ -115,7 +115,9 @@
  		}
  		# -------------------------------------------------------
  		public function listItems() {
-			$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
+			$q_listings = $this->opo_project->getProjectMedia();
+			$this->view->setvar("listings", $q_listings);
+			$this->render('Media/list_html.php');
  		}
  		# -------------------------------------------------------
  		public function form() {

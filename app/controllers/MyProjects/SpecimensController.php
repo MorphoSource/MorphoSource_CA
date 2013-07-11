@@ -49,6 +49,7 @@
 			protected $ops_name_singular;
 			protected $ops_name_plural;
 			protected $ops_primary_key;
+			protected $ops_read_only;	#read only mode displays a summary of specimen info instead of form since specimen was entered by another project
 
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
@@ -79,12 +80,14 @@
 			# --- load the object
 			$this->opo_item = new ms_specimens();
 			$this->opn_item_id = $this->request->getParameter($this->opo_item->getProperty("PRIMARY_KEY"), pInteger);
+			$this->ops_read_only = 0;
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
 				# --- check if the specimen is part of the current project
 				if($this->opo_item->get("project_id") != $this->opn_project_id){
-					$this->notification->addNotification("The specimen record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
-					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
+					$this->ops_read_only = 1;
+					#$this->notification->addNotification("The specimen record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
+					#$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
 				}
 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
@@ -108,18 +111,22 @@
 				}
 			}
 			$this->view->setvar("item_name", $this->ops_item_name);
+			$this->view->setvar("read_only", $this->ops_read_only);
 			
  		}
  		# -------------------------------------------------------
  		public function form() {
  			$this->view->setVar("media_id", $this->request->getParameter('media_id', pInteger));
-			$this->render('Specimens/form_html.php');
+			if($this->ops_read_only){
+				$this->render('Specimens/summary_html.php');
+			}else{
+				$this->render('Specimens/form_html.php');
+			}
  		}
  		# -------------------------------------------------------
  		public function listItems() {
-			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_specimens WHERE project_id = ? ORDER BY institution_code, collection_code, catalog_number", $this->opn_project_id);
-			$this->view->setVar("listings", $q_listings);
+			$va_specimens = $this->opo_project->getProjectSpecimens();
+			$this->view->setVar("specimens", $va_specimens);
 			$this->render('Specimens/list_html.php');
  		}
  		# -------------------------------------------------------

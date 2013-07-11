@@ -1,14 +1,13 @@
 <?php
 /* ----------------------------------------------------------------------
- * themes/default/views/ms_media_search_no_results_html.php :
- * 		thumbnail search results
+ * themes/morphosource/views/Results/ms_media_search_secondary_results.php :
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2008-2010 Whirl-i-Gig
+ * Copyright 2010 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -26,6 +25,7 @@
  *
  * ----------------------------------------------------------------------
  */
-
-	print "<p>"._t("To search MorphoSource, simply type in the words that best describe what you are looking for and click on the \"search\" button. By default, the search engine will return only matches that contain all of the words in your search. The more words entered, the more restrictive the search.")."</p>";
+ 
+if (!$this->request->config->get('do_secondary_searches')) { return; }
+	print $this->render('Results/search_secondary_results/ms_specimens_html.php');
 ?>

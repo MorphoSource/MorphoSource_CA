@@ -137,13 +137,7 @@
  		}
  		# -------------------------------------------------------
  		public function listItems() {
-			$o_db = new Db();
-			$q_listings = $o_db->query("
-				SELECT tn.* 
-				FROM ms_taxonomy_names tn 
-				WHERE tn.project_id = ? 
-				ORDER BY tn.genus, tn.species, tn.subspecies
-			", $this->opn_project_id);
+			$q_listings = $this->opo_project->getProjectTaxonomy();
 			$this->view->setVar("listings", $q_listings);
 			$this->render('Taxonomy/list_html.php');
  		}
