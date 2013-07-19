@@ -20,6 +20,7 @@
 			print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."<br/>";
 			print caNavLink($this->request, $q_listings->getMediaTag("media", "preview190"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			print $t_specimen->getSpecimenName($q_listings->get("specimen_id"));
+			print "<br/>".$t_item->formatPublishedText($q_listings->get("published"));
 			print "</div>";
 			print '</div><!-- end projectMediaContainer -->';
 		}

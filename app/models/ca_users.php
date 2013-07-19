@@ -67,8 +67,7 @@ BaseModel::$s_ca_models_definitions['ca_users'] = array(
 				'DEFAULT' => 0,
 				'LABEL' => _t('User class'), 'DESCRIPTION' => _t('"Full" user accounts may log into all CollectiveAccess interfaces. "Public" user accounts may only log into the publicly accessible front-end system (if one exists). "Deleted" users may not log into any interface – the account is considered removed.'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					_t('full-access') 	=> 0,
-					_t('public-access only')	=> 1,
+					_t('full-access')	=> 1,
 					_t('deleted') => 255
 				)
 		),
@@ -105,7 +104,7 @@ BaseModel::$s_ca_models_definitions['ca_users'] = array(
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'sms_number' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
@@ -113,7 +112,7 @@ BaseModel::$s_ca_models_definitions['ca_users'] = array(
 				'BOUNDS_LENGTH' => array(0,30)
 		),
 		'entity_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_FIELD, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => true, 
 				'DEFAULT' => '',

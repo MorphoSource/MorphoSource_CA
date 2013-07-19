@@ -480,6 +480,11 @@ styles for original hp layout
 #mediaInfo .listItemRightCol{
 	width:150px;
 }
+#mediaPubOptions{
+	display:none;
+	padding-top:10px;
+	text-align:center;
+}
 #itemListings{
 	margin-top:15px;
 	border-top:1px solid #689899;
@@ -692,6 +697,10 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	font-size:11px;
 	line-height:1.2em;
 }
+.mediaSearchTooltipText{
+	padding-top:10px;
+	font-size:11px;
+}
 #mediaDetail .mediaDetailMedia{
 	float:right;
 	padding:0px 0px 20px 20px;
@@ -746,6 +755,44 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	padding:0px;
 	margin: 0px 0px 4px 0px;
 }
+/* browse */
+#browseArea{
+	clear:both;
+	height:400px;
+}
+#browseList{
+	float:left;
+	width:415px;
+	padding-right:25px;
+}
+.browseListScrollContainer{
+	height:350px;
+	overflow: auto;
+}
+#browseSubList{
+	float:right;
+	width:200px;
+	padding-left:15px;
+}
+#specimenResults{
+	float:left;
+	width:415px;
+}
+#specimenResultScrollContainer{
+	height:350px;
+	overflow: auto;
+}
+#browseList H2, #specimenResults H2{
+	padding-top:10px;
+	font-size:18px;
+}
+.browseItem{
+	padding: 0px 0px 5px 10px;
+}
+a.browseItemSelected{
+	color:#FF861F;
+}
+
 
 /* Media viewer */
 div#msMediaOverlayWebGLWarning {
@@ -965,4 +1012,153 @@ h2.msMediaDownloadRequestDashboard {
 #msMediaDownloadRequestDashboardContainer .listItemLtBlue{
 	font-size:12px;
 	line-height:1.2em;
+}
+
+/* Administration forms */
+h2.userList{
+	font-size:20px;
+	margin:0px 0px 10px; 0px;
+	padding:10px 0px 0px 0px;
+	border-top:1px solid #689899;
+}
+
+/* table in general */
+
+table.listtable {
+	background-color: #CDCDCD;
+	margin:10px 0pt 15px;
+	font-size: 8pt;
+	text-align: left;
+	width: 100%;
+}
+
+table.listtable thead tr th {
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px 15px 4px 4px;
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+
+th.list-header-unsorted {
+	background-image: url('../graphics/icons/bg.gif');
+	background-color: #eeeeee;
+}
+
+th.list-header-nosort {
+	background-color: #eeeeee;
+}
+
+th.list-header-sorted-desc {
+	background-image: url('../graphics/icons/desc.gif');
+	background-color: #dedede;
+}
+
+th.list-header-sorted-asc {
+	background-image: url('../graphics/icons/asc.gif');
+	background-color: #cccccc;
+}
+
+/* table fields */
+
+table.listtable tbody td {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #FFF;
+	vertical-align: top;
+}
+
+table.listtable tbody tr.odd td {
+	background-color:#f5f5f5;
+}
+/* misc */
+
+div.control-box {
+	text-align: right;
+	width: 400px;
+	float: right;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding:10px 0px 0px 0px;
+}
+#formAreaDeleteForm div.control-box {
+	text-align: right;
+	width: 400px;
+	float: none;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding:10px 0px 0px 0px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+div.formSettings {
+	background-color: #EEEEEE;
+	padding: 6px;
+	margin: 15px 0px 15px 0px;
+}
+
+div.settingsKey {
+	display: none;
+	background-color: #F3F3F3;
+	padding: 6px;
+	width: 80%;
+}
+
+.settingsKeyRow {
+	font-weight: normal;
+}
+
+.settingsKeyButton {
+	margin-left: 15px;
+}
+
+
+a.list-button {
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+a.list-link {
+	text-decoration: none;
+	color: #000000;
+}
+
+div.control-box-left-content {
+	float: left;
+	margin: 3px;
+}
+
+div.control-box-middle-content {
+	text-align: center;
+	margin: 3px;
+	float: left;
+	font-size:12px;
+	font-weight: bold;
+}
+
+div.control-box-right-content {
+	float: right;
+	margin-top: 7px;
+	font-size:12px;
+	font-weight: bold;
+}
+
+div.list-filter, div.simple-search-box {
+	float: left;
+	margin-top: 3px;
+}
+
+div.delete-control-box {
+	margin-top: 32px;
+}
+div.delete_warning_box {
+	background:	url('../graphics/icons/warning.gif') no-repeat 10px 5px;
+	text-indent: 42px;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 5px;
+	width: 100%;
+	height: 32px;
 }

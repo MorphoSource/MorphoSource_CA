@@ -38,9 +38,11 @@ if($vo_result) {
 	$vn_item_count = 0;
 	
 	$t_specimen = new ms_specimens();
-	while(($vn_item_count < $vn_items_per_page) && ($vo_result->nextHit())) {
+	while(($vn_item_count < $vn_items_per_page) && ($vo_result->nextHit())) {		
 		$va_taxonomy = array();
 		$vs_specimen_name = "";
+		$vs_media_tag = "";
+		$vs_file_format = "";
 		$vn_media_id = $vo_result->get('media_id');
 		print "<div class='searchResultFull' id='searchResult".$vn_media_id."'>";
 		print "<div class='searchFullThumb'>".caNavLink($this->request, $vo_result->getMediaTag('ms_media.media', 'thumbnail'), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";
@@ -55,23 +57,17 @@ if($vo_result) {
 			#	print "<b>Specimen taxonomy:</b> ".join(", ", $va_taxonomy)."<br/>";
 			#}
 		}
-		if($vo_result->get("ms_media.element")){
-			print $vo_result->get("ms_media.element")."<br/>";
-		}
-
-		if($vo_result->get("ms_facilities.name")){
-			print $vo_result->get("ms_facilities.name")."<br/>";
-		}
 		
 		//$vs_mimetype = $vo_result->getMediaInfo('ms_media.media', 'original', 'MIMETYPE');
 		//			$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
 		//			$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
 		//			print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
-		print msGetMediaFormatDisplayString($vo_result)."<br/>\n";
+		$vs_file_format = msGetMediaFormatDisplayString($vo_result);
+		print $vs_file_format."<br/>\n";
 					
 		$va_properties = $vo_result->getMediaInfo('ms_media.media', 'original');
-		if(caFormatFilesize($va_properties['PROPERTIES']['filesize'])){
-			print caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
+		if($vs_file_size = caFormatFilesize($va_properties['PROPERTIES']['filesize'])){
+			print $vs_file_size."<br/>\n";
 		}			
 		print "</div><!-- end searchFullText -->";
 		print "</div><!-- end searchResultFull -->";
@@ -79,9 +75,14 @@ if($vo_result) {
 		// set view vars for tooltip
 		$this->setVar('tooltip_representation', $vs_media_tag = $vo_result->getMediaTag('ms_media.media', 'medium'));
 		$this->setVar('tooltip_id', $vo_result->get("media_id"));
+		$this->setVar('tooltip_element', $vo_result->get("ms_media.element"));
+		$this->setVar('tooltip_facility', $vo_result->get("ms_facilities.name"));
+		$this->setVar('tooltip_specimen', $vs_specimen_name);
+		$this->setVar('tooltip_file_size', $vs_file_size);
+		$this->setVar('tooltip_file_format', $vs_file_format);
 		if($vs_media_tag){
 			TooltipManager::add(
-				".searchResult{$vn_media_id}", $this->render('Results/ms_media_result_tooltip_html.php')
+				"#searchResult{$vn_media_id}", $this->render('Results/ms_media_result_tooltip_html.php')
 			);
 		}
 		

@@ -303,20 +303,20 @@ class ca_user_roles extends BaseModel {
 				$va_group_info["actions"] = array_merge($va_group_info["actions"],$va_new_actions);
 			}
 			
-			if (is_array($va_raw_plugin_actions = ApplicationPluginManager::getPluginRoleActions())) {
-				$va_raw_actions['plugins'] = array(
-					'label' => 'Plugin actions',
-					'description' => '',
-					'actions' => $va_raw_plugin_actions
-				);
-			}
-			if (is_array($va_raw_widget_actions = WidgetManager::getWidgetRoleActions())) {
-				$va_raw_actions['widgets'] = array(
-					'label' => 'Widget actions',
-					'description' => '',
-					'actions' => $va_raw_widget_actions
-				);
-			}
+// 			if (is_array($va_raw_plugin_actions = ApplicationPluginManager::getPluginRoleActions())) {
+// 				$va_raw_actions['plugins'] = array(
+// 					'label' => 'Plugin actions',
+// 					'description' => '',
+// 					'actions' => $va_raw_plugin_actions
+// 				);
+// 			}
+// 			if (is_array($va_raw_widget_actions = WidgetManager::getWidgetRoleActions())) {
+// 				$va_raw_actions['widgets'] = array(
+// 					'label' => 'Widget actions',
+// 					'description' => '',
+// 					'actions' => $va_raw_widget_actions
+// 				);
+// 			}
 			
 			$va_flattened_actions = array();
 			foreach($va_raw_actions as $vs_group => $va_group_actions_info) {

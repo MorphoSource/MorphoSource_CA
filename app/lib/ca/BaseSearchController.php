@@ -177,7 +177,9 @@
  				if ($this->opn_type_restriction_id) {
  					$po_search->setTypeRestrictions(array($this->opn_type_restriction_id));
  				}
+ 				$po_search->addResultFilter("ms_media.published", ">", "0");
  				
+ 				 				
  				$vb_criteria_have_changed = false;
  				if (is_subclass_of($po_search, "BrowseEngine")) { 					
 					//

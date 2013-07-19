@@ -88,7 +88,8 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					
 				
 					print "<br/>".msGetMediaFormatDisplayString($t_media);
-					print "<br/>".caFormatFilesize($va_media_info['filesize']);
+					print ", ".caFormatFilesize($va_media_info['filesize']);
+					print "<br>".$t_media->formatPublishedText();
 					print "</div>\n";
 				}
 			} else {

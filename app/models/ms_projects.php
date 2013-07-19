@@ -68,7 +68,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'published_on' => array(
-				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD, 'UPDATE_ON_UPDATE' => true,
+				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_HIDDEN, 'UPDATE_ON_UPDATE' => true,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
@@ -82,7 +82,7 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Storage used by project'), 'DESCRIPTION' => _t('Total storage used by project, in bytes.'),
 		),
 		'publication_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
@@ -400,7 +400,7 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-			SELECT m.media_id, m.media, m.specimen_id
+			SELECT m.media_id, m.media, m.specimen_id, published
 			FROM ms_media m
 			WHERE m.project_id = ?
 			ORDER BY m.media_id
@@ -565,7 +565,9 @@ class ms_projects extends BaseModel {
 		return $va_counts;
 	}
 	# ----------------------------------------
-	function publishAllProjectMedia($pn_project_id=null) {
+	# --- $pn_published is value to set published field to
+	function publishAllProjectMedia($pn_published, $pn_project_id=null) {
+		if(!$pn_published) { return null; }
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
 		}
@@ -583,7 +585,7 @@ class ms_projects extends BaseModel {
 		while($qr_res->nextRow()){ 
 			$t_media = new ms_media($qr_res->get('media_id'));
 			$t_media->setMode(ACCESS_WRITE);
-			$t_media->set('published', 1);
+			$t_media->set('published', $pn_published);
 			$t_media->update();
 			if ($t_media->numErrors() == 0) {
 				$vn_pub_count++;

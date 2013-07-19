@@ -864,5 +864,31 @@ class ms_media extends BaseModel {
  		return false;
 	}
 	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function formatPublishedText($pn_published=null) {
+		if (!$pn_published) {
+			$pn_published = $this->get("published");
+		}
+		$vs_publish_text = "";
+		switch($pn_published){
+			case 0:
+				$vs_publish_text = "Unpublished";
+			break;
+			# ------------------------------
+			case 1:
+				$vs_publish_text = "Published with unrestricted download";
+			break;
+			# ------------------------------
+			case 2:
+				$vs_publish_text = "Published with restricted download";
+			break;
+			# ------------------------------
+		}
+ 		
+ 		return $vs_publish_text;
+	}
+	# ------------------------------------------------------
 }
 ?>

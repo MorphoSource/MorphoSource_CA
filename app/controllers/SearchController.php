@@ -47,7 +47,7 @@
  	class SearchController extends BaseSearchController {
  		# -------------------------------------------------------
  		/**
- 		 * Name of subject table (ex. for an object search this is 'ca_objects')
+ 		 * Name of subject table (ex. for an object search this is 'ms_media')
  		 */
  		protected $ops_tablename = null;
  		
@@ -99,8 +99,8 @@
             }	
             
  			// get configured items per page options, if specified
- 			if ($va_items_per_page_for_ca_objects = $po_request->config->getList('items_per_page_options_for_ca_objects_search')) {
- 				$this->opa_items_per_page = $va_items_per_page_for_ca_objects;
+ 			if ($va_items_per_page_for_ms_media = $po_request->config->getList('items_per_page_options_for_ms_media_search')) {
+ 				$this->opa_items_per_page = $va_items_per_page_for_ms_media;
  			}
  			if ($vn_items_per_secondary_search_page = $po_request->config->get('items_per_secondary_search_page')) {
  				$this->opa_items_per_secondary_search_page = $vn_items_per_secondary_search_page;
@@ -208,14 +208,7 @@
 			}
  			$this->view->setVar('secondaryItemsPerPage', $this->opa_items_per_secondary_search_page);
  			
- 			$vn_project_id = $this->request->session->getVar('current_project_id');
- 			
- 			$pa_options["appendToSearch"] = "ms_media.published:1";
- 			if ($vn_project_id > 0) {
- 				$pa_options["appendToSearch"] .= " OR ms_media.project_id:{$vn_project_id}";
- 			}
- 			
- 			$pa_options['search'] = $this->opo_browse;
+			$pa_options['search'] = new MediaSearch(); //$this->opo_browse;
  			return parent::Index($pa_options);
  		}
  		# -------------------------------------------------------
@@ -285,37 +278,15 @@
  			#
  			# Do "quicksearches" on so-configured tables
  			#
- 			if ($this->request->config->get('quicksearch_return_ca_objects')) {
-				$va_results = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ca_objects', 57, array('limit' => 3, 'checkAccess' => $va_access_values)));
+ 			if ($this->request->config->get('quicksearch_return_ms_media')) {
+				$va_results = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ms_media', 57, array('limit' => 3, 'checkAccess' => $va_access_values)));
 				// break found objects out by type
 				foreach($va_results as $vn_id => $va_match_info) {
 					$vs_type = unicode_ucfirst($t_list->getItemFromListForDisplayByItemID('object_types', $va_match_info['type_id'], true));
-					$va_data['ca_objects'][$vs_type][$vn_id] = $va_match_info;
+					$va_data['ms_media'][$vs_type][$vn_id] = $va_match_info;
 				}
 			}
 			
-			if ($this->request->config->get('quicksearch_return_ca_entities')) {
- 				$va_data['ca_entities'][_t('Entities')] = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ca_entities', 20, array('limit' => 3, 'checkAccess' => $va_access_values)));
- 			}
- 			
- 			if ($this->request->config->get('quicksearch_return_ca_places')) {
- 				$va_data['ca_places'][_t('Places')] = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ca_places', 72, array('limit' => 3, 'checkAccess' => $va_access_values)));
- 			}
- 			
- 			if ($this->request->config->get('quicksearch_return_ca_occurrences')) {
-				$va_results = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ca_occurrences', 67, array('limit' => 3, 'checkAccess' => $va_access_values)));
-				// break found occurrences out by type
-				foreach($va_results as $vn_id => $va_match_info) {
-					$vs_type = unicode_ucfirst($t_list->getItemFromListForDisplayByItemID('occurrence_types', $va_match_info['type_id'], true));
-					$va_data['ca_occurrences'][$vs_type][$vn_id] = $va_match_info;
-				}
-			}
-			
-			if ($this->request->config->get('quicksearch_return_ca_collections')) {
- 				$va_data['ca_collections'][_t('Collections')] = caExtractValuesByUserLocale(SearchEngine::quickSearch($vs_search, 'ca_collections', 13, array('limit' => 3, 'checkAccess' => $va_access_values)));
- 			}
- 			
- 			
  			$this->view->setVar('matches', $va_data);
  			$this->render('Search/ajax_search_lookup_json.php');
  		}

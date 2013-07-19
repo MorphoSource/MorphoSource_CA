@@ -451,7 +451,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				} );
 				
 				loader.addEventListener( 'progress', function ( event ) {
-					var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded, true);
+					var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded/5.2, true);
 					if(total_filesize > 0) {
 						msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
 					}

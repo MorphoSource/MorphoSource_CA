@@ -419,13 +419,18 @@ class ms_specimens extends BaseModel {
 		if(!$pn_specimen_id) { $pn_specimen_id = $this->get("specimen_id"); }
 		
 		$va_versions = (isset($pa_options['versions']) && is_array($pa_options['versions']) && sizeof($pa_options['versions'])) ? $pa_options['versions'] : array('thumbnail', 'small', 'preview190');
+		$vs_published_where = "";
+		if($pa_options['published']){
+			$vs_published_where = " AND m.published > 0";
+		}
 		
 		if($pn_specimen_id){
 			$o_db = new Db();
 			$q_media = $o_db->query("
 				SELECT *
 				FROM ms_media m 
-				WHERE m.specimen_id = ?", array($pn_specimen_id));
+				WHERE m.specimen_id = ?".$vs_published_where,
+				array($pn_specimen_id));
 			$va_media = array();
 			if($q_media->numRows()){
 				while($q_media->nextRow()){

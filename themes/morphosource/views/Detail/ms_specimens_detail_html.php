@@ -1,9 +1,32 @@
 <?php
 	$t_specimen = $this->getVar("item");
 	$va_bib_citations = $this->getVar("bib_citations");
+	$vb_show_edit_link = $this->getVar("show_edit_link");
 	$t_bibliography = new ms_bibliography();
 ?>
 <div class="blueRule"><!-- empty --></div>
+<?php
+	$vs_back_link = "";
+	switch(ResultContext::getLastFind($this->request, "ms_specimens")){
+		case "specimen_browse":
+			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Browse', 'Index', array(), array('id' => 'back'));
+		break;
+		# ----------------------------------
+		case "basic_search":
+			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Search', 'Index', array(), array('id' => 'back'));
+		break;
+		# ----------------------------------
+	}
+	if (($this->getVar('is_in_result_list'))) {
+		if ($this->getVar('next_id') > 0) {
+			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+		}
+		print "<div style='float:right; padding:15px 0px 0px 15px;'>".$vs_back_link."</div>";
+		if ($this->getVar('previous_id')) {
+			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
+		}
+	}
+?>
 <H1>
 <?php 
 	print _t("Specimen: S%1", $t_specimen->get("specimen_id"));
@@ -30,6 +53,9 @@
 			}
 			print "</div><!-- end unit --></div><!-- end specimenDetailBibContainer -->";
 			print "<div id='specimenDetailInfoContainer'>";
+		}
+		if($vb_show_edit_link){
+			print "<div style='float:right; padding:0px 0px 0px 15px;'>".caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", "Specimens", "form", array("specimen_id" => $t_specimen->get("specimen_id"), "project_id" => $t_specimen->get("project_id")))."</div>";
 		}
 ?>
 		<H2>Specimen Information</H2>
@@ -134,7 +160,7 @@
 			<H2>Specimen Media</H2>
 			<div id="specimenMediaList" class="unit">
 <?php
-			$va_media_list = $t_specimen->getSpecimenMedia(null, array('versions' => array('preview190')));
+			$va_media_list = $t_specimen->getSpecimenMedia(null, array('versions' => array('preview190'), 'published' => true));
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
 					$t_media = new ms_media($vn_media_id);

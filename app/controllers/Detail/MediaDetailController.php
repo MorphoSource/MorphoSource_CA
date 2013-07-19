@@ -36,6 +36,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
  	require_once(__CA_MODELS_DIR__."/ms_institutions.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_LIB_DIR__.'/ca/ResultContext.php');
  
  	class MediaDetailController extends ActionController {
  		# -------------------------------------------------------
@@ -49,6 +50,7 @@
 			protected $ops_name_singular;
 			protected $ops_name_plural;
 			protected $ops_primary_key;
+ 			protected $ops_context = '';
 
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
@@ -73,6 +75,15 @@
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("media_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
+			# Next and previous navigation
+ 			$opo_result_context = new ResultContext($this->request, "ms_media", ResultContext::getLastFind($this->request, "ms_media"));
+			# Is the item we're show details for in the result set?
+ 			$this->view->setVar('is_in_result_list', ($opo_result_context->getIndexInResultList($this->opn_item_id) != '?'));
+ 					
+ 			$this->view->setVar('next_id', $opo_result_context->getNextID($this->opn_item_id));
+ 			$this->view->setVar('previous_id', $opo_result_context->getPreviousID($this->opn_item_id));
+ 			$this->view->setVar('result_context', $opo_result_context);
+ 			
  		}
  		# -------------------------------------------------------
  		public function show() {
@@ -86,7 +97,14 @@
  						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "page" => $q_bib->get("pp"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
+				# --- can user edit record?
+				$vb_show_edit_link = false;
+				$t_project = new ms_projects();
+				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+					$vb_show_edit_link = true;
+				}
  			}
+ 			$this->view->setVar("show_edit_link", $vb_show_edit_link);
  			$this->view->setVar("bib_citations", $va_bib_citations);
  			$this->render('ms_media_detail_html.php');
  		}

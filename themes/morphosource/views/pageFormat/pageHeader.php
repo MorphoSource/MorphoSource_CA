@@ -52,7 +52,7 @@
 			<div id="navHeaderBar"><!-- empty --></div>
 			<ul class="mainNav">
 				<li><?php print caNavLink($this->request, _t("About"), "", "", "", ""); ?></li>
-				<li><a href="#">Browse</a></li>
+				<li><?php print caNavLink($this->request, _t("Browse"), "", "", "Browse", "Index"); ?></li>
 				<li><?php print ($this->request->session->getVar('current_project_id')) ? caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "dashboard") : caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "projectList"); ?></li>
 			</ul>
 			<ul class="subNav">
@@ -60,6 +60,10 @@
 			if($this->request->isLoggedIn()){
 				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
 				print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
+				if($this->request->user->canDoAction("is_administrator")){
+					print "<li>".caNavLink($this->request, _t("Users"), "", "Administration", "Users", "ListUsers")."</li>";
+					print "<li>".caNavLink($this->request, _t("Projects"), "", "Administration", "Projects", "ListProjects")."</li>";
+				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";
 			}

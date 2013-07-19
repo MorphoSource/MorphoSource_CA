@@ -2,8 +2,31 @@
 	$t_media = $this->getVar("item");
 	$vs_media = $t_media->getMediaTag("media", "medium");
 	$va_bib_citations = $this->getVar("bib_citations");
+	$vb_show_edit_link = $this->getVar("show_edit_link");
 ?>
 <div class="blueRule"><!-- empty --></div>
+<?php
+	$vs_back_link = "";
+	switch(ResultContext::getLastFind($this->request, "ms_specimens")){
+		case "specimen_browse":
+			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Browse', 'Index', array(), array('id' => 'back'));
+		break;
+		# ----------------------------------
+		case "basic_search":
+			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Search', 'Index', array(), array('id' => 'back'));
+		break;
+		# ----------------------------------
+	}
+	if (($this->getVar('is_in_result_list'))) {
+		if ($this->getVar('next_id') > 0) {
+			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+		}
+		print "<div style='float:right; padding:15px 0px 0px 15px;'>".$vs_back_link."</div>";
+		if ($this->getVar('previous_id')) {
+			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
+		}
+	}
+?>
 <H1>
 <?php 
 	if($vs_media){
@@ -55,6 +78,9 @@ if ($this->request->isLoggedIn()) {
 					print "</div>\n";
 					//print "<br style='clear: both;'/>\n";
 					break;
+			}
+			if($vb_show_edit_link){
+				print "<div style='float:right; padding-right:10px;'>".caNavLink($this->request, _t("Edit"), "button buttonLarge", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id")))."</div>";
 			}
 } else {
 	print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Login to download"), "button buttonLarge", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";

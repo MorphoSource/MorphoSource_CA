@@ -58,7 +58,7 @@
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
- 			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");

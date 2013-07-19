@@ -55,7 +55,7 @@
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
- 			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");
@@ -159,6 +159,7 @@
 						$t_new_user->set("email", $ps_member_email);
 						$t_new_user->set("user_name", $ps_member_email);
 						$t_new_user->set("active", 1);
+						$t_new_user->set("userclass", 1);
 						$vn_password = rand();
 						$t_new_user->set("password", $vn_password);
 						$t_new_user->set("confirmed_on", time());

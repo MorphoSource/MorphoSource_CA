@@ -242,8 +242,9 @@ require_once(__CA_LIB_DIR__.'/core/Parsers/TimeExpressionParser.php');
 			"<div class='delete_warning_box'>"._t('Really delete "%1"?', $ps_item_name)."</div>".
 			($vs_remapping_controls ? "<div class='delete_remapping_controls'>{$vs_remapping_controls}</div>" : ''),
 			$vs_warning,
-			caFormSubmitButton($po_request, __CA_NAV_BUTTON_DELETE__, _t("Delete"), 'caDeleteForm', array()).
-			caNavButton($po_request, __CA_NAV_BUTTON_CANCEL__, _t("Cancel"), $ps_module_path, $ps_controller, $ps_cancel_action, $pa_parameters)
+			'<a href="#" name="save" class="button buttonSmall" onclick="jQuery(\'#caDeleteForm\').submit(); return false;">'._t("Delete").'</a>&nbsp;&nbsp;&nbsp;'.
+			#caFormSubmitButton($po_request, __CA_NAV_BUTTON_DELETE__, _t("Delete"), 'caDeleteForm', array()).
+			caNavButton($po_request, '', _t("Cancel"), $ps_module_path, $ps_controller, $ps_cancel_action, $pa_parameters, array(), array('use_class' => 'button buttonSmall', 'no_background' => true))
 		)."</div>\n";
 		
 		

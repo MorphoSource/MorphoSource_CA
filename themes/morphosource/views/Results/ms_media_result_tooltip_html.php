@@ -29,5 +29,24 @@
 ?>
 <div>
 	<H2>M<?php print $this->getVar('tooltip_id'); ?></H2>
-	<?php print $this->getVar('tooltip_representation'); ?>
+<?php 
+	print $this->getVar('tooltip_representation');
+	print "<div class='mediaSearchTooltipText'>";
+	if($this->getVar('tooltip_specimen')){
+		print $this->getVar('tooltip_specimen')."<br/>";
+	}
+	if($this->getVar('tooltip_element')){
+		print $this->getVar('tooltip_element')."<br/>";
+	}
+	if($this->getVar('tooltip_facility')){
+		print $this->getVar('tooltip_facility')."<br/>";
+	}
+	if($this->getVar('tooltip_file_format')){
+		print $this->getVar('tooltip_file_format').", ";
+	}
+	if($this->getVar('tooltip_file_size')){
+		print $this->getVar('tooltip_file_size').", ";
+	}
+	print "</div>";
+?>
 </div>

@@ -54,7 +54,7 @@
  				# --- select project
  				msSelectProject($this, $this->request);
  			}
- 			if($this->request->session->getVar('current_project_id') && $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id'))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");
@@ -85,17 +85,12 @@
  		}
  		# -------------------------------------------------------
  		public function publishAllMedia() {
- 			if($this->opn_project_id){
- 				$vn_num_published = $this->opo_project->publishAllProjectMedia();	
- 				
+ 			$pn_published = $this->request->getParameter('published', pInteger);
+ 			if($this->opn_project_id && $pn_published){
+ 				$vn_num_published = $this->opo_project->publishAllProjectMedia($pn_published);	
+ 				$t_media = new ms_media();
  				if($vn_num_published > 0) {
- 					$this->opo_project->setMode(ACCESS_WRITE);
- 					$this->opo_project->set('published', 1);
- 					$this->opo_project->update();
- 					$this->notification->addNotification(_t('Published %1 media', $vn_num_published), __NOTIFICATION_TYPE_INFO__);
- 					if ($this->opo_project->numErrors() > 0) {
- 						$this->notification->addNotification(_t('Could not mark project as published: %1', join('; ', $this->opo_project->getErrors())), __NOTIFICATION_TYPE_ERROR__);
- 					} 
+ 					$this->notification->addNotification(_t('Published %1 media with setting: %2', $vn_num_published, $t_media->formatPublishedText($pn_published)), __NOTIFICATION_TYPE_INFO__);
  				} else {
  					$this->notification->addNotification(_t('Could not publish media'), __NOTIFICATION_TYPE_ERROR__);
  				}

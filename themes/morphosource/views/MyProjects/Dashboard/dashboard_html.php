@@ -28,6 +28,7 @@
  
 	$t_project = $this->getVar("project");
 	$va_media_counts = $this->getVar('media_counts');
+	$t_media = new ms_media();
 ?>
 <div id="dashboardColLeft">
 	<div class="blueRule"><!-- empty --></div>
@@ -35,7 +36,16 @@
 		<?php print $t_project->get("name"); ?>
 	</H1>
 	<div id="dashboardAbstract">
-		<?php print $t_project->get("abstract"); ?>
+<?php
+		if(mb_strlen($t_project->get('abstract')) > 530){
+			print mb_substr($t_project->get('abstract'), 0, 530)."... <a href='#' class='blueText abstract".$t_project->get("project_id")."'>more</a> &rsaquo;";
+			TooltipManager::add(
+				".abstract".$t_project->get("project_id"), "<p style='padding:10px 20px 10px 20px; font-size:11px;'>".$t_project->get('abstract')."</p>"
+			);
+		}else{
+			print $t_project->get('abstract');
+		}
+?>
 	</div><!-- end dashboardAbstract -->
 	<div class="dashboardButtons">
 <?php
@@ -46,10 +56,6 @@
 	}
 	if($this->getVar("num_projects") > 1){
 		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
-	}
-	
-	if ($va_media_counts[0] > 0) {
-		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish unpublished media (%1)", (int)$va_media_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id")));
 	}
 ?>
 	</div>
@@ -85,15 +91,32 @@
 	}
 ?>
 	<div class="listItemLtBlue">
-		<div class="dataCol"><?php 
-			if ($va_media_counts[0] > 0) {
-				print _t('%1 published / %2 unpublished<br/><em>(%3 total)</em>', (int)$va_media_counts[1], (int)$va_media_counts[0], (int)$t_project->numMedia()); 
-			} else {
-				print _t('%1 published', (int)$t_project->numMedia()); 
+		<div class="dataCol">
+<?php
+		if($t_project->numMedia()){
+			if($va_media_counts[1]){
+				print (int)$va_media_counts[1]." ".$t_media->formatPublishedText(1)."<br/>"; 
 			}
-?></div>
-		<H2>Number of Media</H2>
-		<div style="clear:both; height:1px;"><!-- empty --></div>
+			if($va_media_counts[2]){
+				print (int)$va_media_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
+			}
+			print (int)$va_media_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
+			print _t('<em>(%1 total)</em>', (int)$t_project->numMedia());
+			if ($va_media_counts[0] > 0) {
+				print "<div style='padding-top:10px;'><a href='#' onClick='$(\"#mediaPubOptions\").slideDown(1); return false;' class='button buttonSmall'>"._t("Publish unpublished media (%1)", (int)$va_media_counts[0])."</a></div>";
+			}
+		}else{
+			print "0";
+		}
+?>
+		</div>
+		<H2>Number of Media</H2><div style="clear:both; height:1px;"><!-- empty --></div>
+<?php
+		if ($va_media_counts[0] > 0) {
+			print "<div id='mediaPubOptions'><br/><b>Publish with:</b> ".caNavLink($this->request, _t("unrestricted download"), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id"), "published" => 1))."&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("restricted download"), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id"), "published" => 2));
+			print "<br/><br/>"._t("Only unpublished media will be affected.")."</div>\n";
+		}
+?>
 	</div>
 	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?></div>
@@ -114,12 +137,15 @@
 </div><!-- end dashboardColRight -->
 <div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
-	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
-	<H1>Project Specimens</H1>
+	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
 <?php
 	$t_specimen = new ms_specimens();
 	$va_specimens = $t_project->getProjectSpecimens();
+?>
+	<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
+<?php
 	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
+		$vn_i_spec = 0;
 		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
 			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
 			
@@ -145,8 +171,14 @@
 					print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
 			print "</div>\n";
 			print "</div><!-- end projectMediaContainer -->";
+			$vn_i_spec++;
+			if($vn_i_spec == 12){
+				break;
+			}
 		}
-		print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems");
+		if($vn_i_spec < sizeof($va_specimens)){
+			print "<H2 style='text-align:right; font-weight:bold;'>".caNavLink($this->request, _t("...and %1 more", sizeof($va_specimens) - $vn_i_spec), "blueText", "MyProjects", "Specimens", "listItems")."</H2>";
+		}
 	}else{
 		print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
 	}
