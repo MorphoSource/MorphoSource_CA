@@ -63,7 +63,7 @@
 				$this->view->setvar("project_name", $this->ops_project_name);
  			}
  			# --- only project owner can edit project info
-			if ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id"))) {
+			if ($this->opo_project->get("project_id") && (($this->opo_project->get("user_id") != $this->request->user->get("user_id")) && !$this->request->user->canDoAction("is_administrator"))) {
 				$this->form();
 				return;
  			}
