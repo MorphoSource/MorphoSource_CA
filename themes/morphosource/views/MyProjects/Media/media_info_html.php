@@ -13,13 +13,14 @@
 		print "<div class='listItemLtBlue'>";
 		
 		if($t_media->getMediaUrl("media", "original")){
-			print caNavLink($this->request, _t("Download"), "button buttonLarge", "MyProjects", "Media", "DownloadMedia", array("media_id" => $t_media->get("media_id"), 'download' => 1));
+			print caNavLink($this->request, _t("Download"), "button buttonSmall", "MyProjects", "Media", "DownloadMedia", array("media_id" => $t_media->get("media_id"), 'download' => 1));
 		}
 		if(!$t_media->get("published")){
-			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonLarge", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id));
+			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonSmall", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id));
 		}
-		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonLarge' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
-		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonLarge", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
+		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
+		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Clone Media"), "button buttonSmall", "MyProjects", "Media", "form", array("clone_id" => $pn_media_id, "specimen_id" => $t_media->get("specimen_id")));
+		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
 		print "</div>";
 		
 		// Output file size and type first
@@ -49,7 +50,7 @@
 			<div style='clear:both;'><!-- empty --></div>
 		</div>
 <?php	
-		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
+		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 		foreach($va_fields as $vs_field => $va_field_attr){
 			if(in_array($vs_field, $va_media_display_fields) && ($vs_field == "published" || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";
@@ -59,6 +60,17 @@
 						if($t_media->get("facility_id")){
 							$t_facility = new ms_facilities($t_media->get("facility_id"));
 							print $t_facility->get("name");
+						}
+					break;
+					# ------------------------------
+					case "scanner_id":
+						if($t_media->get("scanner_id")){
+							$o_db = new Db();
+							$q_scanner = $o_db->query("SELECT name FROM ms_scanners WHERE scanner_id = ?", $t_media->get("scanner_id"));
+							if($q_scanner->numRows()){
+								$q_scanner->nextRow();
+									print $q_scanner->get("name");
+							}
 						}
 					break;
 					# ------------------------------
@@ -90,6 +102,10 @@
 				switch($vs_field){
 					case "facility_id":
 						print "Scanner facility";
+					break;
+					# -------------------------
+					case "scanner_id":
+						print "Scanner used";
 					break;
 					# -------------------------
 					default:
