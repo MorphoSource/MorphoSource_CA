@@ -308,17 +308,26 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => _t('Wedge'), 'DESCRIPTION' => _t('Scanner wedge.'),
 				'BOUNDS_LENGTH' => array(0,45)
 		),
-		'scanner_calibration_check' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => 0,
-				'LABEL' => _t('Calibration check'), 'DESCRIPTION' => _t('Scanner calibration check'),
-				"BOUNDS_CHOICE_LIST"=> array(
-					_t('-') 	=> 0,
-					_t('Option 1') 	=> 1,
-					_t('Option 2')	=> 2
-				)
+		'scanner_calibration_shading_correction' => array(
+				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
+				"DISPLAY_WIDTH" => 1, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => 0, 
+				"DEFAULT" => 0,
+				"LABEL" => "Shading Correction", "DESCRIPTION" => "When checked, indicates the scanner's shading correction was calibrated."
+		),
+		'scanner_calibration_flux_normalization' => array(
+				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
+				"DISPLAY_WIDTH" => 1, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => 0, 
+				"DEFAULT" => 0,
+				"LABEL" => "Flux Normalization", "DESCRIPTION" => "When checked, indicates the scanner's flux normalization was calibrated."
+		),
+		'scanner_calibration_geometric_calibration' => array(
+				"FIELD_TYPE" => FT_BIT, "DISPLAY_TYPE" => DT_CHECKBOXES, 
+				"DISPLAY_WIDTH" => 1, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => 0, 
+				"DEFAULT" => 0,
+				"LABEL" => "Geometric Calibration", "DESCRIPTION" => "When checked, indicates the scanner's geometric calibration was calibrated."
 		),
 		'scanner_calibration_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 

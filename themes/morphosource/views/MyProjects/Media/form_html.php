@@ -21,9 +21,9 @@ if (!$this->request->isAjax()) {
 }
 # --- formatting variables
 # --- all fields in float_fields array  will be floated to the left
-$va_float_fields = array("scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "created_on", "approval_status");
+$va_float_fields = array("scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_flux_normalization", "scanner_calibration_geometric_calibration", "created_on", "approval_status");
 # --- all fields in clear_fields array  will have a clear output after them
-$va_clear_fields = array("scanner_z_resolution", "scanner_watts", "scanner_wedge", "approval_status");
+$va_clear_fields = array("scanner_z_resolution", "scanner_watts", "scanner_wedge", "approval_status", "scanner_calibration_description");
 
 ?>
 	<div id='formArea'>
@@ -110,6 +110,13 @@ if (!$this->request->isAjax()) {
 					print "<div style='float: right; width: 125px;'>".caHTMLCheckboxInput("updatePreviews", array('value' => '1'))." Update preview icons only</div>";
 				}
 				print "</div>";
+			break;
+			# -----------------------------------------------
+			case "scanner_calibration_shading_correction":
+				# --- make a subheading over the calibration check boxes
+				print "<div style='padding-left:10px;'><b>Calibration options</b></div>";
+				$vs_suffix = $t_item->getFieldInfo($vs_f, 'SUFFIX');
+				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT {$vs_suffix}</div>");
 			break;
 			# -----------------------------------------------
 			default:
