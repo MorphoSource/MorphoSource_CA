@@ -544,6 +544,7 @@ styles for original hp layout
 	width: 190px;
 	padding: 0px;
 	margin: 0px;
+	line-height:1.2em;
 }
 #mediaListings .projectMedia a{
 	color:#689899;
@@ -559,6 +560,7 @@ styles for original hp layout
 
 #dashboardMedia .projectMediaSlideCaption {
 	padding: 2px;
+	line-height:1.2em;
 }
 
 #dashboardMedia .projectMediaPlaceholder {

@@ -52,7 +52,7 @@
 <?php	
 		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 		foreach($va_fields as $vs_field => $va_field_attr){
-			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction")) || $t_media->get($vs_field))){
+			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction", "scanner_wedge")) || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";
 				print "<div class='listItemRightCol ltBlueText'>";
 				switch($vs_field){
@@ -106,6 +106,14 @@
 					case "scanner_type":
 					case "scanner_calibration_check":
 						print $t_media->getChoiceListValue($vs_field, $t_media->get($vs_field));
+					break;
+					# ------------------------------
+					case "scanner_wedge":
+						if($t_media->get($vs_field)){
+							print $t_media->get($vs_field);
+						}else{
+							print "air";
+						}
 					break;
 					# ------------------------------
 					default:

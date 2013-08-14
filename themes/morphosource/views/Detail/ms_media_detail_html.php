@@ -139,7 +139,7 @@ if ($this->request->isLoggedIn()) {
 	$va_fields = $t_media->getFormFields();
 	$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
 	foreach($va_fields as $vs_field => $va_field_attr){
-		if(in_array($vs_field, $va_media_display_fields) && ($vs_field == "scanner_calibration_shading_correction" || $t_media->get($vs_field))){
+		if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("scanner_wedge", "scanner_calibration_shading_correction")) || $t_media->get($vs_field))){
 			switch($vs_field){
 				case "facility_id":
 					if($t_media->get("facility_id")){
@@ -181,6 +181,11 @@ if ($this->request->isLoggedIn()) {
 					}else{
 						print "No calibrations are listed";
 					}
+					print "<br/>";
+				break;
+				# ------------------------------
+				case "scanner_wedge":
+					print "<b>".$va_field_attr["LABEL"].": </b>".(($t_media->get($vs_field)) ? $t_media->get($vs_field) : "air");
 					print "<br/>";
 				break;
 				# ------------------------------
