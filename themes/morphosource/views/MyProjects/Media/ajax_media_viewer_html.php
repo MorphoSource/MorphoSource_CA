@@ -42,11 +42,13 @@
 	switch($vs_mimetype = $t_media->getMediaInfo("media", "original", "MIMETYPE")) {
 		case 'application/stl':
 		case 'application/surf':
+			print "<div id='msMediaOverlayLegend'><b>tip:</b> Shift scroll to zoom in/out</div>";
 			print $t_media->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
 			$vb_would_like_webgl = true;
 			$vb_show_progress_bar = true;
 			break;
 		case 'application/ply':		// We could also load the original PLY here but the 3d viewer won't render textures for it so we'll use STL instead
+			print "<div id='msMediaOverlayLegend'><b>tip:</b> Shift scroll to zoom in/out</div>";
 			print $t_media->getMediaTag('media', 'stl', array('viewer_width' => '1000', 'viewer_height' => '800', 'background_color' => '#cccccc', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress'));
 			$vb_would_like_webgl = true;
 			$vb_show_progress_bar = true;

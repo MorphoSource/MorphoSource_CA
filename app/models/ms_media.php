@@ -119,9 +119,13 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => "UNKNOWN",
 				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen depicted by media'),
 				"BOUNDS_CHOICE_LIST"=> array(
+					"Not Applicable" => "NA",
 					"Unknown" => "UNKNOWN",
 					"Left" => "LEFT",
-					"Right" => "RIGHT"
+					"Right" => "RIGHT",
+					"Ventril" => "Ventril",
+					"Dorsal" => "Dorsal",
+					"Sagital" => "Sagital"
 				)
 		),
 		'notes' => array(
