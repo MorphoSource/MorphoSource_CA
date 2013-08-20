@@ -49,8 +49,8 @@
  			}
  			$this->opo_project = new ms_projects();
  			# --- is there a project already selected, are we selecting a project, or should we default to the list of user's projects
- 			$vn_project_id = $this->request->getParameter('project_id', pInteger);
- 			if($vn_project_id){
+ 			$vn_select_project_id = $this->request->getParameter('select_project_id', pInteger);
+ 			if($vn_select_project_id){
  				# --- select project
  				msSelectProject($this, $this->request);
  			}

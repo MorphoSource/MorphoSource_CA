@@ -16,8 +16,9 @@
 		while($q_listings->nextRow()){
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'>";
-			# --- only show edit/delete links for facilities created by this project
-			if($q_listings->get("project_id") == $pn_project_id){
+			# --- only show edit/delete links for records created by this project or projects the user has access to
+			$t_project = new ms_projects();
+			if(($q_listings->get("project_id") == $this->getVar("project_id")) || $t_project->isMember($this->request->user->get("user_id"), $q_listings->get("project_id"))){
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			}else{

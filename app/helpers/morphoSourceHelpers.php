@@ -43,7 +43,7 @@
 	  */
 	function msSelectProject($o_controller, $o_request, $pn_project_id="") {
 		if(!$pn_project_id){
-			$pn_project_id = $o_request->getParameter('project_id', pInteger);
+			$pn_project_id = $o_request->getParameter('select_project_id', pInteger);
 		}
 		$t_project = new ms_projects($pn_project_id);
 		if (!$t_project->getPrimaryKey()) {

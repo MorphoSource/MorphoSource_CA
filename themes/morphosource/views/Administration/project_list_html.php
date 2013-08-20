@@ -112,7 +112,7 @@
 					<?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?>
 				</td>
 				<td>
-					<?php print caNavButton($this->request, '', _t("Edit"), 'MyProjects', 'Dashboard', 'dashboard', array('project_id' => $t_project->get('project_id')), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
+					<?php print caNavButton($this->request, '', _t("Edit"), 'MyProjects', 'Dashboard', 'dashboard', array('select_project_id' => $t_project->get('project_id')), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
 				</td>
 			</tr>
 <?php

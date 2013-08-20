@@ -82,14 +82,14 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Storage used by project'), 'DESCRIPTION' => _t('Total storage used by project, in bytes.'),
 		),
 		'publication_status' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 0,
-				'LABEL' => _t('Publication status'), 'DESCRIPTION' => _t('Publication status'),
+				'LABEL' => _t('Publish project details?'), 'DESCRIPTION' => _t('Would you like your project name, description and members made publicly available on Morphosource?'),
 				"BOUNDS_CHOICE_LIST"=> array(
-					_t('Unpublished') 	=> 0,
-					_t('Pubished')	=> 1
+					_t('Keep project information private') 	=> 0,
+					_t('Publish project details')	=> 1
 				)
 		),
 		'created_on' => array(

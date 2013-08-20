@@ -55,7 +55,7 @@
 			print "<div id='specimenDetailInfoContainer'>";
 		}
 		if($vb_show_edit_link){
-			print "<div style='float:right; padding:0px 0px 0px 15px;'>".caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", "Specimens", "form", array("specimen_id" => $t_specimen->get("specimen_id"), "project_id" => $t_specimen->get("project_id")))."</div>";
+			print "<div style='float:right; padding:0px 0px 0px 15px;'>".caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", "Specimens", "form", array("specimen_id" => $t_specimen->get("specimen_id"), "select_project_id" => $t_specimen->get("project_id")))."</div>";
 		}
 ?>
 		<H2>Specimen Information</H2>

@@ -60,8 +60,8 @@
  			}
  			$this->opo_project = new ms_projects();
 			# --- is there a project already selected, are we selecting a project
-			$vn_project_id = $this->request->getParameter('project_id', pInteger);
-			if($vn_project_id){
+			$vn_select_project_id = $this->request->getParameter('select_project_id', pInteger);
+			if($vn_select_project_id){
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
@@ -83,8 +83,9 @@
 			$this->ops_read_only = 0;
 			if($this->opn_item_id){
 				$this->opo_item->load($this->opn_item_id);
-				# --- check if the specimen is part of the current project
-				if($this->opo_item->get("project_id") != $this->opn_project_id){
+				# --- check if the record is part of the current project or a project the user has access to
+				$t_project = new ms_projects();
+				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
 					$this->ops_read_only = 1;
 					#$this->notification->addNotification("The specimen record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
 					#$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				

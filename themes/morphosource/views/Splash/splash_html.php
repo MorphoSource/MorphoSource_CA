@@ -78,7 +78,7 @@
 <?php
 					foreach($va_projects as $va_project){
 						print '<div class="projectListItem"><div class="date">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
-						print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("project_id" => $va_project["project_id"]));
+						print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
 						print '</div><!-- end projectListItem -->';
 					}
 ?>

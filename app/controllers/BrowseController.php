@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class BrowseController extends ActionController {
@@ -46,6 +47,8 @@
  			
  			# --- check for last browse so can load it
  			$this->view->setvar("browse_institution_id", $this->request->session->getVar("browse_institution_id"));
+ 			$this->view->setvar("browse_bibref_id", $this->request->session->getVar("browse_bibref_id"));
+ 			$this->view->setvar("browse_project_id", $this->request->session->getVar("browse_project_id"));
  			$this->view->setvar("browse_genus", $this->request->session->getVar("browse_genus"));
  			$this->view->setvar("browse_species", $this->request->session->getVar("browse_species"));
  		}
@@ -78,13 +81,31 @@
 			}
  		}
  		# -------------------------------------------------------
+ 		function bibliographyList(){
+			$o_db = new Db();
+			$q_bib = $o_db->query("SELECT b.bibref_id from ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id ORDER BY b.authors");
+			$this->view->setvar("bibliography", $q_bib);
+			$this->render('Browse/bibliography_list_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		function projectList(){
+			$o_db = new Db();
+			$q_projects = $o_db->query("SELECT project_id, name, abstract from ms_projects WHERE publication_status = 1 ORDER BY name");
+			$this->view->setvar("projects", $q_projects);
+			$this->render('Browse/project_list_html.php');
+ 		}
+ 		# -------------------------------------------------------
  		function specimenResults(){
- 			# --- accepts institution_id or taxonomy
+ 			# --- accepts institution_id, taxonomy, bibref_if
  			$pn_institution_id = $this->request->getParameter('institution_id', pInteger);
+ 			$pn_bibref_id = $this->request->getParameter('bibref_id', pInteger);
+ 			$pn_project_id = $this->request->getParameter('project_id', pInteger);
  			$ps_genus = $this->request->getParameter('genus', pString);
  			$ps_species = $this->request->getParameter('species', pString);
  			# --- save these as session vars so we can recreate the last browse
  			$this->request->session->setVar("browse_institution_id", $pn_institution_id);
+ 			$this->request->session->setVar("browse_bibref_id", $pn_bibref_id);
+ 			$this->request->session->setVar("browse_project_id", $pn_project_id);
  			if(!$ps_species){
  				$this->request->session->setVar("browse_genus", $ps_genus);
  			}
@@ -93,6 +114,10 @@
 			$o_db = new Db();
 			if($pn_institution_id){
  				$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE institution_id = ? order by institution_code, collection_code, catalog_number", $pn_institution_id);
+ 			}elseif($pn_bibref_id){
+ 				$q_specimens = $o_db->query("SELECT s.specimen_id FROM ms_specimens_x_bibliography sxb INNER JOIN ms_specimens AS s ON sxb.specimen_id = s.specimen_id WHERE sxb.bibref_id = ? order by s.institution_code, s.collection_code, s.catalog_number", $pn_bibref_id);
+ 			}elseif($pn_project_id){
+ 				$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE project_id = ? order by institution_code, collection_code, catalog_number", $pn_project_id);
  			}elseif($ps_genus){
  				$q_specimens = $o_db->query("SELECT s.specimen_id FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn ON tn.alt_id = sxt.alt_id INNER JOIN ms_specimens s ON sxt.specimen_id = s.specimen_id WHERE tn.genus = ? order by s.institution_code, s.collection_code, s.catalog_number", $ps_genus);
  			}elseif($ps_species){
