@@ -5,7 +5,7 @@
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1>
-		<div style="float:right;"><a href="#" class="button buttonLarge" onclick="jQuery('#formArea').load('<?php print caNavUrl($this->request, 'MyProjects', 'Members', 'lookUpMember'); ?>', function() { $('#formArea').show('slide'); }); return false;"><?php print _t("Add Member"); ?></a></div>
+		<div style="float:right;"><a href="#" class="button buttonLarge" onclick="jQuery('#formArea').load('<?php print caNavUrl($this->request, 'MyProjects', 'Members', 'lookUpMember'); ?>', function() { $('#formArea').show('slide'); }); return false;"><?php print _t("Add Members"); ?></a></div>
 		<?php print _t("Project Members"); ?>
 	</H1>
 <?php

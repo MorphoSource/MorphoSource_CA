@@ -82,41 +82,48 @@
  		}
  		# -------------------------------------------------------
  		public function lookUpMember() {
+			$this->view->setVar("member_email", $this->request->getParameter('member_email', pString));
 			if($this->request->getParameter('form_submitted', pInteger)){
-				$va_errors = array();
 				$o_purifier = new HTMLPurifier();
+				$va_errors = array();
 				$ps_member_email = $o_purifier->purify($this->request->getParameter('member_email', pString));
-				
-				# --- check vars are set and email addresses are valid
 				if(!$ps_member_email){
-					$va_errors["member_email"] = _t("Please enter a valid email address");
+					$va_errors["member_email"] = "Please enter an email address";
 				}else{
-					$ps_member_email = trim($ps_member_email);
-					if(!caCheckEmailAddress($ps_member_email)){
-						$ps_member_email = "";
-						$va_errors["member_email"] = _t("Please enter a valid email address");
-					}else{
-						# --- get the user id of the member if they are already registered in MorphoSource
-						$t_user = new ca_users();
-						$t_user->load(array("email" => $ps_member_email));
-						$pn_member_user_id = $t_user->get("user_id");
-						$ps_member_fname = $t_user->get("fname");
-						$ps_member_lname = $t_user->get("lname");
-						# --- if member exists, check if member is already linked to this project
-						
-						if($this->opo_project_users->load(array("user_id" => $pn_member_user_id, "project_id" => $this->opn_project_id))){
-							$va_errors["member_email"] = _t("User with email %1 is already a member of this project", $ps_member_email);
+					$va_member_emails = array();
+					$va_member_emails = explode(",",$ps_member_email);
+					$va_new_members = array();
+					$va_existing_members = array();
+					
+					foreach($va_member_emails as $vs_member_email){
+						$vs_member_email = trim($vs_member_email);
+						if(!caCheckEmailAddress($vs_member_email)){
+							$va_errors["member_email"] = $va_errors["member_email"].$vs_member_email._t("is not a valid email address")."<br/>";
+						}else{
+							# --- get the user id of the member if they are already registered in MorphoSource
+							$t_user = new ca_users();
+							$t_user->load(array("email" => $vs_member_email));
+							if($t_user->get("user_id")){
+								# --- if member exists, check if member is already linked to this project							
+								if($this->opo_project_users->load(array("user_id" => $t_user->get("user_id"), "project_id" => $this->opn_project_id))){
+									$va_errors["member_email"] = $va_errors["member_email"]._t("User with email %1 is already a member of this project", $vs_member_email)."<br/>";
+								}else{
+									$va_existing_members[] = array("email" => $vs_member_email, "user_id" => $t_user->get("user_id"), "fname" => $t_user->get("fname"), "lname" => $t_user->get("lname"));
+								}
+							}else{
+								$va_new_members[] = $vs_member_email;
+							}
+													
 						}
 					}
 				}
 				if(sizeof($va_errors)){
+					$this->view->setVar("member_email", $ps_member_email);
 					$this->view->setVar("errors", $va_errors);
 					$this->render('Members/ajax_lookup_member_form_html.php');
 				}else{
-					$this->view->setVar("member_user_id", $pn_member_user_id);
-					$this->view->setVar("member_email", $ps_member_email);
-					$this->view->setVar("member_fname", $ps_member_fname);
-					$this->view->setVar("member_lname", $ps_member_lname);				
+					$this->view->setVar("new_members", $va_new_members);
+					$this->view->setVar("exisiting_members", $va_existing_members);			
 					$this->render('Members/ajax_invite_member_form_html.php');
 				}
 			}else{
@@ -125,101 +132,124 @@
  		}
  		# -------------------------------------------------------
  		public function inviteMember() {
-			$ps_member_email = $this->request->getParameter('member_email', pString);
-			$this->view->setVar("member_email", $ps_member_email);
-			$pn_member_user_id = $this->request->getParameter('member_user_id', pInteger);
-			$this->view->setVar("member_user_id", $pn_member_user_id);
-			if($this->request->getParameter('form_submitted', pInteger)){
-				$va_errors = array();
-				$o_purifier = new HTMLPurifier();
-				$ps_member_lname = $o_purifier->purify($this->request->getParameter('member_lname', pString));
-				$ps_member_fname = $o_purifier->purify($this->request->getParameter('member_fname', pString));
-				$ps_member_message = $o_purifier->purify($this->request->getParameter('member_message', pString));
-				$this->view->setVar("member_message", $ps_member_message);
-				$this->view->setVar("member_fname", $ps_member_fname);
-				$this->view->setVar("member_lname", $ps_member_lname);
-				if(!$pn_member_user_id){
-					# --- check the fname lname has been sent
-					if(!$ps_member_fname){
-						$va_errors["member_fname"] = _t("Please enter the first name of the new member");
-					}
-					if(!$ps_member_lname){
-						$va_errors["member_lname"] = _t("Please enter the last name of the new member");
-					}
-					if(sizeof($va_errors)){
-						$this->view->setVar("errors", $va_errors);
-						$this->render('Members/ajax_invite_member_form_html.php');
-						return;
+			$this->view->setVar("member_email", $this->request->getParameter('member_email', pString));
+			$vs_existing_member_ids = $this->request->getParameter('existing_member_ids', pString);
+			$o_purifier = new HTMLPurifier();
+			$va_errors = array();
+			$va_new_members = array();
+			$ps_member_message = $o_purifier->purify($this->request->getParameter('member_message', pString));
+			$this->view->SetVar("member_message", $ps_member_message);
+			# --- check errors
+			$vn_num_new_members = $this->request->getParameter('num_new_members', pInteger);
+			if($vn_num_new_members){
+				$vn_i = 1;
+				while($vn_i <= $vn_num_new_members){
+					if(!$this->request->getParameter('member_fname'.$vn_i, pString)){
+						$va_errors["member_fname".$vn_i] = "Please enter the first name of the new member";
 					}else{
+						$this->view->setVar("member_fname".$vn_i, $this->request->getParameter('member_fname'.$vn_i, pString));
+					}
+					if(!$this->request->getParameter('member_lname'.$vn_i, pString)){
+						$va_errors["member_lname".$vn_i] = "Please enter the last name of the new member";
+					}else{
+						$this->view->setVar("member_lname".$vn_i, $this->request->getParameter('member_lname'.$vn_i, pString));
+					}
+					$vs_email = $o_purifier->purify($this->request->getParameter('member_email'.$vn_i, pString));
+					$va_new_members[$vs_email] = array("fname" => $o_purifier->purify($this->request->getParameter('member_fname'.$vn_i, pString)), "lname" => $o_purifier->purify($this->request->getParameter('member_lname'.$vn_i, pString)), "email" => $vs_email);
+					$vn_i++;
+				}
+				if(sizeof($va_errors)){
+					$this->view->setVar("invite_errors", $va_errors);
+					$this->lookUpMember();
+					return;
+				}else{
+					# --- insert the new members
+					foreach($va_new_members as $vs_email => $va_new_member_info){
 						# --- add the new member
 						$t_new_user = new ca_users();
 						$t_new_user->setMode(ACCESS_WRITE);
-						$t_new_user->set("fname", $ps_member_fname);
-						$t_new_user->set("lname", $ps_member_lname);
-						$t_new_user->set("email", $ps_member_email);
-						$t_new_user->set("user_name", $ps_member_email);
+						$t_new_user->set("fname", $va_new_member_info["fname"]);
+						$t_new_user->set("lname", $va_new_member_info["lname"]);
+						$t_new_user->set("email", $va_new_member_info["email"]);
+						$t_new_user->set("user_name", $va_new_member_info["email"]);
 						$t_new_user->set("active", 1);
 						$t_new_user->set("userclass", 1);
 						$vn_password = rand();
 						$t_new_user->set("password", $vn_password);
+						$va_new_members[$vs_email]["password"] = $vn_password;
 						$t_new_user->set("confirmed_on", time());
 						$t_new_user->insert();
 						if($t_new_user->numErrors()){
 							$va_errors["general"] = join(", ", $t_new_user->getErrors());
-							$this->render('Members/ajax_invite_member_form_html.php');
+							$this->view->setVar("invite_errors", $va_errors);
+							$this->lookUpMember();
 							return;
 						}else{
-							$pn_member_user_id = $t_new_user->get("user_id");
+							$va_new_members[$vs_email]["user_id"] = $t_new_user->get("user_id");
 						}
 					}
-				}else{
-					$t_new_user = new ca_users($pn_member_user_id);
 				}
-				if($pn_member_user_id && (sizeof($va_errors) == 0)){				
-					# --- insert link btw user and project
-					$this->opo_project_users->setMode(ACCESS_WRITE);
-					$this->opo_project_users->set("user_id", $pn_member_user_id);
-					$this->opo_project_users->set("project_id", $this->opo_project->get("project_id"));
-					$this->opo_project_users->set("membership_type", 1);
-					$this->opo_project_users->set("active", 1);
-					$this->opo_project_users->insert();
-					if($this->opo_project_users->numErrors()){
-						$va_errors["general"] = join(", ", $this->opo_project_users->getErrors());
-						$this->render('Members/ajax_invite_member_form_html.php');
-						return;
+			}
+			# --- if there are also existing members that need to be contacted and linked to project, add them to the $va_new_members array
+			if($vs_existing_member_ids){
+				$va_existing_member_ids = explode(",", $vs_existing_member_ids);
+				$t_user = new ca_users();
+				foreach($va_existing_member_ids as $vn_existing_member_id){
+					$t_user->load($vn_existing_member_id);
+					$va_new_members[$t_user->get("email")] = array("fname" => $t_user->get("fname"), "lname" => $t_user->get("lname"), "email" => $t_user->get("email"), "user_id" => $t_user->get("user_id"));
+				}
+			}
+			# --- get name and email of project admin to use as from info for email
+			$o_db = new Db();
+			$q_project_admin = $o_db->query("SELECT u.lname, u.fname, u.email FROM ca_users u INNER JOIN ms_projects p ON p.user_id = u.user_id WHERE p.project_id = ?", $this->opo_project->get("project_id"));
+			if($q_project_admin->numRows()){
+				$q_project_admin->nextRow();
+				$vs_from_name = trim($q_project_admin->get("fname")." ".$q_project_admin->get("lname"));
+				$vs_from_email = $q_project_admin->get("email");
+			}
+			foreach($va_new_members as $va_new_member_info){				
+				# --- insert link btw user and project
+				$t_project_users = new ms_project_users();
+				$t_project_users->setMode(ACCESS_WRITE);
+				$t_project_users->set("user_id", $va_new_member_info["user_id"]);
+				$t_project_users->set("project_id", $this->opo_project->get("project_id"));
+				$t_project_users->set("membership_type", 1);
+				$t_project_users->set("active", 1);
+				$t_project_users->insert();
+				if($t_project_users->numErrors()){
+					$va_errors["general"] = join(", ", $t_project_users->getErrors());
+					$this->view->setVar("invite_errors", $va_errors);
+					$this->lookUpMember();
+					return;
+				}else{
+					$vs_member_name = trim($va_new_member_info["fname"]." ".$va_new_member_info["lname"]);
+					$vn_password = $va_new_member_info["password"];
+					# -- generate mail text from template - get both html and text versions
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/invite_member.tpl");
+					$vs_mail_message_text = ob_get_contents();
+					ob_end_clean();
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/invite_member_html.tpl");
+					$vs_mail_message_html = ob_get_contents();
+					ob_end_clean();
+									
+					if(caSendmail($va_new_member_info["email"], array($vs_from_email => $vs_from_name), _t("Invitation to MorphoSource Project"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+						$vn_email_success = 1;
 					}else{
-						# --- get name and email of project admin to use as from info for email
-						$o_db = new Db();
-						$q_project_admin = $o_db->query("SELECT u.lname, u.fname, u.email FROM ca_users u INNER JOIN ms_projects p ON p.user_id = u.user_id WHERE p.project_id = ?", $this->opo_project->get("project_id"));
-						if($q_project_admin->numRows()){
-							$q_project_admin->nextRow();
-							$vs_from_name = trim($q_project_admin->get("fname")." ".$q_project_admin->get("lname"));
-							$vs_from_email = $q_project_admin->get("email");
-						}
-						$vs_member_name = trim($t_new_user->get("fname")." ".$t_new_user->get("lname"));
-						# -- generate mail text from template - get both html and text versions
-						ob_start();
-						require($this->request->getViewsDirectoryPath()."/mailTemplates/invite_member.tpl");
-						$vs_mail_message_text = ob_get_contents();
-						ob_end_clean();
-						ob_start();
-						require($this->request->getViewsDirectoryPath()."/mailTemplates/invite_member_html.tpl");
-						$vs_mail_message_html = ob_get_contents();
-						ob_end_clean();
-										
-						if(caSendmail($ps_member_email, array($vs_from_email => $vs_from_name), _t("Invitation to MorphoSource Project"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
-							$this->notification->addNotification(_t("The new member has been added to your project and sent an email notification."), "message");
-						}else{
-							$this->notification->addNotification(_t("The new member has been added to your project, but the notification email could not be sent."), "message");
-							$va_errors_email_set["email"] = 1;
-						}
-						# --- returning nothing will trigger redirect to reload list of project members showing newly added member
-						return;
+						$vn_email_fail = 1;
 					}
-				}	
-			}else{
-				$this->render('Members/ajax_invite_member_form_html.php');
-			} 		
+				}
+			}				
+			if($vn_email_success){
+				$this->notification->addNotification(_t("The new member has been added to your project and sent an email notification."), "message");
+				
+			}
+			if($vn_email_fail){
+				$this->notification->addNotification(_t("The new member has been added to your project, but the notification email could not be sent."), "message");		
+			}
+			# --- returning nothing will trigger redirect to reload list of project members showing newly added member
+			return;
  		}
  		# -------------------------------------------------------
  		public function delete() {
