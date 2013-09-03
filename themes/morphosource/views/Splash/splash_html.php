@@ -62,6 +62,10 @@
 <?php
 		}
 ?>
+			<div id="hpFunding">
+				This is project funded by Duke University Trinity College of Arts and Sciences and by NSF grants to D. M. Boyer, E. R. Seiffert, and E. M. StClair (NSF BCS 1317525, 1304045)
+				<br/><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/nsf-logo-small.jpg"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/Duke-insignia-small.jpg">
+			</div><!-- end hpFunding -->
 		</div><!-- end hpfeatures -->
 		<div id="hpStats">
 			<div id="hpStatsCol2">
