@@ -2,7 +2,24 @@
 	</div><!-- end pageArea -->
 </div><!-- end contentArea -->
 <div id="footer">
-	<div style="float: right;"><em>Commercial use of MorphoSource media is strictly prohibited.</em></div>
+	<div style="float: right;">
+		<em>Commercial use of MorphoSource media is strictly prohibited.</em>
+<?php
+		if($this->request->getController() == "Splash"){
+?>
+			<div id="hpFunding" class="fundingText">
+				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/nsf-logo-small.jpg"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/Duke-insignia-small.jpg">
+<?php
+				 TooltipManager::add(
+					".fundingText", "<div style='padding:10px; font-size:11px; width:250px;'>This project is funded by Duke University Trinity College of Arts and Sciences and by NSF grants to D. M. Boyer, E. R. Seiffert, and E. M. StClair (NSF BCS 1317525, 1304045)</div>"
+				);
+?>
+				<div style="clear:both;"><!-- empty --></div>
+			</div><!-- end hpFunding -->
+<?php
+		}
+?>
+	</div>
 	<ul>
 <?php
 		if($this->request->isLoggedIn()){
