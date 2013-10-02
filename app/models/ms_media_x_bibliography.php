@@ -65,7 +65,7 @@ BaseModel::$s_ca_models_definitions['ms_media_x_bibliography'] = array(
 				'LABEL' => 'User id', 'DESCRIPTION' => 'User id'
 		),
 		'pp' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_OMIT, 
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',

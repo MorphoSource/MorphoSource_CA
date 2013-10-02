@@ -10,9 +10,9 @@
 	
 	# --- formatting varibales
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("article_title", "article_secondary_title", "journal_title", "monograph_title", "secondary_authors", "editors", "vol", "num", "edition", "publisher", "pubyear", "place_of_publication", "collation", "sect", "worktype", "isbn", "url", "external_identifier", "electronic_resource_num", "language", "keywords", "created_on", "last_modified_on");
+	$va_float_fields = array("article_title", "article_secondary_title", "journal_title", "monograph_title", "secondary_authors", "editors", "vol", "num", "edition", "publisher", "pubyear", "place_of_publication", "collation", "sect", "worktype", "pp", "isbn", "url", "external_identifier", "electronic_resource_num", "language", "keywords", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("article_secondary_title", "monograph_title", "editors", "edition", "place_of_publication", "worktype", "url", "electronic_resource_num", "keywords", "last_modified_on");
+	$va_clear_fields = array("article_secondary_title", "monograph_title", "editors", "edition", "place_of_publication", "pp", "url", "electronic_resource_num", "keywords", "last_modified_on");
 	
 if (!$this->request->isAjax()) {
 ?>
@@ -78,9 +78,9 @@ if (!$this->request->isAjax()) {
 	if($pn_specimen_id){
 		print "<input type='hidden' value='".$pn_specimen_id."' name='specimen_id'>";
 	}
-	if($pn_media_id || $pn_specimen_id){
-		print "<div class='formLabel'>Page(s)<br/><input type='text' name='page' style='width:40px;'></div>";	
-	}
+#	if($pn_media_id || $pn_specimen_id){
+#		print "<div class='formLabel'>Page(s)<br/><input type='text' name='page' style='width:40px;'></div>";	
+#	}
 ?>
 	<div class="formButtons tealTopBottomRule">
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#bibItemForm').submit(); return false;"><?php print _t("Save"); ?></a>

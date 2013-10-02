@@ -83,7 +83,7 @@
 						<input type="password" name="password" value="" maxlength="100"/>
 					</div>
 					<div style="margin-top:10px;"><b><?php print _t("Confirm new password"); ?></b><br/>
-						<input type="password" name="password_confirm" value="" maxlength="100"/> <a href="#" class="button" onclick="document.forms.reset_password.submit(); return false;"><?php print _t("Save"); ?> &gt;</a>
+						<input type="password" name="password_confirm" value="" maxlength="100"/> <a href="#" class="button buttonSmall" onclick="document.forms.reset_password.submit(); return false;"> <?php print _t("Save"); ?> </a>
 					</div>
 					<input type="hidden" name="action" value="reset_save">
 					<input type="hidden" name="key" value="<?php print $this->getVar("key"); ?>">

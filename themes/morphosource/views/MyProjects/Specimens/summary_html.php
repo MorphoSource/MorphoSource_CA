@@ -26,7 +26,7 @@
 		# list out bib citations
 		 	$va_bib_citations = array();
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp FROM ms_specimens_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.specimen_id = ?", $t_item->get("specimen_id"));
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_specimens_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.specimen_id = ?", $t_item->get("specimen_id"));
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					$vn_bib = 1;
@@ -38,9 +38,9 @@
  					while($q_bib->nextRow()){
  						print "<div class='listItemLtBlue'>";
  						print $t_bibliography->getCitationText($q_bib->getRow());
- 						if($q_bib->get("pp")){
-							print "<br/>Page(s): ".$q_bib->get("pp");
-						}
+ 						#if($q_bib->get("pp")){
+						#	print "<br/>Page(s): ".$q_bib->get("pp");
+						#}
  						print "</div>";
  					}
  ?>

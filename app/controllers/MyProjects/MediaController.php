@@ -445,11 +445,11 @@
  			$va_bib_citations = array();
  			if($this->opn_item_id){
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					while($q_bib->nextRow()){
- 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "page" => $q_bib->get("pp"), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
+ 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
  				$this->view->setVar("bib_citations", $va_bib_citations);
@@ -462,50 +462,97 @@
  		public function linkBibliography() {
 			$va_errors = array();
 			$vs_message = "";
-			# --- make link to bib that is passed from lookup form
-			if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
-				$t_bib_link = new ms_media_x_bibliography();
-				# --- check that there is not already a link to this bib ref
-				if($t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $this->opn_item_id))){
-					$va_errors["general"] = "There is already a link to this bibliographic citation";
-				}else{
-					$t_bib_link->set("bibref_id",$pn_bibliography_id);
-					$t_bib_link->set("media_id",$this->opn_item_id);
-					$t_bib_link->set("user_id",$this->request->user->get("user_id"));
-					if($vs_page = $this->request->getParameter('page', pString)){
-						$t_bib_link->set("pp",$vs_page);
+			# --- if no media_id is passed, we are on the list form and linking a bib to all project media
+			if(!$this->opn_item_id){
+				if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
+					# --- get all project media to link
+					$o_db = new Db();
+ 					$q_project_media = $o_db->query("SELECT media_id FROM ms_media WHERE project_id = ?", $this->opn_project_id);
+					if($q_project_media->numRows()){
+						while($q_project_media->nextRow()){
+							$va_item_errors = array();
+							$t_bib_link = new ms_media_x_bibliography();
+							# --- check that there is not already a link to this bib ref
+							if(!$t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $q_project_media->get("media_id")))){
+								$t_bib_link->set("bibref_id",$pn_bibliography_id);
+								$t_bib_link->set("media_id",$q_project_media->get("media_id"));
+								$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+								if ($t_bib_link->numErrors() > 0) {
+									foreach ($t_bib_link->getErrors() as $vs_e) {
+										$va_item_errors["bibliography_id"] = $va_item_errors["bibliography_id"].$vs_e;
+									}
+								}
+								if (sizeof($va_item_errors) == 0) {
+									# do insert
+									$t_bib_link->setMode(ACCESS_WRITE);
+									$t_bib_link->insert();
+						
+									if ($t_bib_link->numErrors()) {
+										foreach ($t_bib_link->getErrors() as $vs_e) {  
+											$va_errors["general"] = $va_errors["general"]."M".$q_project_media->get("media_id")." ".$vs_e.", ";
+										}
+									}
+								}
+							}	
+						}
+						if(sizeof($va_errors) > 0){
+							$vs_message = "There were errors:".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+							$this->view->setVar("message", $vs_message);
+						}else{
+							$this->view->setVar("message", "Citation was linked to all project media");
+						} 
+						
 					}
-					if ($t_bib_link->numErrors() > 0) {
-						foreach ($t_bib_link->getErrors() as $vs_e) {
-							$va_errors["bibliography_id"] = $vs_e;
+				}else{
+					$this->view->setVar("message", _t("Please select a bibliography"));
+				}
+				$this->bibliographyLookup();
+			}else{			
+				# --- make link to bib that is passed from lookup form
+				if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
+					$t_bib_link = new ms_media_x_bibliography();
+					# --- check that there is not already a link to this bib ref
+					if($t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $this->opn_item_id))){
+						$va_errors["general"] = "There is already a link to this bibliographic citation";
+					}else{
+						$t_bib_link->set("bibref_id",$pn_bibliography_id);
+						$t_bib_link->set("media_id",$this->opn_item_id);
+						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+						#if($vs_page = $this->request->getParameter('page', pString)){
+						#	$t_bib_link->set("pp",$vs_page);
+						#}
+						if ($t_bib_link->numErrors() > 0) {
+							foreach ($t_bib_link->getErrors() as $vs_e) {
+								$va_errors["bibliography_id"] = $vs_e;
+							}
 						}
 					}
-				}
-			}else{
-				$va_errors["general"] = _t("Please select a bibliography");
-			}		
-			if (sizeof($va_errors) == 0) {
-				# do insert
-				$t_bib_link->setMode(ACCESS_WRITE);
-				$t_bib_link->insert();
-	
-				if ($t_bib_link->numErrors()) {
-					foreach ($t_bib_link->getErrors() as $vs_e) {  
-						$va_errors["general"] = $vs_e;
-					}
 				}else{
-					$vs_message = "Saved media bibliography";
+					$va_errors["general"] = _t("Please select a bibliography");
+				}		
+				if (sizeof($va_errors) == 0) {
+					# do insert
+					$t_bib_link->setMode(ACCESS_WRITE);
+					$t_bib_link->insert();
+		
+					if ($t_bib_link->numErrors()) {
+						foreach ($t_bib_link->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$vs_message = "Saved media bibliography";
+					}
 				}
+				if(sizeof($va_errors) > 0){
+					$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+					$this->view->setVar("message", $vs_message);
+					$this->bibliographyLookup();
+				}else{
+					$this->opn_item_id = $this->opo_item->get("media_id");
+					$this->view->setVar("message", $vs_message);
+					$this->bibliographyLookup();
+				} 			 		
 			}
-			if(sizeof($va_errors) > 0){
-				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
-				$this->view->setVar("message", $vs_message);
-				$this->bibliographyLookup();
-			}else{
-				$this->opn_item_id = $this->opo_item->get("media_id");
-				$this->view->setVar("message", $vs_message);
-				$this->bibliographyLookup();
-			} 			 		
  		}
  		# -------------------------------------------------------
  		public function removeBibliography() {
@@ -521,6 +568,56 @@
 				}
  			}
  			$this->bibliographyLookup();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function batchMediaCitationInstructions() {
+ 			$va_errors = array();
+			$vs_message = "";
+			$ps_citation_instruction1 = $this->request->getParameter('media_citation_instruction1', pString);
+			$ps_citation_instruction2 = $this->request->getParameter('media_citation_instruction2', pString);
+			$ps_citation_instruction3 = $this->request->getParameter('media_citation_instruction3', pString);
+ 			if($ps_citation_instruction1 && $ps_citation_instruction3){
+				# --- get all project media to link
+				$o_db = new Db();
+				$q_project_media = $o_db->query("SELECT media_id FROM ms_media WHERE project_id = ?", $this->opn_project_id);
+				if($q_project_media->numRows()){
+					$va_item_errors = array();
+					$t_media = new ms_media();
+					while($q_project_media->nextRow()){
+						$t_media->load($q_project_media->get("media_id"));
+						$t_media->set(media_citation_instruction1, $ps_citation_instruction1);
+						$t_media->set(media_citation_instruction2, $ps_citation_instruction2);
+						$t_media->set(media_citation_instruction3, $ps_citation_instruction3);
+						if ($t_media->numErrors() > 0) {
+							foreach ($t_media->getErrors() as $vs_e) {
+								$va_item_errors[] = $vs_e;
+							}
+						}
+						if (sizeof($va_item_errors) == 0) {
+							# do update
+							$t_media->setMode(ACCESS_WRITE);
+							$t_media->update();
+						
+							if ($t_media->numErrors()) {
+								foreach ($t_media->getErrors() as $vs_e) {  
+									$va_errors["general"] = $va_errors["general"]."M".$q_project_media->get("media_id")." ".$vs_e.", ";
+								}
+							}
+						}else{
+							$va_errors["general"] = $va_errors["general"]."M".$q_project_media->get("media_id")." ".implode(", ", $va_item_errors)."; ";
+						}
+					}					
+					if(sizeof($va_errors) > 0){
+						$vs_message = "There were errors:".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+					}else{
+						$vs_message = "Citation Instructions were linked to all project media";
+					} 
+				}
+				$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+			}else{
+				$this->notification->addNotification("You must enter the 1st and 3rd citation fields", __NOTIFICATION_TYPE_INFO__);
+			}
+			$this->listItems();
  		}
  		# -------------------------------------------------------
  		public function delete() {
@@ -576,6 +673,36 @@
 			$this->response->sendContent();
 			return $vn_rc;
 		}
+ 		# -------------------------------------------------------
+ 		public function moveMedia() {
+			if($this->opo_item->get("media_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
+				$this->opo_item->set('project_id', $pn_move_project_id);
+				if (sizeof($va_errors) == 0) {
+					# do update
+					$this->opo_item->setMode(ACCESS_WRITE);
+					$this->opo_item->update();
+					if ($this->opo_item->numErrors()) {
+						foreach ($this->opo_item->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$this->notification->addNotification("Moved ".$this->ops_name_singular." to P".$pn_move_project_id, __NOTIFICATION_TYPE_INFO__);
+					}
+				}
+				if(sizeof($va_errors) > 0){
+					$this->notification->addNotification("Could not move media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+					$this->view->setVar("errors", $va_errors);
+					$this->form();
+				}else{
+					$this->opn_item_id = "";
+					$this->view->setVar("item_id", "");
+					$this->view->setVar("item", new ms_media());
+					$this->listItems();
+				}
+			}else{
+				$this->listItems();
+			}
+ 		}
  		# -------------------------------------------------------
  	}
  ?>

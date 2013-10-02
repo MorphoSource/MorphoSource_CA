@@ -3,6 +3,7 @@
 	$ps_primary_key = $this->getVar("primary_key");
 	$pa_list_fields = $this->getVar("list_fields");
 	$q_listings = $this->getVar("listings");
+	$o_db = new Db();
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1 class="capitalize">
@@ -32,6 +33,43 @@
 						print ' '; //$t_item->getProperty("LIST_DELIMITER");
 					}
 				}
+			}
+			# --- get specimen and media counts linked to this record
+			$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens_x_taxonomy WHERE alt_id = ?", $q_listings->get("alt_id"));
+			if($q_specimens->numRows()){
+				print "<br/>&nbsp;&nbsp;&nbsp;&nbsp;".$q_specimens->numRows()." specimen".(($q_specimens->numRows() == 1) ? "" : "s")." reference".(($q_specimens->numRows() == 1) ? "s" : "")." this taxon in MorphoSource.";
+			}
+			$q_media = $o_db->query("
+				SELECT m.media_id, m.project_id
+				FROM ms_media m
+				INNER JOIN ms_specimens_x_taxonomy AS s ON m.specimen_id = s.specimen_id
+				WHERE s.alt_id = ?
+				", $q_listings->get("alt_id"));
+			$va_project_media = array();
+			$va_other_project_media = array();
+			if($q_media->numRows()){
+				while($q_media->nextRow()){
+					if($q_media->get("project_id") == $this->getVar("project_id")){
+						$va_project_media[] = $q_media->get("media_id");
+					}else{
+						$va_other_project_media[] = $q_media->get("media_id");
+					}
+				}
+			}
+			if(sizeof($va_project_media) || sizeof($va_other_project_media)){
+				print "<br/>&nbsp;&nbsp;&nbsp;&nbsp;";
+			}
+			if(sizeof($va_project_media)){
+				print sizeof($va_project_media)." media within your project";
+			}
+			if(sizeof($va_project_media) && sizeof($va_other_project_media)){
+				print " and ";
+			}
+			if(sizeof($va_other_project_media)){
+				print sizeof($va_other_project_media)." media in other projects";
+			}
+			if(sizeof($va_project_media) || sizeof($va_other_project_media)){
+				print " reference this taxon.";
 			}
 			print '<div style="clear:right;"><!-- empty --></div></div><!-- end itemListings -->';
 		}

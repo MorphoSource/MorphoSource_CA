@@ -137,7 +137,7 @@ if ($this->request->isLoggedIn()) {
 					print "<b>Filesize: </b>".caFormatFilesize($va_properties['PROPERTIES']['filesize'])."<br/>\n";
 					
 	$va_fields = $t_media->getFormFields();
-	$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
+	$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "grant_support", "media_citation_instruction1", "created_on", "last_modified_on");
 	foreach($va_fields as $vs_field => $va_field_attr){
 		if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("scanner_wedge", "scanner_calibration_shading_correction")) || $t_media->get($vs_field))){
 			switch($vs_field){
@@ -189,6 +189,11 @@ if ($this->request->isLoggedIn()) {
 					print "<br/>";
 				break;
 				# ------------------------------
+				case "media_citation_instruction1":
+					print "<b>".$va_field_attr["LABEL"].": </b>".$t_media->getMediaCitationInstructions();
+					print "<br/>";
+				break;
+				# ------------------------------
 				default:
 					print "<b>".$va_field_attr["LABEL"].": </b>".($vs_field_value = $t_media->get($vs_field));
 					if (is_numeric($vs_field_value) && ($vs_suffix = $t_media->getFieldInfo($vs_field, 'SUFFIX'))) {
@@ -210,11 +215,7 @@ if ($this->request->isLoggedIn()) {
 			<div class="unit">
 <?php
 		foreach($va_bib_citations as $vn_link_id => $va_citation_info){
-			print "<div class='mediaDetailcitation'>".$va_citation_info["citation"];
-			if($va_citation_info["page"]){
-				print "<br/>Page(s): ".$va_citation_info["page"];
-			}
-			print "</div>";
+			print "<div class='mediaDetailcitation'>".$va_citation_info["citation"]."</div>";
 		}
 	}
 	print "</div>";

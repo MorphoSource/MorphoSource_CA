@@ -2,7 +2,7 @@
 <h1>Contact</h1>
 <div class="textContent">
 	<div>
-		coming soon...
+		Direct inquires to <a href="mailto:doug.boyer@duke.edu">doug.boyer@duke.edu</a>.
 	</div>
 
 </div>

@@ -13,7 +13,7 @@
 	print caFormTag($this->request, 'linkBibliography', 'specimenBibForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
 	print "<div class='formLabel'>";
 	print "Look up a bibliographic citation".":<br/>".caHTMLTextInput("bibliography_lookup", array("id" => 'msBibliograpnyID', 'class' => 'lookupBg'), array('width' => "200px", 'height' => 1));
-	print "&nbsp;&nbsp;&nbsp;Page(s): <input type='text' style='width:30px;' value='' name='page'>";
+	#print "&nbsp;&nbsp;&nbsp;Page(s): <input type='text' style='width:30px;' value='' name='page'>";
 	print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#specimenBibForm\").submit(); return false;'>"._t("Save")."</a></div>";
 	print "<input type='hidden' value='' name='bibliography_id' id='bibliography_id'>";
 	print "<input type='hidden' value='".$pn_specimen_id."' name='specimen_id'>"
@@ -27,9 +27,9 @@
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onClick='jQuery(\".specimenBibFormContainer\").load(\"".caNavUrl($this->request, "MyProjects", "Specimens", "removeBibliography", array("specimen_id" => $pn_specimen_id, "link_id" => $va_bib_info["link_id"]))."\"); return false;'>Remove</a></div>";			
 			print caNavLink($this->request, $va_bib_info["citation"], "", "MyProjects", "Bibliography", "form", array('bibref_id' => $va_bib_info["bibref_id"]));
-			if($va_bib_info["page"]){
-				print "<br/>Page(s): ".$va_bib_info["page"];
-			}
+			#if($va_bib_info["page"]){
+			#	print "<br/>Page(s): ".$va_bib_info["page"];
+			#}
 			print "</div>";
 		}
 		print "</div>";

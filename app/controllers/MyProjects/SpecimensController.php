@@ -344,11 +344,11 @@
  			$va_bib_citations = array();
  			if($this->opn_item_id){
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp FROM ms_specimens_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.specimen_id = ?", $this->opn_item_id);
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_specimens_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.specimen_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					while($q_bib->nextRow()){
- 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "page" => $q_bib->get("pp"), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
+ 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
  				$this->view->setVar("bib_citations", $va_bib_citations);
@@ -371,9 +371,9 @@
 					$t_bib_link->set("bibref_id",$pn_bibliography_id);
 					$t_bib_link->set("specimen_id",$this->opn_item_id);
 					$t_bib_link->set("user_id",$this->request->user->get("user_id"));
-					if($vs_page = $this->request->getParameter('page', pString)){
-						$t_bib_link->set("pp",$vs_page);
-					}
+					#if($vs_page = $this->request->getParameter('page', pString)){
+					#	$t_bib_link->set("pp",$vs_page);
+					#}
 					if ($t_bib_link->numErrors() > 0) {
 						foreach ($t_bib_link->getErrors() as $vs_e) {
 							$va_errors["bibliography_id"] = $vs_e;

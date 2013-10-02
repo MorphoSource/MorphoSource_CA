@@ -464,7 +464,7 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-				SELECT tn.*, p.name
+				SELECT DISTINCT tn.*, p.name
 				FROM ms_taxonomy_names tn 
 				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.taxon_id = tn.taxon_id
 				LEFT JOIN ms_media AS m ON m.specimen_id = sxt.specimen_id

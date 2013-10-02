@@ -81,6 +81,73 @@
 			$this->render('Members/members_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function setNewAdmin() {
+			if($pn_new_admin_id = $this->request->getParameter('new_admin_id', pInteger)){
+				$t_old_admin = new ca_users($this->opo_project->get("user_id"));
+				$t_new_admin = new ca_users($pn_new_admin_id);
+				$this->opo_project->set('user_id', $pn_new_admin_id);
+				if (sizeof($va_errors) == 0) {
+					# do update
+					$this->opo_project->setMode(ACCESS_WRITE);
+					$this->opo_project->update();
+					if ($this->opo_project->numErrors()) {
+						foreach ($this->opo_project->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}
+				}
+				if(sizeof($va_errors) > 0){
+					$this->notification->addNotification("Could not change project administrator".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+					$this->view->setVar("errors", $va_errors);
+					$this->form();
+				}else{
+					# -- generate mail text from template - get both html and text versions
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/make_admin.tpl");
+					$vs_mail_message_text = ob_get_contents();
+					ob_end_clean();
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/make_admin_html.tpl");
+					$vs_mail_message_html = ob_get_contents();
+					ob_end_clean();
+									
+					if(caSendmail($t_new_admin->get("email"), array($t_old_admin->get("email") => $t_old_admin->get("fname")." ".$t_old_admin->get("lname")), _t("Message from MorphoSource P".$this->opn_project_id), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+						$vs_message = $t_new_admin->get("fname")." ".$t_new_admin->get("lname")." has been notified via email that they are the new project admininstrator";
+					}else{
+						$vs_message = "Project administrator has been changed to ".$t_new_admin->get("fname")." ".$t_new_admin->get("lname");
+					}
+
+					$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_ERROR__);
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "Dashboard"));
+				}
+			}else{
+				$this->notification->addNotification("Could not change the project administrator", __NOTIFICATION_TYPE_ERROR__);
+				$this->listForm();
+			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function addUserManageDownloads() {
+			if($pn_user_id = $this->request->getParameter('user_id', pInteger)){
+				$t_user = new ca_users($pn_user_id);
+				$t_user->addRoles(array("downloads"));
+				$this->notification->addNotification("User will be notified of download requests", __NOTIFICATION_TYPE_ERROR__);			
+			}else{
+				$this->notification->addNotification("Could not add role manage_download_requests - user_id is not defined", __NOTIFICATION_TYPE_ERROR__);
+			}
+			$this->listForm();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function removeUserManageDownloads() {
+			if($pn_user_id = $this->request->getParameter('user_id', pInteger)){
+				$t_user = new ca_users($pn_user_id);
+				$t_user->removeRoles(array("downloads"));
+				$this->notification->addNotification("User will no longer be notified of download requests", __NOTIFICATION_TYPE_ERROR__);			
+			}else{
+				$this->notification->addNotification("Could not remove role manage_download_requests - user_id is not defined", __NOTIFICATION_TYPE_ERROR__);
+			}
+			$this->listForm();
+ 		}
+ 		# -------------------------------------------------------
  		public function lookUpMember() {
 			$this->view->setVar("member_email", $this->request->getParameter('member_email', pString));
 			if($this->request->getParameter('form_submitted', pInteger)){

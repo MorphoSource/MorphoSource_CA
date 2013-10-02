@@ -50,7 +50,7 @@
 			<div style='clear:both;'><!-- empty --></div>
 		</div>
 <?php	
-		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on");
+		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
 		foreach($va_fields as $vs_field => $va_field_attr){
 			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction", "scanner_wedge")) || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";
@@ -116,6 +116,10 @@
 						}
 					break;
 					# ------------------------------
+					case "media_citation_instruction1":
+						print $t_media->getMediaCitationInstructions();
+					break;
+					# ------------------------------
 					default:
 						print ($vs_field_value = $t_media->get($vs_field));
 						if (is_numeric($vs_field_value) && ($vs_suffix = $t_media->getFieldInfo($vs_field, 'SUFFIX'))) {
@@ -165,7 +169,34 @@
 		<H2>Media Bibliography</H2>
 		<div id="mediaBibliographyInfo">
 			<!-- load Bib form here -->
-		</div><!-- end mediaSpecimenInfo -->
+		</div><!-- end mediaBibliographyInfo -->
+<?php
+			$t_projects = new ms_projects();
+			$va_member_projects = $t_projects->getProjectsForMember($this->request->user->get("user_id"));
+			if(sizeof($va_member_projects) > 1){
+?>
+				<div class="tealRule"><!-- empty --></div>
+				<H2>Move Media</H2>
+				<div id="mediaMove">
+<?php
+				print caFormTag($this->request, 'moveMedia', 'mediaMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+				$t_projects->load($t_media->get("project_id"));
+?>
+					This media file is part of <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move file to <select name="move_project_id" style="width:250px;">
+<?php
+				foreach($va_member_projects as $va_member_project){
+					if($va_member_project["project_id"] != $t_media->get("project_id")){
+						print "<option value='".$va_member_project["project_id"]."'>".$va_member_project["name"]."</option>";
+					}
+				}
+?>
+				</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaMoveForm").submit(); return false;'>Move</a>
+				<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
+				</div><!-- end mediaMove --></form>
+<?php
+			}
+?>
+
 	</div><!-- end rightCol -->
 </div><!-- end mediaInfo -->
 

@@ -119,6 +119,17 @@ if (!$this->request->isAjax()) {
 				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT {$vs_suffix}</div>");
 			break;
 			# -----------------------------------------------
+			case "media_citation_instruction1":
+				print "<div class='formLabel'>";
+				print $t_item->htmlFormElement("media_citation_instruction1", "^LABEL<br>^ELEMENT")."<span style='font-weight:normal;'> provided access to these data ".$t_item->htmlFormElement("media_citation_instruction2", "^ELEMENT").", the collection of which was funded by ".$t_item->htmlFormElement("media_citation_instruction3", "^ELEMENT").". The files were downloaded from www.MorphoSource.org, Duke University.";
+				print "</span></div>";
+			break;
+			# -----------------------------------------------
+			case "media_citation_instruction2":
+			case "media_citation_instruction3":
+				continue;
+			break;
+			# -----------------------------------------------
 			default:
 				$vs_suffix = $t_item->getFieldInfo($vs_f, 'SUFFIX');
 				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT {$vs_suffix}</div>");

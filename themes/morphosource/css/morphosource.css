@@ -617,9 +617,12 @@ styles for original hp layout
 	font-family: 'neuzeitlgt', sans-serif;
 	padding-left:10px;
 }
+#mediaMove{
+	padding-left:10px;
+}
 
 /* form */
-#formArea .formLabel{
+#formArea .formLabel, .formLabel{
 	font-weight:bold;
 	margin:0px 0px 15px 10px;
 }
@@ -628,7 +631,7 @@ styles for original hp layout
 	font-weight:bold;
 	margin:0px 0px 15px 10px;
 }
-#formArea input{
+#formArea input, .formLabel input{
 	font-family: 'helvetica', sans-serif;
 	font-size:11px;
 	font-weight: normal;

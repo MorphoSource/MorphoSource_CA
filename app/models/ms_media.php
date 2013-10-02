@@ -145,12 +145,36 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'media_citation_instructions' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_OMIT, 
 				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 6,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Media citation instructions'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
 				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'media_citation_instruction1' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Media citation instructions'), 'DESCRIPTION' => _t('Enter your name, publication and funding information to customize the media citation instructions that will appear along side your published media.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'media_citation_instruction2' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 'originally appearing in',
+				'LABEL' => _t('Media citation instructions part 2'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'media_citation_instruction3' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Media citation instructions part 3'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'approval_status' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
@@ -749,11 +773,24 @@ class ms_media extends BaseModel {
  		} else {
  			$t_media = $this;
  		}
+ 		# --- get the email address of any project members with the role "downloads" so they can be notified in addition to the owner of the media
+ 		$va_send_to = array();
+ 		$t_project = new ms_projects($t_media->get("project_id"));
+ 		$va_members = $t_project->getMembers();
+ 		$t_member = new ca_users();
+ 		foreach($va_members as $va_member){
+ 			$t_member->load($va_member["user_id"]);
+ 			if($t_member->hasRole("downloads")){
+ 				$va_send_to[$va_member["email"]] = $va_member["fname"]." ".$va_member["lname"];
+ 			}
+ 		}
  		$t_author = new ca_users($t_media->get('user_id'));
  		$t_user = new ca_users($pn_user_id);
  		if ($vs_email = $t_author->get('email')) {
- 			$t_project = new ms_projects($t_media->get('project_id'));
- 			caSendMessageUsingView($pa_options['request'], $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] ".$t_user->get('fname').' '.$t_user->get('lname').' has requested download of media', 'author_download_request_notification.tpl', array(
+ 			$va_send_to[$t_author->get('email')] = $t_author->get('fname')." ".$t_author->get('lname');
+ 		}
+ 		if(sizeof($va_send_to) > 0){
+ 			caSendMessageUsingView($pa_options['request'], $va_send_to, 'do-not-reply@morphosource.org', "[Morphosource] ".$t_user->get('fname').' '.$t_user->get('lname').' has requested download of media', 'author_download_request_notification.tpl', array(
  				'user' => $t_user,
  				'author' => $t_author,
  				'media' => $t_media,
@@ -901,6 +938,28 @@ class ms_media extends BaseModel {
 		}
  		
  		return $vs_publish_text;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function getMediaCitationInstructions($pn_media_id=null) {
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		$vs_citation_text = "";
+		if($t_media->get("media_citation_instruction1")){
+			$vs_citation_text = $t_media->get("media_citation_instruction1")." provided access to these data".(($t_media->get("media_citation_instruction2")) ? " " : "").$t_media->get("media_citation_instruction2").", the collection of which was funded by ".$t_media->get("media_citation_instruction3").". The files were downloaded from www.MorphoSource.org, Duke University.";
+ 		}
+ 		return $vs_citation_text;
 	}
 	# ------------------------------------------------------
 }

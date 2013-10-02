@@ -13,6 +13,19 @@
 	</H1>
 <?php
 	if($q_listings->numRows()){
+?>
+		<div id="mediaBibliographyInfo">
+			<!-- load Bib form here -->
+		</div><!-- end mediaBibliographyInfo -->
+		<div id="mediaListCitationForm" style="padding:10px 0px 15px 0px;">
+<?php
+			print caFormTag($this->request, 'batchMediaCitationInstructions', 'mediaCitationInstructionsForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+			print "<div class='formLabel'>Apply the following Media Citation Instructions to all project media:<div style='font-weight:normal; padding:0px 0px 0px 15px;'>".$t_item->htmlFormElement("media_citation_instruction1", "^ELEMENT")." provided access to these data ".$t_item->htmlFormElement("media_citation_instruction2", "^ELEMENT").", the collection of which was funded by ".$t_item->htmlFormElement("media_citation_instruction3", "^ELEMENT").". The files were downloaded from www.MorphoSource.org, Duke University.";
+			print "<br/><a href='#' name='save' class='button buttonSmall' style='margin-top:5px;' onclick='jQuery(\"#mediaCitationInstructionsForm\").submit(); return false;'>"._t("Save")."</a></div>";
+?>
+			</div></form>
+		</div>
+<?php
 		print '<div id="mediaListings">';
 		while($q_listings->nextRow()){
 			print "<div class='projectMediaContainer'>";
@@ -25,6 +38,16 @@
 			print '</div><!-- end projectMediaContainer -->';
 		}
 		print '<div style="clear:right;"><!-- empty --></div></div><!-- end itemListings -->';
+?>
+		<script type="text/javascript">
+			jQuery(document).ready(function() {			
+				jQuery('#mediaBibliographyInfo').load(
+					'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'bibliographyLookup', array('media_id' => $pn_media_id)); ?>'
+				);
+				return false;
+			});
+		</script>
+<?php
 	}else{
 		print "<br/><br/><H2>"._t("There are no %1 used by this project.  Use the button above to enter a %2.", $this->getVar("name_plural"), $this->getVar("name_singular"))."</H2>";
 	}

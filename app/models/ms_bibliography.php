@@ -213,7 +213,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'collation' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Collation'), 'DESCRIPTION' => _t('Article collation.'),
@@ -221,7 +221,7 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'sect' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Sect'), 'DESCRIPTION' => _t('Sect.'),
@@ -229,11 +229,19 @@ BaseModel::$s_ca_models_definitions['ms_bibliography'] = array(
 		),
 		'worktype' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Worktype'), 'DESCRIPTION' => _t('Worktype.'),
 				'BOUNDS_LENGTH' => array(0,100)
+		),
+		'pp' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Page number'), 'DESCRIPTION' => _t('Page number'),
+				'BOUNDS_LENGTH' => array(0,45)
 		),
 		'isbn' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -421,6 +429,7 @@ class ms_bibliography extends BaseModel {
 			$vs_edition = trim($pa_record['edition']);
 			$vs_collation = trim($pa_record['collation']);
 			$vs_reference_type = intval($pa_record['reference_type']);
+			$vs_pp = trim($pa_record['pp']);
 			
 		} else {
 			if ($vs_tmp = trim($this->get('article_title'))) { $va_titles['article_title'] = $vs_tmp; }
@@ -445,6 +454,7 @@ class ms_bibliography extends BaseModel {
 			$vs_section = trim($this->get('sect'));
 			$vs_collation = trim($this->get('collation'));
 			$vs_reference_type = intval($this->get('reference_type'));
+			$vs_pp = trim($this->get('pp'));
 
 		}
 		
@@ -493,6 +503,17 @@ class ms_bibliography extends BaseModel {
 		} else {
 			if ($vs_publisher) {
 				$vs_citation .= '. ';
+			}
+		}
+		if($vs_pp){
+			if(stristr($vs_pp, "p")){
+				$vs_citation .= ' '.$vs_pp.'.';
+			}else{
+				if(stristr($vs_pp, "-")){
+					$vs_citation .= ' pp. '.$vs_pp.'.';
+				}else{
+					$vs_citation .= ' p. '.$vs_pp.'.';
+				}
 			}
 		}
 		
