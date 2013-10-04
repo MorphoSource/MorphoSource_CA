@@ -60,15 +60,26 @@
 			if($this->request->isLoggedIn()){
 				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
 				print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
-				if($this->request->user->canDoAction("is_administrator")){
-					print "<li>".caNavLink($this->request, _t("Users"), "", "Administration", "Users", "ListUsers")."</li>";
-					print "<li>".caNavLink($this->request, _t("Projects"), "", "Administration", "Projects", "ListProjects")."</li>";
-				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";
 			}
 ?>
 			</ul>
+<?php
+			if($this->request->isLoggedIn()){
+				if($this->request->user->canDoAction("is_administrator")){
+					print "<ul class='subNavAdmin'><li class='last'>".caNavLink($this->request, _t("Users"), "", "Administration", "Users", "ListUsers")."</li>";
+					print "<li>".caNavLink($this->request, _t("Specimen"), "", "Administration", "List", "listItems", array("table" => "ms_specimens"))."</li>";
+					print "<li>".caNavLink($this->request, _t("Taxonomy"), "", "Administration", "List", "listItems", array("table" => "ms_taxonomy_names"))."</li>";
+					print "<li>".caNavLink($this->request, _t("Projects"), "", "Administration", "Projects", "ListProjects")."</li>";
+					print "<li>".caNavLink($this->request, _t("Institutions"), "", "Administration", "List", "listItems", array("table" => "ms_institutions"))."</li>";
+					print "<li>".caNavLink($this->request, _t("Facilities"), "", "Administration", "List", "listItems", array("table" => "ms_facilities"))."</li>";
+					print "<li>".caNavLink($this->request, _t("Bibliography"), "", "Administration", "List", "listItems", array("table" => "ms_bibliography"))."</li>";
+					print "<li class='last' style='padding-right:0px;'>Manage:</li>";
+					print "</ul>";
+				}
+			}
+?>
 		</div>
 		<div style="clear:both; height:1px;"><!-- empty --></div>
 	</div><!-- end header -->

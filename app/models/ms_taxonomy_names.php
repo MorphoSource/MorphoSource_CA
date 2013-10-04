@@ -66,7 +66,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'genus' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Genus'), 'DESCRIPTION' => _t('Genus.'),
@@ -74,7 +74,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'species' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Species'), 'DESCRIPTION' => _t('Species.'),
@@ -82,7 +82,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'subspecies' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Subspecies'), 'DESCRIPTION' => _t('Subspecies.'),
@@ -90,7 +90,7 @@ BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
 		),
 		'variety' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 20, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 32, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Variety'), 'DESCRIPTION' => _t('Variety.'),
@@ -312,7 +312,7 @@ class ms_taxonomy_names extends BaseModel {
 	# When the list of "list fields" above contains more than one field,
 	# the LIST_DELIMITER text is displayed between fields as a delimiter.
 	# This is typically a comma or space, but can be any string you like
-	protected $LIST_DELIMITER = ', ';
+	protected $LIST_DELIMITER = ' ';
 
 
 	# What you'd call a single record from this table (eg. a "person")

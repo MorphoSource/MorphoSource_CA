@@ -482,9 +482,10 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-				SELECT DISTINCT f.*
+				SELECT DISTINCT f.*, p.name projectName
 				FROM ms_facilities f
 				LEFT JOIN ms_media AS m ON m.facility_id = f.facility_id
+				LEFT JOIN ms_projects AS p on f.project_id = p.project_id
 				WHERE m.project_id = ? OR f.project_id = ?
 				ORDER BY f.name, f.institution
 		", $vn_project_id, $vn_project_id);

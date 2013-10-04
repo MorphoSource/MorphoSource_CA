@@ -13,7 +13,7 @@
 	# --- all fields in float_fields array  will be floated to the left
 	$va_float_fields = array("common_name", "is_extinct", "genus", "species", "subspecies", "variety", "author", "year", "ht_supraspecific_clade", "ht_kingdom", "ht_phylum", "ht_class", "ht_subclass", "ht_order", "ht_suborder", "ht_superfamily", "ht_family", "ht_subfamily", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("is_extinct", "variety", "year", "ht_phylum", "ht_subclass", "ht_suborder", "ht_subfamily", "last_modified_on");
+	$va_clear_fields = array("is_extinct", "species", "variety", "year", "ht_phylum", "ht_subclass", "ht_suborder", "ht_subfamily", "last_modified_on");
 
 	if($ps_specimen_name){
 		print "<H2>Taxonomic Information For ".$ps_specimen_name."</H2>";

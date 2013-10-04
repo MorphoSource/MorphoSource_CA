@@ -272,13 +272,13 @@ a.blueText:hover{
 #header #nav ul.mainNav li a.selected{
 	color:#FF861F;
 }
-#header #nav ul.subNav{
+#header #nav ul.subNav, #header #nav ul.subNavAdmin{
 	clear:both;
 	list-style-type: none;
 	padding:10px 10px 0px 0px;
 	margin:0px 0px 0px 0px;
 }
-#header #nav ul.subNav li{
+#header #nav ul.subNav li, #header #nav ul.subNavAdmin li{
 	float:right;
 	padding:3px 10px 3px 10px;
 	margin:0px 0px 0px 0px;
@@ -289,16 +289,24 @@ a.blueText:hover{
 	text-transform:uppercase;
 	line-height:1em;
 }
-#header #nav ul.subNav li.last{
-	border-right:0px;
+#header #nav ul.subNavAdmin li{
+	padding:1px 5px 1px 5px;
+	color:#00006A;
 }
-#header #nav ul.subNav li a{
+#header #nav ul.subNav li.last, #header #nav ul.subNavAdmin li.last{
+	border-right:0px;
+	padding-right:10px;
+}
+#header #nav ul.subNav li a, #header #nav ul.subNavAdmin li a{
 	font-family: 'neuzeitrmn';
 	color:#FF861F;
 	font-size:13px;
 	text-transform:uppercase;
 	line-height:1em;
 	text-decoration:none;
+}
+#header #nav ul.subNavAdmin li a{
+	font-size:12px;
 }
 #header #nav ul.subNav li a:hover{
 	color:#04276D;

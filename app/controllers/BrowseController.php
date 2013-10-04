@@ -83,7 +83,7 @@
  		# -------------------------------------------------------
  		function bibliographyList(){
 			$o_db = new Db();
-			$q_bib = $o_db->query("SELECT b.bibref_id from ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id ORDER BY b.authors");
+			$q_bib = $o_db->query("SELECT DISTINCT b.bibref_id from ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id ORDER BY b.authors");
 			$this->view->setvar("bibliography", $q_bib);
 			$this->render('Browse/bibliography_list_html.php');
  		}
