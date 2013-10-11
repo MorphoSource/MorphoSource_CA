@@ -668,6 +668,9 @@
 			}
 			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
 			
+			# --- record download
+			$this->opo_item->recordDownload($this->request->getUserID());
+			
 			$vn_rc = $this->render('Media/media_download_binary.php');
 			
 			$this->response->sendContent();

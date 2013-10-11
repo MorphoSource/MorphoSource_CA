@@ -119,6 +119,10 @@
 ?>
 	</div>
 	<div class="listItemLtBlue">
+		<div class="dataCol"><?php print $t_project->numDownloads(); ?></div>
+		<H2>Number of Downloads</H2>
+	</div>
+	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?></div>
 		<H2>Storage used</H2>
 	</div>

@@ -67,27 +67,37 @@
 			<div id="hpStatsCol2">
 <?php
 			if($this->request->isLoggedIn()){
-				$t_project = new ms_projects();
-				$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
-				if(sizeof($va_projects)){
-?>
-					<div class="tealRule"><!-- empty --></div>
-					<H2 style="float:right;">last updated</H2>
-					<H2>Your Project List</H2>
-					<div class="tealTopBottomRule">
-<?php
-					foreach($va_projects as $va_project){
-						print '<div class="projectListItem"><div class="date">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
-						print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
-						print '</div><!-- end projectListItem -->';
+				if($this->request->user->isFullAccessUser()){
+					$t_project = new ms_projects();
+					$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
+					if(sizeof($va_projects)){
+	?>
+						<div class="tealRule"><!-- empty --></div>
+						<H2 style="float:right;">last updated</H2>
+						<H2>Your Project List</H2>
+						<div class="tealTopBottomRule">
+	<?php
+						foreach($va_projects as $va_project){
+							print '<div class="projectListItem"><div class="date">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
+							print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
+							print '</div><!-- end projectListItem -->';
+						}
+	?>
+						</div><!-- end tealTopBottomRule -->
+	<?php
+					}else{
+						print "<H2 style='text-align:center;'>You have no projects</H2>";	
 					}
-?>
-					</div><!-- end tealTopBottomRule -->
-<?php
+					print "<p style='text-align:center; margin-top:30px;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
 				}else{
-					print "<H2 style='text-align:center;'>You have no projects</H2>";	
+					print '<div class="tealRule"><!-- empty --></div>';
+					if($this->request->user->isRequestedFullAccessUser()){
+						print "<p style='text-align:center;'>Your request to contribute to MorphoSource is being reviewed.</p>";
+					}else{
+						print "<p style='text-align:center;'>Interested in creating a MorphoSource project?</p>";
+						print "<p style='text-align:center; margin-top:30px;'>".caNavLink($this->request, _t("Become a Contributor"), "button buttonLarge", "MyProjects", "Dashboard", "projectList")."</p>";
+					}
 				}
-				print "<p style='text-align:center; margin-top:30px;'>".caNavLink($this->request, _t("Create a MorphoSource Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1))."</p>";
 			}else{
 				print "<H2 style='text-align:center; margin-top:50px;'>New to MorphoSource?</H2>";
 				print "<p style='text-align:center;'>".caNavLink($this->request, _t("Login or Register"), "button buttonLarge", "", "LoginReg", "form")."<p>";

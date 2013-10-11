@@ -14,7 +14,7 @@
 </script>
 <div class="blueRule"><!-- empty --></div>
 	<H1>
-		<?php print "Manage ".$this->getVar("name_plural"); ?>
+		<?php print $q_listings->numRows()." ".ucfirst(($q_listings->numRows() == 1) ? $this->getVar("name_singular") : $this->getVar("name_plural")); ?>
 	</H1>
 	
 	<?php 

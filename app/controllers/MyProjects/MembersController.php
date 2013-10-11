@@ -263,6 +263,11 @@
 				$t_user = new ca_users();
 				foreach($va_existing_member_ids as $vn_existing_member_id){
 					$t_user->load($vn_existing_member_id);
+					if(($t_user->get("userclass") != 1) && ($t_user->get("userclass") != 255)){
+						$t_user->setMode(ACCESS_WRITE);
+						$t_user->set("userclass", 1);
+						$t_user->update();
+					}
 					$va_new_members[$t_user->get("email")] = array("fname" => $t_user->get("fname"), "lname" => $t_user->get("lname"), "email" => $t_user->get("email"), "user_id" => $t_user->get("user_id"));
 				}
 			}

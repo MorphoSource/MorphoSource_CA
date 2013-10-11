@@ -186,6 +186,62 @@
  			$this->render('user_list_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function approveRequest() {
+ 			$t_user = $this->getUserObject();
+ 			$t_user->setMode(ACCESS_WRITE);
+ 			$t_user->set("userclass", 1);
+ 			$t_user->update();
+ 			if ($t_user->numErrors()) {
+				$this->notification->addNotification("There were errors: ".join("; ", $t_user->getErrors(), __NOTIFICATION_TYPE_ERROR__));
+			}else{
+				# --- send notification email
+				# -- generate mail text from template to notifiy administrator - get both html and text versions
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/admin_approve_full_access.tpl");
+				$vs_mail_message_text = ob_get_contents();
+				ob_end_clean();
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/admin_approve_full_access_html.tpl");
+				$vs_mail_message_html = ob_get_contents();
+				ob_end_clean();
+				if(caSendmail($t_user->get("email"), "do-not-reply@morphosource.org", _t("MorphoSource request approved"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+					$this->notification->addNotification(_t("User is approved to make contributions to MorphoSource and was notified via email"), __NOTIFICATION_TYPE_INFO__);
+				}else{
+					$this->notification->addNotification(_t("User is approved to make contributions to MorphoSource BUT was not notified via email"), __NOTIFICATION_TYPE_INFO__);
+				}
+			}
+			
+ 			$this->ListUsers();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function denyRequest() {
+ 			$t_user = $this->getUserObject();
+ 			$t_user->setMode(ACCESS_WRITE);
+ 			$t_user->set("userclass", 100);
+ 			$t_user->update();
+ 			if ($t_user->numErrors()) {
+				$this->notification->addNotification("There were errors: ".join("; ", $t_user->getErrors(), __NOTIFICATION_TYPE_ERROR__));
+			}else{
+				# --- send notification email
+				# -- generate mail text from template to notifiy administrator - get both html and text versions
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/admin_deny_full_access.tpl");
+				$vs_mail_message_text = ob_get_contents();
+				ob_end_clean();
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/admin_deny_full_access_html.tpl");
+				$vs_mail_message_html = ob_get_contents();
+				ob_end_clean();
+				if(caSendmail($t_user->get("email"), "do-not-reply@morphosource.org", _t("MorphoSource request denied"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+					$this->notification->addNotification(_t("User denied ability to make contributions to MorphoSource and was notified via email"), __NOTIFICATION_TYPE_INFO__);
+				}else{
+					$this->notification->addNotification(_t("User denied ability to make contributions to MorphoSource BUT was not notified via email"), __NOTIFICATION_TYPE_INFO__);
+				}
+			}
+			
+ 			$this->ListUsers();
+ 		}
+ 		# -------------------------------------------------------
  		public function Delete() {
  			$t_user = $this->getUserObject();
  			if ($this->request->getParameter('confirm', pInteger)) {
