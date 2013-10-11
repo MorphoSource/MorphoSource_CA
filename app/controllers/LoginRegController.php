@@ -238,7 +238,7 @@
 					break;
 					# -------------
 					case "userclass":
-						$t_user->set("userclass",1);		// 1=public-only
+						$t_user->set("userclass",100);		// 1=download-only
 					break;
 					# -------------
 					default:

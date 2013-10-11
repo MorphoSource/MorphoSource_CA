@@ -55,7 +55,7 @@
 				<form action="<?php print caNavUrl($this->request, '', 'LoginReg', 'register', array()); ?>" method="post" name="registration">
 				<p>
 <?php
-					print _t("As a member, you can contribute your specimen media and help grow the MorphoSource community.");
+					print _t("As a member, you can download media from MorphoSource.");
 ?>
 				</p>
 <?php

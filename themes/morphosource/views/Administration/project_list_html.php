@@ -39,7 +39,7 @@
 </script>
 <div class="blueRule"><!-- empty --></div>
 	<H1>
-		<?php print _t("Manage Projects"); ?>
+		<?php print $q_all_projects->numRows()." ".(($q_all_projects->numRows() == 1) ? "Project" : "Projects"); ?>
 	</H1>
 	
 	<?php 
@@ -62,6 +62,9 @@
 				</th>
 				<th class="list-header-unsorted">
 					<?php print _t('Media'); ?>
+				</th>
+				<th class="list-header-unsorted">
+					<?php print _t('Downloads'); ?>
 				</th>
 				<th class="list-header-unsorted">
 					<?php print _t('Storage used'); ?>
@@ -107,6 +110,9 @@
 						print "0";
 					}
 ?>
+				</td>
+				<td>
+					<?php print $t_project->numDownloads(); ?>
 				</td>
 				<td>
 					<?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?>

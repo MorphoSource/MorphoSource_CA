@@ -26,6 +26,7 @@
  * ----------------------------------------------------------------------
  */
 	$va_user_list = $this->getVar('user_list');
+	$t_user = new ca_users();
 
 ?>
 <script language="JavaScript" type="text/javascript">
@@ -50,8 +51,8 @@
 			null,
 			_t('Show %1 users', caHTMLSelect('userclass', $this->request->user->getFieldInfo('userclass', 'BOUNDS_CHOICE_LIST'), array('onchange' => 'jQuery("#caUserListForm").submit();'), array('value' => $this->getVar('userclass'))))
 		); 
-	?>	
-		<h2 class="userList"><?php print _t('%1 users', ucfirst($this->getVar('userclass_displayname'))); ?></h2>
+?>	
+		<h2 class="userList"><?php print sizeof($va_user_list)." "._t('%1 %2', ucfirst($this->getVar('userclass_displayname')), (sizeof($va_user_list) == 1) ? "User" : "Users"); ?></h2>
 		
 		<table id="caUserList" class="listtable" border="0" cellpadding="0" cellspacing="1">
 			<thead>
@@ -64,6 +65,9 @@
 					</th>
 					<th class="list-header-unsorted">
 						<?php print _t('Active?'); ?>
+					</th>
+					<th class="list-header-unsorted">
+						<?php print _t('Downloads'); ?>
 					</th>
 					<th class="list-header-unsorted">
 						<?php print _t('Last login'); ?>
@@ -96,9 +100,18 @@
 					<?php print $va_user['active'] ? _t('Yes') : _t('No'); ?>
 				</td>
 				<td>
+					<?php print $va_user['num_downloads']; ?>
+				</td>
+				<td>
 					<?php print ($va_user['last_login'] > 0) ? $o_tep->getText() : '-'; ?>
 				</td>
-				<td width="100" align="center">
+				<td <?php print (($this->getVar('userclass') == 50) ? "" : 'width="100"'); ?> align="center">
+<?php
+					if($this->getVar('userclass') == 50){
+						print caNavButton($this->request, '', _t("Approve"), 'Administration', 'Users', 'approveRequest', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
+						print "&nbsp;&nbsp;".caNavButton($this->request, '', _t("Deny"), 'Administration', 'Users', 'denyRequest', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
+					}
+?>
 					<?php print caNavButton($this->request, '', _t("Edit"), 'Administration', 'Users', 'Edit', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
 					&nbsp;&nbsp;<?php print caNavButton($this->request, '', _t("Delete"), 'Administration', 'Users', 'Delete', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
 				</td>

@@ -68,6 +68,8 @@ BaseModel::$s_ca_models_definitions['ca_users'] = array(
 				'LABEL' => _t('User class'), 'DESCRIPTION' => _t('"Full" user accounts may log into all CollectiveAccess interfaces. "Public" user accounts may only log into the publicly accessible front-end system (if one exists). "Deleted" users may not log into any interface – the account is considered removed.'),
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('full-access')	=> 1,
+					_t('requested full-access')	=> 50,
+					_t('download only')	=> 100,
 					_t('deleted') => 255
 				)
 		),
@@ -626,7 +628,7 @@ class ca_users extends BaseModel {
 			if (is_array($va_volatile_vars = $qr_users->getVars('volatile_vars'))) {
 				$va_vars = array_merge($va_vars, $va_volatile_vars);
 			}
- 			$va_users[$qr_users->get('user_id')] = array_merge($qr_users->getRow(), array('last_login' => $va_vars['last_login']));
+ 			$va_users[$qr_users->get('user_id')] = array_merge($qr_users->getRow(), array('last_login' => $va_vars['last_login'], 'num_downloads' => $this->numDownloads($qr_users->get("user_id"))));
  		}
 		
 		return $va_users;
@@ -2903,6 +2905,20 @@ class ca_users extends BaseModel {
 		return (((int)$this->get('userclass') === 255) ?  true : false);
 	}
 	# ----------------------------------------
+	/**
+	 * Can contribute info/ make projects ect
+	 */
+	public function isFullAccessUser() {
+		return (((int)$this->get('userclass') === 1) ?  true : false);
+	}
+	# ----------------------------------------
+	/**
+	 * has submitted request to be full access user
+	 */
+	public function isRequestedFullAccessUser() {
+		return (((int)$this->get('userclass') === 50) ?  true : false);
+	}
+	# ----------------------------------------
 	# Authorization methods
 	# ----------------------------------------
 	/**
@@ -3053,6 +3069,27 @@ class ca_users extends BaseModel {
 	public function canAccess($pa_module_path,$ps_controller,$ps_action,$pa_fake_parameters=array()){
 		$vo_acr = AccessRestrictions::load();
 		return $vo_acr->userCanAccess($this->getUserID(), $pa_module_path, $ps_controller, $ps_action, $pa_fake_parameters);
+	}
+	# ----------------------------------------
+	function numDownloads($pn_user_id=null) {
+		if(!$pn_user_id){
+			$pn_user_id = $this->getPrimaryKey();
+		}
+		if (!$pn_user_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_download_stats
+			WHERE user_id = ?
+		", $pn_user_id);
+		
+		$vn_num_downloads = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_downloads = $qr->get("c");
+		}
+		return $vn_num_downloads;
 	}
 	# ----------------------------------------
 }

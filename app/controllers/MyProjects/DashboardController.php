@@ -73,6 +73,10 @@
  		}
  		# -------------------------------------------------------
  		function dashboard() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
  			JavascriptLoadManager::register("cycle");
 			if(!$this->opn_project_id){
 				$this->projectList();
@@ -85,6 +89,10 @@
  		}
  		# -------------------------------------------------------
  		public function publishAllMedia() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
  			$pn_published = $this->request->getParameter('published', pInteger);
  			if($this->opn_project_id && $pn_published){
  				$vn_num_published = $this->opo_project->publishAllProjectMedia($pn_published);	
@@ -99,14 +107,26 @@
  		}
  		# -------------------------------------------------------
  		public function ApproveDownloadRequest() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
  			$this->MarkDownloadRequest(1);
  		}
  		# -------------------------------------------------------
  		public function DenyDownloadRequest() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
  			$this->MarkDownloadRequest(2);
  		}
  		# -------------------------------------------------------
  		public function MarkDownloadRequest($pn_value) {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
  			if($this->opn_project_id){
  				$vn_request_id = $this->request->getParameter('request_id', pInteger);
  				$t_req = new ms_media_download_requests($vn_request_id);
@@ -147,6 +167,40 @@
  			}
  			
  			$this->render('Dashboard/pending_download_requests_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function requestFullAccess(){
+ 			$vs_message = $this->request->getParameter('message', pString);
+ 			if(!$vs_message){
+ 				$this->notification->addNotification(_t('Please enter a message describing the project you would like to create.'), __NOTIFICATION_TYPE_INFO__);
+ 				$this->projectList();
+ 				return;
+ 			}
+ 			$t_user = $this->request->user;
+ 			$t_user->set("userclass", 50);
+ 			$t_user->setMode(ACCESS_WRITE);
+			$t_user->update();
+			if($t_user->numErrors()) {
+				$this->notification->addNotification(_t('Your request could not be sent. '.join("; ", $t_user->getErrors())), __NOTIFICATION_TYPE_INFO__);
+			}else{
+ 				# -- generate mail text from template to notifiy administrator - get both html and text versions
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/request_full_access.tpl");
+				$vs_mail_message_text = ob_get_contents();
+				ob_end_clean();
+				ob_start();
+				require($this->request->getViewsDirectoryPath()."/mailTemplates/request_full_access_html.tpl");
+				$vs_mail_message_html = ob_get_contents();
+				ob_end_clean();
+				if(caSendmail($this->request->config->get("contributor_request_email"), "do-not-reply@morphosource.org", _t("User request to contribute to MorphoSource"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+					$this->notification->addNotification(_t('Your request was sent.'), __NOTIFICATION_TYPE_INFO__);
+					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				}else{
+					$this->notification->addNotification(_t('Your request could not be sent at this time.'), __NOTIFICATION_TYPE_INFO__);
+				}
+			}
+ 			
+ 		
  		}
  		# -------------------------------------------------------
  	}

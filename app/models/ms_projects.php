@@ -32,6 +32,7 @@
 	require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 	require_once(__CA_MODELS_DIR__."/ms_project_users.php");
 	require_once(__CA_MODELS_DIR__."/ms_media.php");
+	require_once(__CA_MODELS_DIR__."/ca_users.php");
 
 BaseModel::$s_ca_models_definitions['ms_projects'] = array(
  	'NAME_SINGULAR' 	=> _t('project'),
@@ -230,16 +231,21 @@ class ms_projects extends BaseModel {
 			$pn_project_id = $this->getPrimaryKey();
 		}
 		if ($pn_project_id && ($pn_user_id > 0)) {
-			$o_db = $this->getDb();
-			$q = $o_db->query("
-				SELECT user_id, project_id 
-				FROM ms_project_users 
-				WHERE
-					(project_id = ?) AND (user_id = ?)
-			", $pn_project_id, $pn_user_id);
-			if ($q->nextRow()) {
-				return true;
-			} else {
+			$t_user = new ca_users($pn_user_id);
+			if($t_user->isFullAccessUser()){
+				$o_db = $this->getDb();
+				$q = $o_db->query("
+					SELECT user_id, project_id 
+					FROM ms_project_users 
+					WHERE
+						(project_id = ?) AND (user_id = ?)
+				", $pn_project_id, $pn_user_id);
+				if ($q->nextRow()) {
+					return true;
+				} else {
+					return false;
+				}
+			}else{
 				return false;
 			}
 		} else {
@@ -295,6 +301,28 @@ class ms_projects extends BaseModel {
 			return true;
 		}
 		return null;
+	}
+	# ----------------------------------------
+	function numDownloads($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_download_stats ms
+			INNER JOIN ms_media AS m ON ms.media_id = m.media_id
+			WHERE m.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_downloads = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_downloads = $qr->get("c");
+		}
+		return $vn_num_downloads;
 	}
 	# ----------------------------------------
 	function numMedia($pn_project_id=null) {

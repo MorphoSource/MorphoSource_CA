@@ -33,8 +33,8 @@
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 
 BaseModel::$s_ca_models_definitions['ms_taxonomy_names'] = array(
- 	'NAME_SINGULAR' 	=> _t('taxon'),
- 	'NAME_PLURAL' 		=> _t('taxonomy'),
+ 	'NAME_SINGULAR' 	=> _t('taxonomic name'),
+ 	'NAME_PLURAL' 		=> _t('taxonomic names'),
  	'FIELDS' 			=> array(
  		'alt_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 

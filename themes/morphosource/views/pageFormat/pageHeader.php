@@ -68,7 +68,8 @@
 <?php
 			if($this->request->isLoggedIn()){
 				if($this->request->user->canDoAction("is_administrator")){
-					print "<ul class='subNavAdmin'><li class='last'>".caNavLink($this->request, _t("Users"), "", "Administration", "Users", "ListUsers")."</li>";
+					print "<ul class='subNavAdmin'><li class='last'>".caNavLink($this->request, _t("Stats"), "", "Administration", "Stats", "ListStats")."</li>";
+					print "<li>".caNavLink($this->request, _t("Users"), "", "Administration", "Users", "ListUsers")."</li>";
 					print "<li>".caNavLink($this->request, _t("Specimen"), "", "Administration", "List", "listItems", array("table" => "ms_specimens"))."</li>";
 					print "<li>".caNavLink($this->request, _t("Taxonomy"), "", "Administration", "List", "listItems", array("table" => "ms_taxonomy_names"))."</li>";
 					print "<li>".caNavLink($this->request, _t("Projects"), "", "Administration", "Projects", "ListProjects")."</li>";

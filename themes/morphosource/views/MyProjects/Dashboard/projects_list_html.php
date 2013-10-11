@@ -29,6 +29,9 @@
 	$va_projects = $this->getVar("projects");
 ?>
 	<div class="blueRule"><!-- empty --></div>
+<?php
+	if($this->request->user->isFullAccessUser()){
+?>
 	<H1>
 		<div style="float:right;"><?php print caNavLink($this->request, _t("New Project"), "button buttonLarge", "MyProjects", "Project", "form", array("new_project" => 1)); ?></div>
 		Dashboard
@@ -65,3 +68,19 @@
 	}
 ?>
 	</div><!-- end dashboardProjectsList -->
+<?php
+	}else{
+		if($this->request->user->isRequestedFullAccessUser()){
+			print "<p style='text-align:center;'>Your request to contribute to MorphoSource is being reviewed.</p>";
+		}else{			
+?>
+			<H1>Become a Contributor</H1>
+			Are you interested in starting a MorphoSource project?  Use the form below to describe your project plan and what type of media you are interested in contributing to MorphoSource.  An administrator will respond to you after reviewing your request. 
+<?php
+			print caFormTag($this->request, 'requestFullAccess', 'requestFullAccessForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+			print "<textarea style='width:510px; height:200px;' name='message'></textarea>";
+			print '<br/><br/><a href="#" name="save" class="button buttonSmall" onclick="jQuery(\'#requestFullAccessForm\').submit(); return false;">'._t("Send Request").'</a>';
+			print "</form>";
+		}
+	}
+?>

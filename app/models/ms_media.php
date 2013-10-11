@@ -34,6 +34,7 @@ require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_projects.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_requests.php");
 require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
+require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
@@ -49,10 +50,10 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		'title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 2,
-				'IS_NULL' => TRUE, 
+				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Title'), 'DESCRIPTION' => _t('Optional display title for image.'),
-				'BOUNDS_LENGTH' => array(0,255)
+				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'project_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
@@ -912,6 +913,58 @@ class ms_media extends BaseModel {
  		}
  		
  		return false;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function recordDownload($pn_user_id, $pn_media_id=null){
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		
+		$t_stat = new ms_media_download_stats();
+ 		$t_stat->setMode(ACCESS_WRITE);
+ 		$t_stat->set('media_id', $vn_media_id);
+ 		$t_stat->set('user_id', $pn_user_id);
+ 		$t_stat->insert();
+ 		
+ 		if ($t_stat->numErrors()) {
+ 			$this->errors = $t_stat->errors;
+ 			return false;
+ 		}else{
+ 			return true;
+ 		}
+		
+	}
+	# ----------------------------------------
+	function numDownloads($pn_media_id=null) {
+		if(!$pn_media_id){
+			$pn_media_id = $this->getPrimaryKey();
+		}
+		if (!$pn_media_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_download_stats
+			WHERE media_id = ?
+		", $pn_media_id);
+		
+		$vn_num_downloads = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_downloads = $qr->get("c");
+		}
+		return $vn_num_downloads;
 	}
 	# ------------------------------------------------------
 	/** 
