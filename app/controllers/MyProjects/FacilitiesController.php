@@ -59,7 +59,7 @@
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
- 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");
@@ -78,7 +78,7 @@
 				$this->opo_item->load($this->opn_item_id);
 				# --- check if the facility is part of the current project or a project user has access to
 				$t_project = new ms_projects();
-				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
+				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
 					$this->notification->addNotification("The facility record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
 					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
 				}

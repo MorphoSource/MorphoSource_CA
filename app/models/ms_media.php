@@ -103,7 +103,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => true, "DEFAULT" => "",
-				"LABEL" => "Find the specimen this media depicts", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
+				"LABEL" => "Enter the catalog number of the specimen this media depicts (leave out the institution and collection code)", "DESCRIPTION" => "Enter the catalog number of the specimen<br /> and select the specimen from the resulting list of possible matches."
 		),
 		'element' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 

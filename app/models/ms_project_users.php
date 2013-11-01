@@ -65,7 +65,7 @@ BaseModel::$s_ca_models_definitions['ms_project_users'] = array(
 				'LABEL' => _t('Membership type'), 'DESCRIPTION' => _t('Membership type'),
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('Full membership') 	=> 1,
-					_t('Observer')	=> 2
+					_t('Read only')	=> 2
 				)
 		),
 		'joined_on' => array(

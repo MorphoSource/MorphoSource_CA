@@ -160,7 +160,11 @@
 			<H2>Specimen Media</H2>
 			<div id="specimenMediaList" class="unit">
 <?php
-			$va_media_list = $t_specimen->getSpecimenMedia(null, array('versions' => array('preview190'), 'published' => true));
+			$va_options = array('versions' => array('preview190'), 'published' => true);
+			if($this->request->isLoggedIn()){
+				$va_options["user_id"] = $this->request->user->get("user_id");
+			}
+			$va_media_list = $t_specimen->getSpecimenMedia(null, $va_options);
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
 					$t_media = new ms_media($vn_media_id);

@@ -1,4 +1,5 @@
 <?php
+$t_ms_project_users = new ms_project_users();
 $va_existing_members = $this->getVar("exisiting_members");
 $va_new_members = $this->getVar("new_members");
 $va_errors = $this->getVar("invite_errors");
@@ -53,6 +54,7 @@ print caFormTag($this->request, 'inviteMember', 'inviteMemberForm', null, 'post'
 		}
 		print "</div>";
 	}
+	print $t_ms_project_users->htmlFormElement("membership_type","<div class='formLabel'>^LABEL<br>^ELEMENT</div>");
 	print "<div class='formLabel'>Enter a message to include in the email invitation".(((sizeof($va_new_members) + sizeof($va_existing_members)) > 1) ? "s" : "")." (optional):<br/>";
 	print "<textarea style='width:510px; height:200px;' name='member_message'>".$this->getVar("member_message")."</textarea>";
 	print "</div>";

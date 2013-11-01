@@ -42,6 +42,7 @@
 ?>
 			<div class="blueTopBottomRule">
 				<H2>
+					<div class="column">access level</div>
 					<div class="column">last modified</div>
 					<div class="column">your last login</div>
 					<div class="column">number of media</div>
@@ -57,7 +58,12 @@
 				$q_num_media = $o_db->query("SELECT media_id FROM ms_media WHERE project_id = ?", $va_project["project_id"]);
 				$i++;
 				print '<div class="listItem'.(($i < sizeof($va_projects)) ? "Lt" : "").'Blue">';
-				print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
+				if($va_project["membership_type"] == 1){
+					print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
+				}else{
+					print caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]));
+				}
+				print '<div class="column">'.(($va_project["membership_type"] == 1) ? "Full Access" : "Read Only").'</div>';
 				print '<div class="column">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
 				print '<div class="column">'.(($q_last_accessed->get("last_access_on")) ? date("m.d.y", $q_last_accessed->get("last_access_on")) : "never").'</div>';
 				print '<div class="column">'.(($q_num_media->numRows()) ? $q_num_media->numRows() : "0").'</div>';

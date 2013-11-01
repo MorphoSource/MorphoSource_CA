@@ -79,7 +79,7 @@
 				$this->opo_item->load($this->opn_item_id);
 				# --- check if the bib is part of the current project or a project the user has access to
 				$t_project = new ms_projects();
-				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
+				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
 					$this->notification->addNotification("The bibliography record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
 					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
 				}

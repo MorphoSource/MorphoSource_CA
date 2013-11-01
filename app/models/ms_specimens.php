@@ -420,17 +420,30 @@ class ms_specimens extends BaseModel {
 		
 		$va_versions = (isset($pa_options['versions']) && is_array($pa_options['versions']) && sizeof($pa_options['versions'])) ? $pa_options['versions'] : array('thumbnail', 'small', 'preview190');
 		$vs_published_where = "";
-		if($pa_options['published']){
-			$vs_published_where = " AND m.published > 0";
-		}
 		
 		if($pn_specimen_id){
 			$o_db = new Db();
-			$q_media = $o_db->query("
-				SELECT *
-				FROM ms_media m 
-				WHERE m.specimen_id = ?".$vs_published_where,
-				array($pn_specimen_id));
+			if($pa_options['user_id']){
+				if($pa_options['published']){
+					$vs_published_where = " m.published > 0 OR";
+				}
+				$q_media = $o_db->query("
+					SELECT m.*
+					FROM ms_media m
+					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
+					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
+					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?)",
+					array($pn_specimen_id, $pa_options['user_id']));
+			}else{
+				if($pa_options['published']){
+					$vs_published_where = " AND m.published > 0";
+				}
+				$q_media = $o_db->query("
+					SELECT *
+					FROM ms_media m 
+					WHERE m.specimen_id = ?".$vs_published_where,
+					array($pn_specimen_id));
+			}
 			$va_media = array();
 			if($q_media->numRows()){
 				while($q_media->nextRow()){

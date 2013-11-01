@@ -53,6 +53,12 @@
 		if(!$o_request->user->canDoAction("is_administrator") && !$t_project->isMember($o_request->user->get("user_id"))){
 			$o_controller->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
 			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
+			return;
+		}
+		if(!$o_request->user->canDoAction("is_administrator") && !$t_project->isFullAccessMember($o_request->user->get("user_id"))){
+			$o_controller->notification->addNotification("You do not have FULL access to the project, you only have read only access", __NOTIFICATION_TYPE_ERROR__);
+			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
+			return;
 		}
 		
 		if ($t_project->getPrimaryKey()) {

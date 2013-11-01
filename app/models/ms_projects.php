@@ -275,6 +275,38 @@ class ms_projects extends BaseModel {
 	}
 	# ----------------------------------------
 	/**
+	 * Can contribute info/ access project forms/ edit project info
+	 */
+	public function isFullAccessMember($pn_user_id, $pn_project_id = "") {
+		$pn_user_id = intval($pn_user_id);
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if ($pn_project_id && ($pn_user_id > 0)) {
+			$t_user = new ca_users($pn_user_id);
+			if($t_user->isFullAccessUser()){
+				$o_db = $this->getDb();
+				$q = $o_db->query("
+					SELECT user_id, project_id 
+					FROM ms_project_users 
+					WHERE
+						(project_id = ?) AND (user_id = ?) AND membership_type = 1
+				", $pn_project_id, $pn_user_id);
+				if ($q->nextRow()) {
+					return true;
+				} else {
+					return false;
+				}
+			}else{
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	
+	# ----------------------------------------
+	/**
 	 * Sets last_accessed_on timestamp in ms_projects and ms_projects_users for the specified user and currently loaded project to the current time
 	 */
 	function setUserAccessTime($pn_user_id) {

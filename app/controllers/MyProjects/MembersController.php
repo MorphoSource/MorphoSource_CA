@@ -55,7 +55,7 @@
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
- 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");
@@ -285,7 +285,7 @@
 				$t_project_users->setMode(ACCESS_WRITE);
 				$t_project_users->set("user_id", $va_new_member_info["user_id"]);
 				$t_project_users->set("project_id", $this->opo_project->get("project_id"));
-				$t_project_users->set("membership_type", 1);
+				$t_project_users->set("membership_type", $this->request->getParameter("membership_type", pInteger));
 				$t_project_users->set("active", 1);
 				$t_project_users->insert();
 				if($t_project_users->numErrors()){

@@ -60,6 +60,7 @@
  		}
  		# -------------------------------------------------------
  		function login() {
+			$this->request->session->setVar('current_project_id', '');
 			$t_user = new ca_users();
 			# --- pass form elements for reg form
 			$this->view->setVar("fname", $t_user->htmlFormElement("fname","<div><b>"._t("First name")."</b><br/>^ELEMENT</div>"));
@@ -118,6 +119,7 @@
  		}
  		# -------------------------------------------------------
  		function Logout() {
+ 			$this->request->session->setVar('current_project_id', '');
  			if ($vs_default_action = $this->request->config->get('default_action')) {
 				$va_tmp = explode('/', $vs_default_action);
 				$vs_action = array_pop($va_tmp);
