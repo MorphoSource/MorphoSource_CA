@@ -22,14 +22,20 @@
 			print "<div class='listItemRightCol'>";
 			if($t_project->get("user_id") != $va_member["user_id"]){
 				print caNavLink($this->request, _t("Remove From Project"), "button buttonSmall", "MyProjects", "Members", "Delete", array("user_id" => $va_member["user_id"]))."&nbsp;&nbsp;&nbsp;";
-				print caNavLink($this->request, _t("Make Project Admin"), "button buttonSmall makeAdmin", "MyProjects", "Members", "setNewAdmin", array("new_admin_id" => $va_member["user_id"]));
-				
+				if($va_member["membership_type"] == 1){
+					# --- only full access users can be project admin
+					print caNavLink($this->request, _t("Make Project Admin"), "button buttonSmall makeAdmin", "MyProjects", "Members", "setNewAdmin", array("new_admin_id" => $va_member["user_id"]));
+				}
 			}
-			if(!$t_user->hasRole("downloads")){
+			if((!$t_user->hasRole("downloads")) && ($va_member["membership_type"] == 1)){
+				# --- only full access users can manage downloads
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Downloads"), "button buttonSmall manageDownloads", "MyProjects", "Members", "addUserManageDownloads", array("user_id" => $va_member["user_id"]));
 			}	
 			print "</div>";
 			print trim($va_member["fname"]." ".$va_member["lname"]).", ".$va_member["email"];
+			if($va_member["membership_type"] == 2){
+				print ", <b>Read Only</b>";
+			}
 			if($t_project->get("user_id") == $va_member["user_id"]){
 				print ", <b>"._t("Project Administrator")."</b>";
 			}

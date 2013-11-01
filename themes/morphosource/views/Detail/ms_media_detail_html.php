@@ -3,6 +3,7 @@
 	$vs_media = $t_media->getMediaTag("media", "medium");
 	$va_bib_citations = $this->getVar("bib_citations");
 	$vb_show_edit_link = $this->getVar("show_edit_link");
+	$vb_show_download_link = $this->getVar("show_download_link");
 ?>
 <div class="blueRule"><!-- empty --></div>
 <?php
@@ -45,7 +46,10 @@
 		print "<br style='clear: left;'/>\n";
 		
 if ($this->request->isLoggedIn()) {
-		switch((int)$t_media->get('published')) {
+		if($vb_show_download_link){
+			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
+		}else{
+			switch((int)$t_media->get('published')) {
 				case 1:
 					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 					break;
@@ -64,9 +68,9 @@ if ($this->request->isLoggedIn()) {
 					print "<div id='msMediaDownloadRequestFormContainer'>\n";
 					print caFormTag($this->request, 'RequestDownload', 'msMediaDownloadRequestForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true, 'noTimestamp' => true));
 	?>
-		<div class='msMediaDownloadRequestFormHelpText'>
-			<?php print _t('The author will provide this media only upon request. Please explain how you plan to use this media below. The author will review your request and reply shortly.'); ?>
-		</div>
+					<div class='msMediaDownloadRequestFormHelpText'>
+						<?php print _t('The author will provide this media only upon request. Please explain how you plan to use this media below. The author will review your request and reply shortly.'); ?>
+					</div>
 	<?php
 					$t_req = new ms_media_download_requests();
 					print $t_req->htmlFormElement('request', "<div class='msMediaDownloadRequestFormLabel'>^LABEL<br/>^ELEMENT</div>");
@@ -79,9 +83,10 @@ if ($this->request->isLoggedIn()) {
 					//print "<br style='clear: both;'/>\n";
 					break;
 			}
-			if($vb_show_edit_link){
-				print "<div style='float:right; padding-right:10px;'>".caNavLink($this->request, _t("Edit"), "button buttonLarge", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id"), "select_project_id" => $t_media->get("project_id")))."</div>";
-			}
+		}
+		if($vb_show_edit_link){
+			print "<div style='float:right; padding-right:10px;'>".caNavLink($this->request, _t("Edit"), "button buttonLarge", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id"), "select_project_id" => $t_media->get("project_id")))."</div>";
+		}
 } else {
 	print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Login to download"), "button buttonLarge", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";
 }	

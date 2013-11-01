@@ -60,6 +60,12 @@
 			if($this->request->isLoggedIn()){
 				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
 				print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
+				# --- display the current project if there is one
+				if($this->request->session->getVar('current_project_id')){
+					require_once(__CA_MODELS_DIR__."/ms_projects.php");
+					$t_project = new ms_projects($this->request->session->getVar('current_project_id'));
+					print "<li style='text-transform:none;'>Current project: ".((strlen($t_project->get("name")) > 30) ? mbSubStr(0, 30, $t_project->get("name"))."..." : $t_project->get("name"))."</li>";
+				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";
 			}

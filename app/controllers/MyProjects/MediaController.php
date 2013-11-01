@@ -58,7 +58,7 @@
  			
  			parent::__construct($po_request, $po_response, $pa_view_paths);
  			if(!$this->request->isLoggedIn()){
- 				$this->notification->addNotification("You must be logged in to access the Dashboard", __NOTIFICATION_TYPE_ERROR__);
+ 				$this->notification->addNotification("You must be logged in to access this form", __NOTIFICATION_TYPE_ERROR__);
 				$this->response->setRedirect(caNavUrl($this->request, "", "LoginReg", "form"));
  			}
  			$this->opo_project = new ms_projects();
@@ -68,7 +68,7 @@
 				# --- select project
 				msSelectProject($this, $this->request);
 			}
- 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
+ 			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
 				$this->ops_project_name = $this->opo_project->get("name");
@@ -87,7 +87,7 @@
 				$this->opo_item->load($this->opn_item_id);
 				# --- check if the record is part of the current project or a project the user has access to
 				$t_project = new ms_projects();
-				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
+				if(($this->opo_item->get("project_id") != $this->opn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")))){
 					$this->notification->addNotification("The media record you are trying to access is not part of the project you are currently editing", __NOTIFICATION_TYPE_ERROR__);
 					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));				
 				}
@@ -127,7 +127,7 @@
  				$pn_clone_id = $this->request->getParameter('clone_id', pInteger);
  				$t_clone = new ms_media($pn_clone_id);
  				
- 				$va_clone_fields = array("specimen_id", "facility_id", "notes", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_acquisition_time", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "element", "title", "side", "scanner_id", "grant_support");
+ 				$va_clone_fields = array("specimen_id", "facility_id", "notes", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_acquisition_time", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "element", "title", "side", "scanner_id", "grant_support", "media_citation_instruction1", "media_citation_instruction2", "media_citation_instruction3");
  				foreach($va_clone_fields as $vs_f){
 					$this->opo_item->set($vs_f, $t_clone->get($vs_f));
 				}

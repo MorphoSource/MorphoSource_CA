@@ -149,7 +149,7 @@
 	<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
 <?php
 	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-		$vn_i_spec = 0;
+		#$vn_i_spec = 0;
 		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
 			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
 			
@@ -175,14 +175,14 @@
 					print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
 			print "</div>\n";
 			print "</div><!-- end projectMediaContainer -->";
-			$vn_i_spec++;
-			if($vn_i_spec == 12){
-				break;
-			}
+			#$vn_i_spec++;
+			#if($vn_i_spec == 12){
+			#	break;
+			#}
 		}
-		if($vn_i_spec < sizeof($va_specimens)){
-			print "<H2 style='text-align:right; font-weight:bold;'>".caNavLink($this->request, _t("...and %1 more", sizeof($va_specimens) - $vn_i_spec), "blueText", "MyProjects", "Specimens", "listItems")."</H2>";
-		}
+		#if($vn_i_spec < sizeof($va_specimens)){
+		#	print "<H2 style='text-align:right; font-weight:bold;'>".caNavLink($this->request, _t("...and %1 more", sizeof($va_specimens) - $vn_i_spec), "blueText", "MyProjects", "Specimens", "listItems")."</H2>";
+		#}
 	}else{
 		print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
 	}

@@ -68,10 +68,15 @@
 				$this->notification->addNotification("Invalid media_id", __NOTIFICATION_TYPE_ERROR__);
 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
 			}
-// 			if (!$this->opo_item->get("published") == 1) {
-// 				$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
-// 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
-// 			}
+ 			if ($this->opo_item->get("published") == 0) {
+ 				# --- item is not published
+ 				# --- check if user has access to the project
+ 				$t_project = new ms_projects($this->opo_item->get("project_id"));
+ 				if(!($this->request->isLoggedIn()) || !$t_project->isMember($this->request->user->get("user_id"))){
+ 					$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
+ 					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+ 				}
+ 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("media_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
@@ -97,14 +102,20 @@
  						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "page" => $q_bib->get("pp"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
-				# --- can user edit record?
-				$vb_show_edit_link = false;
 				$t_project = new ms_projects();
-				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+				# --- can user edit record? - must have full access to the project
+				$vb_show_edit_link = false;
+				if($this->request->isLoggedIn() && $t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
 					$vb_show_edit_link = true;
+				}
+				# --- can user download record even if it is unpublished? - can be read only to download
+				$vb_show_download_link = false;
+				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+					$vb_show_download_link = true;
 				}
  			}
  			$this->view->setVar("show_edit_link", $vb_show_edit_link);
+ 			$this->view->setVar("show_download_link", $vb_show_download_link);
  			$this->view->setVar("bib_citations", $va_bib_citations);
  			$this->render('ms_media_detail_html.php');
  		}

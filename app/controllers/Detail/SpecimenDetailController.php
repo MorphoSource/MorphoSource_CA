@@ -121,7 +121,7 @@
 				# --- can user edit record?
 				$vb_show_edit_link = false;
 				$t_project = new ms_projects();
-				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+				if($this->request->isLoggedIn() && $t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
 					$vb_show_edit_link = true;
 				}
  			}

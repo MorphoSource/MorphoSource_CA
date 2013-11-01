@@ -21,9 +21,16 @@ if (!$this->request->isAjax()) {
 		<?php print _t("Specimen Information"); ?>
 	</H1>
 <?php
+	if(!$t_item->get("specimen_id")){
+		# --- display a look up for people to find an existing record before entering their own
+		print "<div class='formLabel' id='specimenLookUpContainer'>";
+		print "<b>Before creating a new specimen, please enter the catalog number here to check if a specimen record already exists:</b><br/>";
+		print caHTMLTextInput("specimenLookUp", array("id" => 'specimenLookUp', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
+		print "</div>";
+	}
 }
 ?>
-	<div id='formArea'>
+	<div id='formArea' <?php print ((!$this->request->isAjax()) && (!$t_item->get("specimen_id"))) ? "style='display:none;'" : ""; ?>>
 <?php
 print caFormTag($this->request, 'save', 'specimenItemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
@@ -107,7 +114,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 }
 ?>
 	<div id="leftCol">
-<?php
+<?php		
 	$t_bib = new ms_bibliography();
 	$t_institution = new ms_institutions();
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
@@ -147,6 +154,11 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				print "</div>";
 				print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'></div>";
 			break;
+			# -----------------------------------------------
+			#case "catalog_number":
+			#	print "<div class='formLabelFloat'>".$t_item->getDisplayLabel("ms_specimens.catalog_number").":<br/>".caHTMLTextInput("catalog_number", array("id" => 'catalog_number', 'class' => 'lookupBg', 'value' => $t_item->get("catalog_number")), array('width' => "100px", 'height' => 1))."</div>";
+	#print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
+			#break;
 			# -----------------------------------------------
 			default:
 				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
@@ -231,6 +243,30 @@ if (!$this->request->isAjax()) {
 			}
 		).click(function() { this.select(); });
 	});
+		
+	jQuery('#specimenLookUp').autocomplete(
+		{ 
+			source: '<?php print caNavUrl($this->request, 'lookup', 'Specimen', 'Get', array("max" => 500, "quickadd" => true)); ?>', 
+			minLength: 3, delay: 800, html: true,
+			select: function(event, ui) {
+				var specimen_id = parseInt(ui.item.id);
+				if (specimen_id < 1) {
+					// nothing found...
+					//alert("Create new specimen since returned id was " + specimen_id);
+					//jQuery("#mediaSpecimenInfo").load("<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'form', array('media_id' => $pn_media_id)); ?>");
+					jQuery('#formArea').show();
+					jQuery('#catalog_number').val(jQuery('#specimenLookUp').val());
+					jQuery('#specimenLookUpContainer').hide();
+				} else {
+					// found an id
+					//alert("found specimen id: " + specimen_id);
+					window.location.href = "<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'form'); ?>/specimen_id/" + specimen_id;
+					//jQuery('#specimen_id').val(specimen_id);
+					//alert("specimen id set to: " + jQuery('#specimen_id').val());
+				}
+			}
+		}
+	).click(function() { this.select(); });
 <?php
 	if($t_item->get("specimen_id")){
 ?>
