@@ -64,7 +64,7 @@
 				if($this->request->session->getVar('current_project_id')){
 					require_once(__CA_MODELS_DIR__."/ms_projects.php");
 					$t_project = new ms_projects($this->request->session->getVar('current_project_id'));
-					print "<li style='text-transform:none;'>Current project: ".((strlen($t_project->get("name")) > 30) ? mb_substr(0, 30, $t_project->get("name"))."..." : $t_project->get("name"))."</li>";
+					print "<li style='text-transform:none;'>Current project: ".((strlen($t_project->get("name")) > 30) ? mb_substr($t_project->get("name"), 0, 30)."..." : $t_project->get("name"))."</li>";
 				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";
