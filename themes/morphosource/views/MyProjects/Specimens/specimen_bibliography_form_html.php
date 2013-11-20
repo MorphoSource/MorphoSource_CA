@@ -12,7 +12,11 @@
 	}
 	print caFormTag($this->request, 'linkBibliography', 'specimenBibForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
 	print "<div class='formLabel'>";
-	print "Look up a bibliographic citation".":<br/>".caHTMLTextInput("bibliography_lookup", array("id" => 'msBibliograpnyID', 'class' => 'lookupBg'), array('width' => "200px", 'height' => 1));
+	print "Look up a bibliographic citation";
+	if(!$pn_specimen_id){
+		print " to link to all specimen created by your project";
+	}
+	print ":<br/>".caHTMLTextInput("bibliography_lookup", array("id" => 'msBibliograpnyID', 'class' => 'lookupBg'), array('width' => "200px", 'height' => 1));
 	#print "&nbsp;&nbsp;&nbsp;Page(s): <input type='text' style='width:30px;' value='' name='page'>";
 	print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#specimenBibForm\").submit(); return false;'>"._t("Save")."</a></div>";
 	print "<input type='hidden' value='' name='bibliography_id' id='bibliography_id'>";
@@ -39,8 +43,14 @@
 
 <script type='text/javascript'>
 	jQuery('#msBibliograpnyID').autocomplete(
-		{ 
-			source: '<?php print caNavUrl($this->request, 'lookup', 'Bibliography', 'Get', array("max" => 500, "quickadd" => true)); ?>', 
+		{
+<?php
+		if($pn_specimen_id){
+			print "source: '".caNavUrl($this->request, 'lookup', 'Bibliography', 'Get', array("max" => 500, "quickadd" => true))."',"; 
+		}else{
+			print "source: '".caNavUrl($this->request, 'lookup', 'Bibliography', 'Get', array("max" => 500, "quickadd" => false))."',"; 
+		}
+?>
 			minLength: 3, delay: 800, html: true,
 			select: function(event, ui) {
 				var bibliography_id = parseInt(ui.item.id);

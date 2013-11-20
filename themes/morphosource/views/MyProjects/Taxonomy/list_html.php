@@ -17,7 +17,7 @@
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'>";
 			$t_project = new ms_projects();
-			if(($q_listings->get("project_id") == $this->getVar("project_id")) || $t_project->isMember($this->request->user->get("user_id"), $q_listings->get("project_id"))){
+			if(($q_listings->get("project_id") == $this->getVar("project_id")) || $t_project->isFullAccessMember($this->request->user->get("user_id"), $q_listings->get("project_id"))){
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			}else{

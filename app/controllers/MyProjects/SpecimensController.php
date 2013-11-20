@@ -279,8 +279,21 @@
 					$this->listItems();
 				}				
 			}else{
-				$this->view->setVar("item_name", $this->ops_item_name);
-				$this->render('General/delete_html.php');
+				# --- check if this specimen is used by other projects
+				$o_db = new Db();
+				$q_other_projects = $o_db->query("SELECT DISTINCT project_id FROM ms_media WHERE project_id != ? and specimen_id = ?", $this->opn_project_id, $this->opn_item_id);
+				if($q_other_projects->numRows()){
+					$this->notification->addNotification("You can not delete this specimen because it is in use by ".$q_other_projects->numRows()." other project".(($q_other_projects->numRows() == 1) ? "" : "s").". ", __NOTIFICATION_TYPE_INFO__);
+					$this->listItems();
+				}else{
+					# --- check to see if there are media linked to this specimen that will be deleted
+					$q_usage = $o_db->query("SELECT media_id from ms_media where specimen_id = ?", $this->opn_item_id);
+					if($q_usage->numRows()){
+						$this->view->setVar("message", "This specimen is used by ".$q_usage->numRows()." project media.  The media will be deleted along with the specimen.");
+					}
+					$this->view->setVar("item_name", $this->ops_item_name);
+					$this->render('General/delete_html.php');
+				}
 			}
  		}
  		# -------------------------------------------------------
@@ -361,39 +374,83 @@
  		public function linkBibliography() {
 			$va_errors = array();
 			$vs_message = "";
-			# --- make link to bib that is passed from lookup form
-			if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
-				$t_bib_link = new ms_specimens_x_bibliography();
-				# --- check that there is not already a link to this bib ref
-				if($t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "specimen_id" => $this->opn_item_id))){
-					$va_errors["general"] = "There is already a link to this bibliographic citation";
-				}else{
-					$t_bib_link->set("bibref_id",$pn_bibliography_id);
-					$t_bib_link->set("specimen_id",$this->opn_item_id);
-					$t_bib_link->set("user_id",$this->request->user->get("user_id"));
-					#if($vs_page = $this->request->getParameter('page', pString)){
-					#	$t_bib_link->set("pp",$vs_page);
-					#}
-					if ($t_bib_link->numErrors() > 0) {
-						foreach ($t_bib_link->getErrors() as $vs_e) {
-							$va_errors["bibliography_id"] = $vs_e;
+			# --- if no specimen_id is passed, we are on the list form and linking a bib to all project specimen user has ability to edit
+			if(!$this->opn_item_id){
+				# --- make links to project specimen to bib that is passed from lookup form
+				if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
+					# --- get all project specimen to link
+					$o_db = new Db();
+ 					$q_project_specimen = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE project_id = ?", $this->opn_project_id);
+					if($q_project_specimen->numRows()){
+						while($q_project_specimen->nextRow()){
+							$t_bib_link = new ms_specimens_x_bibliography();
+							# --- check that there is not already a link to this bib ref
+							if(!$t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "specimen_id" => $q_project_specimen->get("specimen_id")))){
+								$t_bib_link->set("bibref_id",$pn_bibliography_id);
+								$t_bib_link->set("specimen_id",$q_project_specimen->get("specimen_id"));
+								$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+								if ($t_bib_link->numErrors() > 0) {
+									foreach ($t_bib_link->getErrors() as $vs_e) {
+										$va_errors["bibliography_id"] = $vs_e;
+									}
+								}		
+								if (sizeof($va_errors) == 0) {
+									# do insert
+									$t_bib_link->setMode(ACCESS_WRITE);
+									$t_bib_link->insert();
+									
+									if ($t_bib_link->numErrors()) {
+										foreach ($t_bib_link->getErrors() as $vs_e) {  
+											$va_errors["general"] = $va_errors["general"]."M".$q_project_specimen->get("specimen_id")." ".$vs_e.", ";
+										}
+									}
+								}
+							}
 						}
+						if(sizeof($va_errors) > 0){
+							$vs_message = "There were errors:".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+						}else{
+							$vs_message = _t("Citation was linked to all project specimen");
+						} 
 					}
+				}else{
+					$vs_message = _t("Please select a bibliography");
 				}
 			}else{
-				$va_errors["general"] = _t("Please select a bibliography");
-			}		
-			if (sizeof($va_errors) == 0) {
-				# do insert
-				$t_bib_link->setMode(ACCESS_WRITE);
-				$t_bib_link->insert();
-	
-				if ($t_bib_link->numErrors()) {
-					foreach ($t_bib_link->getErrors() as $vs_e) {  
-						$va_errors["general"] = $vs_e;
+				# --- make link to bib that is passed from lookup form
+				if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
+					$t_bib_link = new ms_specimens_x_bibliography();
+					# --- check that there is not already a link to this bib ref
+					if($t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "specimen_id" => $this->opn_item_id))){
+						$va_errors["general"] = "There is already a link to this bibliographic citation";
+					}else{
+						$t_bib_link->set("bibref_id",$pn_bibliography_id);
+						$t_bib_link->set("specimen_id",$this->opn_item_id);
+						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+						#if($vs_page = $this->request->getParameter('page', pString)){
+						#	$t_bib_link->set("pp",$vs_page);
+						#}
+						if ($t_bib_link->numErrors() > 0) {
+							foreach ($t_bib_link->getErrors() as $vs_e) {
+								$va_errors["bibliography_id"] = $vs_e;
+							}
+						}
 					}
 				}else{
-					$vs_message = "Saved specimen bibliography";
+					$va_errors["general"] = _t("Please select a bibliography");
+				}		
+				if (sizeof($va_errors) == 0) {
+					# do insert
+					$t_bib_link->setMode(ACCESS_WRITE);
+					$t_bib_link->insert();
+		
+					if ($t_bib_link->numErrors()) {
+						foreach ($t_bib_link->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$vs_message = "Saved specimen bibliography";
+					}
 				}
 			}
 			if(sizeof($va_errors) > 0){

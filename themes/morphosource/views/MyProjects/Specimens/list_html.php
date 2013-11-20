@@ -11,13 +11,26 @@
 	</H1>
 <?php
 	if(sizeof($va_specimens) > 0){
+?>
+		<div id="specimenBibliographyInfo">
+			<!-- load Bib form here -->
+		</div><!-- end specimenBibliographyInfo -->
+		<script type="text/javascript">
+			jQuery(document).ready(function() {			
+				jQuery('#specimenBibliographyInfo').load(
+					'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'bibliographyLookup'); ?>'
+				);
+				return false;
+			});
+		</script>
+<?php
 		print '<div id="itemListings">';
 		foreach($va_specimens as $vn_specimen => $va_specimen_info){
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'>";
 			# --- only show edit/delete links for records created by this project or projects the user has access to
 			$t_project = new ms_projects();
-			if(($va_specimen_info["project_id"] == $this->getVar("project_id")) || $t_project->isMember($this->request->user->get("user_id"), $va_specimen_info["project_id"])){
+			if(($va_specimen_info["project_id"] == $this->getVar("project_id")) || $t_project->isFullAccessMember($this->request->user->get("user_id"), $va_specimen_info["project_id"])){
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $vn_specimen));
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $vn_specimen));
 			}else{

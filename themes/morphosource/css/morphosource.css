@@ -1222,3 +1222,8 @@ div.delete_warning_box {
 	display: none;
 	margin-left: 15px;
 }
+
+#mediaFormFilePreviews 
+	display: block;
+	margin-left: 15px;
+}

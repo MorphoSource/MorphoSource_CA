@@ -130,8 +130,18 @@ div.searchlight-results div.searchlight-selected {
 	font-size:12px;
 }
 
+.textContent H2{
+	margin-top: 25px;
+	font-weight:bold;
+}
+
 .textContent div {
 	margin-bottom: 10px;
+}
+.textContent div img{
+	padding:3px;
+	border:1px solid #EDEDED;
+	margin:10px;
 }
 
 

@@ -328,8 +328,29 @@
 					$this->listItems();
 				}				
 			}else{
-				$this->view->setVar("item_name", $this->ops_item_name);
-				$this->render('General/delete_html.php');
+				# --- check if this taxa is used by other projects
+				$o_db = new Db();
+				$q_other_projects = $o_db->query("SELECT DISTINCT s.project_id 
+													FROM ms_specimens s 
+													INNER JOIN ms_specimens_x_taxonomy AS st ON st.specimen_id = s.specimen_id
+													WHERE s.project_id != ? and st.alt_id = ?
+													", $this->opn_project_id, $this->opn_item_id);
+				if($q_other_projects->numRows()){
+					$this->notification->addNotification("You can not delete this taxonomic name because it is in use by ".$q_other_projects->numRows()." other project".(($q_other_projects->numRows() == 1) ? "" : "s").". ", __NOTIFICATION_TYPE_INFO__);
+					$this->listItems();
+				}else{
+					# --- check to see if there are specimen linked to this taxa that will be deleted
+					$q_usage = $o_db->query("SELECT DISTINCT s.specimen_id 
+													FROM ms_specimens s 
+													INNER JOIN ms_specimens_x_taxonomy AS st ON st.specimen_id = s.specimen_id
+													WHERE s.project_id = ? and st.alt_id = ?
+													", $this->opn_project_id, $this->opn_item_id);
+					if($q_usage->numRows()){
+						$this->view->setVar("message", "This taxonomic name is used by ".$q_usage->numRows()." project specimen.");
+					}
+					$this->view->setVar("item_name", $this->ops_item_name);
+					$this->render('General/delete_html.php');
+				}
 			}
  		}
  		# -------------------------------------------------------

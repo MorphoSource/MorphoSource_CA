@@ -100,7 +100,14 @@
 					<?php print $va_user['active'] ? _t('Yes') : _t('No'); ?>
 				</td>
 				<td>
-					<?php print $va_user['num_downloads']; ?>
+<?php
+					if($va_user['num_downloads']){
+						print "<a href='#' title='More info' onClick='jQuery(\"#downloadInfo".$va_user['user_id']."\").load(\"".caNavUrl($this->request, 'Administration', 'Users', 'downloadInfo', array('user_id' => $va_user['user_id']))."\"); return false;'>".$va_user['num_downloads']."</a>";
+						print "<div id='downloadInfo".$va_user['user_id']."'></div>";
+					}else{
+						print $va_user['num_downloads'];
+					}
+?>		
 				</td>
 				<td>
 					<?php print ($va_user['last_login'] > 0) ? $o_tep->getText() : '-'; ?>

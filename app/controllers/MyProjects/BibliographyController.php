@@ -258,8 +258,28 @@
 					$this->listItems();
 				}				
 			}else{
-				$this->view->setVar("item_name", $this->opo_item->getCitationText());
-				$this->render('General/delete_html.php');
+				# --- check if the bib is in use in other projects or in specimen records - do not let this be deleted
+				$o_db = new Db();
+				$q_other_projects1 = $o_db->query("SELECT m.project_id FROM ms_media m INNER JOIN ms_media_x_bibliography AS mb ON mb.media_id = m.media_id WHERE m.project_id != ? AND mb.bibref_id = ?", $this->opn_project_id, $this->opn_item_id);
+				$q_other_projects2 = $o_db->query("SELECT s.project_id FROM ms_specimens s INNER JOIN ms_specimens_x_bibliography AS sb ON sb.specimen_id = s.specimen_id WHERE s.project_id != ? AND sb.bibref_id = ?", $this->opn_project_id, $this->opn_item_id);
+				$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE body_mass_bibref_id = ? OR locality_absolute_age_bibref_id = ? OR locality_relative_age_bibref_id = ?", $this->opn_item_id, $this->opn_item_id, $this->opn_item_id);
+				if($q_other_projects1->numRows() || $q_other_projects2->numRows() || $q_specimens->numRows()){
+					if($q_other_projects1->numRows() || $q_other_projects2->numRows()){
+						$this->notification->addNotification("You can not delete this bibliographic reference because it is in use by ".($q_other_projects1->numRows() + $q_other_projects2->numRows())." other project".((($q_other_projects1->numRows() + $q_other_projects2->numRows()) > 1) ? "s" : ""), __NOTIFICATION_TYPE_INFO__);
+					}
+					if($q_specimens->numRows()){
+						$this->notification->addNotification("You can not delete this bibliographic reference because it is in use by ".($q_specimens->numRows())." specimen".(($q_specimens->numRows() == 1) ? "" : "s"), __NOTIFICATION_TYPE_INFO__);
+					}
+					$this->listItems();
+				}else{
+					$q_projects_links1 = $o_db->query("SELECT m.project_id FROM ms_media m INNER JOIN ms_media_x_bibliography AS mb ON mb.media_id = m.media_id WHERE m.project_id = ? AND mb.bibref_id = ?", $this->opn_project_id, $this->opn_item_id);
+					$q_projects_links2 = $o_db->query("SELECT s.project_id FROM ms_specimens s INNER JOIN ms_specimens_x_bibliography AS sb ON sb.specimen_id = s.specimen_id WHERE s.project_id = ? AND sb.bibref_id = ?", $this->opn_project_id, $this->opn_item_id);
+					if($q_projects_links1->numRows() || $q_projects_links2->numRows()){
+						$this->view->setvar("message", "This bibliographic reference is being used by ".(($q_projects_links1->numRows()) ? $q_projects_links1->numRows()." project media, " : "").(($q_projects_links2->numRows()) ? $q_projects_links2->numRows()." project specimen" : "").".");
+					}
+					$this->view->setVar("item_name", $this->opo_item->getCitationText());
+					$this->render('General/delete_html.php');
+				}
 			}
  		}
  		# -------------------------------------------------------

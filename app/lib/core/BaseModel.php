@@ -3756,14 +3756,24 @@ class BaseModel extends BaseObject {
 							$vs_archive = $this->_SET_FILES[$ps_field]['tmp_name'];
 							$va_tmp = array();
 
+							$vb_got_first_file = false;
+							$vs_first_file = $va_archive_files[0];
+							while(sizeof($va_archive_files) && !$vb_got_first_file) {
+								$vs_file_to_test = array_shift($va_archive_files);
+								if (in_array(strtolower(pathinfo($vs_file_to_test, PATHINFO_EXTENSION)), array('tif', 'tiff', 'jpg', 'jpeg', 'dicom', 'png', 'psd'))) {
+									$vb_got_first_file = true;
+									$vs_first_file = $vs_file_to_test;
+								}
+							}
+
 							// copy primary file from the archive to temporary file (with extension so that *Magick can identify properly)
 							// this is basically a fallback. if the code below fails, we still have a 'fake' original
-							preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$va_archive_files[0],$va_tmp);
+							preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$vs_first_file,$va_tmp);
 							$vs_primary_file_tmp = tempnam(caGetTempDirPath(), "caArchivePrimary");
 							@unlink($vs_primary_file_tmp);
 							$vs_primary_file_tmp = $vs_primary_file_tmp.".".$va_tmp[1];
 
-							if(!@copy($va_archive_files[0], $vs_primary_file_tmp)){
+							if(!@copy($vs_first_file, $vs_primary_file_tmp)){
 								$this->postError(1600, _t("Couldn't extract first file from archive. There is probably a invalid character in a directory or file name inside the archive"),"BaseModel->_processMedia()");
 								set_time_limit($vn_max_execution_time);
 								if ($vb_is_fetched_file) { @unlink($vs_tmp_file); }

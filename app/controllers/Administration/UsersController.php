@@ -262,6 +262,12 @@
  			}
  		}
  		# -------------------------------------------------------
+ 		public function downloadInfo(){
+ 			$t_user = $this->getUserObject();
+ 			$this->view->setVar("download_info", $t_user->getDownloadInfo());
+ 			$this->render('user_download_info_html.php');
+ 		}
+ 		# -------------------------------------------------------
  		# Utilities
  		# -------------------------------------------------------
  		private function getUserObject($pb_set_view_vars=true, $pn_user_id=null) {

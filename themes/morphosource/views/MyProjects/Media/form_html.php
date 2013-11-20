@@ -128,7 +128,7 @@ if (!$this->request->isAjax()) {
 					print "<div id='mediaFormFileSelect'>". caHTMLSelect('mediaServerPath', $va_files_proc, array(), array())."</div>";
 				}
 				//print $t_item->htmlFormElement($vs_f.'_preview', "Preview media".(($vs_media_url) ? " replacement" : "")."<br>^ELEMENT");
-				
+				print "<div id='mediaFormFilePreviews'>Image to use as preview:<br/><input type='file' name='mediaPreviews'/></div>";
 				//if ($vs_media_url) {
 				//	print "<div style='float: right; width: 125px;'>".caHTMLCheckboxInput("updatePreviews", array('value' => '1'))." Update preview icons only</div>";
 				//}

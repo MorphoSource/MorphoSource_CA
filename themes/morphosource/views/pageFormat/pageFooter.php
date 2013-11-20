@@ -22,15 +22,12 @@
 	</div>
 	<ul>
 <?php
+		print "<li>".caNavLink($this->request, _t("Contact"), "", "", "About", "contact")."</li>";
 		if($this->request->isLoggedIn()){
-			print "<li>";
-		}else{
-			print "<li class='last'>";
+			print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
 		}
-		print caNavLink($this->request, _t("Contact"), "", "", "About", "contact")."</li>";
-		if($this->request->isLoggedIn()){
-			print "<li class='last'>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
-		}
+		print "<li class='last'>".caNavLink($this->request, _t("User Guide"), "", "", "About", "userGuide")."</li>";
+		
 ?>
 	</ul>
 </div><!-- end footer -->

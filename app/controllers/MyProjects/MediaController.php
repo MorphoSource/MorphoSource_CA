@@ -168,7 +168,7 @@
 							(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
 						) {
 							$vs_media_path = str_replace("/..", "", escapeshellcmd($this->request->getParameter('mediaServerPath', pString)));
-							if (file_exists($vs_user_upload_directory.$vs_media_path)) {
+							if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
 								$this->opo_item->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
 							} else {
 								$va_errors[$vs_f] = "Please select a media file";
@@ -287,11 +287,12 @@
 					}
 				}else{
 					// Update media previews?
-					if ($this->request->getParameter('updatePreviews', pInteger) == 1) {
-						$this->opo_item->set('media', $_FILES['media']['tmp_name'], array(
-							'original_filename' => $_FILES['media']['name']
+					if (isset($_FILES['mediaPreviews']['tmp_name']) && $_FILES['mediaPreviews']['tmp_name'] && $_FILES['mediaPreviews']['size']) {
+						$this->opo_item->set('media', $_FILES['mediaPreviews']['tmp_name'], array(
+							'original_filename' => $_FILES['mediaPreviews']['name']
 						));
 						$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+						$this->opo_item->update($va_update_opts);
 					}
 					
 					

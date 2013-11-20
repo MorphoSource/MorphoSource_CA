@@ -262,8 +262,27 @@
 					$this->listItems();
 				}				
 			}else{
-				$this->view->setVar("item_name", $this->ops_item_name);
-				$this->render('General/delete_html.php');
+				# --- check if this facility is used by other projects
+				$o_db = new Db();
+				$q_other_projects = $o_db->query("SELECT DISTINCT project_id FROM ms_media WHERE project_id != ? and facility_id = ?", $this->opn_project_id, $this->opn_item_id);
+				if($q_other_projects->numRows()){
+					$this->notification->addNotification("You can not delete this facility because it is in use by ".$q_other_projects->numRows()." other project".(($q_other_projects->numRows() == 1) ? "" : "s").". ", __NOTIFICATION_TYPE_INFO__);
+					$this->listItems();
+				}else{
+					# --- check to see if there are media linked to this facility that will be deleted
+					$q_media_usage = $o_db->query("SELECT media_id from ms_media where facility_id = ?", $this->opn_item_id);
+					if($q_media_usage->numRows()){
+						$va_media = array();
+						while($q_media_usage->nextRow()){
+							$va_media[] = "M".$q_media_usage->get("media_id");
+						}
+						$this->notification->addNotification("You can not delete this facility because it is used by ".$q_media_usage->numRows()." project media:<br/>".join(", ", $va_media), __NOTIFICATION_TYPE_INFO__);
+						$this->listItems();
+					}else{
+						$this->view->setVar("item_name", $this->ops_item_name);
+						$this->render('General/delete_html.php');
+					}
+				}
 			}
  		}
  		# -------------------------------------------------------
