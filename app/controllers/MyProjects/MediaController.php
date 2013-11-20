@@ -170,8 +170,8 @@
 							$vs_media_path = str_replace("/..", "", escapeshellcmd($this->request->getParameter('mediaServerPath', pString)));
 							if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
 								$this->opo_item->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
-							} else {
-								$va_errors[$vs_f] = "Please select a media file";
+							//} else {
+								//$va_errors[$vs_f] = "Please select a media file";
 							}
 						} else {
 							if($_FILES['media']['tmp_name']){
