@@ -157,18 +157,30 @@
 				switch($vs_f) {
 					# -----------------------------------------------
 					case 'media':
-						if($_FILES['media']['tmp_name']){
-							if ($this->request->getParameter('updatePreviews', pInteger) == 1) {
-								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array(
-									'original_filename' => $_FILES['media']['name']
-								));
-								$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+						$vs_media_source = $this->request->getParameter('mediaSource', pString);
+						if (
+							($vs_media_source == 'server')
+							&&
+							($vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory'))
+							&&
+							($vs_upload_base_directory = $this->opo_item->getAppConfig()->get('upload_base_directory'))
+							&&
+							(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
+						) {
+							$vs_media_path = str_replace("/..", "", escapeshellcmd($this->request->getParameter('mediaServerPath', pString)));
+							if (file_exists($vs_user_upload_directory.$vs_media_path)) {
+								$this->opo_item->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
 							} else {
-								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+								$va_errors[$vs_f] = "Please select a media file";
 							}
-						}elseif(!$this->opo_item->get('media')){
-							$va_errors[$vs_f] = "Please upload a media file";
+						} else {
+							if($_FILES['media']['tmp_name']){
+								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+							}elseif(!$this->opo_item->get('media')){
+								$va_errors[$vs_f] = "Please upload a media file";
+							}
 						}
+						$this->request->user->setVar('lastMediaSource', $vs_media_source);
 						break;
 					# -----------------------------------------------
 					case 'project_id':
@@ -274,6 +286,15 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
+					// Update media previews?
+					if ($this->request->getParameter('updatePreviews', pInteger) == 1) {
+						$this->opo_item->set('media', $_FILES['media']['tmp_name'], array(
+							'original_filename' => $_FILES['media']['name']
+						));
+						$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+					}
+					
+					
 					$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
 				}
 			}
@@ -473,7 +494,8 @@
 							$va_item_errors = array();
 							$t_bib_link = new ms_media_x_bibliography();
 							# --- check that there is not already a link to this bib ref
-							if(!$t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $q_project_media->get("media_id")))){
+							$t_bib_link->load(array("bibref_id" => $pn_bibliography_id, "media_id" => $q_project_media->get("media_id")));
+							if(!$t_bib_link->get("link_id")){
 								$t_bib_link->set("bibref_id",$pn_bibliography_id);
 								$t_bib_link->set("media_id",$q_project_media->get("media_id"));
 								$t_bib_link->set("user_id",$this->request->user->get("user_id"));
@@ -624,7 +646,7 @@
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
 				$this->opo_item->setMode(ACCESS_WRITE);
-				$this->opo_item->delete(true);
+				$this->opo_item->delete();
 				if ($this->opo_item->numErrors()) {
 					foreach ($this->opo_item->getErrors() as $vs_e) {  
 						$va_errors["general"] = $vs_e;

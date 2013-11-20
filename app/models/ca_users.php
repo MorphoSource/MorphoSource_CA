@@ -39,6 +39,7 @@ require_once(__CA_APP_DIR__.'/models/ca_user_roles.php');
 include_once(__CA_APP_DIR__."/helpers/utilityHelpers.php");
 require_once(__CA_APP_DIR__.'/models/ca_user_groups.php');
 require_once(__CA_APP_DIR__.'/models/ca_locales.php');
+require_once(__CA_APP_DIR__.'/models/ms_specimens.php');
 
 
 BaseModel::$s_ca_models_definitions['ca_users'] = array(
@@ -1885,6 +1886,16 @@ class ca_users extends BaseModel {
 					
 					break;
 				# ---------------------------------
+				case 'DT_UPLOAD_DIRECTORIES':
+					$va_upload_dirs = caGetSubDirectoryList($this->_CONFIG->get('upload_base_directory'));
+					$va_opts = array("[NONE]" => "");
+					foreach(array_keys($va_upload_dirs) as $vs_upload_dir) {
+						$va_opts[pathinfo($vs_upload_dir, PATHINFO_FILENAME)] = $vs_upload_dir;
+					}
+					ksort($va_opts);
+					$vs_output = caHTMLSelect("pref_{$ps_pref}", $va_opts, array(), array('value' => $vs_current_value));
+					break;
+				# ---------------------------------
 				default:
 					return "Configuration error: Invalid display type for $ps_pref";
 				# ---------------------------------
@@ -3090,6 +3101,32 @@ class ca_users extends BaseModel {
 			$vn_num_downloads = $qr->get("c");
 		}
 		return $vn_num_downloads;
+	}
+	# ----------------------------------------
+	function getDownloadInfo($pn_user_id=null) {
+		if(!$pn_user_id){
+			$pn_user_id = $this->getPrimaryKey();
+		}
+		if (!$pn_user_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT mds.*, m.specimen_id, p.name, p.project_id
+			FROM ms_media_download_stats mds
+			INNER JOIN ms_media AS m ON mds.media_id = m.media_id
+			INNER JOIN ms_projects AS p on m.project_id = p.project_id
+			WHERE mds.user_id = ?
+		", $pn_user_id);
+		
+		$va_downloads_for_user = array();
+		$t_specimen = new ms_specimens();
+		if($qr->numRows()){
+			while($qr->nextRow()){
+				$va_downloads_for_user[$qr->get("download_id")] = $qr->getRow();
+				$va_downloads_for_user[$qr->get("download_id")]["specimen"] = $t_specimen->getSpecimenName($qr->get("specimen_id"));
+			}
+		}
+		return $va_downloads_for_user;
 	}
 	# ----------------------------------------
 }

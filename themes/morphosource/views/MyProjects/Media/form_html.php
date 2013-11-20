@@ -103,13 +103,53 @@ if (!$this->request->isAjax()) {
 			case "media":
 				$vs_media_url = $t_item->getMediaUrl('media', 'original');
 				
-				print "<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>";
-				print $t_item->htmlFormElement($vs_f, "^LABEL".(($vs_media_url) ? " replacement" : "")."<br>^ELEMENT");
 				
-				if ($vs_media_url) {
-					print "<div style='float: right; width: 125px;'>".caHTMLCheckboxInput("updatePreviews", array('value' => '1'))." Update preview icons only</div>";
+				
+				print "<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>";
+				
+				print 'Select '.($vs_media_url ? 'replacement ' : '').'media from '.caHTMLSelect('mediaSource', array(
+					'From your computer...' => 'upload',
+					'From the server...' => 'server'
+				), array('id' => 'mediaSource'), array('value' => $this->request->user->getVar('lastMediaSource')));
+				print "<div id='mediaFormFileUpload'>".$t_item->htmlFormElement($vs_f, "^ELEMENT")."</div>";
+				
+				if (
+					($vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory'))
+					&&
+					($vs_upload_base_directory = $t_item->getAppConfig()->get('upload_base_directory'))
+					&&
+					(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
+				) {
+					$va_files = caGetDirectoryContentsAsList($vs_user_upload_directory);
+					$va_files_proc = array('[SELECT A FILE]' => '');
+					foreach($va_files as $vs_path) {
+						$va_files_proc[$vs_path_proc = preg_replace('!^'.$vs_user_upload_directory.'!', '', $vs_path)] = $vs_path_proc;
+					}
+					print "<div id='mediaFormFileSelect'>". caHTMLSelect('mediaServerPath', $va_files_proc, array(), array())."</div>";
 				}
+				//print $t_item->htmlFormElement($vs_f.'_preview', "Preview media".(($vs_media_url) ? " replacement" : "")."<br>^ELEMENT");
+				
+				//if ($vs_media_url) {
+				//	print "<div style='float: right; width: 125px;'>".caHTMLCheckboxInput("updatePreviews", array('value' => '1'))." Update preview icons only</div>";
+				//}
 				print "</div>";
+?>
+				<script type="text/javascript">
+					function msSetMediaSource() {
+						if (jQuery('#mediaSource').val() == 'upload') {
+							jQuery('#mediaFormFileUpload').slideDown(250);
+							jQuery('#mediaFormFileSelect').slideUp(250);
+						} else {
+							jQuery('#mediaFormFileSelect').slideDown(250);
+							jQuery('#mediaFormFileUpload').slideUp(250);
+						}
+					}
+					jQuery(document).ready(function() { 
+						msSetMediaSource(); 
+						jQuery('#mediaSource').on("change", function(e) { msSetMediaSource();  });
+					});
+				</script>
+<?php
 			break;
 			# -----------------------------------------------
 			case "scanner_calibration_shading_correction":

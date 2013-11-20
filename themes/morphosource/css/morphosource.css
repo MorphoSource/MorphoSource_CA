@@ -1211,3 +1211,14 @@ div.delete_warning_box {
 	width: 100%;
 	height: 32px;
 }
+
+
+#mediaFormFileUpload {
+	display: none;
+	margin-left: 15px;
+}
+
+#mediaFormFileSelect {
+	display: none;
+	margin-left: 15px;
+}
