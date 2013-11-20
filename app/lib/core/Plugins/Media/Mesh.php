@@ -414,7 +414,8 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
 
 				scene = new THREE.Scene();
-
+				scene.add(camera);
+				
 				// ASCII file
 
 <?php
@@ -432,7 +433,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 					var geometry = event.content;
 					THREE.GeometryUtils.center(geometry);
-					var material = new THREE.MeshPhongMaterial( { ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 } );
+					var material = new THREE.MeshPhongMaterial( { ambient: 0xFFFFCC, color: 0xFFFFCC, specular: 0x111111, shininess: 200 } );
 					var mesh = new THREE.Mesh( geometry, material );
 					
 					mesh.position.set( 0, 0, 0 );
@@ -461,9 +462,14 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 				// Lights
 				scene.add( new THREE.AmbientLight( 0x777777 ) );
+				
+				flashlight = new THREE.SpotLight(0x777777,2,40);
+				camera.add(flashlight);
+				flashlight.position.set(0,0,1);
+				flashlight.target = camera;
 
-				addShadowedLight( 10, 10, 10, 0xffffff, 1.35 );
-				addShadowedLight( -7, 7, -7, 0xffaa00, 1 );
+				//addShadowedLight( 10, 10, 10, 0xffffff, 1.35 );
+				//addShadowedLight( -7, 7, -7, 0xffaa00, 1 );
 
 				// renderer
 
@@ -528,7 +534,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 				directionalLight.shadowBias = -0.005;
 				directionalLight.shadowDarkness = 0.15;
-
+				return directionalLight;
 			}
 
 			function onWindowResize() {
