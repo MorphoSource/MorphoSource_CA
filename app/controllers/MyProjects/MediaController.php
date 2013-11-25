@@ -647,7 +647,7 @@
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
 				$this->opo_item->setMode(ACCESS_WRITE);
-				$this->opo_item->delete();
+				$this->opo_item->delete(true);
 				if ($this->opo_item->numErrors()) {
 					foreach ($this->opo_item->getErrors() as $vs_e) {  
 						$va_errors["general"] = $vs_e;

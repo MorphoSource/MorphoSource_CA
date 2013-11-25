@@ -867,6 +867,11 @@ class ms_media extends BaseModel {
  		
  		$o_db = $this->getDb();
  		
+ 		# --- check if user has access to the project that made the media
+ 		$t_project = new ms_projects($t_media->get('project_id'));
+ 		if($t_project->isMember($pn_user_id)){
+ 			return true;
+ 		}
  		$qr_res = $o_db->query("
  			SELECT * 
  			FROM ms_media_download_requests
