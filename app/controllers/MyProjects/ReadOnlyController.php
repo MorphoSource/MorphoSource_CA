@@ -64,6 +64,9 @@
 				$this->view->setvar("project_id", $this->opn_project_id);
 				$this->view->setvar("project_name", $this->ops_project_name);
 				$this->view->setvar("project", $this->opo_project);
+				$this->request->session->setVar('current_project_name', "");
+				$this->request->session->setVar('current_project_id', "");
+				$this->request->session->setVar('current_project_unpublished', "");
  			}else{
  				if(!$vn_project_id){
  					$this->notification->addNotification("You must select a project", __NOTIFICATION_TYPE_ERROR__);
