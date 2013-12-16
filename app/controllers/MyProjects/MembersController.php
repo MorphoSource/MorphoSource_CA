@@ -336,19 +336,22 @@
  			$this->view->setVar("primary_key", "user_id");
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
-				$this->opo_project_users->load(array("user_id" => $vn_user_id));
-				$this->opo_project_users->setMode(ACCESS_WRITE);
-				$this->opo_project_users->delete(false);
-				if ($this->opo_project_users->numErrors()) {
-					foreach ($this->opo_project_users->getErrors() as $vs_e) {  
-						$va_errors["general"] = $vs_e;
-					}
-					if(sizeof($va_errors) > 0){
-						$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
-					}
-				}else{
-					$this->notification->addNotification("Removed user", __NOTIFICATION_TYPE_INFO__);
-				}	
+				if ($this->opo_project_users->load(array("user_id" => $vn_user_id, 'project_id' => $this->opo_project->get("project_id")))) {
+					$this->opo_project_users->setMode(ACCESS_WRITE);
+					$this->opo_project_users->delete(false);
+					if ($this->opo_project_users->numErrors()) {
+						foreach ($this->opo_project_users->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+						if(sizeof($va_errors) > 0){
+							$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+						}
+					}else{
+						$this->notification->addNotification("Removed user", __NOTIFICATION_TYPE_INFO__);
+					}	
+				} else {
+					$this->notification->addNotification("User is not member of this project", __NOTIFICATION_TYPE_ERROR__);
+				}
 				$this->listForm();
 			}else{
 				$t_user = new ca_users($vn_user_id);
