@@ -24,6 +24,8 @@
 			});
 		</script>
 <?php
+		$vs_order_by = $this->getVar("specimens_order_by");
+		print "<div style='margin:15px 0px 0px 10px;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Specimens", "listItems", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Specimens", "listItems", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
 		print '<div id="itemListings">';
 		foreach($va_specimens as $vn_specimen => $va_specimen_info){
 			print "<div class='listItemLtBlue'>";

@@ -469,9 +469,30 @@ class ms_projects extends BaseModel {
 		return $qr;
 	}
 	# ----------------------------------------
-	function getProjectSpecimens($pa_versions=null) {
+	# $ps_order_by = number (s.institution_code, s.collection_code, s.catalog_number), taxon (t.genus, t.species, t.subspecies)
+	# ----------------------------------------
+	function getProjectSpecimens($pa_versions=null, $ps_order_by=null) {
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
+		
+		if(!$ps_order_by){
+			$ps_order_by = number;
+		}
+		$vs_order_by = "";
+		$vs_order_by_joins = "";
+		
+		switch($ps_order_by){
+			case "number":
+				$vs_order_by = " s.institution_code, s.collection_code, s.catalog_number";
+			break;
+			# -----------------
+			case "taxon":
+				$vs_order_by = " t.genus, t.species, t.subspecies";
+				$vs_order_by_joins = "LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+										LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id";
+			break;
+			# -----------------
+		}
 		
 		$o_db = $this->getDb();
 // 		$qr = $o_db->query("
@@ -488,10 +509,11 @@ class ms_projects extends BaseModel {
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+			".$vs_order_by_joins."
 			WHERE s.project_id = ?
 			OR m.project_id = ?
-			ORDER BY s.institution_code, s.collection_code, s.catalog_number
-		", $vn_project_id, $vn_project_id);
+			ORDER BY ".$vs_order_by
+		, $vn_project_id, $vn_project_id);
 			
 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {

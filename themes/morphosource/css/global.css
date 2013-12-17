@@ -2010,3 +2010,10 @@ div.jGrowl div.jGrowl-closer {
 }
 
 /* end autocompleter styles */
+
+/* User guide */
+.userGuideFormatTable {
+	border: 1px solid #000; 
+	border-collapse: collapse;
+	padding: 5px;
+}

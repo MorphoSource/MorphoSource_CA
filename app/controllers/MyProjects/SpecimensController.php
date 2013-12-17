@@ -126,7 +126,17 @@
  		}
  		# -------------------------------------------------------
  		public function listItems() {
-			$va_specimens = $this->opo_project->getProjectSpecimens();
+			$vs_specimens_order_by = $this->request->getParameter('specimens_order_by', pString);
+			
+			if($vs_specimens_order_by){
+				$this->request->session->setVar('specimens_order_by', $vs_specimens_order_by);
+			}elseif($this->request->session->getVar('specimens_order_by')){
+				$vs_specimens_order_by = $this->request->session->getVar('specimens_order_by');
+			}else{
+				$vs_specimens_order_by = "number";
+			}
+			$this->view->setVar("specimens_order_by", $vs_specimens_order_by);			
+			$va_specimens = $this->opo_project->getProjectSpecimens(null, $vs_specimens_order_by);
 			$this->view->setVar("specimens", $va_specimens);
 			$this->render('Specimens/list_html.php');
  		}

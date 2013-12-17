@@ -82,6 +82,27 @@
 		Further copyright information, such as the appropriate creative commons license to use for the image, can be entered when the “is under copyright” box is checked.
 	</div>
 	<div>
+		You can upload many different file formats including:
+		<table class="userGuideFormatTable">
+			<tbody>
+				<tr>
+					<td class="userGuideFormatTable"><em>Video</em></td><td class="userGuideFormatTable">MPEG-2, MPEG-4/H.264, FLV, Quicktime, WindowsMedia</td>
+				</tr>
+				<tr>
+					<td class="userGuideFormatTable"><em>Images</em></td><td class="userGuideFormatTable">JPEG, PNG, TIFF, DICOM, PSD</td>
+				</tr>
+				<tr>
+					<td class="userGuideFormatTable"><em>Surfaces</em></td><td class="userGuideFormatTable">PLY, STL</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		Stacks of TIFF or DICOM images may be uploaded as ZIP format archives. Morphosource will retain the archive and return it as-is to users on download. A preview image will be randomly extracted from the stack for presentation.
+	</div>
+	<div>
+		Preview images, video and surface media are viewable within Morphosource using built-in web browser-based viewers. Note that for image stacks, only the preview image is viewable within Morphosource. To see other stack images the user must download the entire stack.
+	</div>
+	<div>
 		Once the file has been uploaded and successfully saved to the specimen, you will see a Project Media screen that displays the image along with metadata and further options. If you are the person who uploaded the media, you will see a row of buttons beneath the image that include “Download,” “Publish,” Edit Media,” “Clone Media,” and “Delete.” If you are a project member (not administrator) who did not upload the given file, you will see all of the above except for “Publish” and “Delete.” If the image is already published, you will not see the “Publish” options.
 	</div>
 	<div>
