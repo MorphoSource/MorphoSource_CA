@@ -82,6 +82,17 @@
 				$this->projectList();
 				return;
 			}
+			$vs_specimens_order_by = $this->request->getParameter('specimens_order_by', pString);
+			
+			if($vs_specimens_order_by){
+				$this->request->session->setVar('specimens_order_by', $vs_specimens_order_by);
+			}elseif($this->request->session->getVar('specimens_order_by')){
+				$vs_specimens_order_by = $this->request->session->getVar('specimens_order_by');
+			}else{
+				$vs_specimens_order_by = "number";
+			}
+			$this->view->setVar("specimens_order_by", $vs_specimens_order_by);			
+			
 			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
 			$this->view->setVar("num_projects", sizeof($va_projects));
 			$this->view->setVar("media_counts", $this->opo_project->getProjectMediaCounts());

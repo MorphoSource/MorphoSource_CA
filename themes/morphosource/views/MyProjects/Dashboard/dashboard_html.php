@@ -144,11 +144,14 @@
 	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
 <?php
 	$t_specimen = new ms_specimens();
-	$va_specimens = $t_project->getProjectSpecimens();
+	$vs_order_by = $this->getVar("specimens_order_by");
+	$va_specimens = $t_project->getProjectSpecimens(null, $vs_order_by);
 ?>
 	<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
 <?php
 	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
+		print "<div style='text-align:right; margin:5px 0px 5px 0px;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
+		
 		#$vn_i_spec = 0;
 		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
 			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
