@@ -684,11 +684,14 @@
 
 			$va_info = $this->opo_item->getMediaInfo('media');
 			$vs_idno_proc = $this->opo_item->get('media_id');
-			if ($va_version_info['ORIGINAL_FILENAME']) {
-				$this->view->setVar('version_download_name', $va_version_info['ORIGINAL_FILENAME'].'.'.$va_version_info['EXTENSION']);					
-			} else {
-				$this->view->setVar('version_download_name', 'morphosourceM'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
-			}
+			$t_specimens = new ms_specimens();
+			$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+			
+			#if ($va_version_info['ORIGINAL_FILENAME']) {
+			#	$this->view->setVar('version_download_name', $va_version_info['ORIGINAL_FILENAME'].'.'.$va_version_info['EXTENSION']);					
+			#} else {
+				$this->view->setVar('version_download_name', $vs_specimen_number.'_M'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
+			#}
 			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
 			
 			# --- record download
