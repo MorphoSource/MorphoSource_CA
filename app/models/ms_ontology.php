@@ -163,6 +163,11 @@ class ms_ontology extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'OntologySearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'OntologySearchResult';
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

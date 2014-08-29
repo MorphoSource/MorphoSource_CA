@@ -32,17 +32,8 @@
 	require_once(__CA_LIB_DIR__."/core/Datamodel.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/MediaSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Search/ObjectSearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Search/EntitySearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Search/PlaceSearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Search/OccurrenceSearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Search/CollectionSearch.php");
- 	require_once(__CA_LIB_DIR__."/ca/Browse/ObjectBrowse.php");
- 	require_once(__CA_LIB_DIR__."/ca/Browse/EntityBrowse.php");
- 	require_once(__CA_LIB_DIR__."/ca/Browse/PlaceBrowse.php");
- 	require_once(__CA_LIB_DIR__."/ca/Browse/CollectionBrowse.php");
- 	require_once(__CA_LIB_DIR__."/ca/Browse/OccurrenceBrowse.php");
  	require_once(__CA_LIB_DIR__.'/core/GeographicMap.php');
+ 	require_once(__CA_MODELS_DIR__.'/ms_projects.php');
 	
  	class SearchController extends BaseSearchController {
  		# -------------------------------------------------------
@@ -202,8 +193,11 @@
 				if ($this->request->config->get('do_secondary_search_for_ms_specimens')) {
 					$o_search = new SpecimenSearch();
 					$qr_res = $o_search->search($ps_search, array('no_cache' => true, 'checkAccess' => $va_access_values));
-					$this->view->setVar('secondary_search_ms_specimens', $qr_res);
-					$this->_setResultContextForSecondarySearch('ms_specimens', $ps_search, $qr_res);
+					$qr_res_without_medialess_specimens = $this->_setResultContextForSecondarySearch('ms_specimens', $ps_search, $qr_res);
+					
+					// We want to use the  result set that has been filtered to omit specimens that don't have at least one
+					// published media item
+					$this->view->setVar('secondary_search_ms_specimens', $qr_res_without_medialess_specimens ? $qr_res_without_medialess_specimens : $qr_res);
 				}
 			}
  			$this->view->setVar('secondaryItemsPerPage', $this->opa_items_per_secondary_search_page);
@@ -254,15 +248,34 @@
  			$po_result->seek(0);
  			
  			$va_found_item_ids = array();
+ 			
+ 			$t_project = new ms_projects();
+ 			$va_projects = caExtractArrayValuesFromArrayOfArrays($t_project->getProjectsForMember($this->request->getUserID()), 'project_id');
+ 			
+ 			$vb_is_logged_in = (bool)$this->request->isLoggedIn();
+ 			
  			while($po_result->nextHit()) {
- 				$va_found_item_ids[] = $po_result->get($ps_table_name.'.'.$vs_pk);
+ 				// Only show items that have at least one published media item related
+ 				// unles the item is in the logged in users' projects
+ 				$va_is_published = $po_result->get('ms_media.published', array('returnAsArray' => true));
+ 				if(is_array($va_is_published) && sizeof($va_is_published)) {
+ 					foreach($va_is_published as $vn_published) {
+ 						if (($vn_published > 0) || (($vn_published == 0) && $vb_is_logged_in && in_array($po_result->get($ps_table_name.'.project_id'), $va_projects))) {
+ 							$va_found_item_ids[] = $po_result->get($ps_table_name.'.'.$vs_pk);
+ 							break;
+ 						}
+ 					}
+ 				}
  			}
  			
 			$opo_result_context->setResultList($va_found_item_ids);
 			$opo_result_context->setAsLastFind();
 			$opo_result_context->saveContext();
-			$po_result->seek(0);
-			return true;
+			
+			$po_result = caMakeSearchResult($ps_table_name, $va_found_item_ids);
+			
+			// return modified search result
+			return $po_result;
 		}
  		# -------------------------------------------------------
  		# "Searchlight" autocompleting search

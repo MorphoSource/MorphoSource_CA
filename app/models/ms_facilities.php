@@ -238,6 +238,12 @@ class ms_facilities extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'FacilitySearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'FacilitySearchResult';
+	
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

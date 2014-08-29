@@ -36,6 +36,11 @@
 	header("Cache-control: private");
 	
 	header("Content-Disposition: attachment; filename=".$this->getVar('version_download_name'));
-	ob_end_flush();	// need to do this in order to not have read file use request memory due to buffering
-	readfile($vs_file_path);
+	set_time_limit(0);
+	$o_fp = @fopen($vs_file_path,"rb");
+	while(is_resource($o_fp) && !feof($o_fp)) {
+		print(@fread($o_fp, 1024*8));
+		ob_flush();
+		flush();
+	}
 ?>

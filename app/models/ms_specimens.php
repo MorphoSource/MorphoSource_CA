@@ -324,6 +324,11 @@ class ms_specimens extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'SpecimenSearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'SpecimenSearchResult';
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

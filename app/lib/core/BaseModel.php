@@ -120,6 +120,7 @@ require_once(__CA_APP_DIR__."/helpers/utilityHelpers.php");
 require_once(__CA_APP_DIR__."/helpers/gisHelpers.php");
 require_once(__CA_LIB_DIR__."/ca/ApplicationPluginManager.php");
 require_once(__CA_LIB_DIR__."/core/Parsers/htmlpurifier/HTMLPurifier.standalone.php");
+require_once(__CA_LIB_DIR__.'/core/Parsers/UnZipFile.php');
 
 /**
  * Base class for all database table classes. Implements database insert/update/delete
@@ -3733,6 +3734,7 @@ class BaseModel extends BaseObject {
 
 				// allow adding zip and (gzipped) tape archives
 				$vb_is_archive = false;
+				$vs_archive = null;
 				$vs_original_filename = $this->_SET_FILES[$ps_field]['original_filename'];
 				$vs_original_tmpname = $this->_SET_FILES[$ps_field]['tmp_name'];
 				$va_matches = array();
@@ -3742,14 +3744,23 @@ class BaseModel extends BaseObject {
 
 					// add file extension to temporary file if necessary; otherwise phar barfs when handling the archive
 					$va_tmp = array();
-					preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$va_archive_files[0],$va_tmp);
+					preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$vs_original_filename,$va_tmp);
 					if(!isset($va_tmp[1])){
 						@rename($this->_SET_FILES[$ps_field]['tmp_name'], $this->_SET_FILES[$ps_field]['tmp_name'].$vs_archive_extension);
 						$this->_SET_FILES[$ps_field]['tmp_name'] = $this->_SET_FILES[$ps_field]['tmp_name'].$vs_archive_extension;
 					}
 
-					if(caIsArchive($this->_SET_FILES[$ps_field]['tmp_name'])){
-						$va_archive_files = caGetDirectoryContentsAsList('phar://'.$this->_SET_FILES[$ps_field]['tmp_name']);
+					$vs_zip_tmp_dir_base = $this->getAppConfig()->get('archive_extraction_tmp_directory');
+					$vs_zip_tmp_dir = null;
+					if(($vs_archive_extension == '.zip') || caIsArchive($this->_SET_FILES[$ps_field]['tmp_name'])){
+						if (($vs_archive_extension == '.zip')) { // && filesize($this->_SET_FILES[$ps_field]['tmp_name']) >= (pow(2,32)-1)) {		// set to pow(2,32) for files > 4gigs
+							$vs_zip_tmp_dir = md5(rand(0, 9999999).time().$this->_SET_FILES[$ps_field]['tmp_name']);
+							mkdir("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
+							exec("/usr/bin/unzip ".$this->_SET_FILES[$ps_field]['tmp_name']." -d {$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
+							$va_archive_files = caGetDirectoryContentsAsList("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
+						} else {
+							$va_archive_files = caGetDirectoryContentsAsList('phar://'.$this->_SET_FILES[$ps_field]['tmp_name']);
+						}
 						if(sizeof($va_archive_files)>0){
 							// get first file we encounter in the archive and use it to generate them previews
 							$vb_is_archive = true;
@@ -3757,24 +3768,26 @@ class BaseModel extends BaseObject {
 							$va_tmp = array();
 
 							$vb_got_first_file = false;
-							$vs_first_file = $va_archive_files[0];
-							while(sizeof($va_archive_files) && !$vb_got_first_file) {
-								$vs_file_to_test = array_shift($va_archive_files);
-								if (in_array(strtolower(pathinfo($vs_file_to_test, PATHINFO_EXTENSION)), array('tif', 'tiff', 'jpg', 'jpeg', 'dicom', 'png', 'psd'))) {
+							$vs_first_file = null;
+							$vn_c = 0;
+							while(($vn_c < 1000) && !$vb_got_first_file) {
+								$vs_file_to_test = $va_archive_files[(int)rand(0, sizeof($va_archive_files)-1)];
+								if (in_array(strtolower(pathinfo($vs_file_to_test, PATHINFO_EXTENSION)), array('tif', 'tiff', 'jpg', 'jpeg', 'dicom', 'png', 'psd', 'dcm'))) {
 									$vb_got_first_file = true;
 									$vs_first_file = $vs_file_to_test;
 								}
+								$vn_c++;
 							}
 
 							// copy primary file from the archive to temporary file (with extension so that *Magick can identify properly)
 							// this is basically a fallback. if the code below fails, we still have a 'fake' original
 							preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$vs_first_file,$va_tmp);
-							$vs_primary_file_tmp = tempnam(caGetTempDirPath(), "caArchivePrimary");
+							$vs_primary_file_tmp = tempnam($vs_zip_tmp_dir_base, "caArchivePrimary");
 							@unlink($vs_primary_file_tmp);
 							$vs_primary_file_tmp = $vs_primary_file_tmp.".".$va_tmp[1];
 
 							if(!@copy($vs_first_file, $vs_primary_file_tmp)){
-								$this->postError(1600, _t("Couldn't extract first file from archive. There is probably a invalid character in a directory or file name inside the archive"),"BaseModel->_processMedia()");
+								$this->postError(1600, _t("Couldn't extract first file from archive. There is probably an invalid character in a directory or file name inside the archive"),"BaseModel->_processMedia()");
 								set_time_limit($vn_max_execution_time);
 								if ($vb_is_fetched_file) { @unlink($vs_tmp_file); }
 								if ($vb_is_archive) { @unlink($vs_primary_file_tmp); }
@@ -3785,21 +3798,24 @@ class BaseModel extends BaseObject {
 
 							// prepare to join archive contents to form a better downloadable "original" than the zip/tgz archive (e.g. a multi-page tiff)
 							// to do that, we have to 'extract' the archive so that command-line utilities like *Magick can operate
-							@caRemoveDirectory(caGetTempDirPath().'/caArchiveExtract'); // remove left-overs, just to be sure we don't include other files in the tiff
-							$va_archive_tmp_files = array();
-							@mkdir(caGetTempDirPath().'/caArchiveExtract');
-							foreach($va_archive_files as $vs_archive_file){
-								$vs_basename = basename($vs_archive_file);
-								$vs_tmp_file_name = caGetTempDirPath().'/caArchiveExtract/'.str_replace(" ", "_", $vs_basename);
-								$va_archive_tmp_files[] = $vs_tmp_file_name;
-								@copy($vs_archive_file,$vs_tmp_file_name);
-							}
+							//@caRemoveDirectory($vs_zip_tmp_dir_base.'/caArchiveExtract'); // remove left-overs, just to be sure we don't include other files in the tiff
+							//$va_archive_tmp_files = array();
+							//@mkdir($vs_zip_tmp_dir_base.'/caArchiveExtract');
+							//foreach($va_archive_files as $vs_archive_file){
+							//	$vs_basename = basename($vs_archive_file);
+							//	$vs_tmp_file_name = $vs_zip_tmp_dir_base.'/caArchiveExtract/'.str_replace(" ", "_", $vs_basename);
+							//	$va_archive_tmp_files[] = $vs_tmp_file_name;
+							//	@copy($vs_archive_file,$vs_tmp_file_name);
+							//}
 						}
 					}
 
 					if(!$vb_is_archive) { // something went wrong (i.e. no valid or empty archive) -> restore previous state
 						@rename($this->_SET_FILES[$ps_field]['tmp_name'].$vs_archive_extension, $vs_original_tmpname);
 						$this->_SET_FILES[$ps_field]['tmp_name'] = $vs_original_tmpname;
+					}
+					if ($vs_zip_tmp_dir) {
+						caRemoveDirectory("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
 					}
 				}
 
@@ -3843,25 +3859,25 @@ class BaseModel extends BaseObject {
 
 				// if necessary, join archive contents to form a better downloadable "original" than the zip/tgz archive (e.g. a multi-page tiff)
 				// by this point, a backend plugin was picked using the first file of the archive. this backend is also used to prepare the new original.
-				if($vb_is_archive && (sizeof($va_archive_tmp_files)>0)){
-					if($vs_archive_original = $m->joinArchiveContents($va_archive_tmp_files)){
-						// mangle filename, so that the uploaded archive.zip becomes archive.tif or archive.gif or whatever extension the Media plugin prefers
-						$va_new_original_pathinfo = pathinfo($vs_archive_original);
-						$va_archive_pathinfo = pathinfo($this->_SET_FILES[$ps_field]['original_filename']);
-						$this->_SET_FILES[$ps_field]['original_filename'] = $va_archive_pathinfo['filename'].".".$va_new_original_pathinfo['extension'];
+				//if($vb_is_archive && (sizeof($va_archive_tmp_files)>0)){
+				//	if($vs_archive_original = $m->joinArchiveContents($va_archive_tmp_files)){
+				//		// mangle filename, so that the uploaded archive.zip becomes archive.tif or archive.gif or whatever extension the Media plugin prefers
+				///		$va_new_original_pathinfo = pathinfo($vs_archive_original);
+				//		$va_archive_pathinfo = pathinfo($this->_SET_FILES[$ps_field]['original_filename']);
+				//		$this->_SET_FILES[$ps_field]['original_filename'] = $va_archive_pathinfo['filename'].".".$va_new_original_pathinfo['extension'];
 
 						// this is now our original, disregard the uploaded archive
-						$this->_SET_FILES[$ps_field]['tmp_name'] = $vs_archive_original;
+				//		$this->_SET_FILES[$ps_field]['tmp_name'] = $vs_archive_original;
 
 						// re-run mimetype detection and read on the new original
-						$m->reset();
-						$input_mimetype = $m->divineFileFormat($vs_archive_original);
-						$input_type = $o_media_proc_settings->canAccept($input_mimetype);
-						$m->read($vs_archive_original);
-					}
-
-					@caRemoveDirectory(caGetTempDirPath().'/caArchiveExtract');
-				}
+				//		$m->reset();
+				//		$input_mimetype = $m->divineFileFormat($vs_archive_original);
+				//		$input_type = $o_media_proc_settings->canAccept($input_mimetype);
+				//		$m->read($vs_archive_original);
+				//	}
+				//
+				//	@caRemoveDirectory($vs_zip_tmp_dir_base.'/caArchiveExtract');
+				//}
 				
 				$va_media_objects['_original'] = $m;
 				
@@ -9841,6 +9857,66 @@ $pa_options["display_form_field_tips"] = true;
 		} else {
 			return array_shift($va_instances);
 		}
+	}
+	# ------------------------------------------------------------------
+	/**
+	 * Creates a search result instance for the specified table containing the specified keys as if they had been returned by a search or browse.
+	 * This method is useful when you need to efficiently retrieve data from an arbitrary set of records since you get all of the lazy loading functionality
+	 * of a standard search result without having to actually perform a search.
+	 *
+	 * @param mixed $pm_rel_table_name_or_num The name or table number of the table for which to create the result set. Must be a searchable/browsable table
+	 * @param array $pa_ids List of primary key values to create result set for. Result set will contain specified keys in the order in which that are passed in the array.
+	 * @return SearchResult A search result of for the specified table
+	 */
+	public function makeSearchResult($pm_rel_table_name_or_num, $pa_ids) {
+		if (!is_array($pa_ids) || !sizeof($pa_ids)) { return null; }
+		$pn_table_num = $this->getAppDataModel()->getTableNum($pm_rel_table_name_or_num);
+		if (!($t_instance = $this->getAppDataModel()->getInstanceByTableNum($pn_table_num))) { return null; }
+	
+		foreach($pa_ids as $vn_id) {
+			if (!is_numeric($vn_id)) { 
+				return false;
+			}
+		}
+	
+		if (!($vs_search_result_class = $t_instance->getProperty('SEARCH_RESULT_CLASSNAME'))) { return null; }
+		require_once(__CA_LIB_DIR__.'/ca/Search/'.$vs_search_result_class.'.php');
+		$o_data = new WLPlugSearchEngineCachedResult($pa_ids, $t_instance->tableNum());
+		$o_res = new $vs_search_result_class();
+		$o_res->init($o_data, array());
+		
+		return $o_res;
+	}
+	# ------------------------------------------------------------------
+	/**
+	 * Creates a search result instance for the specified table containing the specified keys as if they had been returned by a search or browse.
+	 * This method is useful when you need to efficiently retrieve data from an arbitrary set of records since you get all of the lazy loading functionality
+	 * of a standard search result without having to actually perform a search.
+	 *
+	 * Requires PHP 5.3 since it uses the get_called_class() function
+	 *
+	 * @param array $pa_ids List of primary key values to create result set for. Result set will contain specified keys in the order in which that are passed in the array.
+	 * @return SearchResult A search result of for the specified table
+	 */
+	static public function createResultSet($pa_ids) {
+		if (!is_array($pa_ids) || !sizeof($pa_ids)) { return null; }
+		$o_dm = Datamodel::load();
+		$pn_table_num = $o_dm->getTableNum(get_called_class());
+		if (!($t_instance = $o_dm->getInstanceByTableNum($pn_table_num))) { return null; }
+		
+		foreach($pa_ids as $vn_id) {
+			if (!is_numeric($vn_id)) { 
+				return false;
+			}
+		}
+	
+		if (!($vs_search_result_class = $t_instance->getProperty('SEARCH_RESULT_CLASSNAME'))) { return null; }
+		require_once(__CA_LIB_DIR__.'/ca/Search/'.$vs_search_result_class.'.php');
+		$o_data = new WLPlugSearchEngineCachedResult($pa_ids, $t_instance->tableNum());
+		$o_res = new $vs_search_result_class();
+		$o_res->init($o_data, array());
+		
+		return $o_res;
 	}
 	# --------------------------------------------------------------------------------------------
 	/**

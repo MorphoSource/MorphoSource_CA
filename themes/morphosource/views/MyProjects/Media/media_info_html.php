@@ -42,8 +42,9 @@
 		<div class='listItemLtBlue blueText'>
 			<div class='listItemRightCol ltBlueText'>
 				<?php 
-					$va_properties = $t_media->getMediaInfo('media', 'original');
-					print caFormatFilesize($va_properties['PROPERTIES']['filesize']);
+					$va_versions = $t_media->getMediaVersions('media');
+					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+					print caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
 				?>
 			</div>
 			Filesize

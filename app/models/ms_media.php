@@ -464,6 +464,11 @@ class ms_media extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'MediaSearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'MediaSearchResult';
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

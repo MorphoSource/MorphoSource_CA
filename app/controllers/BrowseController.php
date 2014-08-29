@@ -38,12 +38,15 @@
 			 * declare table instance
 			*/
 			protected $opo_project;
-			protected $opn_project_id;
-			protected $ops_project_name;
+			protected $opa_project_ids;
 
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
  			parent::__construct($po_request, $po_response, $pa_view_paths);
+ 			
+ 			$this->opo_project = new ms_projects();
+ 			$this->opa_project_ids = caExtractArrayValuesFromArrayOfArrays($this->opo_project->getProjectsForMember($this->request->getUserID()), 'project_id');
+ 			if (!$this->opa_project_ids) { $this->opa_project_ids = array(); }
  			
  			# --- check for last browse so can load it
  			$this->view->setvar("browse_institution_id", $this->request->session->getVar("browse_institution_id"));
@@ -59,43 +62,104 @@
  		# -------------------------------------------------------
  		function institutionList(){
 			$o_db = new Db();
-			$q_institutions = $o_db->query("SELECT name, institution_id from ms_institutions order by name");
+			$va_params = array();
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}
+			
+			$q_institutions = $o_db->query("
+				SELECT DISTINCT i.name, i.institution_id 
+				FROM ms_institutions i
+				INNER JOIN ms_specimens AS s ON i.institution_id = s.institution_id
+				INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+				WHERE
+					m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "")."
+				ORDER BY i.name", $va_params);
 			$this->view->setvar("institutions", $q_institutions);
 			$this->render('Browse/institution_list_html.php');
  		}
  		# -------------------------------------------------------
  		function genusList(){
 			$o_db = new Db();
-			$q_genus = $o_db->query("SELECT DISTINCT genus FROM ms_taxonomy_names order by genus");
+			$va_params = array();
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}
+			
+			$q_genus = $o_db->query($x="
+				SELECT DISTINCT t.genus 
+				FROM ms_taxonomy_names t
+				INNER JOIN ms_specimens_x_taxonomy AS sxt ON sxt.taxon_id = t.taxon_id
+				INNER JOIN ms_media AS m ON sxt.specimen_id = m.specimen_id
+				WHERE
+					m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "")."
+				ORDER BY t.genus
+			", $va_params);
 			$this->view->setvar("genus", $q_genus);
 			$this->render('Browse/genus_list_html.php');
  		}
  		# -------------------------------------------------------
- 		function speciesList(){			
+ 		function speciesList(){		
  			$ps_genus = $this->request->getParameter('genus', pString);
+ 			$va_params = array($ps_genus);
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}	
  			if($ps_genus){
 				$o_db = new Db();
-				$q_species = $o_db->query("SELECT DISTINCT species FROM ms_taxonomy_names WHERE genus = ? order by species", $ps_genus);
+				$q_species = $o_db->query("
+					SELECT DISTINCT t.species 
+					FROM ms_taxonomy_names t 
+					INNER JOIN ms_specimens_x_taxonomy AS sxt ON sxt.taxon_id = t.taxon_id
+					INNER JOIN ms_media AS m ON sxt.specimen_id = m.specimen_id
+					WHERE t.genus = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+					ORDER BY t.species", $va_params);
 				$this->view->setvar("species", $q_species);
 				$this->render('Browse/species_list_html.php');
 			}
  		}
  		# -------------------------------------------------------
  		function bibliographyList(){
+ 			$va_params = array();
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}
 			$o_db = new Db();
-			$q_bib = $o_db->query("SELECT DISTINCT b.bibref_id from ms_bibliography b INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id ORDER BY b.authors");
+			$q_bib = $o_db->query("
+				SELECT DISTINCT b.bibref_id 
+				FROM ms_bibliography b 
+				INNER JOIN ms_specimens_x_bibliography AS sxb ON sxb.bibref_id = b.bibref_id 
+				INNER JOIN ms_media AS m ON sxb.specimen_id = m.specimen_id
+				WHERE
+					m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "")."
+				ORDER BY b.authors
+			", $va_params);
 			$this->view->setvar("bibliography", $q_bib);
 			$this->render('Browse/bibliography_list_html.php');
  		}
  		# -------------------------------------------------------
  		function projectList(){
+ 			$va_params = array();
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}
 			$o_db = new Db();
-			$q_projects = $o_db->query("SELECT project_id, name, abstract from ms_projects WHERE publication_status = 1 ORDER BY name");
+			$q_projects = $o_db->query("
+				SELECT DISTINCT p.project_id, p.name, p.abstract 
+				FROM ms_projects p
+				INNER JOIN ms_specimens AS s ON p.project_id = s.project_id
+				INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+				WHERE p.publication_status >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "")."
+				ORDER BY p.name", $va_params);
 			$this->view->setvar("projects", $q_projects);
 			$this->render('Browse/project_list_html.php');
  		}
  		# -------------------------------------------------------
  		function specimenResults(){
+ 			$va_params = array();
+			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+				$va_params[] =  $this->opa_project_ids;
+			}
  			# --- accepts institution_id, taxonomy, bibref_if
  			$pn_institution_id = $this->request->getParameter('institution_id', pInteger);
  			$pn_bibref_id = $this->request->getParameter('bibref_id', pInteger);
@@ -113,15 +177,50 @@
 			
 			$o_db = new Db();
 			if($pn_institution_id){
- 				$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE institution_id = ? order by institution_code, collection_code, catalog_number", $pn_institution_id);
+				array_unshift($va_params, $pn_institution_id);
+ 				$q_specimens = $o_db->query("
+ 					SELECT DISTINCT s.specimen_id 
+ 					FROM ms_specimens s
+ 					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+ 					WHERE s.institution_id = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($pn_bibref_id){
- 				$q_specimens = $o_db->query("SELECT s.specimen_id FROM ms_specimens_x_bibliography sxb INNER JOIN ms_specimens AS s ON sxb.specimen_id = s.specimen_id WHERE sxb.bibref_id = ? order by s.institution_code, s.collection_code, s.catalog_number", $pn_bibref_id);
+				array_unshift($va_params, $pn_bibref_id);
+ 				$q_specimens = $o_db->query("
+ 					SELECT DISTINCT s.specimen_id 
+ 					FROM ms_specimens_x_bibliography sxb 
+ 					INNER JOIN ms_specimens AS s ON sxb.specimen_id = s.specimen_id 
+ 					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+ 					WHERE sxb.bibref_id = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($pn_project_id){
- 				$q_specimens = $o_db->query("SELECT specimen_id FROM ms_specimens WHERE project_id = ? order by institution_code, collection_code, catalog_number", $pn_project_id);
+				array_unshift($va_params, $pn_project_id);
+ 				$q_specimens = $o_db->query("
+ 					SELECT DISTINCT s.specimen_id 
+ 					FROM ms_specimens s
+ 					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+ 					WHERE s.project_id = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($ps_genus){
- 				$q_specimens = $o_db->query("SELECT s.specimen_id FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn ON tn.alt_id = sxt.alt_id INNER JOIN ms_specimens s ON sxt.specimen_id = s.specimen_id WHERE tn.genus = ? order by s.institution_code, s.collection_code, s.catalog_number", $ps_genus);
+				array_unshift($va_params, $ps_genus);
+ 				$q_specimens = $o_db->query("
+ 					SELECT DISTINCT s.specimen_id 
+ 					FROM ms_specimens_x_taxonomy sxt 
+ 					INNER JOIN ms_taxonomy_names AS tn ON tn.alt_id = sxt.alt_id 
+ 					INNER JOIN ms_specimens AS s ON sxt.specimen_id = s.specimen_id 
+ 					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+ 					WHERE tn.genus = ?  AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($ps_species){
- 				$q_specimens = $o_db->query("SELECT s.specimen_id FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn ON tn.alt_id = sxt.alt_id INNER JOIN ms_specimens s ON sxt.specimen_id = s.specimen_id WHERE tn.species = ? order by s.institution_code, s.collection_code, s.catalog_number", $ps_species);
+				array_unshift($va_params, $ps_species);
+ 				$q_specimens = $o_db->query("
+ 					SELECT DISTINCT s.specimen_id 
+ 					FROM ms_specimens_x_taxonomy sxt 
+ 					INNER JOIN ms_taxonomy_names AS tn ON tn.alt_id = sxt.alt_id 
+ 					INNER JOIN ms_specimens s ON sxt.specimen_id = s.specimen_id 
+ 					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+ 					WHERE tn.species = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}
  			
  			$va_specimen_result_ids = array();

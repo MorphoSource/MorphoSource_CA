@@ -1887,7 +1887,7 @@ class ca_users extends BaseModel {
 					break;
 				# ---------------------------------
 				case 'DT_UPLOAD_DIRECTORIES':
-					$va_upload_dirs = caGetSubDirectoryList($this->_CONFIG->get('upload_base_directory'));
+					$va_upload_dirs = caGetSubDirectoryList($this->_CONFIG->get('upload_base_directory'), false, false, false);
 					$va_opts = array("[NONE]" => "");
 					foreach(array_keys($va_upload_dirs) as $vs_upload_dir) {
 						$va_opts[pathinfo($vs_upload_dir, PATHINFO_FILENAME)] = $vs_upload_dir;

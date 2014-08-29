@@ -376,7 +376,7 @@ function caFileIsIncludable($ps_file) {
 	 * @param bool $pb_include_hidden_files Optional. By default caGetSubDirectoryList() does not consider hidden files (files starting with a '.') when calculating file counts. Set this to true to include hidden files in counts. Note that the special UNIX '.' and '..' directory entries are *never* counted as files.
 	 * @return array An array with directory paths as keys and file counts as values. The array is sorted alphabetically.
 	 */
-	function &caGetSubDirectoryList($dir, $pb_include_root=false, $pb_include_hidden_files=false) {
+	function &caGetSubDirectoryList($dir, $pb_include_root=false, $pb_include_hidden_files=false, $pb_recursive=true, $pn_level=0) {
 		$va_dir_list = array();
 		if(substr($dir, -1, 1) == "/"){
 			$dir = substr($dir, 0, strlen($dir) - 1);
@@ -388,8 +388,8 @@ function caFileIsIncludable($ps_file) {
 		if ($handle = @opendir($dir)) {
 			while (false !== ($item = readdir($handle))) {
 				if ($item != "." && $item != ".." && ($pb_include_hidden_files || (!$pb_include_hidden_files && $item{0} !== '.'))) {
-					if (is_dir("{$dir}/{$item}")) { 
-						$va_dir_list = array_merge($va_dir_list, caGetSubDirectoryList("{$dir}/{$item}", true, $pb_include_hidden_files));
+					if (is_dir("{$dir}/{$item}") && ($pb_recursive || ($pn_level < 1))) { 
+						$va_dir_list = array_merge($va_dir_list, caGetSubDirectoryList("{$dir}/{$item}", true, $pb_include_hidden_files, $pb_recursive, $pn_level+1));
 					}  else {
 						$vn_file_count++;
 					}

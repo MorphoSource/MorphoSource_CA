@@ -194,6 +194,12 @@ class ms_projects extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'ProjectSearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'ProjectSearchResult';
+	
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

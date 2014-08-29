@@ -175,7 +175,7 @@
 			$vs_specimen_taxonomy = join(" ", $t_specimen->getSpecimenTaxonomy($vn_specimen_id));
 			print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
 			if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
-					print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
+					//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
 			print "</div>\n";
 			print "</div><!-- end projectMediaContainer -->";
 			#$vn_i_spec++;

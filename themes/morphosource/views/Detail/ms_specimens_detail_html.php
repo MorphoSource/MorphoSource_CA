@@ -178,9 +178,13 @@
 					print caNavLink($this->request, "M".$vn_media_id, "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id)).", ";
 					print "{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					
-				
+					
 					print "<br/>".msGetMediaFormatDisplayString($t_media);
-					print ", ".caFormatFilesize($va_media_info['filesize']);
+					
+					$va_versions = $t_media->getMediaVersions('media');
+					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+					print ", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>\n";
+
 					print "</div><!-- end specimenMediaListContainer -->\n";
 				}
 			} else {

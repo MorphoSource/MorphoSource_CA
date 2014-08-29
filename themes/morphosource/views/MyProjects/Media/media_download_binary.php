@@ -27,7 +27,7 @@
  */
 	$vs_show_version = $this->getVar('version');
 	$vs_file_path = $this->getVar('version_path');
-	
+
 	header("Content-type: application/octet-stream");
 	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 	header("Cache-Control: no-store, no-cache, must-revalidate");
@@ -36,6 +36,11 @@
 	header("Cache-control: private");
 	
 	header("Content-Disposition: attachment; filename=".$this->getVar('version_download_name'));
-	ob_end_flush();	// need to do this in order to not have read file use request memory due to buffering
-	readfile($vs_file_path);
+	set_time_limit(0);
+	$o_fp = @fopen($vs_file_path,"rb");
+	while(!feof($o_fp)) {
+		print(@fread($o_fp, 1024*8));
+		ob_flush();
+		flush();
+	}
 ?>

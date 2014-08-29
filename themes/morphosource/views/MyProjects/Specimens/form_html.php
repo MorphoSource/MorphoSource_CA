@@ -98,9 +98,12 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					print "<span class='mediaID'>M{$vn_media_id}</span>";
 					print " {$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					
-				
+					$va_versions = $t_media->getMediaVersions('media');
+					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+					
 					print "<br/>".msGetMediaFormatDisplayString($t_media);
-					print ", ".caFormatFilesize($va_media_info['filesize']);
+					print ", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
+				
 					print "<br>".$t_media->formatPublishedText();
 					print "</div>\n";
 				}

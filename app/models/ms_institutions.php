@@ -166,6 +166,12 @@ class ms_institutions extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'InstitutionSearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'InstitutionSearchResult';
+	
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields
