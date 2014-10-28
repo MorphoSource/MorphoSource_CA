@@ -35,6 +35,7 @@
    */
    
  require_once(__CA_LIB_DIR__.'/core/Configuration.php');
+ require_once(__CA_MODELS_DIR__."/ms_media_sets.php");
  
 	 # --------------------------------------------------------------------------------------------
 	 /**
@@ -70,6 +71,36 @@
 			$o_request->session->setVar('current_project_name', $vs_title);
 			
 			$t_project->setUserAccessTime($o_request->user->get("user_id"));
+		}
+	}
+	# --------------------------------------------------------------------------------------------
+	 /**
+	  * returns add or remove link to media cart
+	  * 
+	  */
+	function addToCartLink($o_request, $pn_media_id, $pn_user_id = null, $va_cart_media_ids = null, $va_options = array()) {
+		if(!$pn_media_id){
+			return false;
+		}else{
+			if(!is_array($va_cart_media_ids)){
+				if(!$pn_user_id){
+					return false;
+				}
+				$t_media_cart = new ms_media_sets();
+ 				$va_cart_media_ids = $t_media_cart->getCartMediaIdsForUser($pn_user_id);
+			}
+			if(is_array($va_cart_media_ids)){
+				$vs_class = "button buttonLarge";
+				if($va_options["class"]){
+					$vs_class = $va_options["class"];
+				}
+				if(in_array($pn_media_id, $va_cart_media_ids)){
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Remove', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."'>"._t("remove <i class='fa fa-shopping-cart'></i>")."</a>";
+				}else{
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Add', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a>";
+				}
+			}
+			return $vs_link;
 		}
 	}
 	# --------------------------------------------------------------------------------------------

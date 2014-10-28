@@ -56,7 +56,7 @@ BaseModel::$s_ca_models_definitions['ms_media_download_stats'] = array(
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => 'Media id', 'DESCRIPTION' => 'User that uploaded media'
+				'LABEL' => 'Media id', 'DESCRIPTION' => 'User that downlaoded media'
 		),
 		'downloaded_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,

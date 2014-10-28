@@ -3129,5 +3129,47 @@ class ca_users extends BaseModel {
 		return $va_downloads_for_user;
 	}
 	# ----------------------------------------
+	function numMediaViews($pn_user_id=null) {
+		if(!$pn_user_id){
+			$pn_user_id = $this->getPrimaryKey();
+		}
+		if (!$pn_user_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_view_stats
+			WHERE user_id = ?
+		", $pn_user_id);
+		
+		$vn_num_views = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_views = $qr->get("c");
+		}
+		return $vn_num_views;
+	}
+	# ----------------------------------------
+	function numSpecimenViews($pn_user_id=null) {
+		if(!$pn_user_id){
+			$pn_user_id = $this->getPrimaryKey();
+		}
+		if (!$pn_user_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_specimen_view_stats
+			WHERE user_id = ?
+		", $pn_user_id);
+		
+		$vn_num_views = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_views = $qr->get("c");
+		}
+		return $vn_num_views;
+	}
+	# ----------------------------------------
 }
 ?>

@@ -14,11 +14,12 @@
 		
 		if($t_media->getMediaUrl("media", "original")){
 			print caNavLink($this->request, _t("Download"), "button buttonSmall", "MyProjects", "Media", "DownloadMedia", array("media_id" => $t_media->get("media_id"), 'download' => 1));
+			print "&nbsp;&nbsp;&nbsp;<span>".addToCartLink($this->request, $t_media->get("media_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 		}
 		if(!$t_media->get("published")){
 			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Publish"), "button buttonSmall", "MyProjects", "Media", "Publish", array("media_id" => $pn_media_id));
 		}
-		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit Media")."</a>";
+		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit")."</a>";
 		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Clone Media"), "button buttonSmall", "MyProjects", "Media", "form", array("clone_id" => $pn_media_id, "specimen_id" => $t_media->get("specimen_id")));
 		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
 		print "</div>";
@@ -51,6 +52,7 @@
 			<div style='clear:both;'><!-- empty --></div>
 		</div>
 <?php	
+		print "<div class='listItemLtBlue blueText'><div class='listItemRightCol ltBlueText'>".$t_media->numViews()."</div>Public Views</div>";
 		print "<div class='listItemLtBlue blueText'><div class='listItemRightCol ltBlueText'>".$t_media->numDownloads()."</div>Downloads</div>";
 		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
 		foreach($va_fields as $vs_field => $va_field_attr){

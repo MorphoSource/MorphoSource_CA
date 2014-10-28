@@ -110,6 +110,7 @@
  		public function show() {
  		 	$va_bib_citations = array();
  			if($this->opn_item_id){
+ 				$this->opo_item->recordView($this->request->getUserID());
  				$o_db = new Db();
  				$q_bib = $o_db->query("SELECT b.*, sxb.link_id, sxb.pp FROM ms_specimens_x_bibliography sxb INNER JOIN ms_bibliography as b on sxb.bibref_id = b.bibref_id WHERE sxb.specimen_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;

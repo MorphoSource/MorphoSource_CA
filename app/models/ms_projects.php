@@ -363,6 +363,28 @@ class ms_projects extends BaseModel {
 		return $vn_num_downloads;
 	}
 	# ----------------------------------------
+	function numMediaViews($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_view_stats ms
+			INNER JOIN ms_media AS m ON ms.media_id = m.media_id
+			WHERE m.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_views = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_views = $qr->get("c");
+		}
+		return $vn_num_views;
+	}
+	# ----------------------------------------
 	function numMedia($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();

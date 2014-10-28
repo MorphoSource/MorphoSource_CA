@@ -35,6 +35,7 @@ require_once(__CA_MODELS_DIR__."/ms_projects.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_requests.php");
 require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
+require_once(__CA_MODELS_DIR__."/ms_media_view_stats.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
@@ -975,6 +976,58 @@ class ms_media extends BaseModel {
 			$vn_num_downloads = $qr->get("c");
 		}
 		return $vn_num_downloads;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function recordView($pn_user_id, $pn_media_id=null){
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		
+		$t_stat = new ms_media_view_stats();
+ 		$t_stat->setMode(ACCESS_WRITE);
+ 		$t_stat->set('media_id', $vn_media_id);
+ 		$t_stat->set('user_id', $pn_user_id);
+ 		$t_stat->insert();
+ 		
+ 		if ($t_stat->numErrors()) {
+ 			$this->errors = $t_stat->errors;
+ 			return false;
+ 		}else{
+ 			return true;
+ 		}
+		
+	}
+	# ----------------------------------------
+	function numViews($pn_media_id=null) {
+		if(!$pn_media_id){
+			$pn_media_id = $this->getPrimaryKey();
+		}
+		if (!$pn_media_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_view_stats
+			WHERE media_id = ?
+		", $pn_media_id);
+		
+		$vn_num_views = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_views = $qr->get("c");
+		}
+		return $vn_num_views;
 	}
 	# ------------------------------------------------------
 	/** 

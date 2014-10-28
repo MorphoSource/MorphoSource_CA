@@ -25,7 +25,6 @@
  *
  * ----------------------------------------------------------------------
  */
-	$vs_show_version = $this->getVar('version');
 	$vs_file_path = $this->getVar('version_path');
 	
 	header("Content-type: application/octet-stream");

@@ -55,9 +55,11 @@ if (!$this->request->isAjax()) {
 <?php
 if (!$this->request->isAjax()) {
 	print "<div style='float:left; width:430px; padding-top:10px;'>";
+	if($vn_specimen_id){
 ?>
 	<h2><em>Will be added to specimen <strong><?php print $t_specimen->getSpecimenName($vn_specimen_id); ?></strong> upon save</em></h2>
 <?php
+	}
 }
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
 		if($va_errors[$vs_f]){

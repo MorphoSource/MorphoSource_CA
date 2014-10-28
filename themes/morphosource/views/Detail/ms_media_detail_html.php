@@ -47,11 +47,11 @@
 		
 if ($this->request->isLoggedIn()) {
 		if($vb_show_download_link){
-			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
+			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))." <span>".addToCartLink($this->request, $t_media->get("media_id"), $this->request->user->get("user_id"))."</span></div>";		
 		}else{
 			switch((int)$t_media->get('published')) {
 				case 1:
-					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";
+					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))." <span>".addToCartLink($this->request, $t_media->get("media_id"), $this->request->user->get("user_id"))."</span></div>";
 					break;
 				case 2:
 					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){

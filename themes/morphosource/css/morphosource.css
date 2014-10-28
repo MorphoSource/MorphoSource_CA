@@ -821,6 +821,14 @@ a.browseItemSelected{
 	color:#FF861F;
 }
 
+/* Media Cart */
+.mediaCartTools{
+	padding-bottom:2px;
+}
+div.mediaCartTools a{
+	font-size:14px  !important;
+	color: #FF861F !important;
+}
 
 /* Media viewer */
 div#msMediaOverlayWebGLWarning {

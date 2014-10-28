@@ -31,6 +31,7 @@
  */
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+require_once(__CA_MODELS_DIR__."/ms_specimen_view_stats.php");
 
 BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
  	'NAME_SINGULAR' 	=> _t('specimen'),
@@ -522,6 +523,97 @@ class ms_specimens extends BaseModel {
 		}else{
 			return false;
 		}
+	}
+	# ------------------------------------------------------
+	function getSpecimenMediaIDs($pn_specimen_id=null, $pa_options=null) {
+		if(!$pn_specimen_id) { $pn_specimen_id = $this->get("specimen_id"); }
+		
+		$vs_published_where = "";
+		$va_media_ids = array();
+		if($pn_specimen_id){
+			$o_db = new Db();
+			if($pa_options['user_id']){
+				if($pa_options['published']){
+					$vs_published_where = " m.published > 0 OR";
+				}
+				$q_media = $o_db->query("
+					SELECT media_id
+					FROM ms_media m
+					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
+					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
+					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?)",
+					array($pn_specimen_id, $pa_options['user_id']));
+			}else{
+				if($pa_options['published']){
+					$vs_published_where = " AND m.published > 0";
+				}
+				$q_media = $o_db->query("
+					SELECT media_id
+					FROM ms_media m 
+					WHERE m.specimen_id = ?".$vs_published_where,
+					array($pn_specimen_id));
+			}
+			if($q_media->numRows()){
+				while($q_media->nextRow()){
+					$va_media_ids[] = $q_media->get("media_id");
+				}
+			}
+			return $va_media_ids;
+		}else{
+			return array();
+		}
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function recordView($pn_user_id, $pn_specimen_id=null){
+		if(!($vn_specimen_id = $pn_specimen_id)) { 
+ 			if (!($vn_specimen_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		
+		if ($vn_specimen_id == $this->getPrimaryKey()) {
+			$t_specimen = $this;
+		} else {
+			$t_specimen = new ms_specimens($vn_specimen_id);
+		}
+		
+		$t_stat = new ms_specimen_view_stats();
+ 		$t_stat->setMode(ACCESS_WRITE);
+ 		$t_stat->set('specimen_id', $vn_specimen_id);
+ 		$t_stat->set('user_id', $pn_user_id);
+ 		$t_stat->insert();
+ 		
+ 		if ($t_stat->numErrors()) {
+ 			$this->errors = $t_stat->errors;
+ 			return false;
+ 		}else{
+ 			return true;
+ 		}
+		
+	}
+	# ----------------------------------------
+	function numViews($pn_specimen_id=null) {
+		if(!$pn_specimen_id){
+			$pn_specimen_id = $this->getPrimaryKey();
+		}
+		if (!$pn_specimen_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_specimen_view_stats
+			WHERE specimen_id = ?
+		", $pn_specimen_id);
+		
+		$vn_num_views = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_views = $qr->get("c");
+		}
+		return $vn_num_views;
 	}
 	# ----------------------------------------
 }

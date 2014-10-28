@@ -1,0 +1,1 @@
+<inactive cart icon here>
