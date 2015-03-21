@@ -1,0 +1,2 @@
+/* Query to update citation text so will output corectly in after change to form */
+update ms_media SET media_citation_instruction3=CONCAT(', the collection of which was funded by ', media_citation_instruction3) WHERE media_citation_instruction3 != '' AND media_citation_instruction3 != ' ';

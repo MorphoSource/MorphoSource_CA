@@ -7,6 +7,7 @@ CREATE  TABLE IF NOT EXISTS `ms_media_files` (
   `media` LONGBLOB NOT NULL ,
   `notes` TEXT NOT NULL ,
   `media_metadata` LONGTEXT NOT NULL ,
+  `use_for_preview` TINYINT UNSIGNED NULL ,
   `created_on` INT NOT NULL ,
   `last_modified_on` INT NOT NULL ,
   PRIMARY KEY (`media_file_id`) ,
