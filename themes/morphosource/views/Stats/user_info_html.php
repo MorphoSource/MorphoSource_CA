@@ -84,7 +84,15 @@ if (sizeof($va_user_info)) {
 				</td>
 				<td>
 <?php
-					print sizeof($va_row);
+					print "<b>Total: </b>".sizeof($va_row);
+					print "<br/>";
+					$va_downloads_by_file_id = array();
+					foreach($va_row as $va_download_info){
+						$va_downloads_by_file_id[$va_download_info["media_file_id"]][] = true;
+					}
+					foreach($va_downloads_by_file_id as $vn_file_id => $va_downloads_for_file){
+						print "<b>M".$vn_media_id.(($vn_file_id) ? "-".$vn_file_id : "").":</b> ".sizeof($va_downloads_for_file)."<br/>";
+					}
 ?>
 				</td>
 <?php

@@ -45,6 +45,14 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Media id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this media')
 		),
+		'title' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Title'), 'DESCRIPTION' => _t('Optional display title for image.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
 		'media_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
@@ -61,7 +69,7 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 		),
 		'media' => array(
 				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_FIELD, 
-				"DISPLAY_WIDTH" => 50, "DISPLAY_HEIGHT" => 1,
+				"DISPLAY_WIDTH" => 30, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => false, 
 				"DEFAULT" => "",
 				
@@ -69,6 +77,36 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 				
 				"LABEL" => "Select media file", 
 				"DESCRIPTION" => "Use the button below to select a media file on your harddrive to upload."
+		),
+		'element' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 25, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Description/Element'), 'DESCRIPTION' => _t('Element of specimen, if different from what was entered in the general information for the media.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'side' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => "UNKNOWN",
+				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen depicted by media, if different from what was entered in the general information for the media'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"Not Applicable" => "NA",
+					"Unknown" => "UNKNOWN",
+					"Left" => "LEFT",
+					"Right" => "RIGHT",
+					"Midline" => "MIDLINE"
+				)
+		),
+		'use_for_preview' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_CHECKBOXES, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => 0,
+				'BOUNDS_VALUE' => array(0,1),
+				'LABEL' => _t('Use this file as preview for entire media record?'), 'DESCRIPTION' => _t('Use this file as preview for entire media record?')
 		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -84,6 +122,24 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Metadata from media file'), 'DESCRIPTION' => _t('Metadata from media file.')
+		),
+		'published' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 50, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Publication status'), 'DESCRIPTION' => _t('Release to public search?'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"Not published / Not available in public search" => 0,
+					"Published / available in public search and for download" => 1
+				)
+		),
+		'published_on' => array(
+				'FIELD_TYPE' => FT_DATETIME, 'DISPLAY_TYPE' => DT_OMIT,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Media published on'), 'DESCRIPTION' => _t('Date/time the Media was published.'),
 		),
 		'created_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_FIELD,
@@ -178,8 +234,8 @@ class ms_media_files extends BaseModel {
 	# ------------------------------------------------------
 	# Search
 	# ------------------------------------------------------
-	protected $SEARCH_CLASSNAME = ;
-	protected $SEARCH_RESULT_CLASSNAME = ;
+#	protected $SEARCH_CLASSNAME = ;
+#	protected $SEARCH_RESULT_CLASSNAME = ;
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields
@@ -201,7 +257,10 @@ class ms_media_files extends BaseModel {
 					$va_info = $this->getMediaInfo("media", $vs_version);
 					$vn_alloc += $va_info['PROPERTIES']['filesize'];
 				}
-				$t_project = new ms_projects($this->get('project_id'));
+				$o_db= $this->getDb();
+				$q_project = $o_db->query("SELECT project_id from ms_media where media_id = ?", $this->get('media_id'));
+				$q_project->nextRow();
+				$t_project = new ms_projects($q_project->get('project_id'));
 				$t_project->setMode(ACCESS_WRITE);
 				$t_project->set('total_storage_allocation', (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc);
 				$t_project->update();
@@ -227,7 +286,10 @@ class ms_media_files extends BaseModel {
 					$vn_alloc += $va_info['PROPERTIES']['filesize'];
 				}
 				
-				$t_project = new ms_projects($this->get('project_id'));
+				$o_db= $this->getDb();
+				$q_project = $o_db->query("SELECT project_id from ms_media where media_id = ?", $this->get('media_id'));
+				$q_project->nextRow();
+				$t_project = new ms_projects($q_project->get('project_id'));
 				
 				if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc - (int)$vn_old_alloc) < 0) {
 					$vn_new_alloc = 0;
@@ -242,7 +304,10 @@ class ms_media_files extends BaseModel {
 	}
 	# ----------------------------------------
 	public function delete ($pb_delete_related=false, $pa_options=null, $pa_fields=null, $pa_table_list=null) {
-		$vn_project_id = $this->get('project_id');
+		$o_db= $this->getDb();
+		$q_project = $o_db->query("SELECT project_id from ms_media where media_id = ?", $this->get('media_id'));
+		$q_project->nextRow();
+		$vn_project_id = $q_project->get('project_id');
 		$vn_old_alloc = 0;
 		if (is_array($va_versions = $this->getMediaVersions("media"))) {
 			foreach($va_versions as $vs_version) {
@@ -440,6 +505,158 @@ class ms_media_files extends BaseModel {
  		}
  		return 0;
  	}
+	# ------------------------------------------------------
+	/* get content for text file to download with media files
+	*  $pa_media_file_ids = array of media file ids to get MD for
+	*  $t_specimen = ms_specimens object
+	*/
+	public function mediaMdText($pa_media_file_ids, $t_specimen = null) {
+		if(sizeof($pa_media_file_ids)){
+			$o_db = $this->getDb();
+			if(!$t_specimen){
+				$t_specimen = new ms_specimens();
+			}
+			$t_media = new ms_media();
+			$t_media_file = new ms_media_files();
+			$q_media_files = $o_db->query("
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				FROM ms_media_files mf 
+				INNER JOIN ms_media as m ON mf.media_id = m.media_id
+				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
+				LEFT JOIN ms_facilities as f ON f.facility_id = m.facility_id
+				LEFT JOIN ms_institutions as i ON s.institution_id = i.institution_id
+				LEFT JOIN ms_scanners as scan ON scan.scanner_id = m.scanner_id
+				WHERE mf.media_file_id IN (".join(", ", $pa_media_file_ids).")");
+			$va_all_md = array();
+			if($q_media_files->numRows()){
+				$va_specimen_info = array();
+				# --- header row
+				$va_header = array(
+									"media",
+									"downloaded file name",
+									"file type",
+									"file size",
+									"title",
+									"notes",
+									"specimen",
+									"specimen taxonomy",
+									"insitution",
+									"description/element",
+									"side",
+									"locality",
+									"relative age",
+									"absolute age",
+									"facility",
+									"scanner type",
+									"x res",
+									"y res",
+									"z res",
+									"voltage",
+									"amperage",
+									"watts",
+									"projections",
+									"frame averaging",
+									"wedge",
+									"shading correction",
+									"flux normalization",
+									"geometric callibration",
+									"calibration description",
+									"technicians",
+									"grant support",
+									"copyright holder",
+									"copyright license",
+									"citation instruction statement (to be copy-pasted into acknolwedgements)"
+								);
+				#$va_all_md[] = join(",", $va_header);
+				$va_all_md[] = $va_header;
+				while($q_media_files->nextRow()){
+					$va_media_md = array();
+					$vs_specimen_taxonomy = $vs_specimen_name = "";
+					if(!$va_specimen_info[$q_media_files->get("specimen_id")]){
+						if($q_media_files->get("specimen_id")){
+							$vs_specimen_name = $t_specimen->getSpecimenNumber($q_media_files->get("specimen_id"));
+							$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"] = $vs_specimen_name;
+							$vs_specimen_taxonomy = join(", ", $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id")));
+							$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"] = $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id"));
+						}
+					}else{
+						$vs_specimen_name = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"];
+						$vs_specimen_taxonomy = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"];
+					}
+					$va_versions = $q_media_files->getMediaVersions('file_media');
+					$va_properties = $q_media_files->getMediaInfo('file_media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+					
+					$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
+					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
+					$va_media_md[] = $va_properties['MIMETYPE'];
+					$va_media_md[] = caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
+					$va_media_md[] = $q_media_files->get("file_title");
+					$va_media_md[] = $q_media_files->get("file_notes");
+					$va_media_md[] = $vs_specimen_name;
+					$va_media_md[] = $vs_specimen_taxonomy;
+					$va_media_md[] = $q_media_files->get("institution");
+					if($q_media_files->get("file_element")){
+						$va_media_md[] = $q_media_files->get("file_element");
+					}else{
+						$va_media_md[] = $q_media_files->get("element");
+					}
+					if($q_media_files->get("file_side")){
+						$va_media_md[] = $t_media_file->getChoiceListValue("side", $q_media_files->get("file_side"));
+					}else{
+						$va_media_md[] = $t_media_file->getChoiceListValue("side", $q_media_files->get("side"));
+					}
+					$va_media_md[] = $q_media_files->get("locality_description");
+					$va_media_md[] = $q_media_files->get("relative_age");
+					$va_media_md[] = $q_media_files->get("absolute_age");
+					$va_media_md[] = $q_media_files->get("facility");
+					$va_media_md[] = $q_media_files->get("scanner");
+					$va_media_md[] = $q_media_files->get("scanner_x_resolution")." mm";
+					$va_media_md[] = $q_media_files->get("scanner_y_resolution")." mm";
+					$va_media_md[] = $q_media_files->get("scanner_z_resolution")." mm";
+					$va_media_md[] = $q_media_files->get("scanner_voltage")." kv";
+					$va_media_md[] = $q_media_files->get("scanner_amperage")." µa";
+					$va_media_md[] = $q_media_files->get("scanner_watts")." W";
+					$va_media_md[] = $q_media_files->get("scanner_projections");
+					$va_media_md[] = $q_media_files->get("scanner_frame_averaging");
+					if($q_media_files->get("scanner_wedge")){
+						$va_media_md[] = "Yes";
+					}else{
+						$va_media_md[] = "No";
+					}
+					if($q_media_files->get("scanner_calibration_shading_correction")){
+						$va_media_md[] = "Yes";
+					}else{
+						$va_media_md[] = "No";
+					}
+					if($q_media_files->get("scanner_calibration_flux_normalization")){
+						$va_media_md[] = "Yes";
+					}else{
+						$va_media_md[] = "No";
+					}
+					$va_media_md[] = $q_media_files->get("scanner_calibration_geometric_calibration");
+					$va_media_md[] = $q_media_files->get("scanner_calibration_description");
+					$va_media_md[] = $q_media_files->get("scanner_technicians");
+					$va_media_md[] = $q_media_files->get("grant_support");
+					$va_media_md[] = $q_media_files->get("copyright_info");
+					$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->getChoiceListValue("copyright_license"));
+					if($q_media_files->get("media_citation_instruction1")){
+						$va_media_md[] = "Citation: ".$t_media->getMediaCitationInstructionsFromFields(array("media_citation_instruction1" => $q_media_files->get("media_citation_instruction1"), "media_citation_instruction2" => $q_media_files->get("media_citation_instruction2"), "media_citation_instruction3" => $q_media_files->get("media_citation_instruction3")));
+					}else{
+						$va_media_md[] = "";
+					}
+					
+					#$va_all_md[] = join(",", $va_media_md);
+					$va_all_md[] = $va_media_md;
+				}
+				#return join($va_all_md, "\n")."\n\nThis text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.\n\n";
+				$va_all_md[] = array("This text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.");
+				return $va_all_md;
+			}
+		}else{
+			return array();
+		}
+	}
+	
 	# ------------------------------------------------------
 }
 ?>

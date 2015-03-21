@@ -35,7 +35,7 @@
 	</div>
 	<div>
 		<h2><a name="creatingProject"></a>Creating a Project</h2>
-		To create a new project (to which you will be able to add images and specimen information), click “Create a Morphosource Project.” This will allow you to enter a title and abstract as a way of organizing your media. However, it is up to you whether you want to make these project details available to the public. If the title and abstract are simply for internal purposes, you can choose to keep the project information private using the drop-down at the bottom of the Project Information Screen:
+		To create a new project (to which you will be able to add media and specimen information), click “Create a Morphosource Project.” This will allow you to enter a title and abstract as a way of organizing your media. However, it is up to you whether you want to make these project details available to the public. If the title and abstract are simply for internal purposes, you can choose to keep the project information private using the drop-down at the bottom of the Project Information Screen:
 	</div>
 	<div style="text-align:center;">
 		<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/userGuide/projectInformation.png">
@@ -73,7 +73,7 @@
 	</div>
 	<div>
 		<h2><a name="addMedia"></a>Adding Media</h2>
-		Once you’ve saved your specimen information, you will also have the option to Add Media. Simply click the “Add Media” button on the Specimen Information screen to begin the process. You’ll open the “Media Information” screen, which allows you to store any necessary image metadata. In order to save the media, you must at minimum upload a file, add a title, and indicate the facility at which the media file was created. It’s also advisable to enter information about the scanner used and the resolution, as well as entering copyright information. You should also enter citation information about the image so that other users will know the proper source. The citation information is formatted as a sentence in to which you can plug the relevant values:
+		Once you’ve saved your specimen information, you will also have the option to Add Media. Simply click the “Add Media” button on the Specimen Information screen to begin the process. You’ll open the “Media Group Information” screen.  Media groups are a collection of media files for which only one represents a raw data file and other represent different versions of derivative data. For instance, a media group could include a zipped file of volumetric data from a microCT scan (the raw data), and any number of mesh files extracted from that volumetric file (the derivative data). Much of the media metadata can be entered at the group level. In order to save the media, you must at minimum upload a file, add a title, and indicate the facility at which the media file was created. It’s also advisable to enter information about the scanner used and the resolution, as well as entering copyright information. You should also enter citation information about the image so that other users will know the proper source. The citation information is formatted as a sentence in to which you can plug the relevant values:
 	</div>
 	<div style="text-align:center;">
 		<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/userGuide/mediaCitationInstructions.png">
@@ -103,10 +103,10 @@
 		Preview images, video and surface media are viewable within Morphosource using built-in web browser-based viewers. Note that for image stacks, only the preview image is viewable within Morphosource. To see other stack images the user must download the entire stack.
 	</div>
 	<div>
-		Once the file has been uploaded and successfully saved to the specimen, you will see a Project Media screen that displays the image along with metadata and further options. If you are the person who uploaded the media, you will see a row of buttons beneath the image that include “Download,” “Publish,” Edit Media,” “Clone Media,” and “Delete.” If you are a project member (not administrator) who did not upload the given file, you will see all of the above except for “Publish” and “Delete.” If the image is already published, you will not see the “Publish” options.
+		Once the file or files have been uploaded and successfully saved to the specimen, you will see a Project Media screen that displays the media files along with metadata and further options. If you are the person who uploaded the media, you will see a row of buttons beneath the image that include “Download,” “Publish,” Edit Media,” “Clone Media,” and “Delete.” If you are a project member (not administrator) who did not upload the given file, you will see all of the above except for “Publish” and “Delete.” If the image is already published, you will not see the “Publish” options.
 	</div>
 	<div>
-		You will also be able to retroactively add a specimen, taxonomic name, and bibliographic citation from lookups to the right of the screen if you have not already done this. Finally, if you are a Project Administrator, you have the option to move media from one project of which you are a member to another.
+		You will also be able to retroactively add a specimen, taxonomic name, and bibliographic citation from lookups to the right of the screen if you have not already done this. Finally, if you are a Project Administrator, you have the option to move media from one project of which you are a member to another or share the media group with another project.
 	</div>
 	<div style="text-align:center;">
 		<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/userGuide/mediaTools.png">
@@ -114,7 +114,7 @@
 	<div> 
 		Some of the media tools bear further explanation, so let’s discuss.
 		<ol>
-			<li>Publish – of course, a file sharing database is more useful when the files are actually available. As a result, Publishing your media is an important step. You can publish one media file without publishing others in a project, and you can publish all of your media files without publishing other project information, if you so choose. The “Publish” button below your uploaded image will immediately publish the media, but you can take a more nuanced approach by selecting “Edit Info.” The “Publication status” drop-down that you will find there allows you to unpublish a previously published image, publish an image for search and download, or publish an image for search with a request-only download process. You can also publish Media (and other project information) from your project dashboard.</li>
+			<li>Publish – of course, a file sharing database is more useful when the files are actually available. As a result, Publishing your media groups and files is an important step. You can publish one media group without publishing others in a project, and you can publish all of your media groups/files without publishing other project information, if you so choose.  Keep in mind that your media group and individual media files have separate publishing settings. The “Publish” button below your uploaded files will immediately publish the media group, but you can take a more nuanced approach by selecting “Edit Info.” The “Publication status” drop-down that you will find there allows you to unpublish a previously published media group, publish a media group for search and download, or publish a media group for search with a request-only download process. You can also publish Media (and other project information) from your project dashboard.</li>
 			<li>Clone Media – This tool reproduces all of your media metadata and allows you to upload a new file. This is useful if you are uploading several images, and only need to change a few fields.</li>
 			<li>Edit Media opens editable fields – these are all the same as in the initial Media Information editing screen, but the layout is slightly different.</li>
 		</ol>

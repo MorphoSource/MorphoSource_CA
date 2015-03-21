@@ -34,6 +34,7 @@
  	require_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearch.php");
  	require_once(__CA_LIB_DIR__.'/core/GeographicMap.php');
  	require_once(__CA_MODELS_DIR__.'/ms_projects.php');
+ 	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
 	
  	class SearchController extends BaseSearchController {
  		# -------------------------------------------------------

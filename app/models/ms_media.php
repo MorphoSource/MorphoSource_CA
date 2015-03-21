@@ -38,8 +38,8 @@ require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_view_stats.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
- 	'NAME_SINGULAR' 	=> _t('media file'),
- 	'NAME_PLURAL' 		=> _t('media files'),
+ 	'NAME_SINGULAR' 	=> _t('media group'),
+ 	'NAME_PLURAL' 		=> _t('media groups'),
  	'FIELDS' 			=> array(
  		'media_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN, 
@@ -50,10 +50,10 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 66, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Title'), 'DESCRIPTION' => _t('Optional display title for image.'),
+				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Optional description of media group.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'project_id' => array(
@@ -71,7 +71,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => 'Media id', 'DESCRIPTION' => 'User that uploaded media'
 		),
 		'media' => array(
-				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_FIELD, 
+				"FIELD_TYPE" => FT_MEDIA, "DISPLAY_TYPE" => DT_OMIT, 
 				"DISPLAY_WIDTH" => 50, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => false, 
 				"DEFAULT" => "",
@@ -100,6 +100,13 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Media published on'), 'DESCRIPTION' => _t('Date/time the Media was published.'),
 		),
+		'reviewer_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => 'User id of individual who should approve download requests', 'DESCRIPTION' => 'User id of individual who should approve download requests'
+		),
 		'specimen_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
 				"DISPLAY_WIDTH" => 10, "DISPLAY_HEIGHT" => 1,
@@ -108,31 +115,29 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'element' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Element'), 'DESCRIPTION' => _t('Element of specimen.'),
+				'LABEL' => _t('Description/Element'), 'DESCRIPTION' => _t('Element of specimen. Will be displayed when the element has not been set at the file level.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'side' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE,
 				'DEFAULT' => "UNKNOWN",
-				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen depicted by media'),
+				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen. Will be displayed when the element has not been set at the file level.'),
 				"BOUNDS_CHOICE_LIST"=> array(
 					"Not Applicable" => "NA",
 					"Unknown" => "UNKNOWN",
 					"Left" => "LEFT",
 					"Right" => "RIGHT",
-					"Ventril" => "Ventril",
-					"Dorsal" => "Dorsal",
-					"Sagital" => "Sagital"
+					"Midline" => "MIDLINE"
 				)
 		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes about the media file.'),
@@ -140,7 +145,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'grant_support' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 6,
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Grant support'), 'DESCRIPTION' => _t('List any grant support used in the creation of your media here.'),
@@ -164,7 +169,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'media_citation_instruction2' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => 'originally appearing in',
 				'LABEL' => _t('Media citation instructions part 2'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
@@ -172,9 +177,9 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'media_citation_instruction3' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
-				'DEFAULT' => '',
+				'DEFAULT' => ', the collection of which was funded by ',
 				'LABEL' => _t('Media citation instructions part 3'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
@@ -232,7 +237,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'copyright_info' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 60, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 66, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Copyright Holder'), 'DESCRIPTION' => _t('Name of copyright holder.'),
@@ -262,7 +267,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_x_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "mm",
@@ -271,7 +276,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_y_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "mm",
@@ -280,7 +285,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_z_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "mm",
@@ -289,7 +294,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_voltage' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "kv",
@@ -298,7 +303,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_amperage' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "µa",
@@ -307,7 +312,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_watts' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'SUFFIX' => "W",
@@ -388,6 +393,13 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Media last modified on'), 'DESCRIPTION' => _t('Date/time the Media was last modified.'),
+		),
+		'merged_media' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_OMIT, 
+				'DISPLAY_WIDTH' => 66, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Merged media records summary'), 'DESCRIPTION' => _t('Serialized array of merged media')
 		)
  	)
 );
@@ -481,80 +493,80 @@ class ms_media extends BaseModel {
 	public function __construct($pn_id=null) {
 		parent::__construct($pn_id);
 	}
-	# ----------------------------------------
-	public function insert ($pa_options=null) {
-		if ($vn_rc = parent::insert($pa_options)) {
-			if (is_array($va_versions = $this->getMediaVersions("media"))) {
-		
-				$vn_alloc = 0;
-				foreach($va_versions as $vs_version) {
-					$va_info = $this->getMediaInfo("media", $vs_version);
-					$vn_alloc += $va_info['PROPERTIES']['filesize'];
-				}
-				$t_project = new ms_projects($this->get('project_id'));
-				$t_project->setMode(ACCESS_WRITE);
-				$t_project->set('total_storage_allocation', (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc);
-				$t_project->update();
-			}
-		}
-		return $vn_rc;
-	}
-	# ----------------------------------------
-	public function update ($pa_options=null) {
-		$vn_old_alloc = 0;
-		if (is_array($va_versions = $this->getMediaVersions("media"))) {
-			foreach($va_versions as $vs_version) {
-				$va_info = $this->getMediaInfo("media", $vs_version);
-				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
-			}
-		}
-		if ($vn_rc = parent::update($pa_options)) {
-			if (is_array($va_versions = $this->getMediaVersions("media"))) {
-		
-				$vn_alloc = 0;
-				foreach($va_versions as $vs_version) {
-					$va_info = $this->getMediaInfo("media", $vs_version);
-					$vn_alloc += $va_info['PROPERTIES']['filesize'];
-				}
-				
-				$t_project = new ms_projects($this->get('project_id'));
-				
-				if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc - (int)$vn_old_alloc) < 0) {
-					$vn_new_alloc = 0;
-				}
-				
-				$t_project->setMode(ACCESS_WRITE);
-				$t_project->set('total_storage_allocation', $vn_new_alloc);
-				$t_project->update();
-			}
-		}
-		return $vn_rc;
-	}
-	# ----------------------------------------
-	public function delete ($pb_delete_related=false, $pa_options=null, $pa_fields=null, $pa_table_list=null) {
-		$vn_project_id = $this->get('project_id');
-		$vn_old_alloc = 0;
-		if (is_array($va_versions = $this->getMediaVersions("media"))) {
-			foreach($va_versions as $vs_version) {
-				$va_info = $this->getMediaInfo("media", $vs_version);
-				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
-			}
-		}
-		if ($vn_rc = parent::delete($pb_delete_related, $pa_options, $pa_fields, $pa_table_list)) {			
-			
-			$t_project = new ms_projects($vn_project_id);
-			
-			if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') - (int)$vn_old_alloc) < 0) {
-				$vn_new_alloc = 0;
-			}
-			
-			$t_project->setMode(ACCESS_WRITE);
-			$t_project->set('total_storage_allocation', $vn_new_alloc);
-			$t_project->update();
-		}
-		
-		return $vn_rc;
-	}
+// 	# ----------------------------------------
+// 	public function insert ($pa_options=null) {
+// 		if ($vn_rc = parent::insert($pa_options)) {
+// 			if (is_array($va_versions = $this->getMediaVersions("media"))) {
+// 		
+// 				$vn_alloc = 0;
+// 				foreach($va_versions as $vs_version) {
+// 					$va_info = $this->getMediaInfo("media", $vs_version);
+// 					$vn_alloc += $va_info['PROPERTIES']['filesize'];
+// 				}
+// 				$t_project = new ms_projects($this->get('project_id'));
+// 				$t_project->setMode(ACCESS_WRITE);
+// 				$t_project->set('total_storage_allocation', (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc);
+// 				$t_project->update();
+// 			}
+// 		}
+// 		return $vn_rc;
+// 	}
+// 	# ----------------------------------------
+// 	public function update ($pa_options=null) {
+// 		$vn_old_alloc = 0;
+// 		if (is_array($va_versions = $this->getMediaVersions("media"))) {
+// 			foreach($va_versions as $vs_version) {
+// 				$va_info = $this->getMediaInfo("media", $vs_version);
+// 				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
+// 			}
+// 		}
+// 		if ($vn_rc = parent::update($pa_options)) {
+// 			if (is_array($va_versions = $this->getMediaVersions("media"))) {
+// 		
+// 				$vn_alloc = 0;
+// 				foreach($va_versions as $vs_version) {
+// 					$va_info = $this->getMediaInfo("media", $vs_version);
+// 					$vn_alloc += $va_info['PROPERTIES']['filesize'];
+// 				}
+// 				
+// 				$t_project = new ms_projects($this->get('project_id'));
+// 				
+// 				if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') + (int)$vn_alloc - (int)$vn_old_alloc) < 0) {
+// 					$vn_new_alloc = 0;
+// 				}
+// 				
+// 				$t_project->setMode(ACCESS_WRITE);
+// 				$t_project->set('total_storage_allocation', $vn_new_alloc);
+// 				$t_project->update();
+// 			}
+// 		}
+// 		return $vn_rc;
+// 	}
+// 	# ----------------------------------------
+// 	public function delete ($pb_delete_related=false, $pa_options=null, $pa_fields=null, $pa_table_list=null) {
+// 		$vn_project_id = $this->get('project_id');
+// 		$vn_old_alloc = 0;
+// 		if (is_array($va_versions = $this->getMediaVersions("media"))) {
+// 			foreach($va_versions as $vs_version) {
+// 				$va_info = $this->getMediaInfo("media", $vs_version);
+// 				$vn_old_alloc += $va_info['PROPERTIES']['filesize'];
+// 			}
+// 		}
+// 		if ($vn_rc = parent::delete($pb_delete_related, $pa_options, $pa_fields, $pa_table_list)) {			
+// 			
+// 			$t_project = new ms_projects($vn_project_id);
+// 			
+// 			if (($vn_new_alloc = (int)$t_project->get('total_storage_allocation') - (int)$vn_old_alloc) < 0) {
+// 				$vn_new_alloc = 0;
+// 			}
+// 			
+// 			$t_project->setMode(ACCESS_WRITE);
+// 			$t_project->set('total_storage_allocation', $vn_new_alloc);
+// 			$t_project->update();
+// 		}
+// 		
+// 		return $vn_rc;
+// 	}
 	# ----------------------------------------
 	public function htmlFormElement($ps_field, $ps_format=null, $pa_options=null) {
 		switch($ps_field){ 
@@ -578,72 +590,72 @@ class ms_media extends BaseModel {
  	/**
  	 *
  	 */
- 	public function addFile($ps_filepath, $ps_resource_path='/', $pb_allow_duplicates=true) {
- 		if(!$this->getPrimaryKey()) { return null; }
- 		if (!trim($ps_resource_path)) { $ps_resource_path = '/'; }
- 		
- 		$t_multifile = new ms_media_multifiles();
- 		if (!$pb_allow_duplicates) {
- 			if ($t_multifile->load(array('resource_path' => $ps_resource_path, 'media_id' => $this->getPrimaryKey()))) {
- 				return null;
- 			}
- 		}
- 		$t_multifile->setMode(ACCESS_WRITE);
- 		$t_multifile->set('media_id', $this->getPrimaryKey());
- 		$t_multifile->set('media', $ps_filepath);
- 		$t_multifile->set('resource_path', $ps_resource_path);
- 		
- 		$t_multifile->insert();
- 		
- 		if ($t_multifile->numErrors()) {
- 			$this->errors = array_merge($this->errors, $t_multifile->errors);
- 			return false;
- 		}
- 		
- 		return $t_multifile;
- 	}
- 	# ------------------------------------------------------
- 	/**
- 	 *
- 	 */
- 	public function removeFile($pn_multifile_id) {
- 		if(!$this->getPrimaryKey()) { return null; }
- 		
- 		$t_multifile = new ms_media_multifiles($pn_multifile_id);
- 		
- 		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
- 			$t_multifile->setMode(ACCESS_WRITE);
- 			$t_multifile->delete();
- 			
-			if ($t_multifile->numErrors()) {
-				$this->errors = array_merge($this->errors, $t_multifile->errors);
-				return false;
-			}
-		} else {
-			$this->postError(2720, _t('File is not part of this media'), 'ms_media->removeFile()');
-			return false;
-		}
-		return true;
- 	}
- 	# ------------------------------------------------------
- 	/**
- 	 *
- 	 */
- 	public function removeAllFiles() {
- 		if(!$this->getPrimaryKey()) { return null; }
- 		
- 		$va_file_ids = array_keys($this->getFileList());
- 		
- 		foreach($va_file_ids as $vn_id) {
- 			$this->removeFile($vn_id);
- 			
- 			if($this->numErrors()) {
- 				return false;
- 			}
- 		}
- 		
- 		return true;
- 	}
+//  	public function addFile($ps_filepath, $ps_resource_path='/', $pb_allow_duplicates=true) {
+//  		if(!$this->getPrimaryKey()) { return null; }
+//  		if (!trim($ps_resource_path)) { $ps_resource_path = '/'; }
+//  		
+//  		$t_multifile = new ms_media_multifiles();
+//  		if (!$pb_allow_duplicates) {
+//  			if ($t_multifile->load(array('resource_path' => $ps_resource_path, 'media_id' => $this->getPrimaryKey()))) {
+//  				return null;
+//  			}
+//  		}
+//  		$t_multifile->setMode(ACCESS_WRITE);
+//  		$t_multifile->set('media_id', $this->getPrimaryKey());
+//  		$t_multifile->set('media', $ps_filepath);
+//  		$t_multifile->set('resource_path', $ps_resource_path);
+//  		
+//  		$t_multifile->insert();
+//  		
+//  		if ($t_multifile->numErrors()) {
+//  			$this->errors = array_merge($this->errors, $t_multifile->errors);
+//  			return false;
+//  		}
+//  		
+//  		return $t_multifile;
+//  	}
+//  	# ------------------------------------------------------
+//  	/**
+//  	 *
+//  	 */
+//  	public function removeFile($pn_multifile_id) {
+//  		if(!$this->getPrimaryKey()) { return null; }
+//  		
+//  		$t_multifile = new ms_media_multifiles($pn_multifile_id);
+//  		
+//  		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
+//  			$t_multifile->setMode(ACCESS_WRITE);
+//  			$t_multifile->delete();
+//  			
+// 			if ($t_multifile->numErrors()) {
+// 				$this->errors = array_merge($this->errors, $t_multifile->errors);
+// 				return false;
+// 			}
+// 		} else {
+// 			$this->postError(2720, _t('File is not part of this media'), 'ms_media->removeFile()');
+// 			return false;
+// 		}
+// 		return true;
+//  	}
+//  	# ------------------------------------------------------
+//  	/**
+//  	 *
+//  	 */
+//  	public function removeAllFiles() {
+//  		if(!$this->getPrimaryKey()) { return null; }
+//  		
+//  		$va_file_ids = array_keys($this->getFileList());
+//  		
+//  		foreach($va_file_ids as $vn_id) {
+//  			$this->removeFile($vn_id);
+//  			
+//  			if($this->numErrors()) {
+//  				return false;
+//  			}
+//  		}
+//  		
+//  		return true;
+//  	}
  	# ------------------------------------------------------
  	/**
  	 * Returns list of additional files (page or frame previews for documents or videos, typically) attached to a media item
@@ -662,89 +674,123 @@ class ms_media extends BaseModel {
  	 * @param array $pa_versions A list of file versions to return. If omitted only the "preview" version is returned.
  	 * @return array A list of files attached to the media. If no files are associated an empty array is returned.
  	 */
- 	public function getFileList($pn_media_id=null, $pn_start=null, $pn_num_files=null, $pa_versions=null) {
+//  	public function getFileList($pn_media_id=null, $pn_start=null, $pn_num_files=null, $pa_versions=null) {
+//  		if(!($vn_media_id = $pn_media_id)) { 
+//  			if (!($vn_media_id = $this->getPrimaryKey())) {
+//  				return null; 
+//  			}
+//  		}
+//  		
+//  		if (!is_array($pa_versions)) {
+//  			$pa_versions = array('preview');
+//  		}
+//  		
+//  		$vs_limit_sql = '';
+//  		if (!is_null($pn_start) && !is_null($pn_num_files)) {
+//  			if (($pn_start >= 0) && ($pn_num_files >= 1)) {
+//  				$vs_limit_sql = "LIMIT {$pn_start}, {$pn_num_files}";
+//  			}
+//  		}
+//  		
+//  		$o_db= $this->getDb();
+//  		$qr_res = $o_db->query("
+//  			SELECT *
+//  			FROM ms_media_multifiles
+//  			WHERE
+//  				media_id = ?
+//  			{$vs_limit_sql}
+//  		", (int)$vn_media_id);
+//  		
+//  		$va_files = array();
+//  		while($qr_res->nextRow()) {
+//  			$vn_multifile_id = $qr_res->get('multifile_id');
+//  			$va_files[$vn_multifile_id] = $qr_res->getRow();
+//  			unset($va_files[$vn_multifile_id]['media']);
+//  			
+//  			foreach($pa_versions as $vn_i => $vs_version) {
+//  				$va_files[$vn_multifile_id][$vs_version.'_path'] = $qr_res->getMediaPath('media', $vs_version);
+//  				$va_files[$vn_multifile_id][$vs_version.'_tag'] = $qr_res->getMediaTag('media', $vs_version);
+//  				$va_files[$vn_multifile_id][$vs_version.'_url'] = $qr_res->getMediaUrl('media', $vs_version);
+//  				
+//  				$va_info = $qr_res->getMediaInfo('media', $vs_version);
+//  				$va_files[$vn_multifile_id][$vs_version.'_width'] = $va_info['WIDTH'];
+//  				$va_files[$vn_multifile_id][$vs_version.'_height'] = $va_info['HEIGHT'];
+//  				$va_files[$vn_multifile_id][$vs_version.'_mimetype'] = $va_info['MIMETYPE'];
+//  			}
+//  		}
+//  		return $va_files;
+//  	}
+//  	# ------------------------------------------------------
+//  	/**
+//  	 *
+//  	 */
+//  	public function getFileInstance($pn_multifile_id) {
+//  		if(!$this->getPrimaryKey()) { return null; }
+//  	
+//  		$t_multifile = new ms_media_multifiles($pn_multifile_id);
+//  		
+//  		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
+//  			return $t_multifile;
+//  		}
+//  		return null;
+//  	}
+//  	# ------------------------------------------------------
+//  	/**
+//  	 *
+//  	 */
+//  	public function numFiles($pn_media_id=null) { 		
+//  		if(!($vn_media_id = $pn_media_id)) { 
+//  			if (!($vn_media_id = $this->getPrimaryKey())) {
+//  				return null; 
+//  			}
+//  		}
+//  		
+//  		$o_db= $this->getDb();
+//  		$qr_res = $o_db->query("
+//  			SELECT count(*) c
+//  			FROM ms_media_multifiles
+//  			WHERE
+//  				media_id = ?
+//  		", (int)$vn_media_id);
+//  		
+//  		if($qr_res->nextRow()) {
+//  			return intval($qr_res->get('c'));
+//  		}
+//  		return 0;
+//  	}
+	# ------------------------------------------------------
+	# media files
+	# ------------------------------------------------------
+ 	public function getPreviewMediaFile($pn_media_id, $va_versions = array(), $vn_published = null){
  		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
  				return null; 
  			}
  		}
- 		
- 		if (!is_array($pa_versions)) {
- 			$pa_versions = array('preview');
+ 		if(sizeof($va_versions) == 0){
+ 			$va_versions = array("preview190");
  		}
- 		
- 		$vs_limit_sql = '';
- 		if (!is_null($pn_start) && !is_null($pn_num_files)) {
- 			if (($pn_start >= 0) && ($pn_num_files >= 1)) {
- 				$vs_limit_sql = "LIMIT {$pn_start}, {$pn_num_files}";
- 			}
+ 		$vs_wheres = " ";
+ 		if($vn_published){
+ 			$vs_wheres = " AND published = 1";
  		}
- 		
+ 		$va_file_info = array();
+ 		# --- first try to select the related media file indicated to use for preview
  		$o_db= $this->getDb();
- 		$qr_res = $o_db->query("
- 			SELECT *
- 			FROM ms_media_multifiles
- 			WHERE
- 				media_id = ?
- 			{$vs_limit_sql}
- 		", (int)$vn_media_id);
- 		
- 		$va_files = array();
- 		while($qr_res->nextRow()) {
- 			$vn_multifile_id = $qr_res->get('multifile_id');
- 			$va_files[$vn_multifile_id] = $qr_res->getRow();
- 			unset($va_files[$vn_multifile_id]['media']);
- 			
- 			foreach($pa_versions as $vn_i => $vs_version) {
- 				$va_files[$vn_multifile_id][$vs_version.'_path'] = $qr_res->getMediaPath('media', $vs_version);
- 				$va_files[$vn_multifile_id][$vs_version.'_tag'] = $qr_res->getMediaTag('media', $vs_version);
- 				$va_files[$vn_multifile_id][$vs_version.'_url'] = $qr_res->getMediaUrl('media', $vs_version);
- 				
- 				$va_info = $qr_res->getMediaInfo('media', $vs_version);
- 				$va_files[$vn_multifile_id][$vs_version.'_width'] = $va_info['WIDTH'];
- 				$va_files[$vn_multifile_id][$vs_version.'_height'] = $va_info['HEIGHT'];
- 				$va_files[$vn_multifile_id][$vs_version.'_mimetype'] = $va_info['MIMETYPE'];
+ 		$q_preview_file = $o_db->query("SELECT media_file_id, media, use_for_preview FROM ms_media_files WHERE media_id = ? ".$vs_wheres." ORDER BY use_for_preview DESC", $vn_media_id);
+
+ 		if($q_preview_file->numRows()){
+ 			$q_preview_file->nextRow();
+ 			foreach($va_versions as $vs_version){
+ 				$va_file_info["media"][$vs_version] = $q_preview_file->getMediaTag("media", $vs_version);
+ 				$va_file_info["urls"][$vs_version] = $q_preview_file->getMediaUrl("media", $vs_version);
  			}
+ 			$va_file_info["file_id"] = $q_preview_file->get("file_id");
+ 			$va_file_info["numFiles"] = $q_preview_file->numRows();
+ 		}else{
+ 			$va_file_info["numFiles"] = 0;
  		}
- 		return $va_files;
- 	}
- 	# ------------------------------------------------------
- 	/**
- 	 *
- 	 */
- 	public function getFileInstance($pn_multifile_id) {
- 		if(!$this->getPrimaryKey()) { return null; }
- 	
- 		$t_multifile = new ms_media_multifiles($pn_multifile_id);
- 		
- 		if ($t_multifile->get('media_id') == $this->getPrimaryKey()) {
- 			return $t_multifile;
- 		}
- 		return null;
- 	}
- 	# ------------------------------------------------------
- 	/**
- 	 *
- 	 */
- 	public function numFiles($pn_media_id=null) { 		
- 		if(!($vn_media_id = $pn_media_id)) { 
- 			if (!($vn_media_id = $this->getPrimaryKey())) {
- 				return null; 
- 			}
- 		}
- 		
- 		$o_db= $this->getDb();
- 		$qr_res = $o_db->query("
- 			SELECT count(*) c
- 			FROM ms_media_multifiles
- 			WHERE
- 				media_id = ?
- 		", (int)$vn_media_id);
- 		
- 		if($qr_res->nextRow()) {
- 			return intval($qr_res->get('c'));
- 		}
- 		return 0;
+ 		return $va_file_info;
  	}
 	# ------------------------------------------------------
 	# Download requests
@@ -780,17 +826,24 @@ class ms_media extends BaseModel {
  		} else {
  			$t_media = $this;
  		}
- 		# --- get the email address of any project members with the role "downloads" so they can be notified in addition to the owner of the media
+ 		# --- Who should be notified of the download request?
+ 		# --- check if the media group has an individual assigned to review downloads
  		$va_send_to = array();
- 		$t_project = new ms_projects($t_media->get("project_id"));
- 		$va_members = $t_project->getMembers();
- 		$t_member = new ca_users();
- 		foreach($va_members as $va_member){
- 			$t_member->load($va_member["user_id"]);
- 			if($t_member->hasRole("downloads")){
- 				$va_send_to[$va_member["email"]] = $va_member["fname"]." ".$va_member["lname"];
- 			}
- 		}
+		$t_project = new ms_projects($t_media->get("project_id"));
+		if($t_media->get("reviewer_id")){
+ 			$t_reviewer = new ca_users($t_media->get("reviewer_id"));
+ 			$va_send_to[$t_reviewer->get("email")] = $t_reviewer->get("fname")." ".$t_reviewer->get("lname");
+ 		}else{
+			# --- get the email address of any project members with the role "downloads" so they can be notified in addition to the owner of the media
+			$va_members = $t_project->getMembers();
+			$t_member = new ca_users();
+			foreach($va_members as $va_member){
+				$t_member->load($va_member["user_id"]);
+				if($t_member->hasRole("downloads")){
+					$va_send_to[$va_member["email"]] = $va_member["fname"]." ".$va_member["lname"];
+				}
+			}
+		}
  		$t_author = new ca_users($t_media->get('user_id'));
  		$t_user = new ca_users($pn_user_id);
  		if ($vs_email = $t_author->get('email')) {
@@ -895,6 +948,41 @@ class ms_media extends BaseModel {
 	/** 
 	 *
 	 */
+	public function userCanDownloadMediaFile($pn_user_id, $pn_media_id=null, $pn_media_file_id) {
+		if(!($pn_media_file_id)) { 
+			return false;
+		}
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+		# --- check if user has access to the project that made the media
+ 		$t_project = new ms_projects($t_media->get('project_id'));
+ 		if($t_project->isMember($pn_user_id)){
+ 			return true;
+ 		}
+ 		# --- does user have access to the group?
+		if(!$t_media->userCanDownloadMedia($pn_user_id, $vn_media_id)){
+			return false;
+		}
+		# -- user has access to the group, but is the file published?
+ 		$t_media_file = new ms_media_files($pn_media_file_id);
+ 		if($t_media_file->get("published")){
+ 			return true;
+ 		}
+ 		
+ 		return false;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
 	public function userAccessToMediaIsPending($pn_user_id, $pn_media_id=null) {
 		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
@@ -929,7 +1017,7 @@ class ms_media extends BaseModel {
 	/** 
 	 *
 	 */
-	public function recordDownload($pn_user_id, $pn_media_id=null){
+	public function recordDownload($pn_user_id, $pn_media_id=null, $pn_media_file_id=null){
 		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
  				return null; 
@@ -946,6 +1034,9 @@ class ms_media extends BaseModel {
  		$t_stat->setMode(ACCESS_WRITE);
  		$t_stat->set('media_id', $vn_media_id);
  		$t_stat->set('user_id', $pn_user_id);
+ 		if($pn_media_file_id){
+ 			$t_stat->set('media_file_id', $pn_media_file_id);
+ 		}
  		$t_stat->insert();
  		
  		if ($t_stat->numErrors()) {
@@ -957,18 +1048,21 @@ class ms_media extends BaseModel {
 		
 	}
 	# ----------------------------------------
-	function numDownloads($pn_media_id=null) {
+	function numDownloads($pn_media_id=null, $pn_media_file_id=null) {
 		if(!$pn_media_id){
 			$pn_media_id = $this->getPrimaryKey();
 		}
 		if (!$pn_media_id) { return null; }
-		
+		$vs_sql_where = "";
+		if($pn_media_file_id){
+			$vs_sql_where .= " AND media_file_id = ".$pn_media_file_id; 
+		}
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
 			SELECT count(*) c
 			FROM ms_media_download_stats
-			WHERE media_id = ?
-		", $pn_media_id);
+			WHERE media_id = ? ".$vs_sql_where
+		, $pn_media_id);
 		
 		$vn_num_downloads = 0;
 		if($qr->numRows()){
@@ -976,6 +1070,27 @@ class ms_media extends BaseModel {
 			$vn_num_downloads = $qr->get("c");
 		}
 		return $vn_num_downloads;
+	}
+	# ----------------------------------------
+	function numDownloadsPerFile($pn_media_id=null) {
+		if(!$pn_media_id){
+			$pn_media_id = $this->getPrimaryKey();
+		}
+		if (!$pn_media_id) { return null; }
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT media_file_id, user_id
+			FROM ms_media_download_stats
+			WHERE media_id = ? "
+		, $pn_media_id);
+		
+		$va_downloads = array();
+		if($qr->numRows()){
+			while($qr->nextRow()){
+				$va_downloads[$qr->get("media_file_id")][] = array("user_id" => $qr->get("user_id"), "downloaded_on" => $qr->get("downloaded_on"));
+			}
+		}
+		return $va_downloads;
 	}
 	# ------------------------------------------------------
 	/** 
@@ -1073,7 +1188,22 @@ class ms_media extends BaseModel {
 		}
 		$vs_citation_text = "";
 		if($t_media->get("media_citation_instruction1")){
-			$vs_citation_text = $t_media->get("media_citation_instruction1")." provided access to these data".(($t_media->get("media_citation_instruction2")) ? " " : "").$t_media->get("media_citation_instruction2").", the collection of which was funded by ".$t_media->get("media_citation_instruction3").". The files were downloaded from www.MorphoSource.org, Duke University.";
+			$vs_citation_text = $t_media->get("media_citation_instruction1")." provided access to these data".(($t_media->get("media_citation_instruction2")) ? " " : "").$t_media->get("media_citation_instruction2").$t_media->get("media_citation_instruction3").". The files were downloaded from www.MorphoSource.org, Duke University.";
+ 		}
+ 		return $vs_citation_text;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function getMediaCitationInstructionsFromFields($pa_citation_fields=null) {
+		if(!sizeof($pa_citation_fields)) { 
+ 			return null; 
+ 		}
+		
+		$vs_citation_text = "";
+		if($pa_citation_fields["media_citation_instruction1"]){
+			$vs_citation_text = $pa_citation_fields["media_citation_instruction1"]." provided access to these data".(($pa_citation_fields["media_citation_instruction2"]) ? " " : "").$pa_citation_fields["media_citation_instruction2"].$pa_citation_fields["media_citation_instruction3"].". The files were downloaded from www.MorphoSource.org, Duke University.";
  		}
  		return $vs_citation_text;
 	}

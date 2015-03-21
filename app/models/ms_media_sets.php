@@ -146,19 +146,19 @@ class ms_media_sets extends BaseModel {
 		parent::__construct($pn_id);
 	}
 	# ----------------------------------------
-	public function getCartMediaIdsForUser($pn_user_id) {
-		$va_media_ids = array();
+	public function getCartMediaFileIdsForUser($pn_user_id) {
+		$va_media_file_ids = array();
 		if(!$pn_user_id){
 			return false;
 		}else{
 			$o_db = new Db();
- 			$q_set_items = $o_db->query("SELECT si.media_id FROM ms_media_set_items si INNER JOIN ms_media_sets as ms ON ms.set_id = si.set_id WHERE ms.user_id = ?", $pn_user_id);
+ 			$q_set_items = $o_db->query("SELECT si.media_file_id FROM ms_media_set_items si INNER JOIN ms_media_sets as ms ON ms.set_id = si.set_id WHERE ms.user_id = ?", $pn_user_id);
  			if($q_set_items->numRows()){
  				while($q_set_items->nextRow()){
- 					$va_media_ids[] = $q_set_items->get("media_id");	
+ 					$va_media_file_ids[] = $q_set_items->get("media_file_id");	
  				}
  			}
- 			return $va_media_ids;
+ 			return $va_media_file_ids;
 		}
 		
 	}

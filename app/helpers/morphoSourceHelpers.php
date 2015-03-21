@@ -78,26 +78,74 @@
 	  * returns add or remove link to media cart
 	  * 
 	  */
-	function addToCartLink($o_request, $pn_media_id, $pn_user_id = null, $va_cart_media_ids = null, $va_options = array()) {
-		if(!$pn_media_id){
+	function addToCartLink($o_request, $pn_media_file_id, $pn_user_id = null, $va_cart_media_file_ids = null, $va_options = array()) {
+		if(!$pn_media_file_id){
 			return false;
 		}else{
-			if(!is_array($va_cart_media_ids)){
+			if(!is_array($va_cart_media_file_ids)){
 				if(!$pn_user_id){
 					return false;
 				}
 				$t_media_cart = new ms_media_sets();
- 				$va_cart_media_ids = $t_media_cart->getCartMediaIdsForUser($pn_user_id);
+ 				$va_cart_media_file_ids = $t_media_cart->getCartMediaFileIdsForUser($pn_user_id);
 			}
-			if(is_array($va_cart_media_ids)){
+			if(is_array($va_cart_media_file_ids)){
 				$vs_class = "button buttonLarge";
 				if($va_options["class"]){
 					$vs_class = $va_options["class"];
 				}
-				if(in_array($pn_media_id, $va_cart_media_ids)){
-					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Remove', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."'>"._t("remove <i class='fa fa-shopping-cart'></i>")."</a>";
+				if(in_array($pn_media_file_id, $va_cart_media_file_ids)){
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Remove', array('media_file_id' => $pn_media_file_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."' title='"._t("Remove from media cart")."'>"._t("remove <i class='fa fa-shopping-cart'></i>")."</a>";
 				}else{
-					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Add', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a>";
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'Add', array('media_file_id' => $pn_media_file_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."' title='"._t("Add to media cart")."'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a>";
+				}
+			}
+			return $vs_link;
+		}
+	}
+	# --------------------------------------------------------------------------------------------
+	 /**
+	  * returns add or remove link to media cart - to add all files from a group to the cart
+	  * 
+	  */
+	function addGroupToCartLink($o_request, $pn_media_id, $pn_user_id = null, $va_cart_media_file_ids = null, $va_options = array()) {
+		$vs_link = "";
+		if(!$pn_media_id){
+			return false;
+		}else{
+			if(!is_array($va_cart_media_file_ids)){
+				if(!$pn_user_id){
+					return false;
+				}
+				$t_media_cart = new ms_media_sets();
+ 				$va_cart_media_file_ids = $t_media_cart->getCartMediaFileIdsForUser($pn_user_id);
+			}
+			$o_db = new Db();
+			$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ? and published = 1", $pn_media_id);
+			if($q_media_files->numRows()){
+				$vb_show_add_link = false;
+				if(is_array($va_cart_media_file_ids) && sizeof($va_cart_media_file_ids)){
+					$va_media_file_ids = array();
+					while($q_media_files->nextRow()){
+						$va_media_file_ids[] = 	$q_media_files->get("media_file_id");
+					}
+					foreach($va_media_file_ids as $vn_media_file_id){
+						if(!in_array($vn_media_file_id, $va_cart_media_file_ids)){
+							$vb_show_add_link = true;
+							break;
+						}
+					}
+				}else{
+					$vb_show_add_link = true;
+				}
+				$vs_class = "button buttonLarge";
+				if($va_options["class"]){
+					$vs_class = $va_options["class"];
+				}
+				if(!$vb_show_add_link){
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'RemoveGroup', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."' title='"._t("Remove from media cart")."'>"._t("remove <i class='fa fa-shopping-cart'></i>")."</a>";
+				}else{
+					$vs_link = "<a href='#' onClick='$(this).parent().load(\"".caNavUrl($o_request, '', 'MediaCart', 'AddGroup', array('media_id' => $pn_media_id, "class" => $vs_class))."\"); return false;' class='".$vs_class."' title='"._t("Add to media cart")."'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a>";
 				}
 			}
 			return $vs_link;

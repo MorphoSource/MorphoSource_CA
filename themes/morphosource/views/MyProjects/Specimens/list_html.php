@@ -36,7 +36,7 @@
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $vn_specimen));
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $vn_specimen));
 			}else{
-				print "<div class='editMessage'>This specimen was created by the project, <b>".$va_specimen_info["project_name"]."</b><br/>If you need to edit this specimen please contact <a href='mailto:".$this->request->config->get("ca_admin_email")."'>".$this->request->config->get("ca_admin_email")."</a></div>";
+				print "<div class='editMessage'>This specimen was created by the project, <b>".$va_specimen_info["project_name"]."</b>.  If you need to edit this specimen please contact ".trim($va_specimen_info["fname"]." ".$va_specimen_info["lname"])." at <a href='mailto:".$va_specimen_info["email"]."'>".$va_specimen_info["email"]."</a></div>";
 			}
 			print "</div>";
 			$i = 0;

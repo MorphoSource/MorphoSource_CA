@@ -44,12 +44,12 @@ BaseModel::$s_ca_models_definitions['ms_media_set_items'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('item id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify record')
 		),
-		'media_id' => array(
+		'media_file_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => 'Media id', 'DESCRIPTION' => 'User that made set'
+				'LABEL' => 'Media file id', 'DESCRIPTION' => 'User that made set'
 		),
 		'set_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,

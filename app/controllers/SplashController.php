@@ -61,13 +61,16 @@
  			$t_media = new ms_media();
  			if($vn_recent = $this->request->config->get("recently_published_media_id")){
  				$t_media->load($vn_recent);
- 				$vs_recent_media = $t_media->getMediaTag("media", "preview190");
+ 				$t_media->getMediaTag("media", "preview190");
+ 				$va_preview_media = $t_media->getPreviewMediaFile(null, array("preview190"));
+				$vs_recent_media = $va_preview_media["media"]["preview190"];
  			}else{
 				$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
 				if($q_recent_media->numRows()){
 					$q_recent_media->nextRow();
 					$vn_recent = $q_recent_media->get("media_id");
-					$vs_recent_media = $q_recent_media->getMediaTag("media", "preview190");
+					$va_preview_media = $t_media->getPreviewMediaFile($vn_recent, array("preview190"));
+					$vs_recent_media = $va_preview_media["media"]["preview190"];
 				}
 			}
  			$this->view->setVar("recent_media", $vs_recent_media);

@@ -2436,4 +2436,21 @@ $ca_relationship_lookup_parse_cache = array();
 		return "<em>{$vs_media_class}</em> ({$vs_mimetype_name})";
 	}
 	# ------------------------------------------------------------------
+	/**
+	 *
+	 */
+	function msGetMediaFilesFormatDisplayString($t_media_file) {
+		$vs_mimetype = $t_media_file->getMediaInfo('ms_media_files.media', 'original', 'MIMETYPE');
+		$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+		
+		if ($vb_is_archive = in_array('_archive_', $t_media_file->getMediaVersions('ms_media_files.media'))) {
+			//$vn_num_files = $t_media_file->numFiles();
+			return "<em>{$vs_mimetype_name} image series ZIP file</em>"; // ({$vn_num_files} frames)";
+		} else {
+			$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+		}
+		
+		return "<em>{$vs_media_class}</em> ({$vs_mimetype_name})";
+	}
+	# ------------------------------------------------------------------
 ?>

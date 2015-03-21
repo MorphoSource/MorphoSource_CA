@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
 	require_once(__CA_MODELS_DIR__."/ca_users.php");
 	require_once(__CA_MODELS_DIR__."/ms_media.php");
+	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
 	require_once(__CA_MODELS_DIR__."/ms_media_sets.php");
 	require_once(__CA_MODELS_DIR__."/ms_media_set_items.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
@@ -37,7 +38,7 @@
  		# -------------------------------------------------------
 			protected $opo_media_set;
 			protected $opn_set_id;
-			protected $opn_media_id;
+			protected $opn_media_file_id;
 			protected $opo_user;
 
  		# -------------------------------------------------------
@@ -81,7 +82,10 @@
 				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
 			}
 			$this->view->setVar("set_id", $this->opn_set_id);
-			# --- has a media_id been passed?  this is used for adding to set or removing from set
+			# --- has a media_file_id been passed?  this is used for adding to set or removing from set
+			$this->opn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$this->view->setVar("media_file_id", $this->opn_media_file_id);
+			# --- has a media_id been passed?  this is used for adding a group to set or removing from set
 			$this->opn_media_id = $this->request->getParameter('media_id', pInteger);
 			$this->view->setVar("media_id", $this->opn_media_id);
 			# --- class to pass to cart link
@@ -91,27 +95,27 @@
  		public function cart() {
  			# --- select all media in user's cart
  			$o_db = new Db();
- 			$q_set_items = $o_db->query("SELECT si.media_id, m.media, m.specimen_id FROM ms_media_set_items si INNER JOIN ms_media as m ON si.media_id = m.media_id WHERE si.set_id = ?", $this->opn_set_id);
+ 			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
  			$this->view->setVar("items", $q_set_items);
  			$this->render('MediaCart/cart_html.php');
  		}
  		# -------------------------------------------------------
  		public function add() {
- 			if(!$this->opn_media_id){
+ 			if(!$this->opn_media_file_id){
  				$this->notification->addNotification("No media id was passed to add to cart", __NOTIFICATION_TYPE_ERROR__);
 				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
  			}
  			$t_media_set_items = new ms_media_set_items();
  			# --- check the media hadn't already been added to the set
- 			$t_media_set_items->load(array("set_id" => $this->opn_set_id, "media_id" => $this->opn_media_id));
+ 			$t_media_set_items->load(array("set_id" => $this->opn_set_id, "media_file_id" => $this->opn_media_file_id));
  			if($t_media_set_items->get("item_id")){
  				$this->render('MediaCart/cart_link_html.php');
  			}else{
  				# --- add item
-				$t_media_set_items->set('media_id', $this->opn_media_id);
+				$t_media_set_items->set('media_file_id', $this->opn_media_file_id);
 				if ($t_media_set_items->numErrors() > 0) {
 					foreach ($t_media_set_items->getErrors() as $vs_e) {
-						$va_errors['media_id'] = $vs_e;
+						$va_errors['media_file_id'] = $vs_e;
 					}
 				}
 				$t_media_set_items->set('set_id', $this->opn_set_id);
@@ -141,19 +145,19 @@
  		}
  		# -------------------------------------------------------
  		public function remove() {
- 			if(!$this->opn_media_id){
+ 			if(!$this->opn_media_file_id){
  				$this->notification->addNotification("No media id was passed to add to cart", __NOTIFICATION_TYPE_ERROR__);
 				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
  			}
  			$t_media_set_item = new ms_media_set_items();
  			# --- load set item
- 			$t_media_set_item->load(array("set_id" => $this->opn_set_id, "media_id" => $this->opn_media_id));
+ 			$t_media_set_item->load(array("set_id" => $this->opn_set_id, "media_file_id" => $this->opn_media_file_id));
  			if($t_media_set_item->get("item_id")){
  				# --- remove item
 				$t_media_set_item->setMode(ACCESS_WRITE);
  				$t_media_set_item->delete();
 				if ($t_media_set_item->numErrors() > 0) {
-					foreach ($t_bib_link->getErrors() as $vs_e) {
+					foreach ($t_media_set_item->getErrors() as $vs_e) {
 						$va_errors[] = $vs_e;
 					}
 					$this->view->setVar("errors", join(", ", $va_errors));
@@ -164,6 +168,97 @@
  			}else{
  				$this->cart();
  			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function addGroup() {
+ 			if(!$this->opn_media_id){
+ 				$this->notification->addNotification("No media group id was passed to add to cart", __NOTIFICATION_TYPE_ERROR__);
+				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
+				exit;
+ 			}
+ 			$t_media = new ms_media($this->opn_media_id);
+ 			if (!$this->request->isLoggedIn() || !$t_media->userCanDownloadMedia($this->request->getUserID())) {
+				$this->notification->addNotification("You may not download this media", __NOTIFICATION_TYPE_ERROR__);
+				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
+				exit;
+			}
+ 			# --- get files for the group
+ 			$o_db = new Db();
+ 			$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ?", $this->opn_media_id);
+			if($q_media_files->numRows()){
+				while($q_media_files->nextRow()){
+					if($t_media->userCanDownloadMediaFile($this->request->getUserID(), null, $q_media_files->get("media_file_id"))){
+						$t_media_set_items = new ms_media_set_items();
+						# --- check the media hadn't already been added to the set
+						$t_media_set_items->load(array("set_id" => $this->opn_set_id, "media_file_id" => $q_media_files->get("media_file_id")));
+						if(!$t_media_set_items->get("item_id")){
+							# --- add item
+							$t_media_set_items->set('media_file_id', $q_media_files->get("media_file_id"));
+							if ($t_media_set_items->numErrors() > 0) {
+								foreach ($t_media_set_items->getErrors() as $vs_e) {
+									$va_errors['media_file_id'] = $vs_e;
+								}
+							}
+							$t_media_set_items->set('set_id', $this->opn_set_id);
+							if ($t_media_set_items->numErrors() > 0) {
+								foreach ($t_media_set_items->getErrors() as $vs_e) {
+									$va_errors['set_id'] = $vs_e;
+								}
+							}
+							if (sizeof($va_errors) == 0) {
+								# do insert
+								$t_media_set_items->setMode(ACCESS_WRITE);
+								$t_media_set_items->insert();
+								
+								if ($t_media_set_items->numErrors()) {
+									foreach ($t_media_set_items->getErrors() as $vs_e) {  
+										$va_errors["general"] = $va_errors["general"]." ".$vs_e.", ";
+									}
+								}
+							}
+							if (sizeof($va_errors)){
+								$this->notification->addNotification("There were errors adding media to your  cart: ".join(", ", $va_errors), __NOTIFICATION_TYPE_ERROR__);
+								$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
+							}
+						}
+					}
+				}
+				if (!sizeof($va_errors)){
+					$this->render('MediaCart/cart_group_link_html.php');
+				}
+			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function removeGroup() {
+ 			if(!$this->opn_media_id){
+ 				$this->notification->addNotification("No media group id was passed to add to cart", __NOTIFICATION_TYPE_ERROR__);
+				$this->response->setRedirect(caNavUrl($this->request, "", "MediaCart", "Cart"));
+				exit;
+ 			}
+ 			# --- get files for the group
+ 			$o_db = new Db();
+ 			$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ?", $this->opn_media_id);
+			if($q_media_files->numRows()){
+				while($q_media_files->nextRow()){
+					$t_media_set_item = new ms_media_set_items();
+					# --- load set item
+					$t_media_set_item->load(array("set_id" => $this->opn_set_id, "media_file_id" => $q_media_files->get("media_file_id")));
+					if($t_media_set_item->get("item_id")){
+						# --- remove item
+						$t_media_set_item->setMode(ACCESS_WRITE);
+						$t_media_set_item->delete();
+						if ($t_media_set_item->numErrors() > 0) {
+							foreach ($t_media_set_item->getErrors() as $vs_e) {
+								$va_errors[] = $vs_e;
+							}
+							$this->view->setVar("errors", join(", ", $va_errors));
+						}
+					}
+				}				
+				if (!sizeof($va_errors)){
+					$this->render('MediaCart/cart_group_link_html.php');
+				}
+			}
  		}
  		# -------------------------------------------------------
  		public function clearCart() {
@@ -185,29 +280,35 @@
  		public function DownloadCart() {
 			# --- get items in cart
 			$o_db = new Db();
- 			$q_set_items = $o_db->query("SELECT si.media_id, m.media, m.specimen_id FROM ms_media_set_items si INNER JOIN ms_media as m ON si.media_id = m.media_id WHERE si.set_id = ?", $this->opn_set_id);
+ 			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
  			$t_media = new ms_media();
  			$t_specimens = new ms_specimens();
 			if($q_set_items->numRows()){
 				$ps_version = "_archive_";								
-				$va_file_names = array();
 				$va_file_paths = array();
+				$t_media_file = new ms_media_files();
+				$va_media_file_ids = array();
 				while($q_set_items->nextRow()){
-					$vs_file_name = "";
-					$vs_file_path = "";
-					$va_versions = $q_set_items->getMediaVersions('media');			
-					if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
-					if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }$vs_idno_proc = $q_set_items->get('media_id');
-					$vs_specimen_number = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
-					$va_version_info = $q_set_items->getMediaInfo('media', $ps_version);
-					$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'.'.$va_version_info['EXTENSION'];
-					$vs_file_path = $q_set_items->getMediaPath('media', $ps_version);
-					# --- record download
-					$t_media->recordDownload($this->request->getUserID(), $q_set_items->get("media_id"));
-					$va_file_names[$vs_file_name] = true;
-					$va_file_paths[$vs_file_path] = $vs_file_name;	
+					if($t_media->userCanDownloadMediaFile($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"))){
+						$vs_specimen_name = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
+						# --- record download
+						$t_media->recordDownload($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"));
+						$vs_file_name = "";
+						$vs_file_path = "";
+						$t_media_file->load($q_set_items->get("media_file_id"));
+						$ps_version = "_archive_";
+						$va_versions = $t_media_file->getMediaVersions('media');
+						if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
+						if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+						$vs_idno_proc = $q_set_items->get("media_id");
+						$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
+						$vs_file_name = $vs_specimen_name.'_M'.$vs_idno_proc.'-'.$q_set_items->get("media_file_id").'.'.$va_version_info['EXTENSION'];
+						$vs_file_path = $q_set_items->getMediaPath('media', $ps_version);
+						$va_file_paths[$vs_file_path] = $vs_file_name;					
+						$va_media_file_ids[] = $q_set_items->get("media_file_id");
+					}
 				}				
-				if (sizeof($va_file_paths) > 1) {
+				if (sizeof($va_file_paths)) {
 					if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 					set_time_limit($vn_limit * 2);
 					$o_zip = new ZipFile();
@@ -216,28 +317,133 @@
 							$o_zip->addFile($vs_path, $vs_name, null, array('compression' => 0));	// don't try to compress
 						}
 					}
+					# --- generate text file for media downloaded and add it to zip
+					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+					$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His').'.csv';
+					$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+					if(sizeof($va_text_file_text)){
+						$vo_file = fopen($vs_tmp_file_name, "w");
+						foreach($va_text_file_text as $va_row){
+							fputcsv($vo_file, $va_row);			
+						}
+						fclose($vo_file);
+						$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+						unlink($vs_tmp_file_name);
+					}
+					
+					#$vs_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+					#if($vs_text_file_text){
+					#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
+					#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+					#	unlink($vs_tmp_file_name);
+					#}
+					
 					$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
 					$this->view->setVar('version_download_name', preg_replace('![^A-Za-z0-9\.\-]+!', '_', "morphosourceMedia_".date('m_d_y_His')).'.zip');
 					
 					$this->response->sendHeaders();
 					$vn_rc = $this->render('Detail/media_download_binary.php');
 					$this->response->sendContent();
-				} else {
-					foreach($va_file_paths as $vs_path => $vs_name) {
-						$this->view->setVar('version_path', $vs_path);
-						$this->view->setVar('version_download_name', $vs_name);
-					}
-					$this->response->sendHeaders();
-					$vn_rc = $this->render('Detail/media_download_binary.php');
-					$this->response->sendContent();
+					return $vn_rc;
 				}
 				
-				return $vn_rc;
 			}else{
 				$this->view->setVar("errors", "There is no media in your cart to download");
  				$this->cart();
 			}
-		}		
+		}
+ 		# -------------------------------------------------------
+ 		public function DownloadCartMd() {
+			# --- get items in cart
+			$o_db = new Db();
+ 			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
+ 			$t_media = new ms_media();
+ 			$t_specimens = new ms_specimens();
+			if($q_set_items->numRows()){
+				$ps_version = "_archive_";								
+				$va_file_paths = array();
+				$t_media_file = new ms_media_files();
+				$va_media_file_ids = array();
+				while($q_set_items->nextRow()){
+					if($t_media->userCanDownloadMediaFile($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"))){
+						$vs_specimen_name = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
+						$vs_file_name = "";
+						$vs_file_path = "";
+						$t_media_file->load($q_set_items->get("media_file_id"));
+											
+						$va_media_file_ids[] = $q_set_items->get("media_file_id");
+					}
+				}
+				if(is_array($va_media_file_ids) && sizeof($va_media_file_ids)){
+					if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
+					set_time_limit($vn_limit * 2);
+					# --- generate text file for media in cart
+					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+					$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His').'.csv';
+					$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+					if(sizeof($va_text_file_text)){
+						$vo_file = fopen($vs_tmp_file_name, "w");
+						foreach($va_text_file_text as $va_row){
+							fputcsv($vo_file, $va_row);			
+						}
+						fclose($vo_file);
+						
+						$this->view->setVar('version_path', $vs_tmp_file_name);
+						$this->view->setVar('version_download_name', $vs_text_file_name);
+					
+						$this->response->sendHeaders();
+						$vn_rc = $this->render('Detail/media_download_binary.php');
+						$this->response->sendContent();
+						
+						unlink($vs_tmp_file_name);
+					}
+					
+					return $vn_rc;
+				}
+			}else{
+				$this->view->setVar("errors", "There is no media in your cart to download");
+ 				$this->cart();
+			}
+		}	
+ 		# -------------------------------------------------------
+ 		public function removeByMimetype() {
+ 			$vs_mimetype = $this->request->getParameter('mimetype', pString);
+ 			if($vs_mimetype){
+ 				$va_errors = array();
+ 				# --- get items in cart
+				$t_media_set_item = new ms_media_set_items();
+				$o_db = new Db();
+ 				$q_set_items = $o_db->query("SELECT si.item_id, si.media_file_id, mf.media FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id WHERE si.set_id = ?", $this->opn_set_id);
+				if($q_set_items->numRows()){
+					$va_items_to_remove = array();
+					while($q_set_items->nextRow()){
+						$va_properties = $q_set_items->getMediaInfo('media', 'original');
+						if($va_properties["MIMETYPE"] == $vs_mimetype){
+							# --- remove the set item from cart
+							$va_items_to_remove[] = $q_set_items->get("item_id");
+							 # --- remove item
+							$t_media_set_item->load($q_set_items->get("item_id"));
+							$t_media_set_item->setMode(ACCESS_WRITE);
+							$t_media_set_item->delete();
+							if ($t_media_set_item->numErrors() > 0) {
+								foreach ($t_media_set_item->getErrors() as $vs_e) {
+									$va_errors[] = $vs_e;
+								}
+							}
+
+						}
+					}
+					if(sizeof($va_errors)){
+						$this->view->setVar("errors", join(", ", $va_errors));
+					}
+					#print_r($va_items_to_remove);
+					if(sizeof($va_items_to_remove)){
+						$this->notification->addNotification("Removed ".sizeof($va_items_to_remove)." files from your cart", __NOTIFICATION_TYPE_ERROR__);
+					}
+				}
+ 			}
+ 			$this->cart();
+ 		}
  		# -------------------------------------------------------
  	}
  ?>

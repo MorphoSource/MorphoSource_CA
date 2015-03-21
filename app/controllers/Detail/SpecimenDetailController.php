@@ -134,7 +134,7 @@
 		/**
 		 * Download media
 		 */ 
-		public function DownloadMedia() {
+/*		public function DownloadMedia() {
 			if (!$this->request->isLoggedIn() || !$this->opo_item->userCanDownloadMedia($this->request->getUserID())) {
 				$this->notification->addNotification("You may not download this media", __NOTIFICATION_TYPE_ERROR__);
 				$this->show();
@@ -165,12 +165,12 @@
 			
 			$this->response->sendContent();
 			return $vn_rc;
-		}
+		}*/
 		# -------------------------------------------------------
 		/**
 		 * Request access to media
 		 */ 
-		public function RequestDownload() {
+/*		public function RequestDownload() {
 			if (!$this->request->isLoggedIn()) {
 				$this->notification->addNotification("You must login to request download of this media", __NOTIFICATION_TYPE_ERROR__);
 				$this->show();
@@ -194,9 +194,14 @@
  			$pn_specimen_id = $this->request->getParameter('specimen_id', pInteger);
  			// TODO: does user own this media?
  			$t_media = new ms_media($pn_specimen_id);
+ 			$t_media_files = new ms_media_files();
+ 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+ 			$t_media_files->load($pn_media_file_id);
+ 			$this->view->setVar('t_media_file', $t_media_files);
+ 			$this->view->setVar('media_file_id', $pn_media_file_id);
  			$this->view->setVar('t_media', $t_media);
  			$this->render('../MyProjects/Media/ajax_media_viewer_html.php');
- 		}
+ 		}*/
  		# -------------------------------------------------------
  	}
  ?>

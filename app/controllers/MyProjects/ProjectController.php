@@ -176,7 +176,9 @@
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
 				$this->opo_project->setMode(ACCESS_WRITE);
-				$this->opo_project->delete(true);
+				$this->opo_project->set("deleted", 1);
+				$this->opo_project->set("publication_status", 0);
+				$this->opo_project->update();
 				if ($this->opo_project->numErrors()) {
 					foreach ($this->opo_project->getErrors() as $vs_e) {  
 						$va_errors["general"] = $vs_e;
@@ -189,11 +191,41 @@
 					$this->notification->addNotification("Deleted project", __NOTIFICATION_TYPE_INFO__);
 					$this->request->session->setVar('current_project_id', '');
  					$this->request->session->setVar('current_project_name', '');
-					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "Dashboard"));
-					
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "Dashboard"));					
 				}
 				
 			}else{
+				$vn_num_institutions = "";
+				
+				# --- get the number of records associated with the project to warn the user before deleting
+				$o_db = new Db();
+				$q_num_facilites = $o_db->query("SELECT count(*) c FROM ms_facilities WHERE project_id = ?", $this->opn_project_id);
+				$q_num_facilites->nextRow();
+				$vn_num_facilities = $q_num_facilites->get("c");
+				
+				$q_num_specimens = $o_db->query("SELECT count(*) c FROM ms_specimens WHERE project_id = ?", $this->opn_project_id);
+				$q_num_specimens->nextRow();
+				$vn_num_specimens = $q_num_specimens->get("c");
+				
+				$q_num_media_groups = $o_db->query("SELECT count(*) c FROM ms_media WHERE project_id = ?", $this->opn_project_id);
+				$q_num_media_groups->nextRow();
+				$vn_num_media_groups = $q_num_media_groups->get("c");
+				
+				$q_num_media_files = $o_db->query("SELECT count(mf.media_file_id) c FROM ms_media_files mf INNER JOIN ms_media as m ON mf.media_id = m.media_id WHERE m.project_id = ?", $this->opn_project_id);
+				$q_num_media_files->nextRow();
+				$vn_num_media_files = $q_num_media_files->get("c");
+				
+				$vs_message = "Your project contains the following records: <ul style='width:200px; margin: 0px auto 0px auto;'>
+								<li style='text-align:left; font-weight:normal;'>".$vn_num_media_groups." media group".(($vn_num_media_groups == 1) ? "" : "s")."</li>
+								<li style='text-align:left; font-weight:normal;'>".$vn_num_media_files." media file".(($vn_num_media_files == 1) ? "" : "s")."</li>
+								<li style='text-align:left; font-weight:normal;'>".$vn_num_specimens." specimen".(($vn_num_specimens == 1) ? "" : "s")."</li>
+								<li style='text-align:left; font-weight:normal;'>".$vn_num_facilities." facilit".(($vn_num_facilities == 1) ? "y" : "ies")."</li>
+								</ul><br/><br/>";
+				if($vn_num_facilities || $vn_num_specimens){
+					$vs_message .= "<b>Facilities and specimen will not be deleted since they can be used by other projects in the community.</b><br/><br/>";
+				}
+				
+				$this->view->setVar("message", $vs_message);
 				$this->view->setVar("item_name", $this->ops_project_name);
 				$this->render('General/delete_html.php');
 			}

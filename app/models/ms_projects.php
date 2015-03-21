@@ -117,6 +117,17 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 					_t('New') 	=> 0,
 					_t('Approved')	=> 1
 				)
+		),
+		'deleted' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Is project deleted?'), 'DESCRIPTION' => _t('Media from deleted projects is not available in the public search/browse.'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('Active') 	=> 0,
+					_t('Deleted')	=> 1
+				)
 		)
  	)
 );
@@ -220,7 +231,7 @@ class ms_projects extends BaseModel {
 			FROM ms_projects p
 			INNER JOIN ms_project_users AS pu ON pu.project_id = p.project_id
 			WHERE
-				(pu.user_id = ?) AND (pu.active = 1)
+				(pu.user_id = ?) AND (pu.active = 1) AND p.deleted = 0
 			ORDER BY p.project_id DESC
 		", $pn_user_id);
 		
@@ -406,6 +417,50 @@ class ms_projects extends BaseModel {
 		return $vn_num_media;
 	}
 	# ----------------------------------------
+	function numReadOnlyMedia($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media m
+			LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+			WHERE mxp.project_id = ? AND m.project_id != ?
+		", $pn_project_id, $pn_project_id);
+		
+		$vn_num_media = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_media = $qr->get("c");
+		}
+		return $vn_num_media;
+	}
+	# ----------------------------------------
+	function numMediaFiles($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media_files mf
+			INNER JOIN ms_media AS m ON m.media_id = mf.media_id
+			WHERE m.project_id = ?
+		", $pn_project_id);
+		
+		$vn_num_media_files = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_media_files = $qr->get("c");
+		}
+		return $vn_num_media_files;
+	}
+	# ----------------------------------------
 	# --- returns count of all specimens used in project NOT created by project
 	function numSpecimens($pn_project_id=null) {
 		if(!$pn_project_id){
@@ -488,11 +543,12 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-			SELECT m.media_id, m.media, m.specimen_id, published
+			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
 			FROM ms_media m
-			WHERE m.project_id = ?
+			LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+			WHERE (m.project_id = ? OR mxp.project_id = ?)
 			ORDER BY m.media_id
-		", $vn_project_id);
+		", $vn_project_id, $vn_project_id);
 
 		return $qr;
 	}
@@ -533,15 +589,20 @@ class ms_projects extends BaseModel {
 		
 		
 		$qr = $o_db->query("
-			SELECT DISTINCT s.*, m.media_id, m.media, p.name project_name
+			SELECT DISTINCT s.*, m.media_id, p.name project_name, u.fname, u.lname, u.email
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
 			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+			LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+			LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
 			".$vs_order_by_joins."
-			WHERE s.project_id = ?
+			WHERE (mproj.deleted != 1) AND 
+			(s.project_id = ?
 			OR m.project_id = ?
+			OR mp.project_id = ?)
 			ORDER BY ".$vs_order_by
-		, $vn_project_id, $vn_project_id);
+		, $vn_project_id, $vn_project_id, $vn_project_id);
 			
 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
@@ -557,10 +618,12 @@ class ms_projects extends BaseModel {
 				$va_specimens[$va_specimen['specimen_id']] = $va_specimen;
 			}
 			if ($vn_media_id = $va_specimen['media_id']) {
+				$t_media = new ms_media();
+				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions);
 				$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
 				foreach($pa_versions as $vs_version) {
-					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'][$vs_version] = $qr->getMediaTag('media', $vs_version);
-					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'][$vs_version] = $qr->getMediaUrl('media', $vs_version);
+					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
 				}
 			}
 		}
@@ -592,10 +655,11 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
-				SELECT DISTINCT f.*, p.name projectName
+				SELECT DISTINCT f.*, p.name projectName, u.email, u.fname, u.lname
 				FROM ms_facilities f
 				LEFT JOIN ms_media AS m ON m.facility_id = f.facility_id
 				LEFT JOIN ms_projects AS p on f.project_id = p.project_id
+				LEFT JOIN ca_users AS u on p.user_id = u.user_id
 				WHERE m.project_id = ? OR f.project_id = ?
 				ORDER BY f.name, f.institution
 		", $vn_project_id, $vn_project_id);
@@ -676,6 +740,28 @@ class ms_projects extends BaseModel {
 		return $va_counts;
 	}
 	# ----------------------------------------
+	function getProjectMediaFileCounts($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c, mf.published
+			FROM ms_media_files mf
+			INNER JOIN ms_media AS m ON mf.media_id = m.media_id
+			WHERE m.project_id = ?
+			GROUP BY mf.published
+		", $pn_project_id);
+		
+		$va_counts = array();
+		while($qr->nextRow()){
+			$va_counts[$qr->get('published')] = (int)$qr->get('c');
+		}
+		return $va_counts;
+	}
+	# ----------------------------------------
 	# --- $pn_published is value to set published field to
 	function publishAllProjectMedia($pn_published, $pn_project_id=null) {
 		if(!$pn_published) { return null; }
@@ -699,6 +785,35 @@ class ms_projects extends BaseModel {
 			$t_media->set('published', $pn_published);
 			$t_media->update();
 			if ($t_media->numErrors() == 0) {
+				$vn_pub_count++;
+			}
+		}
+		
+		return $vn_pub_count;
+	}
+	# ----------------------------------------
+	function publishAllProjectMediaFiles($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = new Db();
+		$qr_res = $o_db->query("
+			SELECT mf.media_file_id
+			FROM ms_media_files mf
+			INNER JOIN ms_media as m ON m.media_id = mf.media_id
+			WHERE 
+				m.project_id = ? AND mf.published = 0
+		", $pn_project_id);
+		
+		$vn_pub_count = 0;
+		while($qr_res->nextRow()){ 
+			$t_media_file = new ms_media_files($qr_res->get('media_file_id'));
+			$t_media_file->setMode(ACCESS_WRITE);
+			$t_media_file->set('published', 1);
+			$t_media_file->update();
+			if ($t_media_file->numErrors() == 0) {
 				$vn_pub_count++;
 			}
 		}

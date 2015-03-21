@@ -29,12 +29,14 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_MODELS_DIR__."/ms_taxonomy_names.php");
  	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_taxonomy.php");
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class MediaController extends ActionController {
@@ -54,6 +56,7 @@
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
  			JavascriptLoadManager::register("panel");
  			JavascriptLoadManager::register("3dmodels");
+ 			JavascriptLoadManager::register("formrepeater");
  			
  			
  			parent::__construct($po_request, $po_response, $pa_view_paths);
@@ -113,6 +116,12 @@
 				}
 			}
 			$this->view->setvar("item_name", $this->ops_item_name);
+			$t_media_files = new ms_media_files();
+ 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+ 			if($pn_media_file_id && ($this->request->getParameter('formaction', pString) == "editMediaFile")){
+ 				$t_media_files->load($pn_media_file_id);
+ 			}
+ 			$this->view->setVar("t_media_file", $t_media_files);
  		}
  		# -------------------------------------------------------
  		public function listItems() {
@@ -151,37 +160,40 @@
 			$va_fields = $this->opo_item->getFormFields();
 			$va_errors = array();
 			# loop through fields
-			
+#print "<pre>";
+#print sizeof($this->request->getParameter('media', pArray));
+#print_r($this->request->getParameter('media', pArray));	
+#print_r($_FILES);
+#print "</pre>";
+#exit;
 			$va_update_opts = array();
 			while(list($vs_f,$va_attr) = each($va_fields)) {		
 				switch($vs_f) {
-					# -----------------------------------------------
-					case 'media':
-						$vs_media_source = $this->request->getParameter('mediaSource', pString);
-						if (
-							($vs_media_source == 'server')
-							&&
-							($vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory'))
-							&&
-							($vs_upload_base_directory = $this->opo_item->getAppConfig()->get('upload_base_directory'))
-							&&
-							(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
-						) {
-							$vs_media_path = str_replace("/..", "", escapeshellcmd($this->request->getParameter('mediaServerPath', pString)));
-							if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
-								$this->opo_item->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
-							//} else {
-								//$va_errors[$vs_f] = "Please select a media file";
-							}
-						} else {
-							if($_FILES['media']['tmp_name']){
-								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
-							}elseif(!$this->opo_item->get('media')){
-								$va_errors[$vs_f] = "Please upload a media file";
-							}
-						}
-						$this->request->user->setVar('lastMediaSource', $vs_media_source);
-						break;
+// 					# -----------------------------------------------
+// 					case 'media':
+// 						$vs_media_source = $this->request->getParameter('mediaSource', pString);
+// 						if (
+// 							($vs_media_source == 'server')
+// 							&&
+// 							($vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory'))
+// 							&&
+// 							($vs_upload_base_directory = $this->opo_item->getAppConfig()->get('upload_base_directory'))
+// 							&&
+// 							(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
+// 						) {
+// 							$vs_media_path = str_replace("/..", "", escapeshellcmd($this->request->getParameter('mediaServerPath', pString)));
+// 							if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
+// 								$this->opo_item->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
+// 							}
+// 						} else {
+// 							if($_FILES['media']['tmp_name']){
+// 								$this->opo_item->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+// 							}elseif(!$this->opo_item->get('media')){
+// 								$va_errors[$vs_f] = "Please upload a media file";
+// 							}
+// 						}
+// 						$this->request->user->setVar('lastMediaSource', $vs_media_source);
+// 						break;
 					# -----------------------------------------------
 					case 'project_id':
 						if(!$this->opo_item->get("project_id")){
@@ -286,16 +298,68 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
-					// Update media previews?
-					if (isset($_FILES['mediaPreviews']['tmp_name']) && $_FILES['mediaPreviews']['tmp_name'] && $_FILES['mediaPreviews']['size']) {
-						$this->opo_item->set('media', $_FILES['mediaPreviews']['tmp_name'], array(
-							'original_filename' => $_FILES['mediaPreviews']['name']
-						));
-						$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
-						$this->opo_item->update($va_update_opts);
+					# --- are there media files to add?
+					if(is_array($_FILES) && sizeof($_FILES)){
+						$va_media_files_info = $this->request->getParameter('media', pArray);
+						$vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory');
+						$vs_upload_base_directory = $this->opo_item->getAppConfig()->get('upload_base_directory');
+						foreach($va_media_files_info as $vn_key => $va_media_file_info){
+							$va_errors_file = array();
+							$vs_tmp = "";
+							$vs_tmp = $_FILES["media"]["tmp_name"][$vn_key];
+							if($vs_tmp || ($va_media_file_info["mediaServerPath"] && $vs_user_upload_directory && $vs_upload_base_directory && (preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory)))){
+								$t_media_file = new ms_media_files();
+								$t_media_file->set("media_id", $this->opo_item->get("media_id"));
+								$t_media_file->set("user_id",$this->request->user->get("user_id"));
+								foreach(array("title", "element", "side", "published", "notes") as $vs_f){
+									$t_media_file->set($vs_f, $va_media_file_info[$vs_f]);
+									if ($t_media_file->numErrors() > 0) {
+										foreach ($t_media_file->getErrors() as $vs_e) {
+											$va_errors_file[$vs_f] = $vs_e;
+										}
+									}
+								}
+								# upload media
+								if($vs_tmp){
+									$t_media_file->set('media', $vs_tmp, array('original_filename' => $_FILES['media']['name'][$vn_key]));
+									if ($t_media_file->numErrors() > 0) {
+										foreach ($t_media_file->getErrors() as $vs_e) {
+											$va_errors_file["media"] = $vs_e;
+										}
+									}
+								}elseif($va_media_file_info["mediaServerPath"]){
+									$vs_media_path = str_replace("/..", "", escapeshellcmd($va_media_file_info["mediaServerPath"]));
+									if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
+										$t_media_file->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
+									}
+								}
+								if(sizeof($va_errors_file)){
+									$this->notification->addNotification("There were errors while uploading media file:".implode(", ", $va_errors_file), __NOTIFICATION_TYPE_INFO__);
+								}else{
+									$t_media_file->setMode(ACCESS_WRITE);
+									$t_media_file->insert();
+									if ($t_media_file->numErrors() == 0) {
+										// Set as preview file if there isn't one already for this media
+										if(!$vb_preview){
+											$t_media_file->set('use_for_preview', 1);
+											$t_media_file->update();
+										}
+										$vb_preview = true;
+
+										# --- check for preview files
+										// Update media previews?
+										if (isset($_FILES['mediaPreviews']['tmp_name'][$vn_key]) && $_FILES['mediaPreviews']['tmp_name'][$vn_key] && $_FILES['mediaPreviews']['size'][$vn_key]) {
+											$t_media_file->set('media', $_FILES['mediaPreviews']['tmp_name'][$vn_key], array(
+												'original_filename' => $_FILES['mediaPreviews']['name'][$vn_key]
+											));
+											$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+											$t_media_file->update($va_update_opts);
+										}
+									}
+								}
+							}
+						}
 					}
-					
-					
 					$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
 				}
 			}
@@ -314,9 +378,12 @@
  		# -------------------------------------------------------
  		public function mediaViewer() {
  			$pn_media_id = $this->request->getParameter('media_id', pInteger);
+ 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
  			// TODO: does user own this media?
  			$t_media = new ms_media($pn_media_id);
  			$this->view->setVar('t_media', $t_media);
+ 			$t_media_file = new ms_media_files($pn_media_file_id);
+ 			$this->view->setVar('t_media_file', $t_media_file);
  			$this->render('Media/ajax_media_viewer_html.php');
  		}
  		# -------------------------------------------------------
@@ -325,7 +392,7 @@
  		}
  		# -------------------------------------------------------
  		public function publish() {
-			if($this->opo_item->get("media_id") && $this->opo_item->get("media")){
+			if($this->opo_item->get("media_id")){
 				$this->opo_item->set('published', 1);
 				$this->opo_item->set('published_on', 'now');
 				if (sizeof($va_errors) == 0) {
@@ -351,6 +418,158 @@
 					$this->mediaInfo();
 				}
 			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function linkMediaFile() {
+			$va_errors = array();
+			$vs_message = "";
+			$t_media_file = new ms_media_files();
+			$vs_media_server_path = $this->request->getParameter('mediaServerPath', pString);
+			if (
+				($vs_media_server_path)
+				&&
+				($vs_user_upload_directory = $this->request->user->getPreference('user_upload_directory'))
+				&&
+				($vs_upload_base_directory = $t_media_file->getAppConfig()->get('upload_base_directory'))
+				&&
+				(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
+			) {
+				$vs_media_path = str_replace("/..", "", escapeshellcmd($vs_media_server_path));
+				if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
+					$t_media_file->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
+				}
+			} else {
+				if($_FILES['media']['tmp_name']){
+					$t_media_file->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
+				}elseif(!$t_media_file->get('media')){
+					$va_errors["media"] = "Please upload a media file";
+				}
+			}
+			foreach(array("title", "element", "side", "published", "notes") as $vs_f){
+				$t_media_file->set($vs_f, $_REQUEST[$vs_f]);
+				if ($t_media_file->numErrors() > 0) {
+					foreach ($t_media_file->getErrors() as $vs_e) {
+						$va_errors[$vs_f] = $vs_e;
+					}
+				}
+			}
+			if (sizeof($va_errors) == 0) {
+				# do insert
+				$t_media_file->set("user_id", $this->request->user->get("user_id"));
+				$t_media_file->set("media_id", $this->opo_item->get("media_id"));
+				$t_media_file->setMode(ACCESS_WRITE);
+				$t_media_file->insert();
+	
+				if ($t_media_file->numErrors()) {
+					foreach ($t_media_file->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					// Set as preview file if there isn't one already for this media
+					$o_db = new Db();
+					$q_preview = $o_db->query("SELECT media_file_id FROM ms_media_files WHERE use_for_preview = 1 and media_id = ?", $t_media_file->get("media_id"));
+					if($q_preview->numRows() == 0){
+						$t_media_file->set('use_for_preview', 1);
+						$t_media_file->update();
+					}
+					// Update media previews?
+					if (isset($_FILES['mediaPreviews']['tmp_name']) && $_FILES['mediaPreviews']['tmp_name'] && $_FILES['mediaPreviews']['size']) {
+						$t_media_file->set('media', $_FILES['mediaPreviews']['tmp_name'], array(
+							'original_filename' => $_FILES['mediaPreviews']['name']
+						));
+						$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+						$t_media_file->update($va_update_opts);
+					}
+					
+					$vs_message = "Saved media file";
+				}
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->view->setVar("mediaFileMessage", $vs_message);
+				$this->view->setVar("mediaFileErrors", $va_errors);
+			}else{
+				$this->view->setVar("mediaFileMessage", $vs_message);
+			} 			 			
+			$this->mediaInfo();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function updateMediaFile() {
+			$va_errors = array();
+			$vs_message = "";
+			$t_media_file = new ms_media_files();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file->load($pn_media_file_id);
+			$va_fields = array("published", "title", "element", "side", "notes");
+			foreach($va_fields as $vs_f){
+				$t_media_file->set($vs_f,$_REQUEST[$vs_f]);
+
+				if ($t_media_file->numErrors() > 0) {
+					foreach ($t_media_file->getErrors() as $vs_e) {
+						$va_errors[$vs_f] = $vs_e;
+					}
+				}
+			}
+			if (sizeof($va_errors) == 0) {
+				# do update
+				$t_media_file->setMode(ACCESS_WRITE);
+				$t_media_file->update();
+	
+				if ($t_media_file->numErrors()) {
+					foreach ($t_media_file->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+				}else{
+					// Update media previews?
+					if (isset($_FILES['mediaPreviews']['tmp_name']) && $_FILES['mediaPreviews']['tmp_name'] && $_FILES['mediaPreviews']['size']) {
+						$t_media_file->set('media', $_FILES['mediaPreviews']['tmp_name'], array(
+							'original_filename' => $_FILES['mediaPreviews']['name']
+						));
+						$va_update_opts['updateOnlyMediaVersions'] = array('icon', 'tiny', 'thumbnail', 'widethumbnail', 'small', 'preview', 'preview190', 'widepreview', 'medium', 'mediumlarge', 'large');
+						$t_media_file->update($va_update_opts);
+					}
+					
+					$this->notification->addNotification("Saved media file", __NOTIFICATION_TYPE_INFO__);
+				}
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->view->setVar("mediaFileMessage", $vs_message);
+				$this->view->setVar("mediaFileErrors", $va_errors);
+			}else{
+				$this->view->setVar("mediaFileMessage", $vs_message);
+				$t_media_file = new ms_media_files();
+			}
+			$this->view->setVar("t_media_file", $t_media_file);
+			$this->mediaInfo();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function setMediaPreview() {
+			$va_errors = array();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file = new ms_media_files();
+			$t_media_file->load($pn_media_file_id);
+			if(!$t_media_file->get("media_file_id")){
+				$va_errors["general"] = "media file id not defined";
+				$this->mediaInfo();
+			}
+			# --- unset current file selected for user as preview
+			$o_db = new Db();
+			$q_unset_preview = $o_db->query("UPDATE ms_media_files SET use_for_preview = 0 WHERE use_for_preview = 1 and media_id = ? and media_file_id != ?", $t_media_file->get("media_id"), $t_media_file->get("media_file_id"));
+					
+			$t_media_file->set('use_for_preview', 1);
+			$t_media_file->setMode(ACCESS_WRITE);
+			$t_media_file->update();
+
+			if ($t_media_file->numErrors()) {
+				foreach ($t_media_file->getErrors() as $vs_e) {  
+					$va_errors["general"] = $vs_e;
+				}
+				if(sizeof($va_errors) > 0){
+					$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+				}
+			}
+			$this->mediaInfo();
  		}
  		# -------------------------------------------------------
  		public function specimenLookup() {
@@ -467,11 +686,11 @@
  			$va_bib_citations = array();
  			if($this->opn_item_id){
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.media_file_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					while($q_bib->nextRow()){
- 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "bibref_id" => $q_bib->get("bibref_id"));
+ 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "media_file_id" => $q_bib->get("media_file_id"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
  				$this->view->setVar("bib_citations", $va_bib_citations);
@@ -484,6 +703,7 @@
  		public function linkBibliography() {
 			$va_errors = array();
 			$vs_message = "";
+			$vn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
 			# --- if no media_id is passed, we are on the list form and linking a bib to all project media
 			if(!$this->opn_item_id){
 				if($pn_bibliography_id = $this->request->getParameter('bibliography_id', pInteger)){
@@ -500,6 +720,9 @@
 								$t_bib_link->set("bibref_id",$pn_bibliography_id);
 								$t_bib_link->set("media_id",$q_project_media->get("media_id"));
 								$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+								if($vn_media_file_id){
+									$t_bib_link->set("media_file_id",$vn_media_file_id);
+								}
 								if ($t_bib_link->numErrors() > 0) {
 									foreach ($t_bib_link->getErrors() as $vs_e) {
 										$va_item_errors["bibliography_id"] = $va_item_errors["bibliography_id"].$vs_e;
@@ -541,6 +764,9 @@
 						$t_bib_link->set("bibref_id",$pn_bibliography_id);
 						$t_bib_link->set("media_id",$this->opn_item_id);
 						$t_bib_link->set("user_id",$this->request->user->get("user_id"));
+						if($vn_media_file_id){
+							$t_bib_link->set("media_file_id",$vn_media_file_id);
+						}
 						#if($vs_page = $this->request->getParameter('page', pString)){
 						#	$t_bib_link->set("pp",$vs_page);
 						#}
@@ -646,23 +872,69 @@
  		public function delete() {
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
-				$this->opo_item->setMode(ACCESS_WRITE);
-				$this->opo_item->delete(true);
-				if ($this->opo_item->numErrors()) {
-					foreach ($this->opo_item->getErrors() as $vs_e) {  
-						$va_errors["general"] = $vs_e;
+				# --- delete media files for the media
+				$o_db = new Db();
+				$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files WHERE media_id = ?", $this->opo_item->get("media_id"));
+				if($q_media_files->numRows()){
+					$t_media_file = new ms_media_files();
+					while($q_media_files->nextRow()){
+						$t_media_file->load($q_media_files->get("media_file_id"));
+						$t_media_file->setMode(ACCESS_WRITE);
+						$t_media_file->delete(true);
+						if ($t_media_file->numErrors()) {
+							foreach ($t_media_file->getErrors() as $vs_e) {  
+								$va_errors["media_files"] = $vs_e;
+							}
+						}
 					}
-					if(sizeof($va_errors) > 0){
-						$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
-					}
-					$this->form();
+				}
+				if(sizeof($va_errors) == 0){
+					$this->opo_item->setMode(ACCESS_WRITE);
+					$this->opo_item->delete(true);
+					if ($this->opo_item->numErrors()) {
+						foreach ($this->opo_item->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+						if(sizeof($va_errors) > 0){
+							$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+						}
+						$this->form();
+					}else{
+						$this->notification->addNotification("Deleted ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+						$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "Dashboard"));
+					}				
 				}else{
-					$this->notification->addNotification("Deleted ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
-					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "Dashboard"));
-				}				
+					$this->notification->addNotification("There were errors".(($va_errors["media_files"]) ? ": ".$va_errors["media_files"] : ""), __NOTIFICATION_TYPE_INFO__);
+				}
 			}else{
 				$this->view->setVar("item_name", $this->ops_item_name);
 				$this->render('General/delete_html.php');
+			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function deleteMediaFile() { 			
+			$t_media_file = new ms_media_files();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file->load($pn_media_file_id);
+			if(!$t_media_file->get("media_file_id")){
+				$va_errors["general"] = "media file id not defined";
+				$this->mediaInfo();
+			}
+			
+			$va_errors = array();
+			$t_media_file->setMode(ACCESS_WRITE);
+			$t_media_file->delete(true);
+			if ($t_media_file->numErrors()) {
+				foreach ($t_media_file->getErrors() as $vs_e) {  
+					$va_errors["general"] = $vs_e;
+				}
+				if(sizeof($va_errors) > 0){
+					$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+				}
+				$this->form();
+			}else{
+				$this->notification->addNotification("Deleted media file", __NOTIFICATION_TYPE_INFO__);
+				$this->mediaInfo();
 			}
  		}
  		# -------------------------------------------------------
@@ -670,41 +942,143 @@
 		 * Download media
 		 */ 
 		public function DownloadMedia() {
+			$t_media_file = new ms_media_files();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file->load($pn_media_file_id);
+			if(!$t_media_file->get("media_file_id")){
+				$va_errors["general"] = "media file id not defined";
+				$this->mediaInfo();
+			}
+			
 			$ps_version = "_archive_";
 			
-			$va_versions = $this->opo_item->getMediaVersions('media');
+			$va_versions = $t_media_file->getMediaVersions('media');
 			
 			if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
 			if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
 			
-			$this->view->setVar('version', $ps_version);
+			$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
 			
-			$va_version_info = $this->opo_item->getMediaInfo('media', $ps_version);
-			$this->view->setVar('version_info', $va_version_info);
-
-			$va_info = $this->opo_item->getMediaInfo('media');
+			$va_info = $t_media_file->getMediaInfo('media');
 			$vs_idno_proc = $this->opo_item->get('media_id');
 			$t_specimens = new ms_specimens();
 			$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
 			
-			#if ($va_version_info['ORIGINAL_FILENAME']) {
-			#	$this->view->setVar('version_download_name', $va_version_info['ORIGINAL_FILENAME'].'.'.$va_version_info['EXTENSION']);					
-			#} else {
-				$this->view->setVar('version_download_name', $vs_specimen_number.'_M'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
-			#}
-			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
-			
 			# --- record download
-			$this->opo_item->recordDownload($this->request->getUserID());
+			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id);
 			
+			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
+			set_time_limit($vn_limit * 2);
+			$o_zip = new ZipFile();
+			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
+			if(file_exists($vs_path)){
+				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION'], null, array('compression' => 0));	// don't try to compress
+			}
+			# --- generate text file for media downloaded and add it to zip
+			$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+			$vs_text_file_name = 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.csv';
+			$va_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
+			if(sizeof($va_text_file_text)){
+				$vo_file = fopen($vs_tmp_file_name, "w");
+				foreach($va_text_file_text as $va_row){
+					fputcsv($vo_file, $va_row);			
+				}
+				fclose($vo_file);
+				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+				unlink($vs_tmp_file_name);
+			}
+			
+			#$vs_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
+			#if($vs_text_file_text){
+			#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
+			#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+			#	unlink($vs_tmp_file_name);
+			#}
+			
+			$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+				
+			$this->response->sendHeaders();
 			$vn_rc = $this->render('Media/media_download_binary.php');
 			
 			$this->response->sendContent();
 			return $vn_rc;
 		}
+		# -------------------------------------------------------
+		/**
+		 * Download all media files for media
+		 */ 
+		public function DownloadAllMedia() {
+			# --- get all media files
+			$o_db = new Db();
+			$q_media_files = $o_db->query("SELECT media, media_file_id FROM ms_media_files where media_id = ?", $this->opo_item->get("media_id"));
+			if($q_media_files->numRows()){
+				$t_specimens = new ms_specimens();
+				$t_media_file = new ms_media_files();
+				$vs_specimen_name = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+				$va_media_file_ids = array();
+				while($q_media_files->nextRow()){
+					$t_media_file->load($q_media_files->get("media_file_id"));
+					$ps_version = "_archive_";
+					$va_versions = $t_media_file->getMediaVersions('media');
+					if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
+					if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+					$vs_idno_proc = $this->opo_item->get('media_id');
+					$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
+				
+					$vs_file_name = $vs_specimen_name.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'.'.$va_version_info['EXTENSION'];
+					$vs_file_path = $q_media_files->getMediaPath('media', $ps_version);
+					$va_file_names[$vs_file_name] = true;
+					$va_file_paths[$vs_file_path] = $vs_file_name;
+					# --- record download
+					$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $q_media_files->get("media_file_id"));			
+					$va_media_file_ids[] = $q_media_files->get("media_file_id");
+				}
+			}
+			if (sizeof($va_file_paths)) {
+				if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
+				set_time_limit($vn_limit * 2);
+				$o_zip = new ZipFile();
+				foreach($va_file_paths as $vs_path => $vs_name) {
+					if(file_exists($vs_path)){
+						$o_zip->addFile($vs_path, $vs_name, null, array('compression' => 0));	// don't try to compress
+					}
+				}
+				# --- generate text file for media downloaded and add it to zip
+				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+				$vs_text_file_name = 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.csv';
+				$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+				if(sizeof($va_text_file_text)){
+					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+					unlink($vs_tmp_file_name);
+				}
+				#$vs_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+				#if($vs_text_file_text){
+				#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
+				#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+				#	unlink($vs_tmp_file_name);
+				#}
+				$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.zip');
+				
+				$this->response->sendHeaders();
+				$vn_rc = $this->render('Media/media_download_binary.php');
+				$this->response->sendContent();
+			}
+				
+			return $vn_rc;
+		}
  		# -------------------------------------------------------
  		public function moveMedia() {
 			if($this->opo_item->get("media_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
+				# --- change user_id in media record to the project admin of the project you're moving the media to
+				$t_move_project = new ms_projects($pn_move_project_id);
+				$this->opo_item->set("user_id", $t_move_project->get("user_id"));
 				$this->opo_item->set('project_id', $pn_move_project_id);
 				if (sizeof($va_errors) == 0) {
 					# do update
@@ -716,12 +1090,28 @@
 						}
 					}else{
 						$this->notification->addNotification("Moved ".$this->ops_name_singular." to P".$pn_move_project_id, __NOTIFICATION_TYPE_INFO__);
+						$t_media_x_projects = new ms_media_x_projects();
+						$t_media_x_projects->set("media_id",$this->opo_item->get("media_id"));
+						$t_media_x_projects->set("project_id",$this->opn_project_id);
+						if ($t_media_x_projects->numErrors() == 0) {
+							# do insert
+							$t_media_x_projects->setMode(ACCESS_WRITE);
+							$t_media_x_projects->insert();
+				
+							if ($t_media_x_projects->numErrors()) {
+									foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+										$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
+									}
+								}
+						}else{
+							$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
+						}
 					}
 				}
 				if(sizeof($va_errors) > 0){
 					$this->notification->addNotification("Could not move media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
 					$this->view->setVar("errors", $va_errors);
-					$this->form();
+					$this->mediaInfo();
 				}else{
 					$this->opn_item_id = "";
 					$this->view->setVar("item_id", "");
@@ -731,6 +1121,58 @@
 			}else{
 				$this->listItems();
 			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function shareMedia() {
+			if($this->opo_item->get("media_id") && ($pn_share_project_id = $this->request->getParameter('share_project_id', pInteger))){
+				$t_media_x_projects = new ms_media_x_projects();
+				if($t_media_x_projects->load(array("media_id" => $this->opo_item->get("media_id"), "project_id" => $pn_share_project_id))){
+					$this->notification->addNotification("Already shared media with P".$pn_share_project_id, __NOTIFICATION_TYPE_INFO__);
+					$this->mediaInfo();
+				}else{
+					$t_media_x_projects->set("media_id",$this->opo_item->get("media_id"));
+					$t_media_x_projects->set("project_id",$pn_share_project_id);
+					if ($t_media_x_projects->numErrors() == 0) {
+						# do insert
+						$t_media_x_projects->setMode(ACCESS_WRITE);
+						$t_media_x_projects->insert();
+			
+						if ($t_media_x_projects->numErrors()) {
+							foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+								$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
+							}
+						}
+					}else{
+						$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
+					}
+					if(sizeof($va_errors) > 0){
+						$this->notification->addNotification("Could not share media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+						$this->view->setVar("errors", $va_errors);
+					}else{
+						$this->notification->addNotification("Shared media", __NOTIFICATION_TYPE_INFO__);
+					}
+					$this->mediaInfo();
+				}
+			}else{
+				$this->listItems();
+			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function removeShareMedia() {
+ 			if($pn_link_id = $this->request->getParameter('link_id', pInteger)){
+ 				$t_share_media = new ms_media_x_projects($pn_link_id);
+ 				$t_share_media->setMode(ACCESS_WRITE);
+ 				$t_share_media->delete();
+				if ($t_share_media->numErrors() > 0) {
+					foreach ($t_share_media->getErrors() as $vs_e) {
+						$va_errors[] = $vs_e;
+					}
+					$this->view->setVar("message", join(", ", $va_errors));
+				}else{
+					$this->notification->addNotification("Removed read only access", __NOTIFICATION_TYPE_INFO__);
+				}
+ 			}
+ 			$this->mediaInfo();
  		}
  		# -------------------------------------------------------
  	}

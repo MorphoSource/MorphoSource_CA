@@ -28,6 +28,7 @@
  
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
@@ -96,6 +97,7 @@
 			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
 			$this->view->setVar("num_projects", sizeof($va_projects));
 			$this->view->setVar("media_counts", $this->opo_project->getProjectMediaCounts());
+			$this->view->setVar("media_file_counts", $this->opo_project->getProjectMediaFileCounts());
  			$this->render('Dashboard/dashboard_html.php');
  		}
  		# -------------------------------------------------------
@@ -112,6 +114,22 @@
  					$this->notification->addNotification(_t('Published %1 media with setting: %2', $vn_num_published, $t_media->formatPublishedText($pn_published)), __NOTIFICATION_TYPE_INFO__);
  				} else {
  					$this->notification->addNotification(_t('Could not publish media'), __NOTIFICATION_TYPE_ERROR__);
+ 				}
+ 			}
+ 			$this->dashboard();
+ 		}
+ 		# -------------------------------------------------------
+ 		public function publishAllMediaFiles() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+ 			if($this->opn_project_id){
+ 				$vn_num_published = $this->opo_project->publishAllProjectMediaFiles();	
+ 				if($vn_num_published > 0) {
+ 					$this->notification->addNotification(_t('Published %1 media files', $vn_num_published), __NOTIFICATION_TYPE_INFO__);
+ 				} else {
+ 					$this->notification->addNotification(_t('Could not publish media files'), __NOTIFICATION_TYPE_ERROR__);
  				}
  			}
  			$this->dashboard();

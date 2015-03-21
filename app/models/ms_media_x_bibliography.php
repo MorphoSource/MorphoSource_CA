@@ -79,7 +79,14 @@ BaseModel::$s_ca_models_definitions['ms_media_x_bibliography'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Notes'), 'DESCRIPTION' => _t('Notes.'),
 				'BOUNDS_LENGTH' => array(0,65535)
-		)
+		),
+		'media_file_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => 'Media file id', 'DESCRIPTION' => 'Media file id'
+		),
  	)
 );
 

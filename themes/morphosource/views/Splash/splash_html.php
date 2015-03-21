@@ -53,14 +53,24 @@
 			</div><!-- end hpfeature -->
 <?php
 		}
-		if($this->getVar("random_media")){
+		#if($this->getVar("random_media")){
 ?>
 			<div class="hpFeature hpFeaturePadding">
-				<H2 class="tealTopBottomRule">Random Media</H2>
-				<?php print caNavLink($this->request, $this->getVar("random_media"), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar("random_media_id"))); ?>
+				<H2 class="tealTopBottomRule">Getting Started</H2>
+				<p>
+					Learn about how you can use MorphoSource:
+				</p>
+				<p>
+<?php 
+				print "<ul style='padding-left:15px;'><li>".caNavLink($this->request, 'Information for Users', 'blueText', '', 'About', 'userInfo')."</li>";
+				print "<li>".caNavLink($this->request, 'Information for Contributors', 'blueText', '', 'About', 'contributorInfo')."</li>";
+				print "<li>".caNavLink($this->request, 'Terms', 'blueText', '', 'About', 'terms')."</li>";
+				print "<li>".caNavLink($this->request, 'User Guide', 'blueText', '', 'About', 'userGuide')."</li></ul>";
+?>				
+				</p>
 			</div><!-- end hpfeature -->
 <?php
-		}
+		#}
 ?>
 		</div><!-- end hpfeatures -->
 		<div id="hpStats">

@@ -53,6 +53,10 @@
  			$q_media_count->nextRow();
  			$this->view->setVar('num_media', $q_media_count->get("c"));
  			
+ 			$q_media_files_count = $o_db->query("SELECT count(*) c FROM ms_media_files");
+ 			$q_media_files_count->nextRow();
+ 			$this->view->setVar('num_media_files', $q_media_files_count->get("c"));
+ 			
  			$q_taxonomy_count = $o_db->query("SELECT count(*) c FROM ms_taxonomy_names");
  			$q_taxonomy_count->nextRow();
  			$this->view->setVar('num_taxonomy_names', $q_taxonomy_count->get("c"));
@@ -78,7 +82,7 @@
  			$this->view->setVar('num_downloads', $q_download_count->get("c"));
  			
  			$q_download_users_count = $o_db->query("SELECT DISTINCT user_id FROM ms_media_download_stats");
- 			$this->view->setVar('num_downloads_users', $q_download_count->numRows());
+ 			$this->view->setVar('num_downloads_users', $q_download_users_count->numRows());
  			
  			$q_download_media_count = $o_db->query("SELECT DISTINCT media_id FROM ms_media_download_stats");
  			$this->view->setVar('num_downloads_media', $q_download_media_count->numRows());

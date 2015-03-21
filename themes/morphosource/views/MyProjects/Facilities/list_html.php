@@ -22,7 +22,7 @@
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			}else{
-				print "<div class='editMessage'>This facility was created by the project, <b>".$q_listings->get("projectName")."</b><br/>If you need to edit this facility please contact <a href='mailto:".$this->request->config->get("ca_admin_email")."'>".$this->request->config->get("ca_admin_email")."</a></div>";
+				print "<div class='editMessage'>This facility was created by the project, <b>".$q_listings->get("projectName")."</b><br/>If you need to edit this facility please contact ".trim($q_listings->get("fname")." ".$q_listings->get("lname"))." at <a href='mailto:".$q_listings->get("email")."'>".$q_listings->get("email")."</a></div>";
 			}
 			print "</div>";
 			$i = 0;

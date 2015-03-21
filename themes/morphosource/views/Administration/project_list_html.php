@@ -38,6 +38,9 @@
 /* ]]> */
 </script>
 <div class="blueRule"><!-- empty --></div>
+	<div style="float:right; margin-top:25px;">
+		<?php print caNavLink($this->request, _t("Download Media Report"), 'button buttonSmall', 'Administration', 'Projects', 'DownloadMediaReport', array('download' => 1)); ?>
+	</div>
 	<H1>
 		<?php print $q_all_projects->numRows()." ".(($q_all_projects->numRows() == 1) ? "Project" : "Projects"); ?>
 	</H1>
@@ -96,8 +99,9 @@
 				</td>
 				<td width="100">
 <?php
-					$va_media_counts = $t_project->getProjectMediaCounts();
-					if($t_project->numMedia()){
+					if($vn_num_media = (int)$t_project->numMedia()){
+						$va_media_counts = $t_project->getProjectMediaCounts();
+						print "<b>Media Groups:</b><br/>";
 						if($va_media_counts[1]){
 							print (int)$va_media_counts[1]." ".$t_media->formatPublishedText(1)."<br/>"; 
 						}
@@ -105,7 +109,20 @@
 							print (int)$va_media_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
 						}
 						print (int)$va_media_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
-						print _t('<em>(%1 total)</em>', (int)$t_project->numMedia());
+						print _t('<em>(%1 total)</em>', $vn_num_media);
+					
+						# --- media files
+						if($vn_num_media_files = (int)$t_project->numMediaFiles()){
+							$va_media_file_counts = $t_project->getProjectMediaFileCounts();
+							print "<br/><br/><b>Media Files:</b><br/>";
+							if($va_media_file_counts[1]){
+								print (int)$va_media_file_counts[1]." Published<br/>"; 
+							}
+							print (int)$va_media_file_counts[0]." Unpublished<br/>";
+							print _t('<em>(%1 total)</em>', $vn_num_media_files);
+						
+							# --- media files
+						}
 					}else{
 						print "0";
 					}

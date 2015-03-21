@@ -29,6 +29,7 @@
  	require_once(__CA_LIB_DIR__."/core/Error.php");
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_MODELS_DIR__."/ms_taxonomy_names.php");
  	require_once(__CA_MODELS_DIR__."/ms_bibliography.php");
@@ -77,6 +78,11 @@
  					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
  				}
  			}
+ 			$t_project = new ms_projects($this->opo_item->get("project_id"));
+ 			if($t_project->get("deleted")){
+ 				$this->notification->addNotification("Item is deleted", __NOTIFICATION_TYPE_ERROR__);
+ 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+ 			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("media_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
@@ -96,11 +102,11 @@
  			if($this->opn_item_id){
  				$this->opo_item->recordView($this->request->getUserID());
  				$o_db = new Db();
- 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
+ 				$q_bib = $o_db->query("SELECT b.*, mxb.link_id, mxb.pp, mxb.media_file_id FROM ms_media_x_bibliography mxb INNER JOIN ms_bibliography as b on mxb.bibref_id = b.bibref_id WHERE mxb.media_id = ?", $this->opn_item_id);
  				$t_bibliography = new ms_bibliography;
  				if($q_bib->numRows()){
  					while($q_bib->nextRow()){
- 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "page" => $q_bib->get("pp"), "bibref_id" => $q_bib->get("bibref_id"));
+ 						$va_bib_citations[$q_bib->get("link_id")] = array("citation" => $t_bibliography->getCitationText($q_bib->getRow()), "link_id" => $q_bib->get("link_id"), "media_file_id" => $q_bib->get("media_file_id"), "page" => $q_bib->get("pp"), "bibref_id" => $q_bib->get("bibref_id"));
  					}
  				}
 				$t_project = new ms_projects();
@@ -111,7 +117,7 @@
 				}
 				# --- can user download record even if it is unpublished? - can be read only to download
 				$vb_show_download_link = false;
-				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+				if($this->request->isLoggedIn() && $this->opo_item->userCanDownloadMedia($this->request->user->get("user_id"))){
 					$vb_show_download_link = true;
 				}
  			}
@@ -125,41 +131,147 @@
 		 * Download media
 		 */ 
 		public function DownloadMedia() {
+			$t_media_file = new ms_media_files();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file->load($pn_media_file_id);
+			if(!$t_media_file->get("media_file_id")){
+				$va_errors["general"] = "media file id not defined";
+				$this->mediaInfo();
+			}
+			if (!$this->request->isLoggedIn() || !$this->opo_item->userCanDownloadMediaFile($this->request->getUserID(), null, $pn_media_file_id)) {
+				return;
+			}
+			
+			$t_specimens = new ms_specimens();
+			$ps_version = "_archive_";
+			
+			$va_versions = $t_media_file->getMediaVersions('media');
+			
+			if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
+			if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+			
+			$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
+			
+			$va_info = $t_media_file->getMediaInfo('media');
+			$vs_idno_proc = $this->opo_item->get('media_id');
+			$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+			
+			# --- record download
+			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id);
+			
+			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
+			set_time_limit($vn_limit * 2);
+			$o_zip = new ZipFile();
+			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
+			if(file_exists($vs_path)){
+				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION'], null, array('compression' => 0));	// don't try to compress
+			}
+			# --- generate text file for media downloaded and add it to zip
+			$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+			$vs_text_file_name = 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.csv';
+			$va_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
+			if(sizeof($va_text_file_text)){
+				$vo_file = fopen($vs_tmp_file_name, "w");
+				foreach($va_text_file_text as $va_row){
+					fputcsv($vo_file, $va_row);			
+				}
+				fclose($vo_file);
+				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+				unlink($vs_tmp_file_name);
+			}
+			
+			#$vs_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
+			#if($vs_text_file_text){
+			#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
+			#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+			#	unlink($vs_tmp_file_name);
+			#}
+			
+			$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+				
+			$this->response->sendHeaders();
+			$vn_rc = $this->render('media_download_binary.php');
+			
+			$this->response->sendContent();
+			return $vn_rc;
+		}
+		# -------------------------------------------------------
+		/**
+		 * Download all media files for media
+		 */ 
+		public function DownloadAllMedia() {
 			if (!$this->request->isLoggedIn() || !$this->opo_item->userCanDownloadMedia($this->request->getUserID())) {
 				$this->notification->addNotification("You may not download this media", __NOTIFICATION_TYPE_ERROR__);
 				$this->show();
 				return;
 			}
-			$t_specimens = new ms_specimens();
-			$ps_version = "_archive_";
 			
-			$va_versions = $this->opo_item->getMediaVersions('media');
-			
-			if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
-			if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
-			
-			$this->view->setVar('version', $ps_version);
-			
-			$va_version_info = $this->opo_item->getMediaInfo('media', $ps_version);
-			$this->view->setVar('version_info', $va_version_info);
-
-			$va_info = $this->opo_item->getMediaInfo('media');
-			$vs_idno_proc = $this->opo_item->get('media_id');
-			$vs_specimen_name = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
-			#if ($va_version_info['ORIGINAL_FILENAME']) {
-			#	$this->view->setVar('version_download_name', $va_version_info['ORIGINAL_FILENAME'].'.'.$va_version_info['EXTENSION']);					
-			#} else {
-				$this->view->setVar('version_download_name', $vs_specimen_name.'_M'.$vs_idno_proc.'.'.$va_version_info['EXTENSION']);
-			#}
-			$this->view->setVar('version_path', $this->opo_item->getMediaPath('media', $ps_version));
-			
-			# --- record download
-			$this->opo_item->recordDownload($this->request->getUserID());
-			
-			$vn_rc = $this->render('media_download_binary.php');
-			
-			$this->response->sendContent();
-			return $vn_rc;
+			# --- get all media files
+			$o_db = new Db();
+			$q_media_files = $o_db->query("SELECT media, media_file_id FROM ms_media_files where media_id = ?", $this->opo_item->get("media_id"));
+			if($q_media_files->numRows()){
+				$t_specimens = new ms_specimens();
+				$t_media_file = new ms_media_files();
+				$vs_specimen_name = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+				$va_media_file_ids = array();
+				while($q_media_files->nextRow()){
+					if($this->opo_item->userCanDownloadMediaFile($this->request->getUserID(), null, $q_media_files->get("media_file_id"))){
+						$t_media_file->load($q_media_files->get("media_file_id"));
+						$ps_version = "_archive_";
+						$va_versions = $t_media_file->getMediaVersions('media');
+						if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
+						if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
+						$vs_idno_proc = $this->opo_item->get('media_id');
+						$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
+					
+						$vs_file_name = $vs_specimen_name.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'.'.$va_version_info['EXTENSION'];
+						$vs_file_path = $q_media_files->getMediaPath('media', $ps_version);
+						$va_file_names[$vs_file_name] = true;
+						$va_file_paths[$vs_file_path] = $vs_file_name;
+						# --- record download
+						$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $q_media_files->get("media_file_id"));			
+						$va_media_file_ids[] = $q_media_files->get("media_file_id");
+					}
+				}
+			}
+			if (sizeof($va_file_paths)) {
+				if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
+				set_time_limit($vn_limit * 2);
+				$o_zip = new ZipFile();
+				foreach($va_file_paths as $vs_path => $vs_name) {
+					if(file_exists($vs_path)){
+						$o_zip->addFile($vs_path, $vs_name, null, array('compression' => 0));	// don't try to compress
+					}
+				}
+				# --- generate text file for media downloaded and add it to zip
+				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+				$vs_text_file_name = 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.csv';
+				$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+				if(sizeof($va_text_file_text)){
+					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+					unlink($vs_tmp_file_name);
+				}
+				#$vs_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
+				#if($vs_text_file_text){
+				#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
+				#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+				#	unlink($vs_tmp_file_name);
+				#}
+				$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.zip');
+				
+				$this->response->sendHeaders();
+				$vn_rc = $this->render('media_download_binary.php');
+				$this->response->sendContent();
+				return $vn_rc;
+			}
+				
 		}
 		# -------------------------------------------------------
 		/**
@@ -189,6 +301,11 @@
  			$pn_media_id = $this->request->getParameter('media_id', pInteger);
  			// TODO: does user own this media?
  			$t_media = new ms_media($pn_media_id);
+ 			$t_media_files = new ms_media_files();
+ 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+ 			$t_media_files->load($pn_media_file_id);
+ 			$this->view->setVar('t_media_file', $t_media_files);
+ 			$this->view->setVar('media_file_id', $pn_media_file_id);
  			$this->view->setVar('t_media', $t_media);
  			$this->render('../MyProjects/Media/ajax_media_viewer_html.php');
  		}

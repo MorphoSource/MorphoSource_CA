@@ -121,12 +121,15 @@
 										FROM ms_media_download_stats mds 
 										INNER JOIN ca_users as u ON mds.user_id = u.user_id
 										WHERE mds.media_id IN (".join(", ", $va_media_ids).")");
+				$va_downloads_by_file = array();
 				if($q_media_downloads->numRows()){
 					while($q_media_downloads->nextRow()){
-						$va_rows[$q_media_downloads->get("media_id")]["downloads"][$q_media_downloads->get("download_id")] = array("date" => date("n/j/y G:i", $q_media_downloads->get("downloaded_on")), "user_id" => $q_media_downloads->get("user_id"), "email" => $q_media_downloads->get("email"), "name" => trim($q_media_downloads->get("fname")." ".$q_media_downloads->get("lname")), "user_info" => date("n/j/y G:i", $q_media_downloads->get("downloaded_on")).", ".$q_media_downloads->get("fname")." ".$q_media_downloads->get("lname").", ".$q_media_downloads->get("email"));
+						$va_rows[$q_media_downloads->get("media_id")]["downloads"][$q_media_downloads->get("download_id")] = array("media_file_id" => $q_media_downloads->get("media_file_id"), "date" => date("n/j/y G:i", $q_media_downloads->get("downloaded_on")), "user_id" => $q_media_downloads->get("user_id"), "email" => $q_media_downloads->get("email"), "name" => trim($q_media_downloads->get("fname")." ".$q_media_downloads->get("lname")), "user_info" => date("n/j/y G:i", $q_media_downloads->get("downloaded_on")).", ".$q_media_downloads->get("fname")." ".$q_media_downloads->get("lname").", ".$q_media_downloads->get("email"));
+						$va_downloads_by_file[$q_media_downloads->get("media_id")][$q_media_downloads->get("media_file_id")][] = $q_media_downloads->get("user_id");
 					}
 				}
 				$this->view->setVar("rows", $va_rows);			
+ 				$this->view->setVar("downloads_by_file", $va_downloads_by_file);			
  				$this->render('Stats/specimen_info_html.php');
  			}
  		}
@@ -140,7 +143,7 @@
 				$t_user->load($pn_user_id);
 				$va_user_info = array("user_id" => $t_user->get("user_id"),
 										"name" => trim($t_user->get("fname")." ".$t_user->get("lname")),
-										"email" => $t_user->get("fname"),
+										"email" => $t_user->get("email"),
 										"num_media_views" => $t_user->numMediaViews(),
 										"num_specimen_views" => $t_user->numSpecimenViews(),
 										"num_downloads" => $t_user->numDownloads()	

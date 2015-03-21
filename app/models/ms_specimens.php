@@ -109,6 +109,21 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 // 				'LABEL' => _t('Side'), 'DESCRIPTION' => _t('Side of specimen.'),
 // 				'BOUNDS_LENGTH' => array(0,255)
 // 		),
+		'collector' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Collector'), 'DESCRIPTION' => _t('Who collected the specimen?'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'collected_on' => array(
+				'FIELD_TYPE' => FT_DATETIME, 'DISPLAY_TYPE' => DT_FIELD,
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Specimen collection date'), 'DESCRIPTION' => _t('Date specimen was collected.'),
+		),
 		'description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 62, 'DISPLAY_HEIGHT' => 6,
@@ -182,7 +197,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_description' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'DISPLAY_WIDTH' => 64, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
@@ -190,11 +205,35 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 		),
 		'locality_coordinates' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Locality coordinate type'), 'DESCRIPTION' => _t('Type of coordinates of the locality of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'locality_datum_zone' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Locality coordinates'), 'DESCRIPTION' => _t('Coordinates of the locality of the specimen.'),
-				'BOUNDS_LENGTH' => array(0,65535)
+				'LABEL' => _t('Locality datum/zone'), 'DESCRIPTION' => _t('Datum/zone of the locality of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'locality_northing_coordinate' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Locality northing coordinate'), 'DESCRIPTION' => _t('Northing coordinate of the locality of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'locality_easting_coordinate' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Locality easting coordinate'), 'DESCRIPTION' => _t('Easting coordinate of the locality of the specimen.'),
+				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'locality_absolute_age' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -490,34 +529,47 @@ class ms_specimens extends BaseModel {
 					FROM ms_media m
 					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
 					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
-					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?)",
+					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?) AND (p.deleted = 0)",
 					array($pn_specimen_id, $pa_options['user_id']));
 			}else{
 				if($pa_options['published']){
 					$vs_published_where = " AND m.published > 0";
 				}
 				$q_media = $o_db->query("
-					SELECT *
+					SELECT m.*
 					FROM ms_media m 
-					WHERE m.specimen_id = ?".$vs_published_where,
+					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
+					WHERE m.specimen_id = ?".$vs_published_where." AND (p.deleted = 0)",
 					array($pn_specimen_id));
 			}
 			$va_media = array();
+			$vb_published = null;
+			if($pa_options['published']){
+				$vb_published = 1;
+			}
 			if($q_media->numRows()){
+				$t_media = new ms_media();
 				while($q_media->nextRow()){
-					$va_media_info = $q_media->getRow();
-					unset($va_media_info['media']);
-					$va_media_info['mimetype'] = $q_media->getMediaInfo('media', 'original', 'MIMETYPE');
-					$va_props = $q_media->getMediaInfo('media', 'original', 'PROPERTIES');
-					$va_media_info['filesize'] = $va_props['filesize'];
-					
-					foreach($va_versions as $vs_version) {
-						$va_media_info['tags'][$vs_version] = $q_media->getMediaTag('media', $vs_version);
-						$va_media_info['urls'][$vs_version] = $q_media->getMediaUrl('media', $vs_version);
-					}
-				
+					$va_media_preview_info = $t_media->getPreviewMediaFile($q_media->get("media_id"), $va_versions, $vb_published);
+					$va_media_row = $q_media->getRow();
+					unset($va_media_row["media"]);
+					$va_media_info = array_merge($va_media_preview_info, $va_media_row);
 					$va_media[$q_media->get("media_id")] = $va_media_info;
 				}
+// 				while($q_media->nextRow()){
+// 					$va_media_info = $q_media->getRow();
+// 					unset($va_media_info['media']);
+// 					$va_media_info['mimetype'] = $q_media->getMediaInfo('media', 'original', 'MIMETYPE');
+// 					$va_props = $q_media->getMediaInfo('media', 'original', 'PROPERTIES');
+// 					$va_media_info['filesize'] = $va_props['filesize'];
+// 					
+// 					foreach($va_versions as $vs_version) {
+// 						$va_media_info['tags'][$vs_version] = $q_media->getMediaTag('media', $vs_version);
+// 						$va_media_info['urls'][$vs_version] = $q_media->getMediaUrl('media', $vs_version);
+// 					}
+// 				
+// 					$va_media[$q_media->get("media_id")] = $va_media_info;
+// 				}
 			}
 			return $va_media;
 		}else{
@@ -541,16 +593,17 @@ class ms_specimens extends BaseModel {
 					FROM ms_media m
 					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
 					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
-					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?)",
+					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?) AND (p.deleted = 0)",
 					array($pn_specimen_id, $pa_options['user_id']));
 			}else{
 				if($pa_options['published']){
 					$vs_published_where = " AND m.published > 0";
 				}
 				$q_media = $o_db->query("
-					SELECT media_id
+					SELECT m.media_id
 					FROM ms_media m 
-					WHERE m.specimen_id = ?".$vs_published_where,
+					INNER JOIN ms_projects as p ON m.project_id = p.project_id
+					WHERE m.specimen_id = ?".$vs_published_where." AND (p.deleted = 0)",
 					array($pn_specimen_id));
 			}
 			if($q_media->numRows()){

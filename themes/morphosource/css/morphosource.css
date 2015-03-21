@@ -83,11 +83,11 @@ H2{
 	padding:0px 5px 10px 5px;
 	font-weight:normal;
 }
-.ltBlueText{
-	color:#689899;
+.ltBlueText, a.ltBlueText{
+	color:#689899 !important;
 }
-.blueText{
-	color:#00006A;
+.blueText, a.blueText{
+	color:#00006A !important;
 }
 a.blueText:hover{
 	color:#FF861F;
@@ -98,6 +98,12 @@ a.blueText:hover{
 .indent{
 	text-indent:-20px;
 	margin-left:20px;
+}
+.orange{
+	color:#FF861F;
+}
+.pointer, a.pointer{
+	cursor:default;
 }
 /* Rules */
 .blueRule{
@@ -134,7 +140,7 @@ a.blueText:hover{
 	border-top: 1px solid #689899;
 }
 .ltBlueBottomRule{
-	border-bottom: 1px solid #689899;
+	border-bottom: 1px solid #689899 !important;
 }
 /* Buttons */
 .button, .button:visited {
@@ -157,7 +163,9 @@ a.blueText:hover{
 .button:hover{
 	background-color:#013368;
 }
-
+.buttonOrange, .buttonOrange:visited, .buttonOrange:hover{
+	background-color:#FF861F;
+}
 .buttonLarge{ 
 	padding: 5px 8px 5px;
 	font-size:15px;
@@ -290,6 +298,7 @@ a.blueText:hover{
 	font-size:13px;
 	text-transform:uppercase;
 	line-height:1em;
+	position:relative;
 }
 #header #nav ul.subNavAdmin li{
 	padding:1px 5px 1px 5px;
@@ -339,6 +348,54 @@ a.blueText:hover{
 #pageArea{
 	padding:0px 15px 30px 0px;
 	min-height:500px;
+}
+.jumpMenu{
+	position:absolute;
+	display:none;
+	right:10px;
+	top:20px;
+	background-color:#FFFFFF;
+	z-index:5;
+	padding:5px;
+	text-align:right;
+	color:#00006A !important;
+	max-width:200px;
+	-webkit-box-shadow: 5px 5px 10px 0px rgba(0,0,0,0.4);
+	-moz-box-shadow: 5px 5px 10px 0px rgba(0,0,0,0.4);
+	box-shadow: 5px 5px 10px 0px rgba(0,0,0,0.4);
+}
+.jumpMenu#aboutJumpMenu{
+	top:35px;
+	text-align:center;
+	right:0px;
+	width:100px;
+}
+li:hover .jumpMenu{
+	display:block;
+}
+.jumpMenu div a{
+	color: #689899 !important;
+	text-transform:none !important;
+	font-family: 'neuzeitlgt', sans-serif !important;
+}
+.jumpMenu a:hover{
+	color:#00006A !important;
+}
+.jumpMenu div{
+	padding:5px;
+	border-bottom: 1px solid #EDEDED;
+	text-transform:none !important;
+}
+.jumpMenu#aboutJumpMenu div{
+	padding:10px 5px 10px 5px;
+}
+.jumpMenu div:hover{
+	background-color:#EDEDED;
+}
+.jumpMenu .close{
+	font-size:10px !important;
+	color:#FF861F !important;
+	line-height:2em !important;
 }
 /* home page */
 #pageArea #hpImage{
@@ -538,7 +595,7 @@ styles for original hp layout
 	padding:0px 0px 0px 15px;
 	color: #689899;
 	font-family: 'neuzeitlgt', sans-serif;
-	font-size:14px;
+	font-size:13px;
 	line-height:1.3em;
 }
 #dashboardColRight .listItemLtBlue H2{
@@ -555,11 +612,12 @@ styles for original hp layout
 #dashboardMedia .projectMediaContainer, #mediaListings .projectMediaContainer {
 	float: left;
 	width: 190px;
-	height:235px;
+	height:255px;
 	font-size:11px;
 	
 	padding:0px 12px 15px 11px;
 	margin: 0px;
+	overflow:hidden;
 }
 
 #dashboardMedia .projectMedia, #mediaListings .projectMedia {
@@ -602,15 +660,55 @@ styles for original hp layout
 	width:400px;
 }
 #mediaInfo H1{
-	font-size:29px;
+	font-size:24px;
+}
+#mediaInfo .mediaGroupNotes{
+	margin:-5px 0px 20px 5px;
 }
 #mediaInfo #mediaMd{
 	font-family: 'neuzeitlgt', sans-serif;
+	clear:left;
 }
-	
-#mediaInfo #mediaImage{
+.mediaImageScrollArea{
+	max-height:470px;
+	overflow-y:auto;
+	overflow-x:hidden;
+	margin-bottom:20px;
+}	
+#mediaInfo .mediaImage{
 	text-align:center;
-	margin-bottom:10px;
+	margin:5px 0px 5px 25px;
+	width:182px;
+	float:left;
+	position: relative;
+}
+#mediaInfo .mediaImage img{
+	width:100%;
+	height:auto;
+	border:1px solid #DEDEDE;
+}
+#mediaInfo .mediaImage .mediaFileButtons{
+	position:absolute;
+	bottom:45px;
+	right:4px;
+}
+#mediaInfo .mediaImage .mediaFileButtonsDelete{
+	position:absolute;
+	top:4px;
+	right:4px;
+}
+#mediaInfo .mediaImage .mediaFileButtons a, #mediaInfo .mediaImage .mediaFileButtonsDelete a{
+	margin-left:5px;
+	float:right;
+	line-height:1em;
+}
+#mediaInfo .mediaImage .mediaFileFormCaption{
+	font-size:10px;
+	height:35px;
+	overflow:hidden;
+	text-align:left;
+	line-height:1.2em;
+	padding-top:5px;
 }
 #mediaInfo #rightCol{
 	float:right;
@@ -619,8 +717,8 @@ styles for original hp layout
 #mediaInfo #rightCol .tealRule{
 	margin-bottom:10px;
 }
-#mediaInfo #rightCol #newMediaButton{
-	text-align:right;
+#mediaInfo #newMediaButton{
+	float:right;
 	padding:15px 0px 15px 0px;	
 }
 #mediaSpecimenInfo .listItemLtBlue, #mediaBibliographyInfo .listItemLtBlue{
@@ -681,6 +779,34 @@ styles for original hp layout
 #mediaForm select{
 	width:350px;
 }
+#mediaForm .formLabelFloat select, #mediaFilesForm .formLabelFloat select{
+	width:180px;
+}
+input[type="file"]{
+	width:170px;
+}
+#mediaForm .r-group{
+	padding:10px 0px 10px 0px;
+	background-color:#F0F0F0;
+	margin-bottom:15px;
+	position:relative;
+	margin-right:20px;
+}
+#mediaForm .mediaFilesContainer{
+	position:relative;
+	padding-bottom:20px;
+	margin-bottom:10px;
+}
+#mediaForm .r-btnAdd{
+	position:absolute;
+	bottom:0px;
+	left:10px;
+}
+#mediaForm .r-btnRemove{
+	position:absolute;
+	top:4px;
+	right:5px;
+}
 
 /* Autocomplete classes */
 input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
@@ -702,7 +828,7 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 .searchResultFull{
 	width:245px;
 	float:left;
-	height:130px;
+	height:143px;
 	border-bottom:1px solid #689899;
 	padding:5px;
 	margin:0px 10px 10px 10px;
@@ -718,7 +844,7 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 .searchFullText{
 	float:left;
 	text-align:left;
-	width:115px;
+	width:100px;
 	margin:0px;
 	padding:0px;
 	font-size:11px;
@@ -731,6 +857,39 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 #mediaDetail .mediaDetailMedia{
 	float:right;
 	padding:0px 0px 20px 20px;
+}
+#mediaDetail .mediaDetailMedia img{
+	border:1px solid #EDEDED;
+}
+#mediaDetail .mediaFileButtons{
+	padding-top:10px;
+}
+#mediaDetail .mediaFileButtons a{
+	margin-right:5px;
+}
+#mediaDetail .mediaFileButtons a {
+	line-height:1em;
+}
+
+#mediaDetail #mediaDetailImageScrollArea{
+	max-height:450px;
+	overflow-y:auto;
+	margin-bottom:10px;
+}
+#mediaDetail #mediaDetailImageScrollArea .mediaDetailImage{
+	height:190px;
+	margin:0px 0px 20px 0px;
+	position:relative;
+}
+#mediaDetail #mediaDetailImageScrollArea .mediaDetailImage img{
+	float:left;
+	margin-right:20px;
+}
+#mediaDetail #mediaDetailImageScrollArea .mediaDetailImage .mediaDetailImageCaption, .mediaDetailImageCaption{
+	font-size:11px;
+	line-height:1.4em;
+	float:left;
+	width:185px;
 }
 #mediaDetail .tealRule, #specimenDetail .tealRule{
 	margin-bottom:10px;

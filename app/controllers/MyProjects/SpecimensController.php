@@ -489,5 +489,35 @@
  			$this->bibliographyLookup();
  		}
  		# -------------------------------------------------------
+ 		public function moveSpecimen() {
+			if($this->opo_item->get("specimen_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
+				# --- change user_id in specimen record to the project admin of the project you're moving the media to
+				$t_move_project = new ms_projects($pn_move_project_id);
+				$this->opo_item->set("user_id", $t_move_project->get("user_id"));
+				$this->opo_item->set('project_id', $pn_move_project_id);
+				if (sizeof($va_errors) == 0) {
+					# do update
+					$this->opo_item->setMode(ACCESS_WRITE);
+					$this->opo_item->update();
+					if ($this->opo_item->numErrors()) {
+						foreach ($this->opo_item->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+						$this->notification->addNotification("Could not move specimen".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+						$this->view->setVar("errors", $va_errors);
+						$this->form();
+					}else{
+						$this->notification->addNotification("Moved ".$this->ops_name_singular." to P".$pn_move_project_id, __NOTIFICATION_TYPE_INFO__);
+						$this->opn_item_id = "";
+						$this->view->setVar("item_id", "");
+						$this->view->setVar("item", new ms_specimens());
+						$this->listItems();
+					}
+				}
+			}else{
+				$this->listItems();
+			}
+ 		}
+ 		# -------------------------------------------------------
  	}
  ?>

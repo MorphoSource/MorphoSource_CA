@@ -1,9 +1,14 @@
 <?php
 	$t_media = $this->getVar("item");
-	$vs_media = $t_media->getMediaTag("media", "medium");
 	$va_bib_citations = $this->getVar("bib_citations");
 	$vb_show_edit_link = $this->getVar("show_edit_link");
 	$vb_show_download_link = $this->getVar("show_download_link");
+	
+	# --- get all media files linked to this media record
+	$o_db = new Db();
+	$q_media_files = $o_db->query("SELECT media, media_file_id, side, element, title, notes FROM ms_media_files where media_id = ? and published = 1", $t_media->get("media_id"));
+
+	$t_media_file = new ms_media_files();
 ?>
 <div class="blueRule"><!-- empty --></div>
 <?php
@@ -29,36 +34,84 @@
 	}
 ?>
 <H1>
-<?php 
-	if($vs_media){
-		
+<?php
 	print _t("Media: M%1", $t_media->get("media_id"));
 ?>
 </H1>
 <div id="mediaDetail">
 <?php
-	
 	$vn_width = 0;
-	if($vs_media){
-		$va_media_info = $t_media->getMediaInfo("media", "medium");
-		$vn_width = $va_media_info["WIDTH"];
-		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey()))."\"); return false;'>".$vs_media."</a></div>";
-		print "<br style='clear: left;'/>\n";
-		
+	if($q_media_files->numRows()){
+		if($q_media_files->numRows() == 1){
+			$q_media_files->nextRow();
+			$va_properties = $q_media_files->getMediaInfo('media', 'medium');
+			$vn_width = $va_properties["WIDTH"];
+			$q_media_files->seek(0);
+		}else{
+			$vn_width = 420;
+		}
+		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'>";
+?>
+		<H2 style="text-align:right;"><?php print $q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?></H2>
+		<div id='mediaDetailImageScrollArea'>
+<?php
+		while($q_media_files->nextRow()){
+?>
+			<div class="mediaDetailImage" id="media<?php print $q_media_files->get("media_file_id"); ?>">
+				<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;"><?php print $q_media_files->getMediaTag("media", "preview190"); ?></a>
+<?php 
+				print "<div class='mediaDetailImageCaption'>";
+				print "<b class='blueText'>M".$t_media->get("media_id")."-".$q_media_files->get("media_file_id")."</b><br/>";
+				$va_versions = $q_media_files->getMediaVersions('media');
+				$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+				print msGetMediaFormatDisplayString($q_media_files).", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>";
+				if($q_media_files->get("title")){
+					print $q_media_files->get("title")."<br/>";
+				}
+				$vs_side = $t_media->getChoiceListValue("side", $t_media->get("side"));
+				if($q_media_files->get("side")){
+					$vs_side = $t_media_file->getChoiceListValue("side", $q_media_files->get("side"));
+				}
+				$vs_element = $t_media->get("element");
+				if($q_media_files->get("element")){
+					$vs_element = $q_media_files->get("element");
+				}
+				if($vs_element){
+					print $vs_element.", ";
+				}
+				if($vs_side){
+					print $vs_side;
+				}
+				if($vs_notes = $q_media_files->get("notes")){
+					print "<p>".$vs_notes."</p>";
+				}
+				if($this->request->isLoggedIn() && $t_media->userCanDownloadMedia($this->request->user->get("user_id"))){
+					print "<div class='mediaFileButtons'>";
+					print caNavLink($this->request, "<i class='fa fa-download'></i>", "button buttonSmall", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $t_media->get("media_id"), "download" => 1), array("title" => "Download file"));
+					print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
+					print "</div>";
+				}
+				
+				print "</div>";
+?>
+			</div><!-- end mediaImage -->
+<?php
+		}
+		print "</div><!-- end scrollArea -->";
 if ($this->request->isLoggedIn()) {
 		if($vb_show_download_link){
-			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))." <span>".addToCartLink($this->request, $t_media->get("media_id"), $this->request->user->get("user_id"))."</span></div>";		
+			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
 		}else{
 			switch((int)$t_media->get('published')) {
 				case 1:
-					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))." <span>".addToCartLink($this->request, $t_media->get("media_id"), $this->request->user->get("user_id"))."</span></div>";
+					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 					break;
 				case 2:
 					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
 						print "<div style='float:right; clear: right; cursor:default;' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</div>";
 					} else {
 						if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
-							print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadMedia", array("media_id" => $t_media->get("media_id")))."</div>";
+							print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 						} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
 							print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge'>"._t('You may not download this media')."</a></div>";
 						} else {
@@ -88,9 +141,13 @@ if ($this->request->isLoggedIn()) {
 			print "<div style='float:right; padding-right:10px;'>".caNavLink($this->request, _t("Edit"), "button buttonLarge", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id"), "select_project_id" => $t_media->get("project_id")))."</div>";
 		}
 } else {
-	print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Login to download"), "button buttonLarge", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";
-}	
-		}
+		print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Login to download"), "button buttonLarge", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";
+}
+		print "</div><!-- end mediaDetailMedia -->";
+	}else{
+?>
+		<div class='formErrors'>There are no media files linked to this media record</div>
+<?php
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
 	if($t_media->get("specimen_id")){
@@ -107,6 +164,9 @@ if ($this->request->isLoggedIn()) {
 		$va_specimen_taxonomy = $t_specimen->getSpecimenTaxonomy();
 		if(is_array($va_specimen_taxonomy) && sizeof($va_specimen_taxonomy)){
 			print "<b>Specimen taxonomy:</b> ".join(", ", $va_specimen_taxonomy)."<br/>";
+		}
+		if($t_media->get("element")){
+			print "<b>Element:</b> ".$t_media->get("element")."<br/>";
 		}
 		if($t_specimen->get("institution_id")){
 			$t_institution = new ms_institutions($t_specimen->get("institution_id"));
@@ -132,17 +192,17 @@ if ($this->request->isLoggedIn()) {
 			<div class="unit">
 <?php
 
-					$vs_mimetype = $t_media->getMediaInfo('media', 'original', 'MIMETYPE');
-					$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
-					$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
-					print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
-					
-					$va_versions = $t_media->getMediaVersions('media');
-					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
-					print "<b>Filesize: </b>".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>\n";
+// 					$vs_mimetype = $t_media->getMediaInfo('media', 'original', 'MIMETYPE');
+// 					$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+// 					$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+// 					print "<b>Type: </b>{$vs_media_class} ({$vs_mimetype_name})<br/>\n";
+// 					
+// 					$va_versions = $t_media->getMediaVersions('media');
+// 					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+// 					print "<b>Filesize: </b>".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>\n";
 					
 	$va_fields = $t_media->getFormFields();
-	$va_media_display_fields = array("notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "grant_support", "media_citation_instruction1", "created_on", "last_modified_on");
+	$va_media_display_fields = array("title", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "grant_support", "media_citation_instruction1", "created_on", "last_modified_on");
 	foreach($va_fields as $vs_field => $va_field_attr){
 		if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("scanner_wedge", "scanner_calibration_shading_correction")) || $t_media->get($vs_field))){
 			switch($vs_field){
@@ -220,7 +280,11 @@ if ($this->request->isLoggedIn()) {
 			<div class="unit">
 <?php
 		foreach($va_bib_citations as $vn_link_id => $va_citation_info){
-			print "<div class='mediaDetailcitation'>".$va_citation_info["citation"]."</div>";
+			print "<div class='mediaDetailcitation'>".$va_citation_info["citation"];
+			if($va_citation_info["media_file_id"]){
+				print "<br/><i>References M".$t_media->get("media_id")."-".$va_citation_info["media_file_id"]."</i>";
+			}
+			print "</div>";
 		}
 	}
 	print "</div>";

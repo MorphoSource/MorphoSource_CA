@@ -24,7 +24,7 @@
 	<link href="<?php print $this->request->getBaseUrlPath(); ?>/plain.css" media="screen" rel="stylesheet" type="text/css" />
 	<![endif]-->
 	<link rel="stylesheet" href="<?php print $this->request->getBaseUrlPath(); ?>/js/jquery/jquery-tileviewer/jquery.tileviewer.css" type="text/css" media="screen" />
-	<link href="<?php print $this->request->getThemeUrlPath(true); ?>/css/Font-Awesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="<?php print $this->request->getThemeUrlPath(true); ?>/css/font-awesome-4.2.0/css/font-awesome.css" rel="stylesheet" type="text/css" />
 <?php
 	print JavascriptLoadManager::getLoadHTML($this->request->getBaseUrlPath());
 
@@ -52,22 +52,66 @@
 			<div id="searchBox"><div id="searchBoxBg"><form name="header_search" action="<?php print caNavUrl($this->request, '', 'Search', 'Index'); ?>" method="get"><input type="text" name="search" value="<?php print ($vs_search) ? $vs_search : ''; ?>" onclick='jQuery("#quickSearch").select();' id="quickSearch"  autocomplete="off"/><a href="#" name="searchButtonSubmit" onclick="document.forms.header_search.submit(); return false;"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/magGlass.png"></a></form></div><!-- end searchBoxBg --></div><!-- end searchBox -->
 			<div id="navHeaderBar"><!-- empty --></div>
 			<ul class="mainNav">
-				<li><?php print caNavLink($this->request, _t("About"), "", "", "", ""); ?></li>
+				<li style='position:relative;'><?php print caNavLink($this->request, _t("About"), "", "", "", ""); ?>
+					<div class='jumpMenu' id='aboutJumpMenu'>
+						<div><?php print caNavLink($this->request, 'Home', 'blueText', '', '', ''); ?></div>
+						<div><?php print caNavLink($this->request, 'Information for Users', 'blueText', '', 'About', 'userInfo'); ?></div>
+						<div><?php print caNavLink($this->request, 'Information for Contributors', 'blueText', '', 'About', 'contributorInfo'); ?></div>
+						<div><?php print caNavLink($this->request, 'Terms', 'blueText', '', 'About', 'terms'); ?></div>
+						<div><?php print caNavLink($this->request, 'User Guide', 'blueText', '', 'About', 'userGuide'); ?></div>
+					</div>
+				</li>
 				<li><?php print caNavLink($this->request, _t("Browse"), "", "", "Browse", "Index"); ?></li>
 				<li><?php print ($this->request->session->getVar('current_project_id')) ? caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "dashboard") : caNavLink($this->request, _t("Dashboard"), "", "MyProjects", "Dashboard", "projectList"); ?></li>
 			</ul>
 			<ul class="subNav">
 <?php
 			if($this->request->isLoggedIn()){
-				print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
+				#print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
+				
+				print "<li class='last'><a href='#' onClick='return false;'><i class='fa fa-user'></i></a>";
+				print "<div class='jumpMenu' id='userJumpMenu'>\n";
+				print "<div>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</div>\n";
+				print "<div>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</div>\n";
+				print "</div>\n";
+				print "</li>\n";
 				print "<li>".caNavLink($this->request, _t("Stats"), "", "", "Stats", "dashboard")."</li>";
 				print "<li>".caNavLink($this->request, _t("Media Cart")." <i class='fa fa-shopping-cart'></i>", "", "", "MediaCart", "cart")."</li>";
-				print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
 				# --- display the current project if there is one
 				if($this->request->session->getVar('current_project_id')){
 					require_once(__CA_MODELS_DIR__."/ms_projects.php");
 					$t_project = new ms_projects($this->request->session->getVar('current_project_id'));
-					print "<li style='text-transform:none;'>".((strlen($t_project->get("name")) > 30) ? mb_substr($t_project->get("name"), 0, 30)."..." : $t_project->get("name"))."</li>";
+					print "<li style='text-transform:none;'>";
+					print "<a href='#' onClick='return false;' class='ltBlueText'>".((strlen($t_project->get("name")) > 30) ? mb_substr($t_project->get("name"), 0, 30)."..." : $t_project->get("name"));
+					print " <i class='fa fa-cog'></i></a>";
+					print "<div class='jumpMenu' id='projectJumpMenu'>\n";
+					print "<div>VIEW:</div>";
+					print "<div><a href='".caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard")."#SpecimenList'>"._t("Specimen")."</a></div>\n";
+					print "<div>".caNavLink($this->request, _t("Media"), "", "MyProjects", "Media", "ListItems")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("Bibliography"), "", "MyProjects", "Bibliography", "ListItems")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("Taxonomy"), "", "MyProjects", "Taxonomy", "ListItems")."</div>\n";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Facilities"), "", "MyProjects", "Facilities", "ListItems")."</div>\n";
+					print "<div>NEW:</div>";
+					print "<div>".caNavLink($this->request, _t("New Specimen"), "", "MyProjects", "Specimens", "form")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("New Media Group"), "", "MyProjects", "Media", "form")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("New Bibliographic Citation"), "", "MyProjects", "Bibliography", "form")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("New Taxonomic Name"), "", "MyProjects", "Taxonomy", "form")."</div>\n";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Facility"), "", "MyProjects", "Facility", "form")."</div>\n";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Project"), "", "MyProjects", "Project", "form", array("new_project" => 1))."</div>";
+					if($t_project->get("user_id") == $this->request->user->get("user_id")){
+						print "<div>PROJECT:</div>";
+						print "<div>".caNavLink($this->request, _t("Project Info"), "", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")))."</div>";
+						print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Manage Members"), "", "MyProjects", "Members", "listForm")."</div>";
+					}
+					$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
+					if(sizeof($va_projects)){
+						print "<div>CHANGE PROJECT:</div>";
+						foreach($va_projects as $va_project){
+							print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
+						}
+					}
+					print "</div>\n";
+					print "</li>\n";
 				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";

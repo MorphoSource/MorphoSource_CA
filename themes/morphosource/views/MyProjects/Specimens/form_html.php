@@ -10,9 +10,9 @@
 	
 	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
+	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "collector", "collected_on", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_coordinates", "locality_northing_coordinate", "locality_easting_coordinate", "locality_datum_zone", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("catalog_number", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_relative_age", "last_modified_on");
+	$va_clear_fields = array("catalog_number", "collected_on", "sex", "absolute_age", "body_mass_comments", "locality_datum_zone", "locality_easting_coordinate", "locality_relative_age", "last_modified_on");
 	
 if (!$this->request->isAjax()) {
 ?>
@@ -31,9 +31,6 @@ if (!$this->request->isAjax()) {
 }
 ?>
 	<div id='formArea' <?php print ((!$this->request->isAjax()) && (!$t_item->get("specimen_id"))) ? "style='display:none;'" : ""; ?>>
-<?php
-print caFormTag($this->request, 'save', 'specimenItemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
-?>
 	<div class="formButtons tealTopBottomRule">
 <?php
 if (!$this->request->isAjax()) {
@@ -86,24 +83,23 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
 			
 					print '<div class="specimenMediaListContainer">';
-					if (!($vs_media_tag = $va_media_info['tags']['preview190'])) {
+					if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
 						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
 					$t_project = new ms_projects();
 					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
 						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+						print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
 					}else{
-						print $vs_media_tag;
+						if($t_media->get("published")){
+							# --- media owned by antoher project, but is published so link to the public detail page
+							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div><span class='mediaID'>M{$vn_media_id}</span>, ";
+						}else{
+							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div><span class='mediaID'>M{$vn_media_id}</span>, ";
+						}
 					}
-					print "<span class='mediaID'>M{$vn_media_id}</span>";
-					print " {$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
-					
-					$va_versions = $t_media->getMediaVersions('media');
-					$va_properties = $t_media->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
-					
-					print "<br/>".msGetMediaFormatDisplayString($t_media);
-					print ", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
-				
+					print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
+					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					print "<br>".$t_media->formatPublishedText();
 					print "</div>\n";
 				}
@@ -111,13 +107,44 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				print "<H2>"._t("This specimen has no media.  Use the \"ADD MEDIA\" button to add media files for this specimen.")."</H2>";
 			}
 ?>
-				</div><!-- end specimenMediaListContainer -->
-			</div>
+			</div><!-- end specimenMediaListContainer -->
+		
+		
+<?php
+			$t_projects = new ms_projects();
+			$o_db = new Db();
+			$q_projects = $o_db->query("SELECT project_id, name from ms_projects WHERE project_id != ? ORDER BY name", $t_item->get("project_id"));
+			if($q_projects->numRows()){
+?>
+				<div class="tealRule"><!-- empty --></div>
+				<H2>Move Specimen</H2>
+				<div id="specimenMove">
+<?php
+				print caFormTag($this->request, 'moveSpecimen', 'specimenMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+				$t_projects->load($t_item->get("project_id"));
+?>
+					This specimen is owned by <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move specimen to <select name="move_project_id" style="width:250px;">
+<?php
+				while($q_projects->nextRow()){
+					print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
+				}
+?>
+				</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#specimenMoveForm").submit(); return false;'>Move</a>
+				<input type="hidden" name="specimen_id" value="<?php print $t_item->get("specimen_id"); ?>">
+				</div><!-- end specimenMove -->
+				<div style="font-size:10px; font-style:italic;">If you transfer your specimen to a project you are not a member of, you will no longer be able to edit the specimen.</div>
+				</form>
+				<br/><br/>
+<?php
+			}	
+?>	
+		</div>
 <?php
 }
 ?>
 	<div id="leftCol">
-<?php		
+<?php
+	print caFormTag($this->request, 'save', 'specimenItemForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 	$t_bib = new ms_bibliography();
 	$t_institution = new ms_institutions();
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {

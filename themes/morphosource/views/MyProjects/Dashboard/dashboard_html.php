@@ -28,6 +28,7 @@
  
 	$t_project = $this->getVar("project");
 	$va_media_counts = $this->getVar('media_counts');
+	$va_media_file_counts = $this->getVar('media_file_counts');
 	$t_media = new ms_media();
 ?>
 <div id="dashboardColLeft">
@@ -93,7 +94,7 @@
 	<div class="listItemLtBlue">
 		<div class="dataCol">
 <?php
-		if($t_project->numMedia()){
+		if($vn_num_media = (int)$t_project->numMedia()){
 			if($va_media_counts[1]){
 				print (int)$va_media_counts[1]." ".$t_media->formatPublishedText(1)."<br/>"; 
 			}
@@ -101,7 +102,7 @@
 				print (int)$va_media_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
 			}
 			print (int)$va_media_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
-			print _t('<em>(%1 total)</em>', (int)$t_project->numMedia());
+			print _t('<em>(%1 total)</em>', $vn_num_media);
 			if ($va_media_counts[0] > 0) {
 				print "<div style='padding-top:10px;'><a href='#' onClick='$(\"#mediaPubOptions\").slideDown(1); return false;' class='button buttonSmall'>"._t("Publish unpublished media (%1)", (int)$va_media_counts[0])."</a></div>";
 			}
@@ -110,7 +111,7 @@
 		}
 ?>
 		</div>
-		<H2>Number of Media</H2><div style="clear:both; height:1px;"><!-- empty --></div>
+		<H2>Number of Project Media Groups</H2><div style="clear:both; height:1px;"><!-- empty --></div>
 <?php
 		if ($va_media_counts[0] > 0) {
 			print "<div id='mediaPubOptions'><br/><b>Publish with:</b> ".caNavLink($this->request, _t("unrestricted download"), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id"), "published" => 1))."&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("restricted download"), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMedia", array("project_id" => $t_project->get("project_id"), "published" => 2));
@@ -119,9 +120,43 @@
 ?>
 	</div>
 	<div class="listItemLtBlue">
+		<div class="dataCol">
+<?php
+		if($vn_num_media_files = (int)$t_project->numMediaFiles()){
+			if($va_media_file_counts[1]){
+				print (int)$va_media_file_counts[1]." published<br/>"; 
+			}
+			print (int)$va_media_file_counts[0]." unpublished<br/>";
+			print _t('<em>(%1 total)</em>', $vn_num_media_files);
+			if ($va_media_file_counts[0] > 0) {
+				print "<div style='padding-top:10px;'>".caNavLink($this->request, _t("Publish unpublished media files (%1)", $va_media_file_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMediaFiles", array("project_id" => $t_project->get("project_id")))."</div>";
+			}
+		}else{
+			print "0";
+		}
+?>
+		</div>
+		<H2>Number of Project Media Files</H2><div style="clear:both; height:1px;"><!-- empty --></div>
+	</div>		
+	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print $t_project->numMediaViews()."/".$t_project->numDownloads(); ?></div>
-		<H2>Media Views/ Downloads</H2>
+		<H2>Project Media Views/ Downloads</H2>
 	</div>
+<?php
+	if($vn_num_read_only_media = $t_project->numReadOnlyMedia()){
+?>
+	<div class="listItemLtBlue">
+		<div class="dataCol">
+<?php
+		print $vn_num_read_only_media;
+?>
+		</div>
+		<H2>Number of Read Only/Linked Media Groups</H2><div style="clear:both; height:1px;"><!-- empty --></div>
+	</div>	
+
+<?php
+	}
+?>
 	<div class="listItemLtBlue">
 		<div class="dataCol"><?php print caFormatFilesize($t_project->get('total_storage_allocation')); ?></div>
 		<H2>Storage used</H2>
@@ -139,6 +174,7 @@
 		<H2>Created On</H2>
 	</div>
 </div><!-- end dashboardColRight -->
+<a name='dashboardSpecimen'></a>
 <div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
 	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
@@ -152,7 +188,6 @@
 	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
 		print "<div style='text-align:right; margin:5px 0px 5px 0px;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
 		
-		#$vn_i_spec = 0;
 		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
 			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
 			
@@ -178,14 +213,7 @@
 					//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
 			print "</div>\n";
 			print "</div><!-- end projectMediaContainer -->";
-			#$vn_i_spec++;
-			#if($vn_i_spec == 12){
-			#	break;
-			#}
 		}
-		#if($vn_i_spec < sizeof($va_specimens)){
-		#	print "<H2 style='text-align:right; font-weight:bold;'>".caNavLink($this->request, _t("...and %1 more", sizeof($va_specimens) - $vn_i_spec), "blueText", "MyProjects", "Specimens", "listItems")."</H2>";
-		#}
 	}else{
 		print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
 	}

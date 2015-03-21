@@ -26,7 +26,7 @@
 <?php
 	# --- if there are exisitng linked bib citations, display them here
 	if(sizeof($va_bib_citations)){
-		print "<div class='ltBlueTopRule'>";
+		print "<div class='ltBlueTopRule' style='max-height:300px; overflow:auto;'>";
 		foreach($va_bib_citations as $vn_link_id => $va_bib_info){
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onClick='jQuery(\".specimenBibFormContainer\").load(\"".caNavUrl($this->request, "MyProjects", "Specimens", "removeBibliography", array("specimen_id" => $pn_specimen_id, "link_id" => $va_bib_info["link_id"]))."\"); return false;'>Remove</a></div>";			

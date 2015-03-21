@@ -42,10 +42,11 @@
 		<?php print _t("Site Stats"); ?>
 	</H1>
 	<div class="stats">Projects: <span class="ltBlueText"><?php print $this->getVar("num_projects"); ?></span></div>
-	<div class="stats">Downloads: <span class="ltBlueText"><?php print $this->getVar("num_downloads"); ?> download<?php print (($this->getVar("num_downloads") == 1) ? "" : "s"); ?> of <?php print $this->getVar("num_downloads_media"); ?> media by <?php print $this->getVar("num_downloads_users"); ?> user<?php print (($this->getVar("num_downloads_users") == 1) ? "" : "s"); ?>.</span></div>
+	<div class="stats">Downloads: <span class="ltBlueText"><?php print $this->getVar("num_downloads"); ?> download<?php print (($this->getVar("num_downloads") == 1) ? "" : "s"); ?> of <?php print $this->getVar("num_downloads_media"); ?> media files by <?php print $this->getVar("num_downloads_users"); ?> user<?php print (($this->getVar("num_downloads_users") == 1) ? "" : "s"); ?>.</span></div>
 	<div class="stats">Users: <span class="ltBlueText"><?php print $this->getVar("num_users"); ?></span></div>
 	<div class="stats">Specimens: <span class="ltBlueText"><?php print $this->getVar("num_specimens"); ?></span></div>
 	<div class="stats">Media: <span class="ltBlueText"><?php print $this->getVar("num_media"); ?></span></div>
+	<div class="stats">Media files: <span class="ltBlueText"><?php print $this->getVar("num_media_files"); ?></span></div>
 	<div class="stats">Taxonomic names: <span class="ltBlueText"><?php print $this->getVar("num_taxonomy_names"); ?></span></div>
 	<div class="stats">Bibliographic citations: <span class="ltBlueText"><?php print $this->getVar("num_bibliography"); ?></span></div>
 	<div class="stats">Facilities: <span class="ltBlueText"><?php print $this->getVar("num_facilities"); ?></span></div>

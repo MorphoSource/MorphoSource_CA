@@ -18,8 +18,13 @@
 	</H1>
 	<div id='formArea'>
 <?php
-	$t_specimen_project = new ms_projects($t_item->get("project_id"));
-	print "<div class='formLabelError' style='text-align:center; margin-bottom: 20px;'>This specimen was created by the project, ".$t_specimen_project->get("name").". If you need to edit this specimen please contact <a href='mailto:".$this->request->config->get("ca_admin_email")."'>".$this->request->config->get("ca_admin_email")."</a></div>";
+	# --- get the project that owns the specimen and the contact email of the admin
+	$o_db = new Db();
+	$q_specimen_project = $o_db->query("SELECT p.name, u.email, u.fname, u.lname FROM ms_projects p INNER JOIN ca_users as u ON p.user_id = u.user_id WHERE p.project_id = ?", $t_item->get("project_id"));
+	if($q_specimen_project->numRows()){
+		$q_specimen_project->nextRow();
+		print "<div class='formLabelError' style='text-align:center; margin-bottom: 20px;'>This specimen was created by the project, ".$q_specimen_project->get("name").". If you need to edit this specimen please contact ".trim($q_specimen_project->get("fname")." ".$q_specimen_project->get("lname"))." at <a href='mailto:".$q_specimen_project->get("email")."'>".$q_specimen_project->get("email")."</a>.  If you have difficulties, please contact <a href='mailto:".$this->request->config->get("ca_admin_email")."'>".$this->request->config->get("ca_admin_email")."</a></div>";
+	}
 ?>
 		<div id="rightCol">
 <?php
@@ -64,21 +69,22 @@
 					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
 			
 					print '<div class="specimenMediaListContainer">';
-					if (!($vs_media_tag = $va_media_info['tags']['preview190'])) {
+					if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
 						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
 					$t_project = new ms_projects();
 					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
 						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 					}else{
-						print $vs_media_tag;
+						if($t_media->get("published")){
+							# --- media owned by antoher project, but is published so link to the public detail page
+							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+						}else{
+							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div>";
+						}
 					}
-					print "<span class='mediaID'>M{$vn_media_id}</span>";
-					print " {$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
-					
-				
-					print "<br/>".msGetMediaFormatDisplayString($t_media);
-					print ", ".caFormatFilesize($va_media_info['filesize']);
+					print "<span class='mediaID'>M{$vn_media_id}</span>, ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
+					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					print "<br>".$t_media->formatPublishedText();
 					print "</div><!-- end specimenMediaListContainer -->\n";
 				}

@@ -45,7 +45,7 @@
 /* ]]> */
 </script>
 	<div style="margin-bottom:5px;">Filter: <input type="text" name="filter" value="" onkeyup="$('#msProjectList').caFilterTable(this.value); return false;" size="20" style="border:1px solid #828282;"/></div>
-<div style="height:400px; overflow-y:auto; border-top:1px solid #DEDEDE;">
+<div style="max-height:400px; overflow-y:auto; border-top:1px solid #DEDEDE;">
 	<table id="msProjectList" class="listtable" border="0" cellpadding="0" cellspacing="1" style="margin-top:0px;">
 		<thead>
 			<tr>

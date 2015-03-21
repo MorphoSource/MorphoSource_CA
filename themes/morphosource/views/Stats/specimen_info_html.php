@@ -27,6 +27,7 @@
  */
  
 $va_rows = $this->getVar('rows');
+$va_downloads_by_file = $this->getVar('downloads_by_file');
 $va_specimen_info = $this->getVar('specimen_info');
 if (sizeof($va_specimen_info)) {	
 	print "<br/><div class='blueRule'><!-- empty --></div>";
@@ -94,10 +95,16 @@ if (sizeof($va_specimen_info)) {
 				<td>
 <?php
 					if(is_array($va_row["downloads"]) && sizeof($va_row["downloads"])){
-						print "<a href='#' onClick='$(\"#downloads".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["downloads"])." media download".((sizeof($va_row["downloads"]) == 1) ? "" : "s")."</b></a><br/>";
+						print "<a href='#' onClick='$(\"#downloads".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["downloads"])." media download".((sizeof($va_row["downloads"]) == 1) ? "" : "s")."</b><br/>";
+						foreach($va_downloads_by_file[$vn_media_id] as $vn_file_id => $va_file_download_info){
+							if($vn_file_id){
+								print "M".$vn_media_id."-".$vn_file_id.": ".sizeof($va_file_download_info)." downloads; ";
+							}
+						}
+						print "</a><br/>";
 						print "<div id='downloads".$vn_media_id."' style='display:none;'>";
 						foreach($va_row["downloads"] as $vn_download_id => $va_download_info){
-							print $va_download_info["date"].", <a href='#' onClick='jQuery(\"#specimenInfo\").load(\"".caNavUrl($this->request, "", "Stats", "userInfo", array('user_id' => $va_download_info["user_id"]))."\"); return false;'>".$va_download_info["name"]."</a>, (".$va_download_info["email"]."); ";
+							print (($va_download_info["media_file_id"]) ? "<b>M".$vn_media_id."-".$va_download_info["media_file_id"]."</b>: " : "").$va_download_info["date"].", <a href='#' onClick='jQuery(\"#specimenInfo\").load(\"".caNavUrl($this->request, "", "Stats", "userInfo", array('user_id' => $va_download_info["user_id"]))."\"); return false;'>".$va_download_info["name"]."</a>, (".$va_download_info["email"]."); ";
 						}
 						print "</div>";
 					}

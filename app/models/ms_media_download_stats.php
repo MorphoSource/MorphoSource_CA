@@ -51,6 +51,13 @@ BaseModel::$s_ca_models_definitions['ms_media_download_stats'] = array(
 				'DEFAULT' => '',
 				'LABEL' => 'Media id', 'DESCRIPTION' => 'Media id'
 		),
+		'media_file_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => 'Media file id', 'DESCRIPTION' => 'Media file id'
+		),
 		'user_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,

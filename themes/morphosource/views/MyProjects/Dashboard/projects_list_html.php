@@ -58,16 +58,18 @@
 				$q_num_media = $o_db->query("SELECT media_id FROM ms_media WHERE project_id = ?", $va_project["project_id"]);
 				$i++;
 				print '<div class="listItem'.(($i < sizeof($va_projects)) ? "Lt" : "").'Blue">';
+				print '<div style="float:left; max-width:200px;">';
 				if($va_project["membership_type"] == 1){
 					print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
 				}else{
 					print caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]));
 				}
+				print "</div>";
 				print '<div class="column">'.(($va_project["membership_type"] == 1) ? "Full Access" : "Read Only").'</div>';
 				print '<div class="column">'.date("m.d.y", $va_project["last_modified_on"]).'</div>';
 				print '<div class="column">'.(($q_last_accessed->get("last_access_on")) ? date("m.d.y", $q_last_accessed->get("last_access_on")) : "never").'</div>';
 				print '<div class="column">'.(($q_num_media->numRows()) ? $q_num_media->numRows() : "0").'</div>';
-				print "</div>";
+				print "<div style='clear:both;'></div></div>";
 			}
 	}else{
 		print "<div class='blueTopBottomRule'><H2 style='text-align:center;'>"._t("You do not have any projects, use the link above to create a project.")."</H2></div>";
