@@ -30,6 +30,8 @@
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_movement_requests.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class DashboardController extends ActionController {
@@ -196,6 +198,148 @@
  			}
  			
  			$this->render('Dashboard/pending_download_requests_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function ApproveMediaMovementRequest() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+ 			$this->MarkMediaMovementRequest(1);
+ 		}
+ 		# -------------------------------------------------------
+ 		public function DenyMediaMovementRequest() {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+ 			$this->MarkMediaMovementRequest(2);
+ 		}
+ 		# -------------------------------------------------------
+ 		public function MarkMediaMovementRequest($pn_value) {
+ 			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+ 			if($this->opn_project_id){
+ 				$vn_request_id = $this->request->getParameter('request_id', pInteger);
+ 				$t_req = new ms_media_movement_requests($vn_request_id);
+ 				$t_media = new ms_media($t_req->get('media_id'));
+				$t_req->setMode(ACCESS_WRITE);
+				$t_req->set('status', $pn_value);
+				$t_req->update();
+				
+				if (!$t_req->numErrors()) {
+					// send mail
+					$t_user = new ca_users($t_req->get('user_id'));
+					if ($vs_email = $t_user->get('email')) {
+						switch($pn_value) {
+							case 1:
+								caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] APPROVED request for ".(($t_req->get('type') == 1) ? "move" : "share")." of media M".$t_req->get('media_id'), 'move_media_request_approved_notification.tpl', array(
+									'user' => $this->request->user,
+									'media' => $t_media,
+									'project' => $this->opo_project,
+									'movementRequest' => $t_req,
+									'request' => $this->request
+								));
+								
+								$va_errors = array();
+								if($t_req->get("type") == 1){
+									# --- MOVE		
+									$t_move_project = new ms_projects($t_req->get("to_project_id"));
+									# --- first share
+									$t_media_x_projects = new ms_media_x_projects();
+									# --- is there already a share record for this item?
+									$t_media_x_projects->load(array("media_id" => $t_media->get("media_id"), "project_id" => $t_media->get("project_id")));
+									if(!$t_media_x_projects->get("link_id")){
+										$t_media_x_projects->set("media_id",$t_media->get("media_id"));
+										$t_media_x_projects->set("project_id",$t_media->get("project_id"));
+										if ($t_media_x_projects->numErrors() == 0) {
+											# do insert
+											$t_media_x_projects->setMode(ACCESS_WRITE);
+											$t_media_x_projects->insert();
+											if ($t_media_x_projects->numErrors()) {
+												foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+													$va_errors["general"] = "Could not share media: ".join(", ", $t_media_x_projects->getErrors());
+												}
+											}
+										}else{
+											$va_errors["general"] = "Could share media: ".join(", ", $t_media_x_projects->getErrors());
+										}
+									}
+									# --- move
+									if(sizeof($va_errors) == 0){
+										# --- if there is a share record, delete it first
+										$t_media_x_projects = new ms_media_x_projects();
+										# --- is there already a share record for this item?
+										$t_media_x_projects->load(array("media_id" => $t_media->get("media_id"), "project_id" => $t_move_project->get("project_id")));
+										if($t_media_x_projects->get("link_id")){
+											$t_media_x_projects->setMode(ACCESS_WRITE);
+											$t_media_x_projects->delete();
+										}
+										$t_media->set("user_id", $t_move_project->get("user_id"));
+										$t_media->set('project_id', $t_move_project->get("project_id"));
+										# do update
+										$t_media->setMode(ACCESS_WRITE);
+										$t_media->update();
+										if ($t_media->numErrors()) {
+											foreach ($t_media->getErrors() as $vs_e) {  
+												$va_errors["general"] = $vs_e;
+											}
+										}else{
+											$vs_message = "Successfully moved media";
+										}
+									}
+								}else{
+									# --- share
+									$t_media_x_projects = new ms_media_x_projects();
+									$t_media_x_projects->load(array("media_id" => $t_media->get("media_id"), "project_id" => $t_media->get("project_id")));
+									if(!$t_media_x_projects->get("link_id")){
+										$t_media_x_projects->set("media_id",$t_media->get("media_id"));
+										$t_media_x_projects->set("project_id",$this->opo_project->get("project_id"));
+										if ($t_media_x_projects->numErrors() == 0) {
+											# do insert
+											$t_media_x_projects->setMode(ACCESS_WRITE);
+											$t_media_x_projects->insert();
+											if ($t_media_x_projects->numErrors()) {
+												foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+													$va_errors["general"] = "Could not share media: ".join(", ", $t_media_x_projects->getErrors());
+												}
+											}else{
+												$vs_message = "Successfully shared media";
+											}
+										}else{
+											$va_errors["general"] = "Could not share media: ".join(", ", $t_media_x_projects->getErrors());
+										}
+									}else{
+										$vs_message = "Successfully shared media";
+									}								
+								}
+								if($va_errors["general"]){
+									$this->view->setVar("move_media_message", "Could not ".(($t_req->get("type") == 1) ? "move" : "share")." media:".$va_errors["general"]);
+								}else{
+									$this->view->setVar("move_media_message", $vs_message);
+								}
+								
+							break;
+							# ------------------------------------------------------
+							case 2:
+								caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] DENIED request for ".(($t_req->get('type') == 1) ? "move" : "share")." of media M".$t_req->get('media_id'), 'move_media_request_denied_notification.tpl', array(
+									'user' => $this->request->user,
+									'media' => $t_media,
+									'project' => $this->opo_project,
+									'movementRequest' => $t_req,
+									'request' => $this->request
+								));
+								$this->view->setVar("move_media_message", "Request was denied");
+							break;
+							# ------------------------------------------------------
+						}
+					}
+				}
+ 			}
+ 			
+ 			$this->render('Dashboard/media_movement_requests_html.php');
  		}
  		# -------------------------------------------------------
  		public function requestFullAccess(){

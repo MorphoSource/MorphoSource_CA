@@ -36,6 +36,9 @@
 	<H1>
 		<?php print $t_project->get("name"); ?>
 	</H1>
+	<H2>
+		P<?php print $t_project->get("project_id"); ?>
+	</H2>
 	<div id="dashboardAbstract">
 <?php
 		if(mb_strlen($t_project->get('abstract')) > 530){
@@ -45,6 +48,9 @@
 			);
 		}else{
 			print $t_project->get('abstract');
+		}
+		if($t_project->get("url")){
+			print "<br/><br/><b>"._t("More Information").":</b> <a href='".$t_project->get("url")."' target='_blank'>".$t_project->get("url")."</a>\n";
 		}
 ?>
 	</div><!-- end dashboardAbstract -->
@@ -62,6 +68,7 @@
 	</div>
 <?php
 	print $this->render('Dashboard/pending_download_requests_html.php');
+	print $this->render('Dashboard/media_movement_requests_html.php');	
 ?>
 </div><!-- end dashboardColLeft -->
 <div id="dashboardColRight">

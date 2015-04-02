@@ -1,0 +1,1 @@
+<p style='text-align:center; width:200px; padding:10px;'><b>Please login to use the media cart</b><br/><br/><span style='font-size:11px;'>Media Cart does not imply any fees or charges, it is merely a tool for efficiently organizing and downloading data. All aspects of morphosource are free to users and contributors.</span></p>

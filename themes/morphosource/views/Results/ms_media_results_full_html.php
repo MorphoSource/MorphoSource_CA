@@ -63,6 +63,11 @@ if($vo_result) {
 				}else{
 					$vs_media_cart_link = "<br/><span style='padding-top:5px; line-height:1em; font-size:10px; font-weight:bold;'>Must request access to download/add to cart</span>";
 				}
+			}else{
+				$vs_media_cart_link = "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";
+				TooltipManager::add(
+					".mediaCartLogin", $this->render('system/media_cart_login_message_html.php')
+				);
 			}
 			print "<div class='searchFullThumb'>".caNavLink($this->request, $va_preview_file_info["media"]["thumbnail"], '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id)).$vs_media_cart_link."</div>";
 		}

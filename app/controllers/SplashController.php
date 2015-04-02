@@ -59,37 +59,54 @@
  			$vs_recent_media = "";
  			$o_db = new Db();
  			$t_media = new ms_media();
- 			if($vn_recent = $this->request->config->get("recently_published_media_id")){
- 				$t_media->load($vn_recent);
- 				$t_media->getMediaTag("media", "preview190");
- 				$va_preview_media = $t_media->getPreviewMediaFile(null, array("preview190"));
-				$vs_recent_media = $va_preview_media["media"]["preview190"];
- 			}else{
-				$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
-				if($q_recent_media->numRows()){
-					$q_recent_media->nextRow();
-					$vn_recent = $q_recent_media->get("media_id");
-					$va_preview_media = $t_media->getPreviewMediaFile($vn_recent, array("preview190"));
-					$vs_recent_media = $va_preview_media["media"]["preview190"];
+ 			$q_recent_media = $o_db->query("SELECT m.media_id, m.media, m.project_id from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published = 1 AND p.deleted = 0 GROUP BY m.project_id ORDER BY m.published_on DESC LIMIT 10");
+			$va_recent_media = array();
+			if($q_recent_media->numRows()){
+				$i = 0;
+				while($q_recent_media->nextRow()){
+					$va_preview_media = $t_media->getPreviewMediaFile($q_recent_media->get("media_id"), array("preview190"), true);
+					if($va_preview_media["media"]["preview190"]){
+						$va_recent_media[$q_recent_media->get("media_id")] = $va_preview_media["media"]["preview190"];
+						$i++;
+					}
+					if($i == 4){
+						break;
+					}
 				}
 			}
- 			$this->view->setVar("recent_media", $vs_recent_media);
- 			$this->view->setVar("recent_media_id", $vn_recent);
- 			$vn_random = "";
- 			$vs_random_media = "";
- 			if($vn_random = $this->request->config->get("random_media_media_id")){
- 				$t_media->load($vn_random);
- 				$vs_random_media = $t_media->getMediaTag("media", "preview190");
- 			}else{
-				$q_random_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY RAND() DESC LIMIT 1");
-				if($q_random_media->numRows()){
-					$q_random_media->nextRow();
-					$vn_random = $q_random_media->get("media_id");
-					$vs_random_media = $q_random_media->getMediaTag("media", "preview190");
-				}
-			}
- 			$this->view->setVar("random_media", $vs_random_media);
- 			$this->view->setVar("random_media_id", $vn_random);
+			$this->view->setVar("recent_media", $va_recent_media);
+ 			
+//  			if($vn_recent = $this->request->config->get("recently_published_media_id")){
+//  				$t_media->load($vn_recent);
+//  				$t_media->getMediaTag("media", "preview190");
+//  				$va_preview_media = $t_media->getPreviewMediaFile(null, array("preview190"));
+// 				$vs_recent_media = $va_preview_media["media"]["preview190"];
+//  			}else{
+// 				$q_recent_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY published_on DESC LIMIT 1");
+// 				if($q_recent_media->numRows()){
+// 					$q_recent_media->nextRow();
+// 					$vn_recent = $q_recent_media->get("media_id");
+// 					$va_preview_media = $t_media->getPreviewMediaFile($vn_recent, array("preview190"));
+// 					$vs_recent_media = $va_preview_media["media"]["preview190"];
+// 				}
+// 			}
+//  			$this->view->setVar("recent_media", $vs_recent_media);
+//  			$this->view->setVar("recent_media_id", $vn_recent);
+//  			$vn_random = "";
+//  			$vs_random_media = "";
+//  			if($vn_random = $this->request->config->get("random_media_media_id")){
+//  				$t_media->load($vn_random);
+//  				$vs_random_media = $t_media->getMediaTag("media", "preview190");
+//  			}else{
+// 				$q_random_media = $o_db->query("SELECT media_id, media from ms_media WHERE published = 1 ORDER BY RAND() DESC LIMIT 1");
+// 				if($q_random_media->numRows()){
+// 					$q_random_media->nextRow();
+// 					$vn_random = $q_random_media->get("media_id");
+// 					$vs_random_media = $q_random_media->getMediaTag("media", "preview190");
+// 				}
+// 			}
+//  			$this->view->setVar("random_media", $vs_random_media);
+//  			$this->view->setVar("random_media_id", $vn_random);
  			$this->render('Splash/splash_html.php');
  		}
  		# -------------------------------------------------------

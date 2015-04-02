@@ -27,6 +27,7 @@
  */
 	$pn_browse_institution_id = $this->getVar("browse_institution_id");
 	$pn_browse_bibref_id = $this->getVar("browse_bibref_id");
+	$pn_browse_project_id = $this->getVar("browse_project_id");
 	$ps_browse_genus = $this->getVar("browse_genus");
 ?>
 <div id="browse">
