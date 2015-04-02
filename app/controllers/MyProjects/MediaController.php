@@ -38,6 +38,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream/ZipStream.php');
  
  	class MediaController extends ActionController {
  		# -------------------------------------------------------
@@ -969,10 +970,11 @@
 			
 			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 			set_time_limit($vn_limit * 2);
-			$o_zip = new ZipFile();
+			//$o_zip = new ZipFile();
+			$o_zip = new ZipStream\ZipStream('Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip', array('large_file_method' => 'store', 'large_file_size' => 1024*128));
 			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
 			if(file_exists($vs_path)){
-				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION'], null, array('compression' => 0));	// don't try to compress
+				$o_zip->addFileFromPath($vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION'], $vs_path);	// don't try to compress
 			}
 			# --- generate text file for media downloaded and add it to zip
 			$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
@@ -984,7 +986,7 @@
 					fputcsv($vo_file, $va_row);			
 				}
 				fclose($vo_file);
-				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
+				$o_zip->addFileFromPath($vs_text_file_name, $vs_tmp_file_name);
 				unlink($vs_tmp_file_name);
 			}
 			
@@ -995,14 +997,15 @@
 			#	unlink($vs_tmp_file_name);
 			#}
 			
-			$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
-			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+			//$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+			//$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
 				
-			$this->response->sendHeaders();
-			$vn_rc = $this->render('Media/media_download_binary.php');
+			//$this->response->sendHeaders();
+			//$vn_rc = $this->render('Media/media_download_binary.php');
 			
-			$this->response->sendContent();
-			return $vn_rc;
+			//$this->response->sendContent();
+			$o_zip->finish();
+			//return $vn_rc;
 		}
 		# -------------------------------------------------------
 		/**

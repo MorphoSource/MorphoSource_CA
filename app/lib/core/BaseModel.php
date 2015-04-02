@@ -3926,7 +3926,7 @@ class BaseModel extends BaseObject {
 							$magic = rand(0,99999);
 							$vs_filename = $this->_genMediaName($ps_field)."_archive_";
 							$va_pathinfo = pathinfo($vs_archive);
-							$ext = $va_pathinfo['extension'];
+							$ext = $vs_archive_extension ? str_replace(".", "", $vs_archive_extension): 'zip'; //$va_pathinfo['extension'];
 							$filepath = $vi["absolutePath"]."/".$dirhash."/".$magic."_".$vs_filename.".".$ext;
 							if (copy($vs_archive, $filepath)) {
 								$va_pathinfo = pathinfo($vs_original_filename);
