@@ -85,11 +85,18 @@
 				if($vs_notes = $q_media_files->get("notes")){
 					print "<p>".$vs_notes."</p>";
 				}
-				if($this->request->isLoggedIn() && $t_media->userCanDownloadMedia($this->request->user->get("user_id"))){
-					print "<div class='mediaFileButtons'>";
-					print caNavLink($this->request, "<i class='fa fa-download'></i>", "button buttonSmall", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $t_media->get("media_id"), "download" => 1), array("title" => "Download file"));
-					print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
-					print "</div>";
+				if($this->request->isLoggedIn()){
+					if($t_media->userCanDownloadMedia($this->request->user->get("user_id"))){
+						print "<div class='mediaFileButtons'>";
+						print caNavLink($this->request, "<i class='fa fa-download'></i>", "button buttonSmall", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $t_media->get("media_id"), "download" => 1), array("title" => "Download file"));
+						print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
+						print "</div>";
+					}
+				}else{
+					print "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";
+					TooltipManager::add(
+						".mediaCartLogin", $this->render('../system/media_cart_login_message_html.php')
+					);
 				}
 				
 				print "</div>";

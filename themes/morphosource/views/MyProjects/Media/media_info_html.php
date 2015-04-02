@@ -15,9 +15,10 @@
 	}
 	$vs_mediaFileMessage = $this->getVar("mediaFileMessage");
 	$vs_new_mediaFileMessage = $this->getVar("new_mediaFileMessage");
+	$vs_general_error = $this->getVar("general_error");
 	$va_mediaFileErrors = $this->getVar("mediaFileErrors");
-	if($vs_mediaFileMessage || $vs_new_mediaFileMessage){
-		print "<div class='formErrors' style='font-size:24px;'><br/>".$vs_mediaFileMessage.$vs_new_mediaFileMessage."<br/><br/></div>";
+	if($vs_mediaFileMessage || $vs_new_mediaFileMessage || $vs_general_error){
+		print "<div class='formErrors' style='font-size:24px;'><br/>".$vs_mediaFileMessage.$vs_new_mediaFileMessage.$vs_general_error."<br/><br/></div>";
 	}
 					
 ?>
@@ -327,64 +328,53 @@
 		<div id="mediaBibliographyInfo">
 			<!-- load Bib form here -->
 		</div><!-- end mediaBibliographyInfo -->
+
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Move Media</H2>
+		<div id="mediaMove">
 <?php
 			$t_projects = new ms_projects();
-			$q_projects = $o_db->query("SELECT project_id, name from ms_projects WHERE project_id != ? ORDER BY name", $t_media->get("project_id"));
-			if($q_projects->numRows()){
-?>
-				<div class="tealRule"><!-- empty --></div>
-				<H2>Move Media</H2>
-				<div id="mediaMove">
-<?php
-				print caFormTag($this->request, 'moveMedia', 'mediaMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
-				$t_projects->load($t_media->get("project_id"));
+			$q_projects = $o_db->query("SELECT project_id, name from ms_projects WHERE project_id != ? AND deleted = 0 ORDER BY name", $t_media->get("project_id"));
+			# --- find any existing requests that have not been processed
+			$q_requests = $o_db->query("SELECT m.to_project_id, p.name, u.fname, u.lname, u.email FROM ms_media_movement_requests m INNER JOIN ms_projects as p ON m.to_project_id = p.project_id INNER JOIN ca_users as u ON p.user_id = u.user_id WHERE m.media_id = ? AND m.status = 0 AND m.type = 1", $t_media->get("media_id"));
+			if($q_requests->numRows()){
+				$q_requests->nextRow();
+				print "<div style='padding-bottom:20px;'><span class='formErrors'>A move request has been sent to P".$q_requests->get("to_project_id").", ".$q_requests->get("name").".</span><br/><br/>You will be notified via email when the request is accepted or denied by the project administrator, ".trim($q_requests->get("fname")." ".$q_requests->get("lname")).", ".$q_requests->get("email").".</div>";
+			}else{
+				if($q_projects->numRows()){
+					print caFormTag($this->request, 'moveMedia', 'mediaMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+					$t_projects->load($t_media->get("project_id"));
 ?>
 					This media file is part of <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move file to <select name="move_project_id" style="width:250px;">
 <?php
-				while($q_projects->nextRow()){
-					print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
-				}
-?>
-				</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaMoveForm").submit(); return false;'>Move</a>
-				<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
-				</div><!-- end mediaMove -->
-				<div style="font-size:10px; font-style:italic;">If you transfer your media to a project you are not a member of, you will no longer be able to edit the media.  It will still appear in your project as "Read Only Media".</div>
-				</form>
-				
-				<div class="tealRule"><!-- empty --></div>
-				<H2>Share Media</H2>
-				<div id="mediaMove">
-<?php
-				print caFormTag($this->request, 'shareMedia', 'mediaShareForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
-?>
-					Grant read only access to this media to:<br/><select name="share_project_id" style="width:250px;">
-<?php
-				$q_projects->seek(0);
-				while($q_projects->nextRow()){
-					print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
-				}
-?>
-				</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaShareForm").submit(); return false;'>Share</a>
-				<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
-				</div><!-- end mediaMove -->
-				<div style="font-size:10px; font-style:italic;">Read only media will only be available for download if the media is published.  Please make sure to publish this media if you want other projects to be able to download it.</div>
-				</form>
-<?php
-				# --- list out any projects with read only access
-				$q_share_projects = $o_db->query("SELECT p.project_id, p.name, mp.link_id FROM ms_media_x_projects mp INNER JOIN ms_projects AS p ON mp.project_id = p.project_id WHERE mp.media_id = ? ORDER BY p.name", $t_media->get("media_id"));
-				if($q_share_projects->numRows()){
-					print "<div class='ltBlueTopRule'>";
-					while($q_share_projects->nextRow()){
-						print "<div class='listItemLtBlue'>";
-						print "<div class='listItemRightCol'>".caNavLink($this->request, "Remove", "button buttonSmall", "MyProjects", "Media", "removeShareMedia", array("media_id" => $t_media->get("media_id"), "link_id" => $q_share_projects->get("link_id"), ))."</div>";			
-						print "(P".$q_share_projects->get("project_id").") ".$q_share_projects->get("name");
-						print "</div>";
+					while($q_projects->nextRow()){
+						print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
 					}
-					print "</div>";
+?>
+					</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaMoveForm").submit(); return false;'>Move</a>
+					<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
+					<div style="font-size:10px; font-style:italic; padding:10px 0px 10px 0px;">If you transfer your media to a project you are not a member of, the administrator of that project will have to approve the move for it to take effect.  Upon approval, you will no longer be able to edit the media.  It will still appear in your project as "Read Only Media".</div>
+					</form>
+					<script type="text/javascript">
+						jQuery(document).ready(function() {
+							jQuery('#mediaMoveForm').submit(function(e){		
+								jQuery('#mediaMove').load(
+									'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'moveMedia'); ?>',
+									jQuery('#mediaMoveForm').serialize()
+								);
+								e.preventDefault();
+								return false;
+							});
+						});
+					</script>				
+<?php
 				}
 			}
 ?>
-
+			</div><!-- end mediaMove -->
+<?php			
+			print $this->render('Media/share_media_form_html.php');
+?>
 	</div><!-- end rightCol -->
 </div><!-- end mediaInfo -->
 

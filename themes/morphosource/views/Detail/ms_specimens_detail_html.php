@@ -170,23 +170,28 @@
 			}
 			$va_media_list = $t_specimen->getSpecimenMedia(null, $va_options);
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
+				$vn_media_output = false;
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
-					$t_media = new ms_media($vn_media_id);
-					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
-			
-					print '<div class="specimenMediaListContainer">';
-					if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
-						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+					if($va_media_info["numFiles"]){
+						$vn_media_output = true;
+						$t_media = new ms_media($vn_media_id);
+						$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
+				
+						print '<div class="specimenMediaListContainer">';
+						if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
+							$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+						}
+						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+						print caNavLink($this->request, "M".$vn_media_id, "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id)).", ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s")."<br/>";
+						if($va_media_info['title']){
+							print $va_media_info['title']."<br/>";
+						}
+						print (($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
+						print "</div><!-- end specimenMediaListContainer -->\n";
 					}
-					print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
-					print caNavLink($this->request, "M".$vn_media_id, "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id)).", ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s")."<br/>";
-					if($va_media_info['title']){
-						print $va_media_info['title']."<br/>";
-					}
-					print (($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
-					print "</div><!-- end specimenMediaListContainer -->\n";
 				}
-			} else {
+			}
+			if(!$vn_media_output){
 				print "<H2>"._t("This specimen has no media.")."</H2>";
 			}
 ?>

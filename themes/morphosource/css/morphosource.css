@@ -136,6 +136,18 @@ a.blueText:hover{
 	padding-bottom:10px;
 	margin-bottom:15px;
 }
+.tealBottomRule{
+	border-bottom: 1px solid #578686;
+	padding-top:10px;
+	padding-bottom:10px;
+	margin-bottom:15px;
+}
+.blueBottomRule{
+	border-bottom: 1px solid #003880;
+	padding-top:10px;
+	padding-bottom:10px;
+	margin-bottom:15px;
+}
 .ltBlueTopRule{
 	border-top: 1px solid #689899;
 }
@@ -328,21 +340,29 @@ a.blueText:hover{
 	width:150px;
 	padding:18px 20px 0px 0px;
 }
-#header #nav #searchBox #searchBoxBg{
+.hpFeature #searchBox{
+	float:right;
+	text-align:right;
+	width:150px;
+	padding:5px 20px 0px 0px;
+}
+#header #nav #searchBox #searchBoxBg, .hpFeature #searchBox #searchBoxBg{
 	background-color: #D1D1D1;
 	border-radius:8px;
 	height:20px;
 	padding:3px 5px 0px 5px;
 	text-align:left;
 }
-#header #nav #searchBox input{
-	width:120px;
+#header #nav #searchBox input, .hpFeature #searchBox input{
+	width:118px;
 	border:0px;
 	margin:0px;
-	height:12px;
+	height:16px;
 	background-color: #d1d1d1;
+	float:left;
+	outline:none;
 }
-#header #nav #searchBox .searchButtonSubmit{
+#header #nav #searchBox .searchButtonSubmit, .hpFeature #searchBox .searchButtonSubmit{
 	text-decoration:none;
 }
 #pageArea{
@@ -418,8 +438,8 @@ li:hover .jumpMenu{
 	color:#FFF;
 }
 #pageArea #hpText{
-	float:left;
-	width: 440px;
+	/*float:right;
+	width: 440px;*/
 	line-height:1.4em;
 }
 /*
@@ -430,34 +450,38 @@ styles for original hp layout
 }
 */
 #pageArea #hpFeatures{
-	clear:both;
 	float:left;
-	width:460px;
-	padding:30px 0px 0px 0px;
+	width:430px;
+	padding:7px 0px 0px 0px;
 }
 #pageArea #hpFeatures .hpFeature{
 	width:190px;
 	float:left;
+	margin-top:5px;
 }
 #pageArea #hpFeatures .hpFeaturePadding{
 	padding-right: 35px;
 }
 /*
 styles for original hp layout
+*/
 #pageArea #hpStats{
 	clear:both;
-	padding-top:45px;
+	padding-top:15px;
 }
 #pageArea #hpStats #hpStatsCol1{
 	float:left;
-	width:415px;
-	padding-right:25px;
+	width:430px;
+	padding-right:30px;
 }
 #pageArea #hpStats #hpStatsCol2{
 	float:left;
-	width:415px;
+	width:400px;
 }
-*/
+#pageArea #hpStats #hpStatsCol1 .recentlyPublished{
+	float:left;
+	padding:10px;
+}
 #hpFunding{
 	text-align:right;
 	font-size:11px;
@@ -467,18 +491,13 @@ styles for original hp layout
 	float:right;
 	margin:20px 0px 20px 50px;
 }
-#pageArea #hpStats{
-	float:left;
-	width:395px;
-	padding:30px 0px 0px 0px;
-}
-#pageArea #hpStats #hpStatsCol1 H2, #pageArea #hpStats #hpStatsCol2 H2{
+/*#pageArea #hpStats #hpStatsCol1 H2, #pageArea #hpStats #hpStatsCol2 H2{
 	padding-top:10px;
 }
 #pageArea #hpStats #hpStatsCol1 .tealTopBottomRule, #pageArea #hpStats #hpStatsCol2 .tealTopBottomRule{
 	padding-top:0px;
 	padding-bottom:0px;
-}
+}*/
 #pageArea #hpStats #hpStatsCol2 .projectListItem{
 	padding:10px 5px 10px 5px;
 	border-bottom:1px solid #689899;
@@ -725,7 +744,7 @@ styles for original hp layout
 	font-family: 'neuzeitlgt', sans-serif;
 	padding-left:10px;
 }
-#mediaMove{
+#mediaMove, #mediaShare{
 	padding-left:10px;
 }
 
@@ -891,10 +910,10 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	float:left;
 	width:185px;
 }
-#mediaDetail .tealRule, #specimenDetail .tealRule{
+#mediaDetail .tealRule, #specimenDetail .tealRule, #projectDetail .tealRule{
 	margin-bottom:10px;
 }
-#mediaDetail .unit, #specimenDetail .unit{
+#mediaDetail .unit, #specimenDetail .unit, #projectDetail .unit{
 	border-top: 1px solid #689899;
 	padding:10px;
 	margin-bottom:10px;
@@ -910,6 +929,14 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 }
 #specimenDetailInfoContainer{
 	float:left;
+	width:400px;
+}
+#projectDetail .InfoContainerLeft{
+	float:left;
+	width:400px;
+}
+#projectDetail .InfoContainerRight{
+	float:right;
 	width:400px;
 }
 .citationIndent{
@@ -1210,15 +1237,17 @@ div.msMediaDownloadRequestFormHelpText {
 	margin-bottom: 10px;
 }
 
-#msMediaDownloadRequestDashboardContainer{
+#msMediaDownloadRequestDashboardContainer, #msMediaMovementRequestDashboardContainer{
 	padding-top:20px;
+	max-height:300px;
+	overflow:auto;
 }
-h2.msMediaDownloadRequestDashboard {
+h2.msMediaDownloadRequestDashboar, h2.msMediaMovementRequestDashboard {
 	font-size: 22px;
 	margin: 10px 0 0 0;
 	border-bottom:1px solid #689899;
 }
-#msMediaDownloadRequestDashboardContainer .listItemLtBlue{
+#msMediaDownloadRequestDashboardContainer .listItemLtBlue, #msMediaMovementRequestDashboardContainer .listItemLtBlue{
 	font-size:12px;
 	line-height:1.2em;
 }

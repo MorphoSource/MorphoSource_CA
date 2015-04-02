@@ -34,42 +34,46 @@
 		<H2><?php print _t("Projects"); ?></H2>
 <?php
 	if($q_project->numRows() > 0){
-		print "<div id='browseListScrollContainer'>";
+		print "<div class='browseListScrollContainer'>";
 		while($q_project->nextRow()){
 			$t_project->load($q_project->get("project_id"));
 			print "<div class='browseItem'><a href='#' onClick='highlightLink(this); jQuery(\"#specimenResults\").load(\"".caNavUrl($this->request, '', 'Browse', 'specimenResults', array('project_id' => $q_project->get("project_id")))."\"); return false;' class='blueText".(($q_project->get("project_id") == $pn_browse_project_id) ? " browseItemSelected" : "")."'>".$q_project->get("name")."</a>";
-			print "<div style='margin:2px 0px 0px 20px;'>";
-			if($q_project->get("abstract")){
-				if(mb_strlen($q_project->get("abstract")) > 250){
-					print mb_substr($q_project->get("abstract"), 0, 250);
-					print "... <span style='text-decoration:underline;' id='abstract".$q_project->get("project_id")."'>More &rsaquo;</span>";
-					TooltipManager::add(
-						"#abstract".$q_project->get("project_id"), "<p style='padding:10px 20px 10px 20px; font-size:11px;'>".$q_project->get('abstract')."</p>"
-					);
-				}else{
-					print $q_project->get("abstract");	
-				}
-				print "<br/>";
-			}
-			$va_members = array();
-			$va_members = $t_project->getMembers();
-			if(sizeof($va_members) > 0){
-				print "<b>Members:</b> ";
-				$vni = 0;
-				foreach($va_members as $va_member){
-					$vni++;
-					print $va_member["fname"]." ".$va_member["lname"];
-					if($vni < sizeof($va_members)){
-						print ", ";
+			if($t_project->get("publication_status")){
+				print "<div style='margin:2px 0px 0px 20px;'>";
+				if($q_project->get("abstract")){
+					if(mb_strlen($q_project->get("abstract")) > 250){
+						print mb_substr($q_project->get("abstract"), 0, 250);
+						print "... <span style='text-decoration:underline;' id='abstract".$q_project->get("project_id")."'>More &rsaquo;</span>";
+						TooltipManager::add(
+							"#abstract".$q_project->get("project_id"), "<p style='padding:10px 20px 10px 20px; font-size:11px;'>".$q_project->get('abstract')."</p>"
+						);
+					}else{
+						print $q_project->get("abstract");	
 					}
+					print "<br/>";
 				}
-				print "<br/>";
+				$va_members = array();
+				$va_members = $t_project->getMembers();
+				if(sizeof($va_members) > 0){
+					print "<b>Members:</b> ";
+					$vni = 0;
+					foreach($va_members as $va_member){
+						$vni++;
+						print $va_member["fname"]." ".$va_member["lname"];
+						if($vni < sizeof($va_members)){
+							print ", ";
+						}
+					}
+					print "<br/>";
+				}
+				$va_media_counts = $t_project->getProjectMediaCounts();
+				print "<b>Data:</b> ";
+				print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media";
+				print ", ".$t_project->numSpecimens()." specimens";
+				print "<br/>".caNavLink($this->request, _t("Project Info"), 'button buttonSmall', 'Detail', 'ProjectDetail', 'Show', array('project_id' => $q_project->get("project_id")));
+				print "</div>";
 			}
-			$va_media_counts = $t_project->getProjectMediaCounts();
-			print "<b>Data:</b> ";
-			print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media";
-			print ", ".$t_project->numSpecimens()." specimens";
-			print "</div></div>";		
+			print "</div>";		
 		}
 		print "</div>";
 	}else{

@@ -37,6 +37,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_taxonomy.php");
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_movement_requests.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
  	class MediaController extends ActionController {
@@ -1078,80 +1079,242 @@
 			if($this->opo_item->get("media_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
 				# --- change user_id in media record to the project admin of the project you're moving the media to
 				$t_move_project = new ms_projects($pn_move_project_id);
-				$this->opo_item->set("user_id", $t_move_project->get("user_id"));
-				$this->opo_item->set('project_id', $pn_move_project_id);
-				if (sizeof($va_errors) == 0) {
-					# do update
-					$this->opo_item->setMode(ACCESS_WRITE);
-					$this->opo_item->update();
-					if ($this->opo_item->numErrors()) {
-						foreach ($this->opo_item->getErrors() as $vs_e) {  
-							$va_errors["general"] = $vs_e;
+				# --- user is member of project media is being transfered to, so just move it!
+				if($t_move_project->isFullAccessMember($this->request->user->get("user_id"))){
+					$this->opo_item->set("user_id", $t_move_project->get("user_id"));
+					$this->opo_item->set('project_id', $pn_move_project_id);
+					if (sizeof($va_errors) == 0) {
+						# do update
+						$this->opo_item->setMode(ACCESS_WRITE);
+						$this->opo_item->update();
+						if ($this->opo_item->numErrors()) {
+							foreach ($this->opo_item->getErrors() as $vs_e) {  
+								$va_errors["general"] = $vs_e;
+							}
+						}else{
+							$this->notification->addNotification("Media ownership has been transfered to P".$pn_move_project_id.".  The media will still appear in ".$this->ops_project_name." since you are a member of both projects.", __NOTIFICATION_TYPE_INFO__);
+							$t_media_x_projects = new ms_media_x_projects();
+							$t_media_x_projects->load(array("media_id" => $this->opo_item->get("media_id"), "project_id" => $this->opn_project_id));
+							if(!$t_media_x_projects->get("link_id")){
+								$t_media_x_projects->set("media_id",$this->opo_item->get("media_id"));
+								$t_media_x_projects->set("project_id",$this->opn_project_id);
+								if ($t_media_x_projects->numErrors() == 0) {
+									# do insert
+									$t_media_x_projects->setMode(ACCESS_WRITE);
+									$t_media_x_projects->insert();
+						
+									if ($t_media_x_projects->numErrors()) {
+											foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+												$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
+											}
+										}
+								}else{
+									$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
+								}
+							}
+						}
+					}
+					if(sizeof($va_errors) > 0){
+						print "Could not move media".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+						exit;
+					}else{
+						$this->view->setVar("redirect_url", caNavUrl($this->request, "MyProjects", "Media", "ListItems"));
+						$this->render('Media/redirect_html.php');
+					}
+				}else{
+					# --- user wants to transfer media to a project they are not a member
+					$o_db = new Db();
+					$q_project_admin = $o_db->query("SELECT u.fname, u.lname, u.email, p.name FROM ms_projects p INNER JOIN ca_users AS u ON p.user_id = u.user_id WHERE p.project_id = ?", $pn_move_project_id);
+					if($q_project_admin->numRows()){
+						$q_project_admin->nextRow();
+						$vs_move_project_admin_name = trim($q_project_admin->get("fname")." ".$q_project_admin->get("lname"));
+						$vs_move_project_admin_email = $q_project_admin->get("email");
+						$vs_move_project_name = $q_project_admin->get("name");
+					}
+					$this->view->setVar("move_project_name", $vs_move_project_name);
+					$this->view->setVar("move_project_admin_name", $vs_move_project_admin_name);
+					$this->view->setVar("move_project_admin_email", $vs_move_project_admin_email);
+					if($this->request->getParameter('move_form_submit', pInteger)){
+						# --- comment form was submitted so send an email to the project admin, notifying them of the move request
+						# --- fill out ms_media_movement_requests record
+						$t_media_movement_requests = new ms_media_movement_requests();
+						$t_media_movement_requests->set("user_id",$this->request->user->get("user_id"));
+						$t_media_movement_requests->set("media_id",$this->opo_item->get("media_id"));
+						$t_media_movement_requests->set("to_project_id",$pn_move_project_id);
+						$t_media_movement_requests->set("type",1); # --- move
+						$t_media_movement_requests->set("status",0); # --- new
+						$o_purifier = new HTMLPurifier();
+    					$vs_comment = $o_purifier->purify($this->request->getParameter('moveComment', pString));
+						if($vs_comment){
+							$t_media_movement_requests->set("request",$vs_comment);
+						}
+						if ($t_media_movement_requests->numErrors() == 0) {
+							# do insert
+							$t_media_movement_requests->setMode(ACCESS_WRITE);
+							$t_media_movement_requests->insert();
+				
+							if ($t_media_movement_requests->numErrors()) {
+								print "Could not make media_movement_requests record: ".join(", ", $t_media_movement_requests->getErrors());
+								exit;
+							}else{
+								# --- send email to project admin
+								# -- generate mail text from template - get both html and text versions
+								# --- get current user's name and email address
+								$q_user_info = $o_db->query("SELECT fname, lname, email from ca_users where user_id = ?", $this->request->user->get("user_id"));
+								if($q_user_info->numRows()){
+									$q_user_info->nextRow();
+									$vs_user_name = trim($q_user_info->get("fname")." ".$q_user_info->get("lname"));
+									$vs_user_email = $q_user_info->get("email");
+								}
+								$vs_specimen_info = "";
+								if($this->opo_item->get("specimen_id")){
+									$t_specimen = new ms_specimens($this->opo_item->get("specimen_id"));
+									$vs_specimen_info = $t_specimen->getSpecimenName();
+								}
+	
+								ob_start();
+								require($this->request->getViewsDirectoryPath()."/mailTemplates/move_media_request.tpl");
+								$vs_mail_message_text = ob_get_contents();
+								ob_end_clean();
+								ob_start();
+								require($this->request->getViewsDirectoryPath()."/mailTemplates/move_media_request_html.tpl");
+								$vs_mail_message_html = ob_get_contents();
+								ob_end_clean();
+												
+								if(caSendmail($vs_move_project_admin_email, array($vs_user_email => $vs_user_name), _t("Message from MorphoSource P".$this->opn_project_id), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+									$vs_message = $vs_move_project_admin_name." has been notified of your move request.  You will be notified via email when they accept or reject the request.";
+								}else{
+									$vs_message = "Could not send email notification";
+								}
+								$this->view->setVar("message", $vs_message);
+								$this->render('Media/move_media_sent_html.php');
+							}
+						}else{
+							print "Could not make media_movement_requests record: ".join(", ", $t_media_movement_requests->getErrors());
+							exit;
 						}
 					}else{
-						$this->notification->addNotification("Moved ".$this->ops_name_singular." to P".$pn_move_project_id, __NOTIFICATION_TYPE_INFO__);
-						$t_media_x_projects = new ms_media_x_projects();
+						# --- render form to get comment
+						$this->view->setVar("move_project_id", $pn_move_project_id);
+						$this->render('Media/move_media_form_html.php');					
+					}
+				}
+			}else{
+				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Media", "mediaInfo", array("media_id" => $this->opo_item->get("media_id"))));
+			}
+ 		}
+ 		# -------------------------------------------------------
+ 		public function shareMedia() {
+			if($this->opo_item->get("media_id") && ($pn_share_project_id = $this->request->getParameter('share_project_id', pInteger))){
+				$t_share_project = new ms_projects($pn_share_project_id);
+				# --- user is member of project media is being shared with to, so just share it!
+				if($t_share_project->isFullAccessMember($this->request->user->get("user_id"))){
+					$t_media_x_projects = new ms_media_x_projects();
+					if($t_media_x_projects->load(array("media_id" => $this->opo_item->get("media_id"), "project_id" => $pn_share_project_id))){
+						$this->notification->addNotification("Already shared media with P".$pn_share_project_id, __NOTIFICATION_TYPE_INFO__);
+						$this->mediaInfo();
+					}else{
 						$t_media_x_projects->set("media_id",$this->opo_item->get("media_id"));
-						$t_media_x_projects->set("project_id",$this->opn_project_id);
+						$t_media_x_projects->set("project_id",$pn_share_project_id);
 						if ($t_media_x_projects->numErrors() == 0) {
 							# do insert
 							$t_media_x_projects->setMode(ACCESS_WRITE);
 							$t_media_x_projects->insert();
 				
 							if ($t_media_x_projects->numErrors()) {
-									foreach ($t_media_x_projects->getErrors() as $vs_e) {  
-										$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
-									}
+								foreach ($t_media_x_projects->getErrors() as $vs_e) {  
+									$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
 								}
-						}else{
-							$va_errors["general"] = "Could not link media as read only: ".join(", ", $t_media_x_projects->getErrors());
-						}
-					}
-				}
-				if(sizeof($va_errors) > 0){
-					$this->notification->addNotification("Could not move media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
-					$this->view->setVar("errors", $va_errors);
-					$this->mediaInfo();
-				}else{
-					$this->opn_item_id = "";
-					$this->view->setVar("item_id", "");
-					$this->view->setVar("item", new ms_media());
-					$this->listItems();
-				}
-			}else{
-				$this->listItems();
-			}
- 		}
- 		# -------------------------------------------------------
- 		public function shareMedia() {
-			if($this->opo_item->get("media_id") && ($pn_share_project_id = $this->request->getParameter('share_project_id', pInteger))){
-				$t_media_x_projects = new ms_media_x_projects();
-				if($t_media_x_projects->load(array("media_id" => $this->opo_item->get("media_id"), "project_id" => $pn_share_project_id))){
-					$this->notification->addNotification("Already shared media with P".$pn_share_project_id, __NOTIFICATION_TYPE_INFO__);
-					$this->mediaInfo();
-				}else{
-					$t_media_x_projects->set("media_id",$this->opo_item->get("media_id"));
-					$t_media_x_projects->set("project_id",$pn_share_project_id);
-					if ($t_media_x_projects->numErrors() == 0) {
-						# do insert
-						$t_media_x_projects->setMode(ACCESS_WRITE);
-						$t_media_x_projects->insert();
-			
-						if ($t_media_x_projects->numErrors()) {
-							foreach ($t_media_x_projects->getErrors() as $vs_e) {  
-								$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
 							}
+						}else{
+							$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
+						}
+						if(sizeof($va_errors) > 0){
+							$this->notification->addNotification("Could not share media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+							$this->view->setVar("errors", $va_errors);
+						}else{
+							$this->notification->addNotification("Shared media", __NOTIFICATION_TYPE_INFO__);
+						}
+						$this->mediaInfo();
+					}
+				}else{
+					# --- user wants to share media with a project they are not a member
+					$o_db = new Db();
+					$q_project_admin = $o_db->query("SELECT u.fname, u.lname, u.email, p.name FROM ms_projects p INNER JOIN ca_users AS u ON p.user_id = u.user_id WHERE p.project_id = ?", $pn_share_project_id);
+					if($q_project_admin->numRows()){
+						$q_project_admin->nextRow();
+						$vs_move_project_admin_name = $vs_share_project_admin_name = trim($q_project_admin->get("fname")." ".$q_project_admin->get("lname"));
+						$vs_move_project_admin_email = $vs_share_project_admin_email = $q_project_admin->get("email");
+						$vs_move_project_name = $vs_share_project_name = $q_project_admin->get("name");
+					}
+					$this->view->setVar("share_project_name", $vs_share_project_name);
+					$this->view->setVar("share_project_admin_name", $vs_share_project_admin_name);
+					$this->view->setVar("share_project_admin_email", $vs_share_project_admin_email);
+					if($this->request->getParameter('share_form_submit', pInteger)){
+						# --- comment form was submitted so send an email to the project admin, notifying them of the share request
+						# --- fill out ms_media_movement_requests record
+						$t_media_movement_requests = new ms_media_movement_requests();
+						$t_media_movement_requests->set("user_id",$this->request->user->get("user_id"));
+						$t_media_movement_requests->set("media_id",$this->opo_item->get("media_id"));
+						$t_media_movement_requests->set("to_project_id",$pn_share_project_id);
+						$t_media_movement_requests->set("type",2); # --- share
+						$t_media_movement_requests->set("status",0); # --- new
+						$o_purifier = new HTMLPurifier();
+    					$vs_comment = $o_purifier->purify($this->request->getParameter('shareComment', pString));
+						if($vs_comment){
+							$t_media_movement_requests->set("request",$vs_comment);
+						}
+						if ($t_media_movement_requests->numErrors() == 0) {
+							# do insert
+							$t_media_movement_requests->setMode(ACCESS_WRITE);
+							$t_media_movement_requests->insert();
+				
+							if ($t_media_movement_requests->numErrors()) {
+								print "Could not make media_movement_requests record: ".join(", ", $t_media_movement_requests->getErrors());
+								exit;
+							}else{
+								# --- send email to project admin
+								# -- generate mail text from template - get both html and text versions
+								# --- get current user's name and email address
+								$q_user_info = $o_db->query("SELECT fname, lname, email from ca_users where user_id = ?", $this->request->user->get("user_id"));
+								if($q_user_info->numRows()){
+									$q_user_info->nextRow();
+									$vs_user_name = trim($q_user_info->get("fname")." ".$q_user_info->get("lname"));
+									$vs_user_email = $q_user_info->get("email");
+								}
+								$vs_specimen_info = "";
+								if($this->opo_item->get("specimen_id")){
+									$t_specimen = new ms_specimens($this->opo_item->get("specimen_id"));
+									$vs_specimen_info = $t_specimen->getSpecimenName();
+								}
+	
+								ob_start();
+								require($this->request->getViewsDirectoryPath()."/mailTemplates/move_media_request.tpl");
+								$vs_mail_message_text = ob_get_contents();
+								ob_end_clean();
+								ob_start();
+								require($this->request->getViewsDirectoryPath()."/mailTemplates/move_media_request_html.tpl");
+								$vs_mail_message_html = ob_get_contents();
+								ob_end_clean();
+												
+								if(caSendmail($vs_move_project_admin_email, array($vs_user_email => $vs_user_name), _t("Message from MorphoSource P".$this->opn_project_id), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+									$vs_message = $vs_move_project_admin_name." has been notified of your share request.  You will be notified via email when they accept or reject the request.";
+								}else{
+									$vs_message = "Could not send email notification";
+								}
+								$this->view->setVar("message", $vs_message);
+								$this->render('Media/share_media_form_html.php');
+							}
+						}else{
+							print "Could not make media_movement_requests record: ".join(", ", $t_media_movement_requests->getErrors());
+							exit;
 						}
 					}else{
-						$va_errors["general"] = "Could not share media as read only: ".join(", ", $t_media_x_projects->getErrors());
+						# --- render form to get comment
+						$this->view->setVar("show_comment_form", 1);
+						$this->view->setVar("share_project_id", $pn_share_project_id);
+						$this->render('Media/share_media_form_html.php');					
 					}
-					if(sizeof($va_errors) > 0){
-						$this->notification->addNotification("Could not share media".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
-						$this->view->setVar("errors", $va_errors);
-					}else{
-						$this->notification->addNotification("Shared media", __NOTIFICATION_TYPE_INFO__);
-					}
-					$this->mediaInfo();
 				}
 			}else{
 				$this->listItems();

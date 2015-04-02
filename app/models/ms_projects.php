@@ -68,6 +68,14 @@ BaseModel::$s_ca_models_definitions['ms_projects'] = array(
 				'LABEL' => _t('Abstract'), 'DESCRIPTION' => _t('Project abstract.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
+		'url' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 83, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('External link'), 'DESCRIPTION' => _t('External link to more information about the project'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
 		'published_on' => array(
 				'FIELD_TYPE' => FT_TIMESTAMP, 'DISPLAY_TYPE' => DT_HIDDEN, 'UPDATE_ON_UPDATE' => true,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
@@ -555,15 +563,22 @@ class ms_projects extends BaseModel {
 	# ----------------------------------------
 	# $ps_order_by = number (s.institution_code, s.collection_code, s.catalog_number), taxon (t.genus, t.species, t.subspecies)
 	# ----------------------------------------
-	function getProjectSpecimens($pa_versions=null, $ps_order_by=null) {
+	function getProjectSpecimens($pa_versions=null, $ps_order_by=null, $pa_options=null) {
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
 		
 		if(!$ps_order_by){
-			$ps_order_by = number;
+			$ps_order_by = "number";
+		}
+		if(!$pa_options){
+			$pa_options = array();
 		}
 		$vs_order_by = "";
 		$vs_order_by_joins = "";
+		$vs_published_where = "";
+		if($pa_options["published_media_only"]){
+			$vs_published_where = " AND m.published != 0 ";
+		}
 		
 		switch($ps_order_by){
 			case "number":
@@ -600,7 +615,7 @@ class ms_projects extends BaseModel {
 			WHERE (mproj.deleted != 1) AND 
 			(s.project_id = ?
 			OR m.project_id = ?
-			OR mp.project_id = ?)
+			OR mp.project_id = ?)".$vs_published_where."
 			ORDER BY ".$vs_order_by
 		, $vn_project_id, $vn_project_id, $vn_project_id);
 			
@@ -619,7 +634,7 @@ class ms_projects extends BaseModel {
 			}
 			if ($vn_media_id = $va_specimen['media_id']) {
 				$t_media = new ms_media();
-				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions);
+				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
 				$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
 				foreach($pa_versions as $vs_version) {
 					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
