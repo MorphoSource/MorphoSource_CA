@@ -846,7 +846,9 @@ class ms_media extends BaseModel {
 		}
  		$t_author = new ca_users($t_media->get('user_id'));
  		$t_user = new ca_users($pn_user_id);
- 		if ($vs_email = $t_author->get('email')) {
+ 		
+ 		// ONLY SEND TO AUTHOR IF NO ONE ELSE IS GETTING AN EMAIL
+ 		if (!sizeof($va_send_to) && ($vs_email = $t_author->get('email'))) {
  			$va_send_to[$t_author->get('email')] = $t_author->get('fname')." ".$t_author->get('lname');
  		}
  		if(sizeof($va_send_to) > 0){

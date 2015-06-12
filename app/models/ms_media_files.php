@@ -134,6 +134,13 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 					"Published / available in public search and for download" => 1
 				)
 		),
+		'doi' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_HIDDEN, 
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('DOI'), 'DESCRIPTION' => _t('DOI for media.')
+		),
 		'published_on' => array(
 				'FIELD_TYPE' => FT_DATETIME, 'DISPLAY_TYPE' => DT_OMIT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
@@ -519,7 +526,7 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -534,6 +541,7 @@ class ms_media_files extends BaseModel {
 				$va_header = array(
 									"media",
 									"downloaded file name",
+									"doi",
 									"file type",
 									"file size",
 									"title",
@@ -588,6 +596,9 @@ class ms_media_files extends BaseModel {
 					
 					$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
 					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
+				
+					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
+					$va_media_md[] = trim($va_tmp[0]);
 					$va_media_md[] = $va_properties['MIMETYPE'];
 					$va_media_md[] = caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
 					$va_media_md[] = $q_media_files->get("file_title");
@@ -614,7 +625,7 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $q_media_files->get("scanner_y_resolution")." mm";
 					$va_media_md[] = $q_media_files->get("scanner_z_resolution")." mm";
 					$va_media_md[] = $q_media_files->get("scanner_voltage")." kv";
-					$va_media_md[] = $q_media_files->get("scanner_amperage")." µa";
+					$va_media_md[] = $q_media_files->get("scanner_amperage")." ï¿½a";
 					$va_media_md[] = $q_media_files->get("scanner_watts")." W";
 					$va_media_md[] = $q_media_files->get("scanner_projections");
 					$va_media_md[] = $q_media_files->get("scanner_frame_averaging");
@@ -659,4 +670,3 @@ class ms_media_files extends BaseModel {
 	
 	# ------------------------------------------------------
 }
-?>
