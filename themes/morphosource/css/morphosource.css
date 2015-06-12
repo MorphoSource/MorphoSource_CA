@@ -697,7 +697,7 @@ styles for original hp layout
 #mediaInfo .mediaImage{
 	text-align:center;
 	margin:5px 0px 5px 25px;
-	width:182px;
+	width:192px;
 	float:left;
 	position: relative;
 }
@@ -708,7 +708,7 @@ styles for original hp layout
 }
 #mediaInfo .mediaImage .mediaFileButtons{
 	position:absolute;
-	bottom:45px;
+	bottom:75px;
 	right:4px;
 }
 #mediaInfo .mediaImage .mediaFileButtonsDelete{
@@ -723,7 +723,7 @@ styles for original hp layout
 }
 #mediaInfo .mediaImage .mediaFileFormCaption{
 	font-size:10px;
-	height:35px;
+	height:65px;
 	overflow:hidden;
 	text-align:left;
 	line-height:1.2em;
