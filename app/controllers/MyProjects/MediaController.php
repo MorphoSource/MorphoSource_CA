@@ -132,6 +132,30 @@
 			$this->render('Media/list_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function reviewPublicationSettings() {
+			$q_listings = $this->opo_project->getProjectMedia(true);
+			$this->view->setvar("listings", $q_listings);
+			$this->render('Media/review_publication_status_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function batchPublicationSave() {
+			$va_media_ids = $this->request->getParameter('media_ids', pArray);
+			$va_media_file_ids = $this->request->getParameter('media_file_ids', pArray);
+			if(!is_array($va_media_ids) && !is_array($va_media_file_ids)){
+				$this->notification->addNotification("You did not select any media groups or files", __NOTIFICATION_TYPE_ERROR__);
+			}else{
+				$o_db = new Db();
+				if(is_array($va_media_ids) && sizeof($va_media_ids)){
+					$o_db->query("UPDATE ms_media SET published = ? WHERE media_id IN (".join(", ", $va_media_ids).") and project_id = ?", $this->request->getParameter('published', pInteger), $this->opn_project_id);
+				}
+				if(is_array($va_media_file_ids) && sizeof($va_media_file_ids)){
+					$o_db->query("UPDATE ms_media_files SET published = ? WHERE media_file_id IN (".join(", ", $va_media_file_ids).")", $this->request->getParameter('published', pInteger));
+				}
+				$this->notification->addNotification("Updated publication status", __NOTIFICATION_TYPE_ERROR__);
+			}
+			$this->reviewPublicationSettings();
+ 		}
+ 		# -------------------------------------------------------
  		public function form() {
  			# --- clone_id is the media record we are "cloning" when making a *new* media record.
  			if(!$this->opo_item->get("media_id")){
@@ -951,7 +975,16 @@
 				$va_errors["general"] = "media file id not defined";
 				$this->mediaInfo();
 			}
-			
+			$vs_element = "";
+			if($t_media_file->get("element")){
+				$vs_element = "_".$t_media_file->get("element");
+			}else{
+				$t_media = new ms_media($t_media_file->get("media_id"));
+				if($t_media->get("element")){
+					$vs_element = "_".$t_media->get("element");
+				}
+			}
+			$vs_element = str_replace(" ", "_", $vs_element);
 			$ps_version = "_archive_";
 			
 			$va_versions = $t_media_file->getMediaVersions('media');
@@ -965,6 +998,7 @@
 			$vs_idno_proc = $this->opo_item->get('media_id');
 			$t_specimens = new ms_specimens();
 			$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+			$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
 			
 			# --- record download
 			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id);
@@ -975,7 +1009,7 @@
 			$o_zip = new ZipStream\ZipStream('Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip', array('large_file_method' => 'store', 'large_file_size' => 1024*128));
 			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
 			if(file_exists($vs_path)){
-				$o_zip->addFileFromPath($vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION'], $vs_path);	// don't try to compress
+				$o_zip->addFileFromPath($vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'_'.$vs_specimen_name.'_'.$vs_element.'.'.$va_version_info['EXTENSION'], $vs_path);	// don't try to compress
 			}
 			# --- generate text file for media downloaded and add it to zip
 			$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
@@ -1015,14 +1049,22 @@
 		public function DownloadAllMedia() {
 			# --- get all media files
 			$o_db = new Db();
-			$q_media_files = $o_db->query("SELECT media, media_file_id FROM ms_media_files where media_id = ?", $this->opo_item->get("media_id"));
+			$q_media_files = $o_db->query("SELECT mf.media, mf.media_file_id, mf.element, m.element media_element FROM ms_media_files mf INNER JOIN ms_media AS m ON mf.media_id = m.media_id WHERE mf.media_id = ?", $this->opo_item->get("media_id"));
 			if($q_media_files->numRows()){
 				$t_specimens = new ms_specimens();
 				$t_media_file = new ms_media_files();
-				$vs_specimen_name = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+				$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
+				$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
 				$va_media_file_ids = array();
 				while($q_media_files->nextRow()){
 					$t_media_file->load($q_media_files->get("media_file_id"));
+					$vs_element = "";
+					if($q_media_files->get("element")){
+						$vs_element = "_".$q_media_files->get("element");
+					}elseif($q_media_files->get("media_element")){
+						$vs_element = "_".$q_media_files->get("media_element");
+					}
+					$vs_element = str_replace(" ", "_", $vs_element);
 					$ps_version = "_archive_";
 					$va_versions = $t_media_file->getMediaVersions('media');
 					if (!in_array($ps_version, $va_versions)) { $ps_version = 'original'; }
@@ -1030,7 +1072,7 @@
 					$vs_idno_proc = $this->opo_item->get('media_id');
 					$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
 				
-					$vs_file_name = $vs_specimen_name.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'.'.$va_version_info['EXTENSION'];
+					$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'_'.$vs_specimen_name.$vs_element.'.'.$va_version_info['EXTENSION'];
 					$vs_file_path = $q_media_files->getMediaPath('media', $ps_version);
 					$va_file_names[$vs_file_name] = true;
 					$va_file_paths[$vs_file_path] = $vs_file_name;

@@ -121,7 +121,7 @@
  				$va_cart_media_file_ids = $t_media_cart->getCartMediaFileIdsForUser($pn_user_id);
 			}
 			$o_db = new Db();
-			$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ? and published = 1", $pn_media_id);
+			$q_media_files = $o_db->query("SELECT mf.media_file_id FROM ms_media_files mf INNER JOIN ms_media AS m ON m.media_id = mf.media_id where mf.media_id = ? and ((mf.published > 0) OR (mf.published IS null AND m.published > 0))", $pn_media_id);
 			if($q_media_files->numRows()){
 				$vb_show_add_link = false;
 				if(is_array($va_cart_media_file_ids) && sizeof($va_cart_media_file_ids)){

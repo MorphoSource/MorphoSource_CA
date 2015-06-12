@@ -59,7 +59,7 @@
  			$vs_recent_media = "";
  			$o_db = new Db();
  			$t_media = new ms_media();
- 			$q_recent_media = $o_db->query("SELECT m.media_id, m.media, m.project_id from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published = 1 AND p.deleted = 0 GROUP BY m.project_id ORDER BY m.published_on DESC LIMIT 10");
+ 			$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.deleted = 0 GROUP BY m.project_id ORDER BY m.published_on DESC LIMIT 10");
 			$va_recent_media = array();
 			if($q_recent_media->numRows()){
 				$i = 0;

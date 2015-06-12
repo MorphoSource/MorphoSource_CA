@@ -545,19 +545,28 @@ class ms_projects extends BaseModel {
 		return $vn_num_citations;
 	}
 	# ----------------------------------------
-	function getProjectMedia() {
+	# --- $pn_owned_by true returns only media owned directly by the project - this excludes read only media
+	function getProjectMedia($pn_owned_by = null) {
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
 		
 		$o_db = $this->getDb();
-		$qr = $o_db->query("
-			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
-			FROM ms_media m
-			LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
-			WHERE (m.project_id = ? OR mxp.project_id = ?)
-			ORDER BY m.media_id
-		", $vn_project_id, $vn_project_id);
-
+		if($pn_owned_by){
+			$qr = $o_db->query("
+				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
+				FROM ms_media m
+				WHERE m.project_id = ?
+				ORDER BY m.media_id
+			", $vn_project_id);
+		}else{
+			$qr = $o_db->query("
+				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
+				FROM ms_media m
+				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+				WHERE (m.project_id = ? OR mxp.project_id = ?)
+				ORDER BY m.media_id
+			", $vn_project_id, $vn_project_id);
+		}
 		return $qr;
 	}
 	# ----------------------------------------
@@ -762,17 +771,27 @@ class ms_projects extends BaseModel {
 		if (!$pn_project_id) { return null; }
 		
 		$o_db = $this->getDb();
+		# --- first get the counts of media file pub status that is inherited from group
+		$qr = $o_db->query("
+			SELECT count(*) c, m.published
+			FROM ms_media_files mf
+			INNER JOIN ms_media AS m ON mf.media_id = m.media_id
+			WHERE m.project_id = ? AND mf.published IS null
+			GROUP BY m.published
+		", $pn_project_id);
+		$va_counts = array();
+		while($qr->nextRow()){
+			$va_counts[$qr->get('published')] = (int)$qr->get('c');
+		}
 		$qr = $o_db->query("
 			SELECT count(*) c, mf.published
 			FROM ms_media_files mf
 			INNER JOIN ms_media AS m ON mf.media_id = m.media_id
-			WHERE m.project_id = ?
+			WHERE m.project_id = ? AND mf.published IS NOT NULL
 			GROUP BY mf.published
 		", $pn_project_id);
-		
-		$va_counts = array();
 		while($qr->nextRow()){
-			$va_counts[$qr->get('published')] = (int)$qr->get('c');
+			$va_counts[$qr->get('published')] = (int)$qr->get('c') + $va_counts[$qr->get('published')];
 		}
 		return $va_counts;
 	}

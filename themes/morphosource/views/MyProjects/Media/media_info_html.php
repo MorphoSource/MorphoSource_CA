@@ -71,7 +71,12 @@
 					}
 					print $vs_file_info;
 					$vs_side = $t_media_file->getChoiceListValue("side", $q_media_files->get("side"));
-					$vs_published = $t_media_file->getChoiceListValue("published", $q_media_files->get("published"));
+					if($q_media_files->get("published") == null){
+						# --- get the pub setting from the group
+						$vs_published = $t_media->getChoiceListValue("published", $t_media->get("published"));
+					}else{
+						$vs_published = $t_media_file->getChoiceListValue("published", $q_media_files->get("published"));
+					}
 					$vs_downloads = "<br/><b>Downloads: </b>".((is_array($va_media_downloads_per_file) && isset($va_media_downloads_per_file[$q_media_files->get("media_file_id")])) ? sizeof($va_media_downloads_per_file[$q_media_files->get("media_file_id")]) : "0");
 					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>Notes: </b>".(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
 					TooltipManager::add(

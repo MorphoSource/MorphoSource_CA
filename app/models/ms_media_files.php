@@ -125,13 +125,14 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 		),
 		'published' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 50, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'DISPLAY_WIDTH' => 70, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
 				'DEFAULT' => 0,
-				'LABEL' => _t('Publication status'), 'DESCRIPTION' => _t('Release to public search?'),
+				'LABEL' => _t('Publication status (leave empty to inherit publication status from the media group)'), 'DESCRIPTION' => _t('Release to public search?'),
 				"BOUNDS_CHOICE_LIST"=> array(
 					"Not published / Not available in public search" => 0,
-					"Published / available in public search and for download" => 1
+					"Published / available in public search and for download" => 1,
+					"Published / available in public search / users must request download permission" => 2
 				)
 		),
 		'published_on' => array(

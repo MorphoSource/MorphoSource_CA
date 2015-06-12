@@ -6,7 +6,7 @@
 	
 	# --- get all media files linked to this media record
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT media, media_file_id, side, element, title, notes FROM ms_media_files where media_id = ? and published = 1", $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ? and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))", $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -55,6 +55,7 @@
 		<H2 style="text-align:right;"><?php print $q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?></H2>
 		<div id='mediaDetailImageScrollArea'>
 <?php
+		$va_file_permissions = array();
 		while($q_media_files->nextRow()){
 ?>
 			<div class="mediaDetailImage" id="media<?php print $q_media_files->get("media_file_id"); ?>">
@@ -86,11 +87,15 @@
 					print "<p>".$vs_notes."</p>";
 				}
 				if($this->request->isLoggedIn()){
-					if($t_media->userCanDownloadMedia($this->request->user->get("user_id"))){
+					if($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id"))){
 						print "<div class='mediaFileButtons'>";
 						print caNavLink($this->request, "<i class='fa fa-download'></i>", "button buttonSmall", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $t_media->get("media_id"), "download" => 1), array("title" => "Download file"));
 						print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 						print "</div>";
+					}else{
+						if(($q_media_files->get("published") == 2) || (($q_media_files->get("published") == null)) && ($t_media->get("published") == 2)){
+							print "<br/><b>Please request permission to download</b>";
+						}
 					}
 				}else{
 					print "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";
@@ -103,45 +108,45 @@
 ?>
 			</div><!-- end mediaImage -->
 <?php
+			if($q_media_files->get("published") != null){
+				$va_file_permissions[] = $q_media_files->get("published");
+			}
 		}
 		print "</div><!-- end scrollArea -->";
 if ($this->request->isLoggedIn()) {
 		if($vb_show_download_link){
+			# --- user has access to project so the pub setting doesn't matter
 			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
 		}else{
-			switch((int)$t_media->get('published')) {
-				case 1:
-					print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
-					break;
-				case 2:
-					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
-						print "<div style='float:right; clear: right; cursor:default;' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</div>";
+			if(($t_media->get("published") == 2) || (in_array(2, $va_file_permissions))){
+				if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
+					print "<div style='float:right; clear: right; cursor:default;' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</div>";
+				} else {
+					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
+						print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
+					} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
+						print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge'>"._t('You may not download this media')."</a></div>";
 					} else {
-						if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
-							print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
-						} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
-							print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge'>"._t('You may not download this media')."</a></div>";
-						} else {
-							print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideDown(250); return false;'>"._t("Request Download of Media")."</a></div>";
-						}
+						print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideDown(250); return false;'>"._t("Request Download of Media")."</a></div>";
 					}
-					print "<div id='msMediaDownloadRequestFormContainer'>\n";
-					print caFormTag($this->request, 'RequestDownload', 'msMediaDownloadRequestForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true, 'noTimestamp' => true));
-	?>
-					<div class='msMediaDownloadRequestFormHelpText'>
-						<?php print _t('The author will provide this media only upon request. Please explain how you plan to use this media below. The author will review your request and reply shortly.'); ?>
-					</div>
-	<?php
-					$t_req = new ms_media_download_requests();
-					print $t_req->htmlFormElement('request', "<div class='msMediaDownloadRequestFormLabel'>^LABEL<br/>^ELEMENT</div>");
-					print caHTMLHiddenInput("media_id", array('value' => $t_media->getPrimaryKey()));
-					print caHTMLHiddenInput("user_id", array('value' => $this->request->getUserID()));
-					print caFormSubmitLink($this->request,_t('Send'), 'msMediaDownloadRequestFormSubmit', 'msMediaDownloadRequestForm');
-					print "<a href='#' class='msMediaDownloadRequestFormCancel' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideUp(250); return false;'>"._t('Cancel')."</a>";
-					print "</form>";
-					print "</div>\n";
-					//print "<br style='clear: both;'/>\n";
-					break;
+				}
+				print "<div id='msMediaDownloadRequestFormContainer'>\n";
+				print caFormTag($this->request, 'RequestDownload', 'msMediaDownloadRequestForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true, 'noTimestamp' => true));
+?>
+				<div class='msMediaDownloadRequestFormHelpText'>
+					<?php print _t('The author will provide this media only upon request. Please explain how you plan to use this media below. The author will review your request and reply shortly.'); ?>
+				</div>
+<?php
+				$t_req = new ms_media_download_requests();
+				print $t_req->htmlFormElement('request', "<div class='msMediaDownloadRequestFormLabel'>^LABEL<br/>^ELEMENT</div>");
+				print caHTMLHiddenInput("media_id", array('value' => $t_media->getPrimaryKey()));
+				print caHTMLHiddenInput("user_id", array('value' => $this->request->getUserID()));
+				print caFormSubmitLink($this->request,_t('Send'), 'msMediaDownloadRequestFormSubmit', 'msMediaDownloadRequestForm');
+				print "<a href='#' class='msMediaDownloadRequestFormCancel' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideUp(250); return false;'>"._t('Cancel')."</a>";
+				print "</form>";
+				print "</div>\n";
+			}else{
+				print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 			}
 		}
 		if($vb_show_edit_link){

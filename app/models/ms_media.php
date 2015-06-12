@@ -36,6 +36,7 @@ require_once(__CA_MODELS_DIR__."/ms_media_download_requests.php");
 require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_view_stats.php");
+require_once(__CA_MODELS_DIR__."/ms_media_files.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media group'),
@@ -772,12 +773,12 @@ class ms_media extends BaseModel {
  		}
  		$vs_wheres = " ";
  		if($vn_published){
- 			$vs_wheres = " AND published = 1";
+ 			$vs_wheres = " AND ((mf.published > 0) OR ((mf.published IS NULL) AND (m.published > 0)))";
  		}
  		$va_file_info = array();
  		# --- first try to select the related media file indicated to use for preview
  		$o_db= $this->getDb();
- 		$q_preview_file = $o_db->query("SELECT media_file_id, media, use_for_preview FROM ms_media_files WHERE media_id = ? ".$vs_wheres." ORDER BY use_for_preview DESC", $vn_media_id);
+ 		$q_preview_file = $o_db->query("SELECT mf.media_file_id, mf.media, mf.use_for_preview FROM ms_media_files mf INNER JOIN ms_media AS m ON mf.media_id = m.media_id WHERE mf.media_id = ? ".$vs_wheres." ORDER BY mf.use_for_preview DESC", $vn_media_id);
 
  		if($q_preview_file->numRows()){
  			$q_preview_file->nextRow();
@@ -967,14 +968,28 @@ class ms_media extends BaseModel {
  		if($t_project->isMember($pn_user_id)){
  			return true;
  		}
- 		# --- does user have access to the group?
-		if(!$t_media->userCanDownloadMedia($pn_user_id, $vn_media_id)){
-			return false;
-		}
-		# -- user has access to the group, but is the file published?
+ 		# -- is the file published?
  		$t_media_file = new ms_media_files($pn_media_file_id);
- 		if($t_media_file->get("published")){
+ 		if($t_media_file->get("published") == 1){
  			return true;
+ 		}elseif($t_media_file->get("published") == null){
+ 			# --- null inherits from group setting
+ 			return $t_media->userCanDownloadMedia($pn_user_id, $vn_media_id);
+ 		}elseif($t_media_file->get("published") == 0){
+ 			return false;
+ 		}elseif($t_media_file->get("published") == 2){
+ 			# --- was permission to download granted?
+ 			$o_db = $this->getDb();
+ 			$qr_res = $o_db->query("
+				SELECT * 
+				FROM ms_media_download_requests
+				WHERE 
+					media_id = ? AND status = ? AND user_id = ? 
+			", array((int)$vn_media_id, __MS_DOWNLOAD_REQUEST_APPROVED__, $pn_user_id));
+			
+			if ($qr_res->numRows() > 0) {
+				return true;
+			}
  		}
  		
  		return false;
@@ -996,7 +1011,7 @@ class ms_media extends BaseModel {
 			$t_media = new ms_media($vn_media_id);
 		}
 		
-		if ($t_media->get('published') == 1) { return false; }
+		#if ($t_media->get('published') == 1) { return false; }
  		
  		$o_db = $this->getDb();
  		
@@ -1149,11 +1164,12 @@ class ms_media extends BaseModel {
 	 *
 	 */
 	public function formatPublishedText($pn_published=null) {
-		if (!$pn_published) {
+		if (!isset($pn_published)) {
 			$pn_published = $this->get("published");
 		}
 		$vs_publish_text = "";
 		switch($pn_published){
+			# ------------------------------
 			case 0:
 				$vs_publish_text = "Unpublished";
 			break;
