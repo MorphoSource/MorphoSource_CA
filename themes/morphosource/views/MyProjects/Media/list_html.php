@@ -35,13 +35,9 @@
 			$va_preview_file_info = $t_item->getPreviewMediaFile($q_listings->get("media_id"), array("preview190"));
 			print "<span style='float:right'>".$va_preview_file_info["numFiles"]." file".(($va_preview_file_info["numFiles"] == 1) ? "" : "s")."</span>";
 			if(($q_listings->get("project_id") != $pn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $q_listings->get("project_id")))){
-				if($q_listings->get("published") > 0){
-					print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)))." - <b>READ ONLY ACCESS</b><br/>";
-					print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)));
-				}else{
-					print "M".$q_listings->get("media_id")." - <b>READ ONLY ACCESS</b><br/>";
-					print $va_preview_file_info["media"]["preview190"];
-				}
+				# --- read only access --- link to detail page
+				print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)))." - <b>READ ONLY ACCESS</b><br/>";
+				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)));
 			}else{
 				print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."<br/>";
 				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)));

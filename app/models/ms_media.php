@@ -906,6 +906,26 @@ class ms_media extends BaseModel {
  		", array((int)$vn_media_id));
  		return $qr_res->getAllRows();
  	}
+ 	# ------------------------------------------------------
+ 	# --- media project owner shared media with another project
+ 	public function userHasReadOnlyAccessToMedia($pn_user_id, $pn_media_id=null){
+ 		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+ 		$o_db = new Db();
+ 		$q_media_access = $o_db->query("SELECT DISTINCT project_id FROM ms_media_x_projects WHERE media_id = ?", $vn_media_id);
+ 		if($q_media_access->numRows()){
+ 			$t_project = new ms_projects();
+ 			while($q_media_access->nextRow()){
+ 				if($t_project->isMember($pn_user_id, $q_media_access->get("project_id"))){
+ 					return true;
+ 				}
+ 			}
+ 		}
+ 		return false;
+ 	}
 	# ------------------------------------------------------
 	/** 
 	 *
@@ -932,6 +952,11 @@ class ms_media extends BaseModel {
  		if($t_project->isMember($pn_user_id)){
  			return true;
  		}
+ 		# --- check if user has read only access to the media group
+ 		if($t_media->userHasReadOnlyAccessToMedia($pn_user_id)){
+ 			return true;
+ 		}
+ 		
  		$qr_res = $o_db->query("
  			SELECT * 
  			FROM ms_media_download_requests
@@ -963,9 +988,17 @@ class ms_media extends BaseModel {
 		} else {
 			$t_media = new ms_media($vn_media_id);
 		}
+		# --- check that user has access to the media group
+		if(!$t_media->userCanDownloadMedia($pn_user_id)){
+			return false;
+		}
 		# --- check if user has access to the project that made the media
  		$t_project = new ms_projects($t_media->get('project_id'));
  		if($t_project->isMember($pn_user_id)){
+ 			return true;
+ 		}
+ 		# --- check if user has read only access to the media group
+ 		if($t_media->userHasReadOnlyAccessToMedia($pn_user_id)){
  			return true;
  		}
  		# -- is the file published?
