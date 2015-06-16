@@ -150,7 +150,7 @@ if ($this->request->isLoggedIn()) {
 				print "</form>";
 				print "</div>\n";
 			}else{
-				print "<div style='float:right; clear: right;'>xxx".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
+				print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 			}
 		}
 		if($vb_show_edit_link){
