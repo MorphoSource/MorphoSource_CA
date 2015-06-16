@@ -3739,7 +3739,7 @@ class BaseModel extends BaseObject {
 				$vs_original_tmpname = $this->_SET_FILES[$ps_field]['tmp_name'];
 				$va_matches = array();
 				
-				if(preg_match("/(\.zip|\.tar\.gz|\.tgz)$/",$vs_original_filename,$va_matches)){
+				if(preg_match("/(\.zip|\.7z|\.7za|\.tar\.gz|\.tgz)$/",$vs_original_filename,$va_matches)){
 					$vs_archive_extension = $va_matches[1];
 
 					// add file extension to temporary file if necessary; otherwise phar barfs when handling the archive
@@ -3749,14 +3749,13 @@ class BaseModel extends BaseObject {
 						@rename($this->_SET_FILES[$ps_field]['tmp_name'], $this->_SET_FILES[$ps_field]['tmp_name'].$vs_archive_extension);
 						$this->_SET_FILES[$ps_field]['tmp_name'] = $this->_SET_FILES[$ps_field]['tmp_name'].$vs_archive_extension;
 					}
-
 					$vs_zip_tmp_dir_base = $this->getAppConfig()->get('archive_extraction_tmp_directory');
 					$vs_zip_tmp_dir = null;
-					if(($vs_archive_extension == '.zip') || caIsArchive($this->_SET_FILES[$ps_field]['tmp_name'])){
-						if (($vs_archive_extension == '.zip')) { // && filesize($this->_SET_FILES[$ps_field]['tmp_name']) >= (pow(2,32)-1)) {		// set to pow(2,32) for files > 4gigs
+					if((($vs_archive_extension == '.zip') || ($vs_archive_extension == '.7z') || ($vs_archive_extension == '.7za')) || caIsArchive($this->_SET_FILES[$ps_field]['tmp_name'])){
+						if (($vs_archive_extension == '.zip') || ($vs_archive_extension == '.7z') || ($vs_archive_extension == '.7za')) { // && filesize($this->_SET_FILES[$ps_field]['tmp_name']) >= (pow(2,32)-1)) {		// set to pow(2,32) for files > 4gigs
 							$vs_zip_tmp_dir = md5(rand(0, 9999999).time().$this->_SET_FILES[$ps_field]['tmp_name']);
 							mkdir("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
-							exec("/usr/bin/unzip ".$this->_SET_FILES[$ps_field]['tmp_name']." -d {$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
+							exec("/usr/bin/7za e -y ".$this->_SET_FILES[$ps_field]['tmp_name']." -o{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}", $va_output);
 							$va_archive_files = caGetDirectoryContentsAsList("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
 						} else {
 							$va_archive_files = caGetDirectoryContentsAsList('phar://'.$this->_SET_FILES[$ps_field]['tmp_name']);
