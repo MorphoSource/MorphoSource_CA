@@ -131,13 +131,14 @@
 <?php
 		if($vn_num_media_files = (int)$t_project->numMediaFiles()){
 			if($va_media_file_counts[1]){
-				print (int)$va_media_file_counts[1]." published<br/>"; 
+				print (int)$va_media_file_counts[1]." ".$t_media->formatPublishedText(1)."<br/>"; 
 			}
-			print (int)$va_media_file_counts[0]." unpublished<br/>";
+			print (int)$va_media_file_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
+			print (int)$va_media_file_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
 			print _t('<em>(%1 total)</em>', $vn_num_media_files);
-			if ($va_media_file_counts[0] > 0) {
-				print "<div style='padding-top:10px;'>".caNavLink($this->request, _t("Publish unpublished media files (%1)", $va_media_file_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMediaFiles", array("project_id" => $t_project->get("project_id")))."</div>";
-			}
+			#if ($va_media_file_counts[0] > 0) {
+			#	print "<div style='padding-top:10px;'>".caNavLink($this->request, _t("Publish unpublished media files (%1)", $va_media_file_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMediaFiles", array("project_id" => $t_project->get("project_id")))."</div>";
+			#}
 		}else{
 			print "0";
 		}

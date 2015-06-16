@@ -32,6 +32,7 @@ $vo_result 					= $this->getVar('result');
 $vn_items_per_page 	= $this->getVar('current_items_per_page');
 $va_access_values 		= $this->getVar('access_values');
 $t_media = new ms_media();
+$o_db = new Db();
 if($vo_result) {
 	$vn_display_cols = 2;
 	$vn_col = 0;
@@ -58,10 +59,19 @@ if($vo_result) {
 						$vb_user_can_download_media = false;
 					}
 				}
+				# --- check each file to see if any are request permission to download
+				$q_files = $o_db->query("SELECT published, media_file_id from ms_media_files WHERE media_id = ?", $vn_media_id);
+				if($q_files->numRows()){
+					while($q_files->nextRow()){
+						if($q_files->get("published") == 2){
+							$vb_user_can_download_media = $t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $vn_media_id, $q_files->get("media_file_id"));
+						}
+					}
+				}
 				if($vb_user_can_download_media){
 					$vs_media_cart_link = "<div style='clear:left; margin-top:2px;'>".addGroupToCartLink($this->request, $vn_media_id, $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</div>";
 				}else{
-					$vs_media_cart_link = "<br/><span style='padding-top:5px; line-height:1em; font-size:10px; font-weight:bold;'>Must request access to download/add to cart</span>";
+					$vs_media_cart_link = "<br/><span style='padding-top:5px; line-height:1em; font-size:10px; font-weight:bold;'>Must request access to download/add all files to cart</span>";
 				}
 			}else{
 				$vs_media_cart_link = "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";

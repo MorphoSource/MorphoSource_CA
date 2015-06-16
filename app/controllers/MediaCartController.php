@@ -281,7 +281,7 @@
  		public function DownloadCart() {
 			# --- get items in cart
 			$o_db = new Db();
- 			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
+ 			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id, mf.element, m.element media_element FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
  			$t_media = new ms_media();
  			$t_specimens = new ms_specimens();
 			if($q_set_items->numRows()){
@@ -291,7 +291,15 @@
 				$va_media_file_ids = array();
 				while($q_set_items->nextRow()){
 					if($t_media->userCanDownloadMediaFile($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"))){
-						$vs_specimen_name = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
+						$vs_specimen_number = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
+						$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($q_set_items->get("specimen_id")))));
+						$vs_element = "";
+						if($q_set_items->get("element")){
+							$vs_element = "_".$q_set_items->get("element");
+						}elseif($q_set_items->get("media_element")){
+							$vs_element = "_".$q_set_items->get("media_element");
+						}
+						$vs_element = str_replace(" ", "_", $vs_element);
 						# --- record download
 						$t_media->recordDownload($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"));
 						$vs_file_name = "";
@@ -303,7 +311,7 @@
 						if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
 						$vs_idno_proc = $q_set_items->get("media_id");
 						$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
-						$vs_file_name = $vs_specimen_name.'_M'.$vs_idno_proc.'-'.$q_set_items->get("media_file_id").'.'.$va_version_info['EXTENSION'];
+						$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_set_items->get("media_file_id").'_'.$vs_specimen_name.$vs_element.'.'.$va_version_info['EXTENSION'];
 						$vs_file_path = $q_set_items->getMediaPath('media', $ps_version);
 						$va_file_paths[$vs_file_path] = $vs_file_name;					
 						$va_media_file_ids[] = $q_set_items->get("media_file_id");

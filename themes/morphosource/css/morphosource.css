@@ -651,6 +651,19 @@ styles for original hp layout
 	font-weight:bold;
 	font-size:12px;
 }
+#mediaListings .projectMediaListItem{
+	margin-bottom:20px;
+}
+#mediaListings .projectMediaListItem a{
+	font-weight:bold;
+	color:#689899;
+	text-decoration:none;
+}
+#mediaListings .projectMediaListItem .projectMediaListFile{
+	padding:5px 0px 5px 0px;
+	margin-left:40px;
+	border-bottom:1px solid #EDEDED;
+}
 
 #dashboardMedia .projectMediaSlide {
 	padding: 0px;
@@ -798,8 +811,11 @@ styles for original hp layout
 #mediaForm select{
 	width:350px;
 }
-#mediaForm .formLabelFloat select, #mediaFilesForm .formLabelFloat select{
+#mediaForm .formLabelFloat select{
 	width:180px;
+}
+#mediaFilesForm .formLabelFloat select{
+	width:200px;
 }
 input[type="file"]{
 	width:170px;

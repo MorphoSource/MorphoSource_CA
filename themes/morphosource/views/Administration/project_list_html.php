@@ -116,9 +116,10 @@
 							$va_media_file_counts = $t_project->getProjectMediaFileCounts();
 							print "<br/><br/><b>Media Files:</b><br/>";
 							if($va_media_file_counts[1]){
-								print (int)$va_media_file_counts[1]." Published<br/>"; 
+								print (int)$va_media_file_counts[1]." ".$t_media->formatPublishedText(1)."<br/>"; 
 							}
-							print (int)$va_media_file_counts[0]." Unpublished<br/>";
+							print (int)$va_media_file_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
+							print (int)$va_media_file_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
 							print _t('<em>(%1 total)</em>', $vn_num_media_files);
 						
 							# --- media files
