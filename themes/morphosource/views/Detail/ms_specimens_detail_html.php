@@ -3,6 +3,8 @@
 	$va_bib_citations = $this->getVar("bib_citations");
 	$vb_show_edit_link = $this->getVar("show_edit_link");
 	$t_bibliography = new ms_bibliography();
+	$t_specimen = new ms_specimens($t_specimen->get("specimen_id"));
+	$vs_specimen_name = $t_specimen->getSpecimenName();
 ?>
 <div class="blueRule"><!-- empty --></div>
 <?php
@@ -19,17 +21,17 @@
 	}
 	if (($this->getVar('is_in_result_list'))) {
 		if ($this->getVar('next_id') > 0) {
-			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+			print "<div style='float:right; padding:10px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
 		}
-		print "<div style='float:right; padding:15px 0px 0px 15px;'>".$vs_back_link."</div>";
+		print "<div style='float:right; padding:10px 0px 0px 15px;'>".$vs_back_link."</div>";
 		if ($this->getVar('previous_id')) {
-			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
+			print "<div style='float:right; padding:10px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
 		}
 	}
 ?>
-<H1>
+<H1 class="specimenDetailTitle">
 <?php 
-	print _t("Specimen: S%1", $t_specimen->get("specimen_id"));
+	print _t("Specimen: ").$vs_specimen_name;
 ?>
 </H1>
 <div id="specimenDetail">
@@ -61,17 +63,11 @@
 		<H2>Specimen Information</H2>
 			<div class="unit">
 <?php
-		$t_specimen = new ms_specimens($t_specimen->get("specimen_id"));
-		$vs_specimen_name = $t_specimen->getSpecimenName();
-		if($vs_specimen_name){
-			print "<b>Specimen:</b> ".$vs_specimen_name;
-			if($vs_reference_source = $t_specimen->get("reference_source", array("convertCodesToDisplayText" => true))){
-				print ", ".$vs_reference_source;
-			}
-			if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
-				print ", ".$vs_sex;
-			}
-			print "<br/>";
+		if($vs_reference_source = $t_specimen->get("reference_source", array("convertCodesToDisplayText" => true))){
+			print $vs_reference_source."<br/>";
+		}
+		if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
+			print "<b>Sex: </b>".$vs_sex."<br/>";
 		}
 		if($t_specimen->get("description")){
 			print "<br/><b>Description: </b>".$t_specimen->get("description")."<br/>";
@@ -86,10 +82,11 @@
 			print "<b>Absolute Age: </b>".$t_specimen->get("absolute_age")."<br/>";
 		}
 		if($t_specimen->get("body_mass")){
-			print "<b>Body Mass: </b><span class='bodymassBibref'>".$t_specimen->get("body_mass")."</span>";
+			print "<b>Body Mass: </b><span class='bodymassBibref'>".$t_specimen->get("body_mass");
 			if($t_specimen->get("body_mass_comments")){
 				print ", ".$t_specimen->get("body_mass_comments");
 			}
+			print "</span>";
 			if($t_specimen->get("body_mass_bibref_id")){
 				$t_bibliography->load($t_specimen->get("body_mass_bibref_id"));
 				TooltipManager::add(

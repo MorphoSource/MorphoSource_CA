@@ -76,12 +76,19 @@
 					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
 						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 					}else{
-						if($t_media->get("published")){
-							# --- media owned by antoher project, but is published so link to the public detail page
+						$vb_read_only_access = false;
+						if($t_media->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
+							$vb_read_only_access = true;
+						}
+						if(($t_media->get("published") > 0) || $vb_read_only_access){
+							# --- media owned by another project, but is published or user has read only access to media - so link to the public detail page
 							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
 						}else{
 							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div>";
 						}
+					}
+					if($vb_read_only_access){
+						print "<b>READ ONLY ACCESS</b>, ";
 					}
 					print "<span class='mediaID'>M{$vn_media_id}</span>, ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
 					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");

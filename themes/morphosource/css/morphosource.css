@@ -926,6 +926,9 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 	float:left;
 	width:185px;
 }
+H1.specimenDetailTitle{
+	font-size:26px;
+}
 #mediaDetail .tealRule, #specimenDetail .tealRule, #projectDetail .tealRule{
 	margin-bottom:10px;
 }

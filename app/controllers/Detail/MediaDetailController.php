@@ -74,11 +74,17 @@
 				$this->notification->addNotification("Invalid media_id", __NOTIFICATION_TYPE_ERROR__);
 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
 			}
+ 			# --- does user have read only access to the media group?
+			if($this->opo_item->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
+				$this->opn_read_only = true;
+			}else{
+				$this->opn_read_only = false;
+			}
  			if ($this->opo_item->get("published") == 0) {
  				# --- item is not published
  				# --- check if user has access to the project
  				$t_project = new ms_projects($this->opo_item->get("project_id"));
- 				if(!($this->request->isLoggedIn()) || !$t_project->isMember($this->request->user->get("user_id"))){
+ 				if(!($this->request->isLoggedIn()) || (!$t_project->isMember($this->request->user->get("user_id")) && !$this->opn_read_only)){
  					$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
  					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
  				}
@@ -91,6 +97,8 @@
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("media_id", $this->opn_item_id);
 			$this->view->setvar("item", $this->opo_item);
+			
+			$this->view->setvar("read_only", $this->opn_read_only);
 			# Next and previous navigation
  			$opo_result_context = new ResultContext($this->request, "ms_media", ResultContext::getLastFind($this->request, "ms_media"));
 			# Is the item we're show details for in the result set?
@@ -121,13 +129,17 @@
 					$vb_show_edit_link = true;
 				}
 				# --- can user download record even if it is unpublished? - can be read only project member to download
+				# --- do we need to limit what files are shown based on publication status of group and files?
 				$vb_show_download_link = false;
-				if($this->request->isLoggedIn() && $t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+				$vb_show_all_files = false;
+				if($this->request->isLoggedIn() && ($t_project->isMember($this->request->user->get("user_id"), $this->opo_item->get("project_id")) || $this->opn_read_only)){
 					$vb_show_download_link = true;
+					$vb_show_all_files = true;
 				}
  			}
  			$this->view->setVar("show_edit_link", $vb_show_edit_link);
  			$this->view->setVar("show_download_link", $vb_show_download_link);
+ 			$this->view->setVar("show_all_files", $vb_show_all_files);
  			$this->view->setVar("bib_citations", $va_bib_citations);
  			$this->render('ms_media_detail_html.php');
  		}

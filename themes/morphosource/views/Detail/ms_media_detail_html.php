@@ -3,10 +3,14 @@
 	$va_bib_citations = $this->getVar("bib_citations");
 	$vb_show_edit_link = $this->getVar("show_edit_link");
 	$vb_show_download_link = $this->getVar("show_download_link");
+	$vb_show_all_files = $this->getVar("show_all_files");
 	
 	# --- get all media files linked to this media record
+	if(!$vb_show_all_files){
+		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
+	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ? and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))", $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -115,7 +119,7 @@
 		print "</div><!-- end scrollArea -->";
 if ($this->request->isLoggedIn()) {
 		if($vb_show_download_link){
-			# --- user has access to project so the pub setting doesn't matter
+			# --- user has access to project or read only access to media so the pub setting doesn't matter
 			print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
 		}else{
 			if(($t_media->get("published") == 2) || (in_array(2, $va_file_permissions))){
@@ -146,7 +150,7 @@ if ($this->request->isLoggedIn()) {
 				print "</form>";
 				print "</div>\n";
 			}else{
-				print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
+				print "<div style='float:right; clear: right;'>xxx".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
 			}
 		}
 		if($vb_show_edit_link){
