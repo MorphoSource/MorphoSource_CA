@@ -33,6 +33,7 @@
 	require_once(__CA_MODELS_DIR__."/ms_media_sets.php");
 	require_once(__CA_MODELS_DIR__."/ms_media_set_items.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
  
  	class MediaCartController extends ActionController {
  		# -------------------------------------------------------
@@ -319,40 +320,36 @@
 				if (sizeof($va_file_paths)) {
 					if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 					set_time_limit($vn_limit * 2);
-					$o_zip = new ZipFile();
+					
+					$o_zip = new ZipStream();
 					foreach($va_file_paths as $vs_path => $vs_name) {
 						if(file_exists($vs_path)){
-							$o_zip->addFile($vs_path, $vs_name, null, array('compression' => 0));	// don't try to compress
+							$o_zip->addFile($vs_path, $vs_name);
 						}
 					}
 					# --- generate text file for media downloaded and add it to zip
-					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+					$vs_tmp_file_name = '';
 					$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His').'.csv';
 					$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
 					if(sizeof($va_text_file_text)){
+						
+						$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
 						$vo_file = fopen($vs_tmp_file_name, "w");
 						foreach($va_text_file_text as $va_row){
 							fputcsv($vo_file, $va_row);			
 						}
 						fclose($vo_file);
-						$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
-						unlink($vs_tmp_file_name);
+						$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name);
 					}
 					
-					#$vs_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
-					#if($vs_text_file_text){
-					#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
-					#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
-					#	unlink($vs_tmp_file_name);
-					#}
-					
-					$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+					$this->view->setVar('zip_stream', $o_zip);
 					$this->view->setVar('version_download_name', preg_replace('![^A-Za-z0-9\.\-]+!', '_', "morphosourceMedia_".date('m_d_y_His')).'.zip');
 					
 					$this->response->sendHeaders();
 					$vn_rc = $this->render('Detail/media_download_binary.php');
 					$this->response->sendContent();
-					return $vn_rc;
+					
+					if ($vs_tmp_file_name) { @unlink($vs_tmp_file_name); }
 				}
 				
 			}else{
@@ -387,7 +384,7 @@
 					set_time_limit($vn_limit * 2);
 					# --- generate text file for media in cart
 					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
-					$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His').'.csv';
+					$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His');
 					$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
 					if(sizeof($va_text_file_text)){
 						$vo_file = fopen($vs_tmp_file_name, "w");
@@ -396,14 +393,17 @@
 						}
 						fclose($vo_file);
 						
-						$this->view->setVar('version_path', $vs_tmp_file_name);
-						$this->view->setVar('version_download_name', $vs_text_file_name);
+						$o_zip = new ZipStream();
+						$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+						
+						$this->view->setVar('zip_stream', $o_zip);
+						$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
 					
 						$this->response->sendHeaders();
 						$vn_rc = $this->render('Detail/media_download_binary.php');
 						$this->response->sendContent();
 						
-						unlink($vs_tmp_file_name);
+						@unlink($vs_tmp_file_name);
 					}
 					
 					return $vn_rc;

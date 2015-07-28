@@ -4,7 +4,13 @@
 	$va_fields = $t_media->getFormFields();
 	# --- get all media files linked to this media record
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT media, media_file_id, use_for_preview, published, side, element, title, notes FROM ms_media_files where media_id = ?", $pn_media_id);
+	$q_media_files = $o_db->query("
+		SELECT mf.media, mf.media_id, mf.media_file_id, mf.use_for_preview, mf.published, mf.side, mf.element, mf.title, mf.notes, mf.doi, m.published group_published 
+		FROM ms_media_files mf
+		INNER JOIN ms_media AS m ON m.media_id = mf.media_id
+		WHERE
+			mf.media_id = ?", $pn_media_id);
+			
 	$t_media_file = $this->getVar("t_media_file");
 	$pn_media_file_id = $t_media_file->get("media_file_id");
 	$va_media_downloads_per_file = $t_media->numDownloadsPerFile();
@@ -46,6 +52,12 @@
 <?php 
 					print "<div class='mediaFileButtonsDelete'>".caNavLink($this->request, "<i class='fa fa-remove'></i>", "button buttonSmall", "MyProjects", "Media", "DeleteMediaFile", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Delete media file")))."</div>";
 					print "<div class='mediaFileButtons'>";
+				
+					//if (($q_media_files->get('published') > 0) && ($q_media_files->get('group_published') > 0) && $this->request->user->canDoAction('can_create_doi') && !$q_media_files->get('doi')) { 
+					if ($this->request->user->canDoAction('can_create_doi') && !$q_media_files->get('doi')) { 
+						//print caNavLink($this->request, "DOI", "button buttonSmall doiButton", "MyProjects", "Media", "GetDOI", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Get Digital Object Identifier (DOI)")));
+						print "<a href='#' class='button buttonSmall doiButton' data-media_id='".$q_media_files->get("media_id")."' data-media_file_id='".$q_media_files->get("media_file_id")."'>DOI</a>";
+					}
 					print caNavLink($this->request, "<i class='fa fa-download'></i>", "button buttonSmall", "MyProjects", "Media", "DownloadMedia", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, 'download' => 1), array("title" => _t("Download media file")));
 					print "<a href='#' onClick='return false;' id='info".$q_media_files->get("media_file_id")."' class='button buttonSmall'><i class='fa fa-info'></i></a>";
 					if($q_media_files->get("use_for_preview") == 1){
@@ -68,6 +80,10 @@
 					if($q_media_files->get("title")){
 						print (mb_strlen($q_media_files->get("title")) > 60) ? mb_substr($q_media_files->get("title"), 0, 60)."..." : $q_media_files->get("title");
 						print "<br/>";
+					}
+					if ($vs_doi = $q_media_files->get('doi')) { 
+						$va_doi = preg_split("![ ]*\|[ ]*!", $vs_doi);
+						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".trim($va_doi[0])."'>{$va_doi[0]}</a>";
 					}
 					print $vs_file_info;
 					$vs_side = $t_media_file->getChoiceListValue("side", $q_media_files->get("side"));
@@ -387,13 +403,41 @@
 	jQuery(document).ready(function() {			
 		jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
-		);
-		return false;
-	});
-	jQuery(document).ready(function() {			
+		);	
 		jQuery('#mediaBibliographyInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'bibliographyLookup', array('media_id' => $pn_media_id)); ?>'
 		);
+		
+		jQuery(".doiButton").bind('click', function() { 
+			var media_id = jQuery(this).data('media_id');
+			var media_file_id = jQuery(this).data('media_file_id');
+			jQuery("#doiConfirm").dialog({
+				resizable: false,
+				width: 500,
+				height:260,
+				modal: true,
+				closeOnEscape: false,
+				buttons: {
+					"Get a DOI": function() {
+					$( this ).dialog( "close" ); 
+					window.location = '<?php print caNavUrl($this->request, "MyProjects", "Media", "GetDOI", array("media_file_id" => '')); ?>' + media_file_id + '/media_id/' + media_id; 
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}});
+			e.preventDefault();
+			return false;
+		});
+		
 		return false;
 	});
 </script>
+
+<div id="doiConfirm" style="display: none;" title="Assign DOI">
+  <p>
+  		By assigning a Digital Object Identifier (DOI) to this media item you warrant that there are no known errors in the data 
+  		and that the data are as accurate and complete as possible. Once a DOI is assigned it cannot be 
+  		removed so please ensure that your data is ready <strong>before</strong> you assign it!
+  </p>
+</div>

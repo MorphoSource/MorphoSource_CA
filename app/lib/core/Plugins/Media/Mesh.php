@@ -170,6 +170,20 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				);
 				return "application/surf";
 			}
+			
+			// binary STL?
+			$vs_section = file_get_contents($ps_filepath, NULL, NULL, 0, 79);
+			fseek($r_fp, 80);
+			$vs_data = fread($r_fp, 4);
+			$vn_num_facets = array_shift(unpack("I", $vs_data));
+			if ((84 + ($vn_num_facets * 50)) == ($vn_filesize = filesize($ps_filepath))) {
+				$this->properties = $this->handle = $this->ohandle = array(
+					"mimetype" => 'application/stl',
+					"filesize" => $vn_filesize,
+					"typename" => "Standard Tessellation Language File"
+				);
+				return "application/stl";
+			}
 		}
 
 		$this->filepath = null;
@@ -294,7 +308,15 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		# pretty restricted, but we can convert ply to stl!
 		if(($this->properties['mimetype'] == 'application/ply') && ($ps_mimetype == 'application/stl')){
 			if(file_exists($this->filepath)){
-				if(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
+				//if (file_exists("/usr/local/bin/meshconv")) {
+				//	exec($x="/usr/local/bin/meshconv ".$this->filepath." -c stl -o {$ps_filepath}", $va_output);
+				//	print_R($va_output);
+				//	return $ps_filepath.'.stl';	
+				if (file_exists("/usr/local/bin/meshlabserver")) {
+					chdir('/usr/local/bin');
+					exec("/usr/local/bin/meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+					return $ps_filepath.'.stl';	
+				} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
 					return $ps_filepath.'.stl';	
 				} else {
 					@unlink($ps_filepath.'.stl');
@@ -394,6 +416,38 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 	viewer.update();
 </script>
 <?php
+			} elseif(false) {
+?>
+			<div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()">
+				<canvas id="draw-canvas" style="background-color: <?php print $vs_bgcolor; ?>"/>
+
+<script type="text/javascript">			
+				var presenter = null;
+
+				function setup3dhop() {
+					presenter = new Presenter("draw-canvas");
+
+					presenter.setScene({
+						meshes: {
+							"surface": {
+								url: "<?php print $ps_url; ?>"
+							}
+						},
+						modelInstances: {
+							"Model1": {
+								mesh: "surface"
+							}
+						}
+					});
+				}
+				
+				jQuery(document).ready(function() {
+					init3dhop();
+					setup3dhop();
+				});
+</script>
+			</div>
+<?php
 			} else {
 ?>
 		<div id="viewer"></div>
@@ -422,48 +476,64 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 	if ($pa_properties['mimetype'] == 'application/stl') {
 ?>
 				var loader = new THREE.STLLoader();
+				console.log("load STL");
 <?php
 	} else {
 ?>
 				var loader = new THREE.PLYLoader();
+				console.log("load PLY");
 <?php
 	}
 ?>
-				loader.addEventListener( 'load', function ( event ) {
+				function postLoad ( event ) {
 
-					var geometry = event.content;
-					THREE.GeometryUtils.center(geometry);
-					var material = new THREE.MeshPhongMaterial( { ambient: 0xFFFFCC, color: 0xFFFFCC, specular: 0x111111, shininess: 200 } );
+					var geometry = event;
+					if(!geometry.center) { geometry = event.content; }
+					//THREE.GeometryUtils.center(geometry);
+					//console.log(event);
+					geometry.center();
+					var material = new THREE.MeshPhongMaterial( { ambient: 0xFFFFCC, color: 0xFFFFCC, specular: 0x111111, shininess: 200, side: THREE.DoubleSide } );
 					var mesh = new THREE.Mesh( geometry, material );
 					
+					var boundingBox = mesh.geometry.boundingBox.clone();
+					console.log("bb", boundingBox);
+					var s = 3/Math.abs(boundingBox.max.x);
 					mesh.position.set( 0, 0, 0 );
-					mesh.scale.set( 0.25, 0.25, 0.25 );
-	
+					mesh.scale.set( 0.25* s, 0.25 * s, 0.25 *s);
+					
 					mesh.castShadow = false;
 					mesh.receiveShadow = false;
 
 					scene.add( mesh );
-					//console.log("loaded " + '<?php print $ps_url; ?>');
+					console.log("loaded " + '<?php print $ps_url; ?>');
 					jQuery('#<?php print $vs_progress_id; ?> div').html("Loaded model");
 					setTimeout(function() {
 						jQuery('#<?php print $vs_progress_id; ?>').fadeOut(500);
 					}, 3000);
 
-				} );
+				}
 				
-				loader.addEventListener( 'progress', function ( event ) {
-					var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded/5.2, true);
-					if(total_filesize > 0) {
-						msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
-					}
-					jQuery('#<?php print $vs_progress_id; ?> div').html(msg);
-				});
-				loader.load( '<?php print $ps_url; ?>' );
+				function loadProgressMonitor( event ) {
+						var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded/5.2, true);
+						if(total_filesize > 0) {
+							msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
+						}
+						jQuery('#<?php print $vs_progress_id; ?> div').html(msg);
+				}
+				
+				if (loader.addEventListener) {
+					loader.addEventListener( 'load', postLoad);
+				
+				
+					loader.addEventListener( 'progress', loadProgressMonitor);
+				}
+				console.log("load ", '<?php print $ps_url; ?>')
+				loader.load( '<?php print $ps_url; ?>' , postLoad, loadProgressMonitor);
 
 				// Lights
 				scene.add( new THREE.AmbientLight( 0x777777 ) );
 				
-				flashlight = new THREE.SpotLight(0x777777,2,40);
+				flashlight = new THREE.SpotLight(0x777777,2,10);
 				camera.add(flashlight);
 				flashlight.position.set(0,0,1);
 				flashlight.target = camera;

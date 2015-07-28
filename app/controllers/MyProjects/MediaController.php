@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2013 Whirl-i-Gig
+ * Copyright 2013-2015 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -39,7 +39,8 @@
  	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_movement_requests.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
- 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream/ZipStream.php');
+ 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
+ 	require_once(__CA_LIB_DIR__.'/ms/DOI.php');
  
  	class MediaController extends ActionController {
  		# -------------------------------------------------------
@@ -965,6 +966,97 @@
  		}
  		# -------------------------------------------------------
 		/**
+		 * 
+		 */ 
+		public function GetDOI() {
+			if (!$this->request->user->canDoAction('can_create_doi')) { die("Not allowed to allocate DOIs"); }
+			
+			$t_media_file = new ms_media_files();
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$t_media_file->load($pn_media_file_id);
+			if(!$t_media_file->get("media_file_id")){
+				$va_errors["general"] = "media file id not defined";
+				$this->mediaInfo();
+				return;
+			}
+			if ($t_media_file->get('doi')) {
+				$va_errors["general"] = "this media file already has a DOI";
+				$this->mediaInfo();
+				return;
+			}
+			$t_media_file->load($pn_media_file_id);
+			$t_media_group = new ms_media($t_media_file->get('media_id'));
+			//if (((int)$t_media_file->get('published') === 0) || ((int)$t_media_group->get('published') === 0)) {
+			//	$va_errors["general"] = "media must be published to have a DOI";
+			//	$this->mediaInfo();
+			//	return;
+			//}
+			
+			
+			$o_doi = new DOI();
+			
+			$t_user = new ca_users(($vn_user_id = $t_media_file->get('user_id') ? $t_media_file->get('user_id') : $this->opo_project->get('user_id')));
+			
+			$vs_mime_type = strtolower($t_media_file->getMediaInfo('media', 'original', 'MIMETYPE'));
+			$va_mime_type = explode('/', $vs_mime_type);
+	
+			switch($va_mime_type[0]) {
+				case 'image':
+					$vs_resource_type = 'Image';
+					break;
+				case 'audio':
+				case 'video':
+					$vs_resource_type = 'Audiovisual';
+					break;
+				case 'application':
+					switch($vs_mime_type) {
+						case 'application/ply':
+						case 'application/stl':
+						case 'application/surf':
+							$vs_resource_type = 'Model';	
+							break(2);
+						case 'application/zip':
+							$vs_resource_type = 'Dataset';	
+							break(2);
+						case 'application/dicom':
+							$vs_resource_type = 'Image';	
+							break(2);
+					}
+				default:
+					$vs_resource_type = 'Other';
+					break;
+			
+			}
+			
+			try {
+				if ($vs_doi = $o_doi->createDOI("M{$pn_media_file_id}", array(
+					"datacite.creator" => trim($t_user->get('fname').' '.$t_user->get('lname')),
+					"datacite.title" => "M{$pn_media_file_id} from ".$this->opo_project->get('name'),
+					"datacite.publisher" => "MorphoSource.org",
+					"datacite.publicationyear" => date("Y"),
+					"datacite.resourcetype" => $vs_resource_type,	
+					"_target" => "http://MorphoSource.org/index.php/Detail/MediaDetail/Show/media_file_id/{$pn_media_file_id}",
+					"_status" => "public",
+					"_export" => "yes",
+					"_profile" => "datacite"
+				))) {
+					//$o_log->log(array("CODE" => "DEBG", "SOURCE" => "pubForm", "MESSAGE" => $vs_msg = "Created DOI {$vs_doi} FOR project P{$vn_project_id}"));
+					$this->notification->addNotification("Obtained DOI for media", __NOTIFICATION_TYPE_INFO__);
+					# --- record the DOI in the DB
+					$t_media_file->set("doi", $vs_doi);
+					$t_media_file->setMode(ACCESS_WRITE);
+					$t_media_file->update();
+				} else {
+					//$o_log->log(array("CODE" => "DEBG", "SOURCE" => "pubForm", "MESSAGE" => $vs_msg = "Could not create DOI {$vs_doi} FOR project P{$vn_project_id}: ".$o_doi->getError()));
+					$this->notification->addNotification("Could not get DOI for media: ".$o_doi->getError(), __NOTIFICATION_TYPE_ERROR__);
+				}	
+			} catch (Exception $e) {
+					$this->notification->addNotification("Could not get DOI for media: ".$e->getMessage(), __NOTIFICATION_TYPE_ERROR__);
+			}
+			$this->mediaInfo();
+		}
+ 		# -------------------------------------------------------
+		/**
 		 * Download media
 		 */ 
 		public function DownloadMedia() {
@@ -1005,42 +1097,38 @@
 			
 			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 			set_time_limit($vn_limit * 2);
-			//$o_zip = new ZipFile();
-			$o_zip = new ZipStream\ZipStream('Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip', array('large_file_method' => 'store', 'large_file_size' => 1024*128));
+			
+			$o_zip = new ZipStream();
 			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
 			if(file_exists($vs_path)){
-				$o_zip->addFileFromPath($vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'_'.$vs_specimen_name.'_'.$vs_element.'.'.$va_version_info['EXTENSION'], $vs_path);	// don't try to compress
+				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION']);
 			}
+			
 			# --- generate text file for media downloaded and add it to zip
-			$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+			$vs_tmp_file_name = '';
 			$vs_text_file_name = 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.csv';
 			$va_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
 			if(sizeof($va_text_file_text)){
+				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
 				$vo_file = fopen($vs_tmp_file_name, "w");
 				foreach($va_text_file_text as $va_row){
 					fputcsv($vo_file, $va_row);			
 				}
 				fclose($vo_file);
-				$o_zip->addFileFromPath($vs_text_file_name, $vs_tmp_file_name);
-				unlink($vs_tmp_file_name);
+				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name);
 			}
 			
-			#$vs_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
-			#if($vs_text_file_text){
-			#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
-			#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
-			#	unlink($vs_tmp_file_name);
-			#}
-			
-			//$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
-			//$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+			$this->view->setVar('zip_stream', $o_zip);
+		
+			$this->view->setVar('version_path',$vs_path = $t_media_file->getMediaPath('media', $ps_version));
+			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
 				
-			//$this->response->sendHeaders();
-			//$vn_rc = $this->render('Media/media_download_binary.php');
+			$this->response->sendHeaders();
+			$vn_rc = $this->render('Media/media_download_binary.php');
 			
-			//$this->response->sendContent();
-			$o_zip->finish();
-			//return $vn_rc;
+			$this->response->sendContent();
+			
+			if ($vs_tmp_file_name) { @unlink($vs_tmp_file_name); }
 		}
 		# -------------------------------------------------------
 		/**
@@ -1084,37 +1172,35 @@
 			if (sizeof($va_file_paths)) {
 				if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 				set_time_limit($vn_limit * 2);
-				$o_zip = new ZipFile();
+				
+				$o_zip = new ZipStream();
 				foreach($va_file_paths as $vs_path => $vs_name) {
 					if(file_exists($vs_path)){
-						$o_zip->addFile($vs_path, $vs_name, null, array('compression' => 0));	// don't try to compress
+						$o_zip->addFile($vs_path, $vn_name);
 					}
 				}
 				# --- generate text file for media downloaded and add it to zip
-				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
+				$vs_tmp_file_name = '';
 				$vs_text_file_name = 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.csv';
 				$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
 				if(sizeof($va_text_file_text)){
+					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
 					$vo_file = fopen($vs_tmp_file_name, "w");
 					foreach($va_text_file_text as $va_row){
 						fputcsv($vo_file, $va_row);			
 					}
 					fclose($vo_file);
-					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
-					unlink($vs_tmp_file_name);
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name);
 				}
-				#$vs_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
-				#if($vs_text_file_text){
-				#	file_put_contents($vs_tmp_file_name, $vs_text_file_text);
-				#	$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name, null, array('compression' => 0));
-				#	unlink($vs_tmp_file_name);
-				#}
-				$this->view->setVar('version_path', $vs_path = $o_zip->output(ZIPFILE_FILEPATH));
+				
+				$this->view->setVar('zip_stream', $o_zip);
 				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.zip');
 				
 				$this->response->sendHeaders();
 				$vn_rc = $this->render('Media/media_download_binary.php');
 				$this->response->sendContent();
+			
+				if ($vs_tmp_file_name) { @unlink($vs_tmp_file_name); }
 			}
 				
 			return $vn_rc;
