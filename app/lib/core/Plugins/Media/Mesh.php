@@ -64,6 +64,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		
 		"EXPORT" => array(
 			"application/ply" 						=> "ply",
+			"application/ctm" 						=> "ctm",
 			"application/stl" 						=> "stl",
 			"application/surf" 						=> "surf",
 			"text/plain"							=> "txt",
@@ -98,12 +99,14 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		"application/ply" 				=> "Polygon File Format",
 		"application/stl" 				=> "Standard Tessellation Language File",
 		"application/surf" 				=> "Surface Grid Format",
+		"application/ctm" 				=> "CTM"
 	);
 	
 	var $magick_names = array(
 		"application/ply" 				=> "PLY",
 		"application/stl" 				=> "STL",
 		"application/surf" 				=> "SURF",
+		"application/ctm" 				=> "CTM"
 	);
 	
 	# ------------------------------------------------
@@ -305,25 +308,39 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 			return false;
 		}
 
-		# pretty restricted, but we can convert ply to stl!
-		if(($this->properties['mimetype'] == 'application/ply') && ($ps_mimetype == 'application/stl')){
-			if(file_exists($this->filepath)){
-				//if (file_exists("/usr/local/bin/meshconv")) {
-				//	exec($x="/usr/local/bin/meshconv ".$this->filepath." -c stl -o {$ps_filepath}", $va_output);
-				//	print_R($va_output);
-				//	return $ps_filepath.'.stl';	
-				if (file_exists("/usr/local/bin/meshlabserver")) {
-					chdir('/usr/local/bin');
-					exec("/usr/local/bin/meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
-					return $ps_filepath.'.stl';	
-				} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
-					return $ps_filepath.'.stl';	
-				} else {
-					@unlink($ps_filepath.'.stl');
-					$this->postError(1610, _t("Couldn't convert ply model to stl"), "WLPlugMediaMesh->write()");
-					return false;
+		switch($ps_mimetype) {
+			case 'application/ctm':
+				if(file_exists($this->filepath)){
+					if (file_exists("/usr/local/bin/ctmconv")) {
+						exec("/usr/local/bin/ctmconv ".$this->filepath." {$ps_filepath}.ctm --method MG2 --level 9 2>&1", $va_output);
+						
+						return $ps_filepath.'.ctm';	
+					} else {
+						@unlink($ps_filepath.'.ctm');
+						$this->postError(1610, _t("Couldn't convert %1 model to ctm", $this->properties['mimetype']), "WLPlugMediaMesh->write()");
+						return false;
+					}
 				}
-			}
+				break;
+			default:
+				# pretty restricted, but we can convert ply to stl!
+				if(($this->properties['mimetype'] == 'application/ply') && ($ps_mimetype == 'application/stl')){
+					if(file_exists($this->filepath)){
+						if (file_exists("/usr/local/bin/meshlabserver")) {
+							putenv("DISPLAY=:0");
+							chdir('/usr/local/bin');
+							exec("/usr/local/bin/meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+							return $ps_filepath.'.stl';	
+						} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
+							return $ps_filepath.'.stl';	
+						} else {
+							@unlink($ps_filepath.'.stl');
+							$this->postError(1610, _t("Couldn't convert ply model to stl"), "WLPlugMediaMesh->write()");
+							return false;
+						}
+					}
+				}
+				break;
 		}
 		
 		# use default media icons
@@ -401,7 +418,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		$vn_progress_total_filesize = (isset($pa_options["progress_total_filesize"]) && ($pa_options["progress_total_filesize"] > 0)) ? $pa_options["progress_total_filesize"] : 0;
 		
 
-		if(in_array($pa_properties['mimetype'], array("application/ply", "application/stl"))){
+		if(in_array($pa_properties['mimetype'], array("application/ply", "application/stl", "application/ctm"))){
 			ob_start();
 			
 			if(false) {
@@ -415,38 +432,6 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 	viewer.init();
 	viewer.update();
 </script>
-<?php
-			} elseif(false) {
-?>
-			<div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()">
-				<canvas id="draw-canvas" style="background-color: <?php print $vs_bgcolor; ?>"/>
-
-<script type="text/javascript">			
-				var presenter = null;
-
-				function setup3dhop() {
-					presenter = new Presenter("draw-canvas");
-
-					presenter.setScene({
-						meshes: {
-							"surface": {
-								url: "<?php print $ps_url; ?>"
-							}
-						},
-						modelInstances: {
-							"Model1": {
-								mesh: "surface"
-							}
-						}
-					});
-				}
-				
-				jQuery(document).ready(function() {
-					init3dhop();
-					setup3dhop();
-				});
-</script>
-			</div>
 <?php
 			} else {
 ?>
@@ -473,16 +458,25 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				// ASCII file
 
 <?php
-	if ($pa_properties['mimetype'] == 'application/stl') {
+	switch($pa_properties['mimetype']) {
+		case 'application/stl':
 ?>
 				var loader = new THREE.STLLoader();
 				console.log("load STL");
 <?php
-	} else {
+				break;
+		case 'application/ply':
 ?>
 				var loader = new THREE.PLYLoader();
 				console.log("load PLY");
 <?php
+				break;
+		case 'application/ctm':
+?>
+				var loader = new THREE.CTMLoader();
+				console.log("load CTM");
+<?php
+				break;
 	}
 ?>
 				function postLoad ( event ) {
@@ -496,7 +490,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 					var mesh = new THREE.Mesh( geometry, material );
 					
 					var boundingBox = mesh.geometry.boundingBox.clone();
-					console.log("bb", boundingBox);
+					
 					var s = 3/Math.abs(boundingBox.max.x);
 					mesh.position.set( 0, 0, 0 );
 					mesh.scale.set( 0.25* s, 0.25 * s, 0.25 *s);
@@ -514,6 +508,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				}
 				
 				function loadProgressMonitor( event ) {
+					console.log(event);
 						var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded/5.2, true);
 						if(total_filesize > 0) {
 							msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
