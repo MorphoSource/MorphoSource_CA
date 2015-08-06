@@ -522,14 +522,14 @@ class ms_specimens extends BaseModel {
 			$o_db = new Db();
 			if($pa_options['user_id']){
 				if($pa_options['published']){
-					$vs_published_where = " m.published > 0 OR";
+					$vs_published_where = "(m.published > 0) OR";
 				}
 				$q_media = $o_db->query("
 					SELECT m.*
 					FROM ms_media m
 					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
 					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
-					WHERE m.specimen_id = ? AND (".$vs_published_where." pu.user_id = ?) AND (p.deleted = 0)",
+					WHERE (m.specimen_id = ?) AND (p.deleted = 0) AND (".$vs_published_where." (pu.user_id = ?))",
 					array($pn_specimen_id, $pa_options['user_id']));
 			}else{
 				if($pa_options['published']){
@@ -543,13 +543,20 @@ class ms_specimens extends BaseModel {
 					array($pn_specimen_id));
 			}
 			$va_media = array();
-			$vb_published = null;
-			if($pa_options['published']){
-				$vb_published = 1;
-			}
+			$t_project = new ms_projects();
 			if($q_media->numRows()){
 				$t_media = new ms_media();
 				while($q_media->nextRow()){
+					$vb_published = null;
+					if($pa_options['published']){
+						$vb_published = 1;
+					}
+					if($pa_options["user_id"]){
+						# --- if a user id is passed, show media they have access to
+						if($t_project->isMember($pa_options["user_id"], $q_media->get("project_id")) || $t_media->userHasReadOnlyAccessToMedia($pa_options["user_id"], $q_media->get("media_id"))){
+							$vb_published = null;
+						}
+					}
 					$va_media_preview_info = $t_media->getPreviewMediaFile($q_media->get("media_id"), $va_versions, $vb_published);
 					$va_media_row = $q_media->getRow();
 					unset($va_media_row["media"]);

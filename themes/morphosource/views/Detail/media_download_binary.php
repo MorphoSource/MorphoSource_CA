@@ -25,7 +25,7 @@
  *
  * ----------------------------------------------------------------------
  */
-	$vs_file_path = $this->getVar('version_path');
+	//$vs_file_path = $this->getVar('version_path');
 	
 	header("Content-type: application/octet-stream");
 	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -36,10 +36,12 @@
 	
 	header("Content-Disposition: attachment; filename=".$this->getVar('version_download_name'));
 	set_time_limit(0);
-	$o_fp = @fopen($vs_file_path,"rb");
-	while(is_resource($o_fp) && !feof($o_fp)) {
-		print(@fread($o_fp, 1024*8));
-		ob_flush();
-		flush();
-	}
-?>
+	//$o_fp = @fopen($vs_file_path,"rb");
+	//while(is_resource($o_fp) && !feof($o_fp)) {
+	//	print(@fread($o_fp, 1024*8));
+	//	ob_flush();
+	//	flush();
+	//}
+	$o_zip = $this->getVar('zip_stream');
+	
+	$o_zip->stream();
