@@ -390,6 +390,9 @@ a.blueText:hover{
 	right:0px;
 	width:100px;
 }
+.jumpMenu#projectJumpMenu{
+	min-width:200px;
+}
 li:hover .jumpMenu{
 	display:block;
 }

@@ -153,16 +153,19 @@
  			$this->MarkDownloadRequest(2);
  		}
  		# -------------------------------------------------------
- 		public function MarkDownloadRequest($pn_value) {
+ 		public function MarkDownloadRequest($pn_value, $pn_request_id = null, $vb_dont_load_view = false) {
  			if(!$this->request->user->isFullAccessUser()){
  				$this->projectList();
  				return;
  			}
- 			if($this->opn_project_id){
- 				$vn_request_id = $this->request->getParameter('request_id', pInteger);
- 				$t_req = new ms_media_download_requests($vn_request_id);
+ 			#if($this->opn_project_id){
+ 				if(!$pn_request_id){
+ 					$pn_request_id = $this->request->getParameter('request_id', pInteger);
+ 				}
+ 				
+ 				$t_req = new ms_media_download_requests($pn_request_id);
  				$t_media = new ms_media($t_req->get('media_id'));
- 				if ($t_media->get('project_id') == $this->opn_project_id) {
+ 				if (($t_media->get('project_id') == $this->opn_project_id) || ($this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $t_media->get('project_id')))) {
  					$t_req->setMode(ACCESS_WRITE);
  					$t_req->set('status', $pn_value);
  					$t_req->update();
@@ -195,9 +198,15 @@
 						}
  					}
  				}
- 			}
+ 			#}
  			
- 			$this->render('Dashboard/pending_download_requests_html.php');
+ 			if(!$vb_dont_load_view){
+				if($this->request->getParameter('manage_all', pInteger)){
+					$this->render('Dashboard/manage_all_download_requests_html.php');
+				}else{
+					$this->render('Dashboard/pending_download_requests_html.php');
+				}
+			}
  		}
  		# -------------------------------------------------------
  		public function ApproveMediaMovementRequest() {
@@ -376,5 +385,20 @@
  		
  		}
  		# -------------------------------------------------------
+ 		public function manageAllDownloadRequests(){
+ 			$this->render('Dashboard/manage_all_download_requests_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		public function approveAllDownloadRequests(){
+ 			$va_all_requests = $this->opo_project->getDownloadRequestsForUser($this->request->user->get("user_id"), array('status' => __MS_DOWNLOAD_REQUEST_NEW__));
+
+ 			foreach($va_all_requests as $va_request){
+ 				$this->MarkDownloadRequest(1, $va_request["request_id"], true);
+ 			}
+ 			$this->view->setVar("approval_success", 1);
+ 			$this->render('Dashboard/manage_all_download_requests_html.php');
+ 		}
+  		# -------------------------------------------------------
+
  	}
  ?>

@@ -91,6 +91,8 @@
 					print "<div>".caNavLink($this->request, _t("Bibliography"), "", "MyProjects", "Bibliography", "ListItems")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("Taxonomy"), "", "MyProjects", "Taxonomy", "ListItems")."</div>\n";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Facilities"), "", "MyProjects", "Facilities", "ListItems")."</div>\n";
+					print "<div>MANAGE:</div>";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("All download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
 					print "<div>NEW:</div>";
 					print "<div>".caNavLink($this->request, _t("New Specimen"), "", "MyProjects", "Specimens", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Media Group"), "", "MyProjects", "Media", "form")."</div>\n";
@@ -109,6 +111,21 @@
 						foreach($va_projects as $va_project){
 							print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
 						}
+					}
+					print "</div>\n";
+					print "</li>\n";
+				}else{
+					require_once(__CA_MODELS_DIR__."/ms_projects.php");
+					$t_project = new ms_projects();
+					$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
+					if(sizeof($va_projects)){
+						print "<li style='text-transform:none;'>";
+						print "<a href='#' onClick='return false;' class='ltBlueText'>Choose a project <i class='fa fa-cog'></i></a>";
+						print "<div class='jumpMenu' id='projectJumpMenu'>\n";
+						foreach($va_projects as $va_project){
+							print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
+						}
+						print "<div>".caNavLink($this->request, _t("Manage all download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
 					}
 					print "</div>\n";
 					print "</li>\n";

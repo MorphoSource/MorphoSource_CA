@@ -553,14 +553,14 @@ class ms_projects extends BaseModel {
 		$o_db = $this->getDb();
 		if($pn_owned_by){
 			$qr = $o_db->query("
-				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
+				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id, m.element
 				FROM ms_media m
 				WHERE m.project_id = ?
 				ORDER BY m.media_id
 			", $vn_project_id);
 		}else{
 			$qr = $o_db->query("
-				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id
+				SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id, m.element
 				FROM ms_media m
 				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
 				WHERE (m.project_id = ? OR mxp.project_id = ?)
@@ -896,5 +896,57 @@ class ms_projects extends BaseModel {
  		return $qr_res->getAllRows();
  	}
 	# ----------------------------------------
+ 	/**
+ 	 * pn_user_id -> user to approve requests - NOT the user who made the request
+ 	 * @param array $pa_options Options are:
+ 	 *		status = limits returned requests to a given status. Possible values are these constants (not strings!): __MS_DOWNLOAD_REQUEST_NEW__, __MS_DOWNLOAD_REQUEST_APPROVED__, __MS_DOWNLOAD_REQUEST_DENIED__, __MS_DOWNLOAD_REQUEST_ALL__
+ 	 */
+ 	public function getDownloadRequestsForUser($pn_user_id=null, $pa_options=null) {
+ 		if (!$pn_user_id) { return null; }
+		# --- get projects for user
+		$va_projects = $this->getProjectsForMember($pn_user_id);
+		$va_project_ids = array();
+		if(is_array($va_projects) && sizeof($va_projects)){
+			foreach($va_projects as $va_project){
+				if($va_project["membership_type"] == 1){
+					$va_project_ids[] = $va_project["project_id"];
+				}
+			}
+			if(sizeof($va_project_ids) == 0){
+				return null;
+			}
+		}else{
+			return null;
+		}
+		$vs_status_sql = '';
+ 		if (isset($pa_options['status'])) {
+ 			switch((int)$pa_options['status']) {
+ 				case __MS_DOWNLOAD_REQUEST_NEW__:
+ 					$vs_status_sql = " AND (r.status = 0)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_APPROVED__:
+ 					$vs_status_sql = " AND (r.status = 1)";
+ 					break;
+ 				case __MS_DOWNLOAD_REQUEST_DENIED__:
+ 					$vs_status_sql = " AND (r.status = 2)";
+ 					break;
+ 			}
+ 		}
+ 		
+ 		$o_db = $this->getDb();
+ 		
+ 		$qr_res = $o_db->query("
+ 			SELECT r.*, u.*, p.project_id, p.name
+ 			FROM ms_media_download_requests r
+ 			INNER JOIN ms_media AS m ON m.media_id = r.media_id 
+ 			INNER JOIN ca_users AS u ON u.user_id = r.user_id
+ 			INNER JOIN ms_projects AS p ON m.project_id = p.project_id 
+ 			WHERE 
+ 				m.project_id IN (".join(", ", $va_project_ids).") {$vs_status_sql}
+ 			ORDER BY m.project_id, r.requested_on DESC
+ 		");
+ 		return $qr_res->getAllRows();
+ 	}
+ 	# ----------------------------------------
 }
 ?>

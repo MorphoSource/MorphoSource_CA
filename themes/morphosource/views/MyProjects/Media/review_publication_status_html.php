@@ -24,7 +24,7 @@
 		print '<div id="mediaListings">';
 		while($q_listings->nextRow()){
 			print "<div class='projectMediaListItem'>";
-			print "<input type='checkbox' name='media_ids[]' value='".$q_listings->get("media_id")."'> <b>".caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>"; 
+			print "<input type='checkbox' name='media_ids[]' value='".$q_listings->get("media_id")."'> <b>".caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>"; 
 			$q_media_files = $o_db->query("SELECT media, media_file_id, use_for_preview, published, side, element, title, notes FROM ms_media_files where media_id = ?", $q_listings->get("media_id"));
 			if($q_media_files->numRows()){
 				while($q_media_files->nextRow()){
@@ -36,7 +36,10 @@
 					$vs_file_info .= caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
 					if($q_media_files->get("title")){
 						print (mb_strlen($q_media_files->get("title")) > 60) ? mb_substr($q_media_files->get("title"), 0, 60)."..." : $q_media_files->get("title");
-						print ";";
+						print "; ";
+					}
+					if($q_media_files->get("element")){
+						print $q_media_files->get("element")."; ";
 					}
 					print ($q_media_files->get("use_for_preview") == 1) ? " <i>used for media preview</i>; " : "";
 					print $vs_file_info."<br/>";
