@@ -93,6 +93,14 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'LABEL' => _t('Catalog number'), 'DESCRIPTION' => _t('Catalog number of specimen.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
+		'url' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('URL to specimen record in home repository'), 'DESCRIPTION' => _t('External link to specimen record in home repository'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
 		// 'element' => array(
 // 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 // 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,

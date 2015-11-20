@@ -80,6 +80,11 @@
 ?>
 				<div class="blueRule"><!-- empty --></div>
 				<H1>Recently Published</H1>
+				<H2>
+					<b>Four bones of a new species of Homo from South Africa.</b>
+					<br/><i class='fa fa-arrow-right'></i> <b><?php print caNavLink($this->request, _t("See all the bones of the newly described Homo naledi"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 124)); ?></b>
+					<br/><i class='fa fa-arrow-right'></i> <b><a href="http://elifesciences.org/content/4/e09560" target="_blank">Read the published article</a></b>
+				</H2>
 <?php
 				foreach($va_recent_media as $vn_media_id => $vs_media){
 					print "<div class='recentlyPublished'>".caNavLink($this->request, $vs_media, '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";	

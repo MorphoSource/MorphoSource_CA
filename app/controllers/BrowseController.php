@@ -147,8 +147,8 @@
 			$q_projects = $o_db->query("
 				SELECT DISTINCT p.project_id, p.name, p.abstract 
 				FROM ms_projects p
-				INNER JOIN ms_specimens AS s ON p.project_id = s.project_id
-				INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+				LEFT JOIN ms_specimens AS s ON p.project_id = s.project_id
+				LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 				WHERE p.publication_status >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "")."
 				ORDER BY p.name", $va_params);
 			$this->view->setvar("projects", $q_projects);

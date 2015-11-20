@@ -69,6 +69,9 @@
 		if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
 			print "<b>Sex: </b>".$vs_sex."<br/>";
 		}
+		if($t_specimen->get("url")){
+			print "<br/><b>Link to specimen in home repository: </b><a href='".$t_specimen->get("url")."' target='_blank'>".$t_specimen->get("url")."</a><br/>";
+		}
 		if($t_specimen->get("description")){
 			print "<br/><b>Description: </b>".$t_specimen->get("description")."<br/>";
 		}
