@@ -86,7 +86,7 @@ if (sizeof($va_specimen_info)) {
 							print "<br/>";
 						}
 						if($vn_anon){
-							print $vn_anon." annonymous view".(($vn_anon == 1) ? "" : "s");
+							print $vn_anon." anonymous view".(($vn_anon == 1) ? "" : "s");
 						}
 						print "</div>";
 					}
