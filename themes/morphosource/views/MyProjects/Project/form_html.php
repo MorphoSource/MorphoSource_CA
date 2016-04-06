@@ -2,6 +2,7 @@
 	$t_item = $this->getVar("project");
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
+	$vs_delete_message = "";
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1>
@@ -21,7 +22,11 @@ print caFormTag($this->request, 'save', 'projectForm', null, 'post', 'multipart/
 		<a href="#" name="save" class="button buttonSmall" onclick="document.forms.projectForm.submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get("project_id")){
-			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Project", "Delete", array("id" => $t_item->get("project_id")));
+			if($t_item->numSpecimens() == 0){
+				print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Project", "Delete", array("id" => $t_item->get("project_id")));
+			}else{
+				$vs_delete_message = "<b>* You cannot delete this project because it contains specimen/ media.  Try transfering them to another project first.</b>";
+			}
 		}
 ?>
 	</div><!-- end formButtons -->
@@ -50,10 +55,13 @@ print caFormTag($this->request, 'save', 'projectForm', null, 'post', 'multipart/
 	<div class="formButtons tealTopBottomRule">
 		<a href="#" name="save" class="button buttonSmall" onclick="document.forms.projectForm.submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
-		if($t_item->get("project_id")){
+		if(!$vs_delete_message && $t_item->get("project_id")){
 			print caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", "Project", "Delete", array("id" => $t_item->get("project_id")));
 		}
 ?>
 	</div><!-- end formButtons -->
+<?php
+	print $vs_delete_message;
+?>
 </form>
 </div>

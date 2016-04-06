@@ -27,6 +27,9 @@
 
 /* Table sorter filtering code */
 (function($){
+	jQuery.expr[':'].iContains = function(a, i, m) { 
+	  return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0; 
+	};
 	$.fn.caFormatListTable = function () {
 		/* it's up to the user to pass a table, dunno what happens if you pass sth else */
 		return this.tablesorter({
@@ -42,7 +45,7 @@
 			return;
 		}
 		this.find('tbody tr').hide();
-		this.find('tbody tr:contains('+searchText+')').show();
+		this.find('tbody tr:iContains('+searchText+')').show();
 		return this;
 	}
 })(jQuery);

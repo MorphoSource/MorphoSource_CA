@@ -49,6 +49,7 @@
  			if (is_array($va_profile_prefs) && sizeof($va_profile_prefs)) {
  				$va_elements = array();
 				foreach($va_profile_prefs as $vs_pref) {
+					if($vs_pref == 'user_upload_directory') { continue; }
 					$va_pref_info = $t_user->getPreferenceInfo($vs_pref);
 					$va_elements[$vs_pref] = array('element' => $t_user->preferenceHtmlFormElement($vs_pref), 'formatted_element' => $t_user->preferenceHtmlFormElement($vs_pref, "<div><b>".$va_pref_info['label']."</b><br/>^ELEMENT</div>"), 'info' => $va_pref_info, 'label' => $va_pref_info['label']);
 				}
@@ -204,7 +205,7 @@
 			# --- does deleted user login record for this user already exist?
 			# --- (look for active records only; inactive records will effectively block reregistration)
 			$vb_user_exists_but_is_deleted = false;
-			if ($t_user->load(array('user_name' => $ps_email))) {
+			if (trim($ps_email) && $t_user->load(array('user_name' => $ps_email))) {
 				if ((int)$t_user->get('userclass') == 255) {
 					if ($t_user->get('active') == 1) {
 						// yeah... so allow registration
@@ -258,6 +259,7 @@
 			// Save user profile responses
 			if (is_array($va_profile_prefs) && sizeof($va_profile_prefs)) {
 				foreach($va_profile_prefs as $vs_pref) {
+					if($vs_pref == 'user_upload_directory') { continue; }
 					$t_user->setPreference($vs_pref, $this->request->getParameter('pref_'.$vs_pref, pString));
 				}
 			}

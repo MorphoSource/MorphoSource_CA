@@ -1088,7 +1088,6 @@ class ms_media extends BaseModel {
  			$t_stat->set('media_file_id', $pn_media_file_id);
  		}
  		$t_stat->insert();
- 		
  		if ($t_stat->numErrors()) {
  			$this->errors = $t_stat->errors;
  			return false;

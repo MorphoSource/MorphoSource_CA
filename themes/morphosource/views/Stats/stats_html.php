@@ -45,8 +45,11 @@
 /* ]]> */
 </script>
 	<div style="float:right; margin-top:-5px;">
+		<a href="#" class="button buttonSmall" onClick="getSpecimenIds('<?php print caNavUrl($this->request, '', 'Stats', 'downloadSummary', array('download' => 1)); ?>'); return false;"><?php print _t("Download Media Usage Report"); ?></a>
+		&nbsp;&nbsp;<a href="#" class="button buttonSmall" onClick="getSpecimenIds('<?php print caNavUrl($this->request, '', 'Stats', 'downloadSpecimenSummary', array('download' => 1)); ?>'); return false;"><?php print _t("Download Specimen Usage Report"); ?></a>
 <?php
-		print caNavLink($this->request, _t("Download Media Report"), 'button buttonSmall', '', 'Stats', 'downloadSummary', array('download' => 1));
+		#print caNavLink($this->request, _t("Download Media Usage Report"), 'button buttonSmall', '', 'Stats', 'downloadSummary', array('download' => 1));
+		#print "&nbsp;&nbsp;".caNavLink($this->request, _t("Download Specimen Usage Report"), 'button buttonSmall', '', 'Stats', 'downloadSpecimenSummary', array('download' => 1));
 ?>
 	</div>
 	<div style="margin-bottom:5px;">Filter: <input type="text" name="filter" value="" onkeyup="$('#msProjectList').caFilterTable(this.value); return false;" size="20" style="border:1px solid #828282;"/></div>
@@ -55,10 +58,10 @@
 		<thead>
 			<tr>
 				<th class="list-header-unsorted">
-					<?php print _t('Project'); ?>
+					<?php print _t('Specimen'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Specimen'); ?>
+					<?php print _t('Project(s)'); ?>
 				</th>
 				<th class="list-header-unsorted">
 					<?php print _t('Specimen Public Views'); ?>
@@ -79,18 +82,18 @@
 <?php
 		foreach($va_rows as $va_row) {
 ?>	
-			<tr>
-				<td>
-					<?php print $va_row["project_name"]; ?>
-				</td>
+			<tr id="<?php print $va_row["specimen_id"]; ?>" class="specimenRow">
 				<td>
 					<?php print $va_row["specimen_number"].", ".join("; ", $va_row["specimen_taxonomy"]); ?>
+				</td>
+				<td>
+					<?php print $va_row["project_name"]; ?>
 				</td>
 				<td>
 					<?php print $va_row["specimen_views"]; ?>
 				</td>
 				<td>
-					<?php print $va_row["num_specimen_media"]; ?>
+					<?php print $va_row["num_specimen_media"].(($va_row["num_specimen_media_unpublished"]) ? ", (".$va_row["num_specimen_media_unpublished"]." unpublished)" : ""); ?>
 				</td>
 				<td>
 					<?php print $va_row["specimen_media_views"]; ?>
@@ -102,11 +105,11 @@
 				<td>
 					<?php print "<a href='#' class='button buttonSmall' onClick='jQuery(\"#specimenInfo\").load(\"".caNavUrl($this->request, "", "Stats", "specimenInfo", array('specimen_id' => $va_row["specimen_id"]))."\"); return false;'>"._t("More")."</a>"; ?>
 				</td>
+			</tr>
 <?php
 		}
 ?>
-		
-			</tr>
+
 		</tbody>
 	</table>
 </div>	
@@ -121,3 +124,19 @@
 <?php			
 	}
 ?>
+<form id="downloadForm" method="POST">
+	<input type="hidden" id="form_specimen_ids" name="specimen_ids" value ="">
+</form>
+<script language="JavaScript" type="text/javascript">
+	function getSpecimenIds(url){
+		var arr = [];
+		$('.specimenRow').each(function(i, obj) {			
+			if($(this).is(":visible")){
+				arr.push($(this).attr("id"));
+			}
+		});
+		$('#form_specimen_ids').val(arr.join());
+		$('#downloadForm').attr('action', url);
+		$('#downloadForm').submit();
+	}
+</script>

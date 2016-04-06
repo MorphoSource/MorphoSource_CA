@@ -295,6 +295,7 @@
 				$this->view->setVar('zip_stream', $o_zip);
 			
 				$this->response->sendHeaders();
+				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'.zip');
 				$vn_rc = $this->render('media_download_binary.php');
 			
 				$this->response->sendContent();
@@ -319,7 +320,9 @@
 			#}
 			
 			// record request
-			if (!$this->opo_item->requestDownload($this->request->getUserID(), $this->request->getParameter('request', pString), null, array('request' => $this->request))) {
+			if (!$this->request->getParameter('request', pString) || !$this->request->getUserID() || !$this->request->getUser()->get('email')) { 
+				$this->notification->addNotification("You must describe your planned usage.", __NOTIFICATION_TYPE_ERROR__);
+			}elseif (!$this->opo_item->requestDownload($this->request->getUserID(), $this->request->getParameter('request', pString), null, array('request' => $this->request))) {
 				$this->notification->addNotification("Could not save media request. Try again later.", __NOTIFICATION_TYPE_ERROR__);
 			} else {
 				$this->notification->addNotification("Sent your request to the author.", __NOTIFICATION_TYPE_INFO__);

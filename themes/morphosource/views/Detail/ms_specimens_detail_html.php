@@ -76,7 +76,7 @@
 			print "<br/><b>Description: </b>".$t_specimen->get("description")."<br/>";
 		}
 		if($t_specimen->get("notes")){
-			print "<br/><b>Notes: </b>".$t_specimen->get("notes")."<br/>";
+			print "<br/><b>Notes: </b>".nl2br($t_specimen->get("notes"))."<br/>";
 		}
 		if($t_specimen->get("relative_age")){
 			print "<br/><b>Relative Age: </b>".$t_specimen->get("relative_age")."<br/>";

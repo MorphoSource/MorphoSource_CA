@@ -448,9 +448,9 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				container = document.getElementById('viewer');
 
 				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 150 );
-				camera.position.set( 3, 0.15, 3 );
+				camera.position.set(0, 0, -10 );
 
-				cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
+				cameraTarget = new THREE.Vector3( 0, 0, 0 );
 
 				scene = new THREE.Scene();
 				scene.add(camera);
@@ -462,19 +462,16 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		case 'application/stl':
 ?>
 				var loader = new THREE.STLLoader();
-				console.log("load STL");
 <?php
 				break;
 		case 'application/ply':
 ?>
 				var loader = new THREE.PLYLoader();
-				console.log("load PLY");
 <?php
 				break;
 		case 'application/ctm':
 ?>
 				var loader = new THREE.CTMLoader();
-				console.log("load CTM");
 <?php
 				break;
 	}
@@ -499,7 +496,21 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 					mesh.receiveShadow = false;
 
 					scene.add( mesh );
-					console.log("loaded " + '<?php print $ps_url; ?>');
+					
+				var intensity = 1;
+				flashlight = new THREE.DirectionalLight(0x777777,intensity);
+				flashlight.position.set( -100, 100, 100 );
+				//flashlight2 = new THREE.DirectionalLight(0x777777,intensity);
+				//flashlight2.position.set( -100, -100, -100 );
+				flashlight3 = new THREE.DirectionalLight(0x777777, intensity);
+				flashlight3.position.set( 0, 0, -20 );
+				camera.add(flashlight);
+				//camera.add(flashlight2);
+				camera.add(flashlight3);
+				flashlight.target = mesh;
+				//flashlight2.target = mesh;
+				flashlight3.target = mesh;
+				
 					jQuery('#<?php print $vs_progress_id; ?> div').html("Loaded model");
 					setTimeout(function() {
 						jQuery('#<?php print $vs_progress_id; ?>').fadeOut(500);
@@ -508,7 +519,6 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				}
 				
 				function loadProgressMonitor( event ) {
-					console.log(event);
 						var msg = "Loaded " + caUI.utils.caFormatFileSize(event.loaded/5.2, true);
 						if(total_filesize > 0) {
 							msg += " (" + Math.ceil((event.loaded/total_filesize) * 100) + "%)";
@@ -522,16 +532,15 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				
 					loader.addEventListener( 'progress', loadProgressMonitor);
 				}
-				console.log("load ", '<?php print $ps_url; ?>')
 				loader.load( '<?php print $ps_url; ?>' , postLoad, loadProgressMonitor);
 
 				// Lights
 				scene.add( new THREE.AmbientLight( 0x777777 ) );
 				
-				flashlight = new THREE.SpotLight(0x777777,2,10);
-				camera.add(flashlight);
-				flashlight.position.set(0,0,1);
-				flashlight.target = camera;
+				//flashlight = new THREE.SpotLight(0x777777,2,10);
+				//camera.add(flashlight);
+				//flashlight.position.set(0,0,1);
+				//flashlight.target = camera;
 
 				//addShadowedLight( 10, 10, 10, 0xffffff, 1.35 );
 				//addShadowedLight( -7, 7, -7, 0xffaa00, 1 );

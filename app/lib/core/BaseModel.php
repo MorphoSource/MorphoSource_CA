@@ -3737,11 +3737,12 @@ class BaseModel extends BaseObject {
 				$vs_archive = null;
 				$vs_original_filename = $this->_SET_FILES[$ps_field]['original_filename'];
 				$vs_original_tmpname = $this->_SET_FILES[$ps_field]['tmp_name'];
+				if (!$vs_original_filename) { $vs_original_filename = $vs_original_tmpname; }
 				$va_matches = array();
 				
 				if(preg_match("/(\.zip|\.7z|\.7za|\.tar\.gz|\.tgz)$/",$vs_original_filename,$va_matches)){
 					$vs_archive_extension = $va_matches[1];
-
+					
 					// add file extension to temporary file if necessary; otherwise phar barfs when handling the archive
 					$va_tmp = array();
 					preg_match("/[.]*\.([a-zA-Z0-9]+)$/",$vs_original_filename,$va_tmp);
@@ -3755,7 +3756,8 @@ class BaseModel extends BaseObject {
 						if (($vs_archive_extension == '.zip') || ($vs_archive_extension == '.7z') || ($vs_archive_extension == '.7za')) { // && filesize($this->_SET_FILES[$ps_field]['tmp_name']) >= (pow(2,32)-1)) {		// set to pow(2,32) for files > 4gigs
 							$vs_zip_tmp_dir = md5(rand(0, 9999999).time().$this->_SET_FILES[$ps_field]['tmp_name']);
 							mkdir("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
-							exec("/usr/bin/7za e -y ".$this->_SET_FILES[$ps_field]['tmp_name']." -o{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}", $va_output);
+							exec("/usr/bin/7za e -y \"".$this->_SET_FILES[$ps_field]['tmp_name']."\" -o{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}", $va_output);
+							
 							$va_archive_files = caGetDirectoryContentsAsList("{$vs_zip_tmp_dir_base}/{$vs_zip_tmp_dir}");
 						} else {
 							$va_archive_files = caGetDirectoryContentsAsList('phar://'.$this->_SET_FILES[$ps_field]['tmp_name']);

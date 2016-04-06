@@ -13,6 +13,7 @@
 	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "collector", "collected_on", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_coordinates", "locality_northing_coordinate", "locality_easting_coordinate", "locality_datum_zone", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
 	$va_clear_fields = array("catalog_number", "collected_on", "sex", "absolute_age", "body_mass_comments", "locality_datum_zone", "locality_easting_coordinate", "locality_relative_age", "last_modified_on");
+	$vs_delete_msg = "";
 	
 if (!$this->request->isAjax()) {
 ?>
@@ -45,7 +46,11 @@ if (!$this->request->isAjax()) {
 <?php
 if (!$this->request->isAjax()) {
 		if($t_item->get($ps_primary_key)){
-			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
+			if(!$t_item->getSpecimenMediaIDs()){
+				print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
+			}else{
+				$vs_delete_msg = "<b>* You cannot delete specimen with media</b>";
+			}
 		}
 }
 ?>
@@ -209,12 +214,15 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#specimenItemForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 if (!$this->request->isAjax()) {
-		if($t_item->get($ps_primary_key)){
+		if(!$vs_delete_msg && $t_item->get($ps_primary_key)){
 			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
 		}
 }
 ?>
 	</div><!-- end formButtons -->
+<?php
+	print $vs_delete_msg;
+?>
 </form>
 </div>
 <script type='text/javascript'>

@@ -586,7 +586,7 @@ class ms_media_files extends BaseModel {
 							$vs_specimen_name = $t_specimen->getSpecimenNumber($q_media_files->get("specimen_id"));
 							$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"] = $vs_specimen_name;
 							$vs_specimen_taxonomy = join(", ", $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id")));
-							$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"] = $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id"));
+							$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"] = join(", ", $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id")));
 						}
 					}else{
 						$vs_specimen_name = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"];

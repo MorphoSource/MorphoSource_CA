@@ -123,7 +123,13 @@
 						print "<a href='#' onClick='return false;' class='ltBlueText'>Choose a project <i class='fa fa-cog'></i></a>";
 						print "<div class='jumpMenu' id='projectJumpMenu'>\n";
 						foreach($va_projects as $va_project){
-							print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
+							print "<div>";
+							if($va_project["membership_type"] == 2){
+								print caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]))." <i>(Read Only)</i>";
+							}else{
+								print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
+							}
+							print "</div>";
 						}
 						print "<div>".caNavLink($this->request, _t("Manage all download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
 					}

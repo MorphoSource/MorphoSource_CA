@@ -39,18 +39,36 @@
 		<H2><?php print _t("Media Group: M%1", $t_media->get("media_id"))."; ".$q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?></H2>
 <?php
 		if($t_media->get("notes")){
-			print "<div class='mediaGroupNotes'>".$t_media->get("title")."</div>";
+			print "<div class='mediaGroupNotes'>".nl2br($t_media->get("title"))."</div>";
 		}
+		$vb_files_published = false;
+		$vb_files_DOI = false;
 		if($q_media_files->numRows()){
 ?>
 			<div class='mediaImageScrollArea'>
 <?php
 			while($q_media_files->nextRow()){
+				if($q_media_files->get("published") > 0){
+					$vb_files_published = true;
+				}
 ?>
 				<div class="mediaImage">
 					<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;"><?php print $q_media_files->getMediaTag("media", "preview190"); ?></a>
 <?php 
-					print "<div class='mediaFileButtonsDelete'>".caNavLink($this->request, "<i class='fa fa-remove'></i>", "button buttonSmall", "MyProjects", "Media", "DeleteMediaFile", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Delete media file")))."</div>";
+					if(!$q_media_files->get('doi') && !$q_media_files->get("published")){
+						print "<div class='mediaFileButtonsDelete'>".caNavLink($this->request, "<i class='fa fa-remove'></i>", "button buttonSmall", "MyProjects", "Media", "DeleteMediaFile", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Delete media file")))."</div>";
+					}else{
+						$va_message = array();
+						if($q_media_files->get('doi')){
+							$vb_files_DOI = true;
+							$va_message[] = "media files with a DOI";
+						}
+						if($q_media_files->get("published")){
+							$va_message[] = "published media files";
+						}
+						print "<div class='mediaFileButtonsDelete' title='You cannot delete ".join(", ", $va_message)."'><div class='button buttonSmall buttonGray'><i class='fa fa-remove'></i></div></div>";
+						
+					}
 					print "<div class='mediaFileButtons'>";
 				
 					//if (($q_media_files->get('published') > 0) && ($q_media_files->get('group_published') > 0) && $this->request->user->canDoAction('can_create_doi') && !$q_media_files->get('doi')) { 
@@ -66,8 +84,11 @@
 						print caNavLink($this->request, "<i class='fa fa-file-image-o'></i>", "button buttonSmall", "MyProjects", "Media", "setMediaPreview", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Set as preview for media group")));
 					}
 					#print caNavLink($this->request, "<i class='fa fa-edit'></i>", "button buttonSmall", "MyProjects", "Media", "mediaInfo", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, "formaction" => "editMediaFile"), array("title" => _t("Edit media file")));
-					print "<a href='".caNavUrl($this->request, "MyProjects", "Media", "mediaInfo", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, "formaction" => "editMediaFile"))."#editForm' class='button buttonSmall' title='"._t("Edit media file")."'><i class='fa fa-edit'></i></a>";
-					
+					if(!$q_media_files->get('doi')){
+						print "<a href='".caNavUrl($this->request, "MyProjects", "Media", "mediaInfo", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, "formaction" => "editMediaFile"))."#editForm' class='button buttonSmall' title='"._t("Edit media file")."'><i class='fa fa-edit'></i></a>";
+					}else{
+						print "<a href='#' onClick='return false;' class='button buttonSmall buttonGray' title='"._t("You cannot edit media files with a DOI")."'><i class='fa fa-edit'></i></a>";
+					}
 					print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 					print "</div>\n";
 					print "<div class='mediaFileFormCaption'>";
@@ -94,7 +115,7 @@
 						$vs_published = $t_media_file->getChoiceListValue("published", $q_media_files->get("published"));
 					}
 					$vs_downloads = "<br/><b>Downloads: </b>".((is_array($va_media_downloads_per_file) && isset($va_media_downloads_per_file[$q_media_files->get("media_file_id")])) ? sizeof($va_media_downloads_per_file[$q_media_files->get("media_file_id")]) : "0");
-					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>Notes: </b>".(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
+					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>Notes: </b>".nl2br(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
 					TooltipManager::add(
 						"#info".$q_media_files->get("media_file_id"), $vs_more_info
 					);
@@ -120,7 +141,25 @@
 		}
 		print "&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onClick='jQuery(\"#mediaMd\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'form', array('media_id' => $pn_media_id))."\"); return false;'>"._t("Edit")."</a>";
 		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Clone Group"), "button buttonSmall", "MyProjects", "Media", "form", array("clone_id" => $pn_media_id, "specimen_id" => $t_media->get("specimen_id")));
-		print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete Group"), "button buttonSmall", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
+		# --- can not delete group with media is published
+		# --- can not delete group when media files have a doi assigned
+		if(!$t_media->get("published") && !$vb_files_published && !$vb_files_DOI){
+			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete Group"), "button buttonSmall", "MyProjects", "Media", "Delete", array("media_id" => $pn_media_id));
+		}else{
+			$vs_button_message = "You cannot delete media groups that ";
+			$va_message_parts = array();
+			if($t_media->get("published")){
+				$va_message_parts[] = "are published";
+			}
+			if($vb_files_published){
+				$va_message_parts[] = "have published media files";
+			}
+			if($vb_files_DOI){
+				$va_message_parts[] = "have media files with a DOI";
+			}
+			$vs_button_message .= join(" or ", $va_message_parts);
+			print "&nbsp;&nbsp;&nbsp;<div class='button buttonSmall buttonGray' title='".$vs_button_message."'>"._t("Delete Group")."</div>";
+		}
 		print "</div>";
 		
 		// Output file size and type first
@@ -438,6 +477,6 @@
   <p>
   		By assigning a Digital Object Identifier (DOI) to this media item you warrant that there are no known errors in the data 
   		and that the data are as accurate and complete as possible. Once a DOI is assigned it cannot be 
-  		removed so please ensure that your data is ready <strong>before</strong> you assign it!
+  		removed so please ensure that your data is ready <strong>before</strong> you assign it!  You will not be able to delete the media file once a DOI is assigned.
   </p>
 </div>

@@ -5,11 +5,12 @@
 		print "<div id='msMediaDownloadRequestDashboardContainer'>";
 		print '<div class="tealRule"><!-- empty --></div>';
 		print "<h2 class='msMediaDownloadRequestDashboard'>"._t('Pending download requests')."</h2>\n";
-		foreach($va_pending_download_requests as $va_pending_download_request) {			
+		foreach($va_pending_download_requests as $va_pending_download_request) {	
+			$vs_email = $va_pending_download_request['email'] ? $va_pending_download_request['email'] : $va_pending_download_request['user_name'];
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onclick='msMediaDownloadRequestDashboardApprove({$va_pending_download_request['request_id']}); return false;'>"._t('Approve')."</a>&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onclick='msMediaDownloadRequestDashboardDeny({$va_pending_download_request['request_id']}); return false;'>"._t('Deny')."</a></div>";
 			print caNavLink($this->request, "M{$va_pending_download_request['media_id']}", '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $va_pending_download_request['media_id'])).", ".caGetLocalizedDate($va_pending_download_request['requested_on'], array('dateFormat' => 'delimited', 'timeOmit' => true));
-			print "<br/>{$va_pending_download_request['lname']}, {$va_pending_download_request['fname']} (<a href='mailto:{$va_pending_download_request['email']}'>{$va_pending_download_request['email']}</a>)";
+			print "<br/>{$va_pending_download_request['lname']}, {$va_pending_download_request['fname']} (<a href='mailto:{$vs_email}'>{$vs_email}</a>)";
 			if($va_pending_download_request['request']){
 				print "<br/>".$va_pending_download_request['request'];
 			}

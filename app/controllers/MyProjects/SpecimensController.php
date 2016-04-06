@@ -272,6 +272,11 @@
  		}
  		# -------------------------------------------------------
  		public function delete() {
+ 			if($this->opo_item->getSpecimenMediaIDs()){
+ 				$this->notification->addNotification("You cannot delete specimen with media", __NOTIFICATION_TYPE_INFO__);
+				$this->form();
+				return;
+ 			}
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();
 				$this->opo_item->setMode(ACCESS_WRITE);

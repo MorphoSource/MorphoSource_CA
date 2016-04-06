@@ -88,7 +88,7 @@
 					print $vs_side;
 				}
 				if($vs_notes = $q_media_files->get("notes")){
-					print "<p>".$vs_notes."</p>";
+					print "<p>".nl2br($vs_notes)."</p>";
 				}
 				if($this->request->isLoggedIn()){
 					if($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id"))){
@@ -276,7 +276,7 @@ if ($this->request->isLoggedIn()) {
 				break;
 				# ------------------------------
 				default:
-					print "<b>".$va_field_attr["LABEL"].": </b>".($vs_field_value = $t_media->get($vs_field));
+					print "<b>".$va_field_attr["LABEL"].": </b>".nl2br($vs_field_value = $t_media->get($vs_field));
 					if (is_numeric($vs_field_value) && ($vs_suffix = $t_media->getFieldInfo($vs_field, 'SUFFIX'))) {
 						print " {$vs_suffix}";
 					}

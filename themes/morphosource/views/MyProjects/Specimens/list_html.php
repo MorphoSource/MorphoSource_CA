@@ -3,6 +3,7 @@
 	$ps_primary_key = $this->getVar("primary_key");
 	$pa_list_fields = $this->getVar("list_fields");
 	$va_specimens = $this->getVar("specimens");
+	$t_specimen = new ms_specimens();
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1 class="capitalize">
@@ -31,10 +32,15 @@
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'>";
 			# --- only show edit/delete links for records created by this project or projects the user has access to
+			# --- do not allow delete of records with media
 			$t_project = new ms_projects();
 			if(($va_specimen_info["project_id"] == $this->getVar("project_id")) || $t_project->isFullAccessMember($this->request->user->get("user_id"), $va_specimen_info["project_id"])){
 				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $vn_specimen));
-				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $vn_specimen));
+				if(!$t_specimen->getSpecimenMediaIDs($vn_specimen)){
+					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $vn_specimen));
+				}else{
+					print "<br/><br/><div class='editMessage'>* You cannot delete specimen with media</div>";
+				}
 			}else{
 				print "<div class='editMessage'>This specimen was created by the project, <b>".$va_specimen_info["project_name"]."</b>.  If you need to edit this specimen please contact ".trim($va_specimen_info["fname"]." ".$va_specimen_info["lname"])." at <a href='mailto:".$va_specimen_info["email"]."'>".$va_specimen_info["email"]."</a></div>";
 			}

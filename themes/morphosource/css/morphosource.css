@@ -178,6 +178,9 @@ a.blueText:hover{
 .buttonOrange, .buttonOrange:visited, .buttonOrange:hover{
 	background-color:#FF861F;
 }
+.buttonGray, .buttonGray:hover, .buttonGray:visited{
+	background-color:#828282;
+}
 .buttonLarge{ 
 	padding: 5px 8px 5px;
 	font-size:15px;

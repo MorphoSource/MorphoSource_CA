@@ -172,6 +172,11 @@
 				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 				return;
  			}
+ 			if($this->opo_project->numSpecimens()){
+ 				$this->notification->addNotification("You can not delete this project since it contains specimen", __NOTIFICATION_TYPE_INFO__);
+				$this->form();
+				return;
+ 			}
 
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();

@@ -29,11 +29,15 @@
 $va_rows = $this->getVar('rows');
 $va_downloads_by_file = $this->getVar('downloads_by_file');
 $va_specimen_info = $this->getVar('specimen_info');
+$va_media_projects = $this->getVar('media_projects');
 if (sizeof($va_specimen_info)) {	
 	print "<br/><div class='blueRule'><!-- empty --></div>";
 	print "<H1>Specimen Info</H1>";
 	print "<H2>".$va_specimen_info["specimen_name"].", Specimen Public Views: ".$va_specimen_info["specimen_views"].", ";
 	print "Specimen Media: ".$va_specimen_info["num_specimen_media"]."</H2>";
+	if($va_specimen_info["num_specimen_media_no_access"] > 0){
+		print "<H2><b>*** ".$va_specimen_info["num_specimen_media_no_access"]." unpublished specimen media belong to projects you are not a memeber of</b></H2>";
+	}
 	if (sizeof($va_rows)) {
 ?>
 <script language="JavaScript" type="text/javascript">
@@ -48,6 +52,9 @@ if (sizeof($va_specimen_info)) {
 	<table id="msSpecimenList" class="listtable" border="0" cellpadding="0" cellspacing="1" style="margin-top:0px;">
 		<thead>
 			<tr>
+				<th class="list-header-unsorted">
+					<?php print _t('Project'); ?>
+				</th>
 				<th class="list-header-unsorted">
 					<?php print _t('Media'); ?>
 				</th>
@@ -64,6 +71,11 @@ if (sizeof($va_specimen_info)) {
 		foreach($va_rows as $vn_media_id => $va_row) {
 ?>	
 			<tr>
+				<td>
+<?php
+					print $va_media_projects[$vn_media_id];
+?>
+				</td>
 				<td>
 <?php
 					print "<b>M".$vn_media_id."</b>";
