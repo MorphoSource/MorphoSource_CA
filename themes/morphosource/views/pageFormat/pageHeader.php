@@ -71,7 +71,7 @@
 				
 				print "<li class='last'><a href='#' onClick='return false;'><i class='fa fa-user'></i></a>";
 				print "<div class='jumpMenu' id='userJumpMenu'>\n";
-				print "<div>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</div>\n";
+				print "<div>".caNavLink($this->request, _t("Preferences"), "", "", "LoginReg", "profileForm")."</div>\n";
 				print "<div>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</div>\n";
 				print "</div>\n";
 				print "</li>\n";
