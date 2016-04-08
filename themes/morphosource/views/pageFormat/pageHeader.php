@@ -132,9 +132,9 @@
 							print "</div>";
 						}
 						print "<div>".caNavLink($this->request, _t("Manage all download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
+						print "</div>\n";
+						print "</li>\n";
 					}
-					print "</div>\n";
-					print "</li>\n";
 				}
 			}else{
 				print "<li class='last'>".caNavLink($this->request, _t("Login/Register"), "", "", "LoginReg", "form")."</li>";
