@@ -884,8 +884,18 @@ input.addItemToSetControlInThumbnails {
 	outline-style:none;
 	outline-width:0px;
 }
-#registerForm input[type="text"], #registerForm input{
+#registerForm input[type="text"], #registerForm input[type="password"]{
 	width:500px;
+}
+#registerForm div.other{
+	margin-top:-15px !important;
+	margin-left:5px !important;
+}
+.formLabel.other{
+	margin-top:-15px !important;
+}
+#registerForm .other input[type="text"]{
+	width:100px;
 }
 
 /* ------------------------------------- */

@@ -59,6 +59,9 @@
 ?>
 				</p>
 <?php
+				if($this->getVar("regMessage")){
+					print "<div class='formErrors'>".$this->getVar("regMessage")."</div>";
+				}
 					$va_errors = $this->getVar("reg_errors");
 					
 					if($va_errors["fname"]){
@@ -73,18 +76,6 @@
 						print "<div class='formErrors' style='text-align: left;'>".$va_errors["email"]."</div>";
 					}
 					print $this->getVar("email");
-					
-					// Output user profile settings if defined
-					$va_user_profile_settings = $this->getVar('profile_settings');
-					if (is_array($va_user_profile_settings) && sizeof($va_user_profile_settings)) {
-						foreach($va_user_profile_settings as $vs_field => $va_info) {
-							if($va_errors[$vs_field]){
-								print "<div class='formErrors' style='text-align: left;'>".$va_errors[$vs_field]."</div>";
-							}
-							print $va_info['formatted_element'];
-						}
-					}
-		
 					if($va_errors["security"]){
 						print "<div class='formErrors' style='text-align: left;'>".$va_errors["security"]."</div>";
 					}
@@ -102,6 +93,22 @@
 					print $this->getVar("password");
 ?>
 					<div><b><?php print _t('Re-Type password'); ?></b><br/><input type="password" name="password2" size="60" /></div>
+<?php										
+					// Output user profile settings if defined
+					$va_user_profile_settings = $this->getVar('profile_settings');
+					if (is_array($va_user_profile_settings) && sizeof($va_user_profile_settings)) {
+						foreach($va_user_profile_settings as $vs_field => $va_info) {
+							if($va_errors[$vs_field]){
+								print "<div class='formErrors' style='text-align: left;'>".$va_errors[$vs_field]."</div>";
+							}
+							if($va_info["label"] == "Other"){
+								print "<div class='other'>".$va_info["label"].": ".$va_info["element"]."</div>";
+							}else{
+								print "<div><b>".$va_info["label"]."</b><br/>".$va_info["element"]."</div>";
+							}
+						}
+					}
+?>
 					<div><a href="#" name="register" class="button buttonSmall" onclick="document.forms.registration.submit(); return false;"><?php print _t("Register"); ?></a></div>
 								
 					<input type="hidden" name="sum" value="<?php print $vn_sum; ?>">
