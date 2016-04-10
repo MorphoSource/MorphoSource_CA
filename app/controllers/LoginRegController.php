@@ -275,7 +275,9 @@
 			if (is_array($va_profile_prefs) && sizeof($va_profile_prefs)) {
 				foreach($va_profile_prefs as $vs_pref) {
 					if($vs_pref == 'user_upload_directory') { continue; }
-					$t_user->setPreference($vs_pref, $this->request->getParameter('pref_'.$vs_pref, pString));
+					
+					$va_pref_info = $t_user->getPreferenceInfo($vs_pref);
+					$t_user->setPreference($vs_pref, $this->request->getParameter('pref_'.$vs_pref, ($va_pref_info["formatType"] == "FT_ARRAY") ? pArray : pString));
 				}
 			}
 			
