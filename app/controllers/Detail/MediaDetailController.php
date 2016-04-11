@@ -60,54 +60,56 @@
  			JavascriptLoadManager::register("panel");
  			JavascriptLoadManager::register("3dmodels");
  			
- 			# --- load the media object
-			$this->opo_item = new ms_media();
-			if (!($this->opn_item_id = $this->request->getParameter('media_id', pInteger))) {
-				$vn_file_id = $this->request->getParameter('media_file_id', pInteger);
-				$t_file = new ms_media_files($vn_file_id);
-				$this->opn_item_id = $t_file->get('media_id');
-			}
-			if($this->opn_item_id){
-				$this->opo_item->load($this->opn_item_id);
-			}
-			if(!$this->opo_item->get("media_id")){
-				$this->notification->addNotification("Invalid media_id", __NOTIFICATION_TYPE_ERROR__);
-				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
-			}
- 			# --- does user have read only access to the media group?
-			if($this->opo_item->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
-				$this->opn_read_only = true;
-			}else{
-				$this->opn_read_only = false;
-			}
- 			if ($this->opo_item->get("published") == 0) {
- 				# --- item is not published
- 				# --- check if user has access to the project
- 				$t_project = new ms_projects($this->opo_item->get("project_id"));
- 				if(!($this->request->isLoggedIn()) || (!$t_project->isMember($this->request->user->get("user_id")) && !$this->opn_read_only)){
- 					$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
- 					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
- 				}
- 			}
- 			$t_project = new ms_projects($this->opo_item->get("project_id"));
- 			if($t_project->get("deleted")){
- 				$this->notification->addNotification("Item is deleted", __NOTIFICATION_TYPE_ERROR__);
- 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
- 			}
-			$this->view->setvar("item_id", $this->opn_item_id);
-			$this->view->setvar("media_id", $this->opn_item_id);
-			$this->view->setvar("item", $this->opo_item);
+ 			# --- don't check access when just loading the download survey for media cart
+ 			if(!$this->request->getParameter('set_id', pInteger)){
+				# --- load the media object
+				$this->opo_item = new ms_media();
+				if (!($this->opn_item_id = $this->request->getParameter('media_id', pInteger))) {
+					$vn_file_id = $this->request->getParameter('media_file_id', pInteger);
+					$t_file = new ms_media_files($vn_file_id);
+					$this->opn_item_id = $t_file->get('media_id');
+				}
+				if($this->opn_item_id){
+					$this->opo_item->load($this->opn_item_id);
+				}
+				if(!$this->opo_item->get("media_id")){
+					$this->notification->addNotification("Invalid media_id", __NOTIFICATION_TYPE_ERROR__);
+					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				}
+				# --- does user have read only access to the media group?
+				if($this->opo_item->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
+					$this->opn_read_only = true;
+				}else{
+					$this->opn_read_only = false;
+				}
+				if ($this->opo_item->get("published") == 0) {
+					# --- item is not published
+					# --- check if user has access to the project
+					$t_project = new ms_projects($this->opo_item->get("project_id"));
+					if(!($this->request->isLoggedIn()) || (!$t_project->isMember($this->request->user->get("user_id")) && !$this->opn_read_only)){
+						$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
+						$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					}
+				}
+				$t_project = new ms_projects($this->opo_item->get("project_id"));
+				if($t_project->get("deleted")){
+					$this->notification->addNotification("Item is deleted", __NOTIFICATION_TYPE_ERROR__);
+					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				}
+				$this->view->setvar("item_id", $this->opn_item_id);
+				$this->view->setvar("media_id", $this->opn_item_id);
+				$this->view->setvar("item", $this->opo_item);
 			
-			$this->view->setvar("read_only", $this->opn_read_only);
-			# Next and previous navigation
- 			$opo_result_context = new ResultContext($this->request, "ms_media", ResultContext::getLastFind($this->request, "ms_media"));
-			# Is the item we're show details for in the result set?
- 			$this->view->setVar('is_in_result_list', ($opo_result_context->getIndexInResultList($this->opn_item_id) != '?'));
- 					
- 			$this->view->setVar('next_id', $opo_result_context->getNextID($this->opn_item_id));
- 			$this->view->setVar('previous_id', $opo_result_context->getPreviousID($this->opn_item_id));
- 			$this->view->setVar('result_context', $opo_result_context);
- 			
+				$this->view->setvar("read_only", $this->opn_read_only);
+				# Next and previous navigation
+				$opo_result_context = new ResultContext($this->request, "ms_media", ResultContext::getLastFind($this->request, "ms_media"));
+				# Is the item we're show details for in the result set?
+				$this->view->setVar('is_in_result_list', ($opo_result_context->getIndexInResultList($this->opn_item_id) != '?'));
+					
+				$this->view->setVar('next_id', $opo_result_context->getNextID($this->opn_item_id));
+				$this->view->setVar('previous_id', $opo_result_context->getPreviousID($this->opn_item_id));
+				$this->view->setVar('result_context', $opo_result_context);
+			} 			
  		}
  		# -------------------------------------------------------
  		public function show() {
@@ -143,6 +145,23 @@
  			$this->view->setVar("bib_citations", $va_bib_citations);
  			$this->render('ms_media_detail_html.php');
  		}
+  		# -------------------------------------------------------
+		/**
+		 * Download survey
+		 */ 
+		public function DownloadMediaSurvey() {
+			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
+			$pn_media_id = $this->request->getParameter('media_id', pInteger);
+			$pn_set_id = $this->request->getParameter('set_id', pInteger);
+			$ps_download_action = $this->request->getParameter('download_action', pString);
+			
+			$this->view->setVar("media_id", $pn_media_id);
+			$this->view->setVar("media_file_id", $pn_media_file_id);
+			$this->view->setVar("set_id", $pn_set_id);
+			$this->view->setVar("download_action", $ps_download_action);
+			
+			$this->render('ms_download_survey_html.php');
+		}
  		# -------------------------------------------------------
 		/**
 		 * Download media
@@ -184,7 +203,7 @@
 			$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
 			
 			# --- record download
-			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id);
+			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id, $_REQUEST["intended_use"], $_REQUEST["intended_use_other"], $_REQUEST["3d_print"]);
 			
 			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 			set_time_limit($vn_limit * 2);
@@ -262,11 +281,12 @@
 						$va_file_names[$vs_file_name] = true;
 						$va_file_paths[$vs_file_path] = $vs_file_name;
 						# --- record download
-						$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $q_media_files->get("media_file_id"));			
+						$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $q_media_files->get("media_file_id"), $_REQUEST["intended_use"], $_REQUEST["intended_use_other"], $_REQUEST["3d_print"]);			
 						$va_media_file_ids[] = $q_media_files->get("media_file_id");
 					}
 				}
 			}
+			
 			if (sizeof($va_file_paths)) {
 				if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
 				set_time_limit($vn_limit * 2);

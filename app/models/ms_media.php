@@ -1067,7 +1067,7 @@ class ms_media extends BaseModel {
 	/** 
 	 *
 	 */
-	public function recordDownload($pn_user_id, $pn_media_id=null, $pn_media_file_id=null){
+	public function recordDownload($pn_user_id, $pn_media_id=null, $pn_media_file_id=null, $pa_intended_use=null, $ps_intended_use_other=null, $pn_3d_print=null){
 		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
  				return null; 
@@ -1084,10 +1084,22 @@ class ms_media extends BaseModel {
  		$t_stat->setMode(ACCESS_WRITE);
  		$t_stat->set('media_id', $vn_media_id);
  		$t_stat->set('user_id', $pn_user_id);
+ 		
+ 		print_R($pa_intended_use);
+ 		if($pa_intended_use){
+ 			$t_stat->set('intended_use', $pa_intended_use);
+ 		}
+ 		if($ps_intended_use_other){
+ 			$t_stat->set('intended_use_other', $ps_intended_use_other);
+ 		}
+ 		if($pn_3d_print){
+ 			$t_stat->set('3d_print', $pn_3d_print);
+ 		}
  		if($pn_media_file_id){
  			$t_stat->set('media_file_id', $pn_media_file_id);
  		}
  		$t_stat->insert();
+ 		
  		if ($t_stat->numErrors()) {
  			$this->errors = $t_stat->errors;
  			return false;

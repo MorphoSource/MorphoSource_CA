@@ -83,7 +83,11 @@ print caFormTag($this->request, 'Save', 'UsersForm');
 				if($va_errors[$vs_field]){
 					print "<div class='formErrors' style='text-align: left;'>".$va_errors[$vs_field]."</div>";
 				}
-				print $va_info['formatted_element'];
+				if($va_info["label"] == "Other"){
+					print "<div class='formLabel other' style='font-weight:normal;'>&nbsp;".$va_info["label"].": ".$va_info["element"]."</div>";
+				}else{
+					print "<div class='formLabel'>".$va_info["label"]."<br/><span style='font-weight:normal;'>".$va_info["element"]."</span></div>";
+				}
 			}
 		}
 ?>

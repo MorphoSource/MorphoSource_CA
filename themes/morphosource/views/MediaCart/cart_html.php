@@ -20,7 +20,9 @@
 				$vs_display .= "<div class='projectMediaContainer'>";
 				$vs_display .= "<div class='mediaCartTools'>";
 				$vs_display .= "<div style='float:right;'>".caNavLink($this->request, _t("<i class='fa fa-times-circle'></i>"), "", "", "MediaCart", "Remove", array("media_file_id" => $q_items->get("media_file_id")), array("title" => _t("remove from cart")))."</div>";
-				$vs_display .= caNavLink($this->request, _t("<i class='fa fa-download'></i>"), "", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_items->get("media_file_id"), "media_id" => $q_items->get("media_id"), "download" => 1), array("title" => _t("download")));
+				#$vs_display .= caNavLink($this->request, _t("<i class='fa fa-download'></i>"), "", "Detail", "MediaDetail", "DownloadMedia", array("media_file_id" => $q_items->get("media_file_id"), "media_id" => $q_items->get("media_id"), "download" => 1), array("title" => _t("download")));
+				$vs_display .= "<a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $q_items->get("media_id"), "media_file_id" => $q_items->get("media_file_id"), "download_action" => "DownloadMedia"))."\"); return false;' title='download'>"._t("<i class='fa fa-download'></i>")."</a>";
+		
 				$vs_display .= "</div>";
 				$vs_display .= "<div class='projectMedia'>";
 				$vs_display .= caNavLink($this->request, $q_items->getMediaTag("media", "preview190"), '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $q_items->get("media_id")));
@@ -58,7 +60,14 @@
 		
 			</form></div>
 
-		<div><?php print caNavLink($this->request, _t("Clear Cart"), "button buttonLarge", "", "MediaCart", "clearCart", array("set_id" => $vn_set_id)); ?> <?php print caNavLink($this->request, _t("Download all files & metadata"), "button buttonLarge", "", "MediaCart", "downloadCart", array("set_id" => $vn_set_id, "download" => 1)); ?> <?php print caNavLink($this->request, _t("Download only metadata"), "button buttonLarge", "", "MediaCart", "downloadCartMd", array("set_id" => $vn_set_id, "download" => 1)); ?></div>
+		<div>
+<?php
+			print caNavLink($this->request, _t("Clear Cart"), "button buttonLarge", "", "MediaCart", "clearCart", array("set_id" => $vn_set_id))." ";
+			#print caNavLink($this->request, _t("Download all files & metadata"), "button buttonLarge", "", "MediaCart", "downloadCart", array("set_id" => $vn_set_id, "download" => 1))." ";
+			print "<a href='#' class='button buttonLarge' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("set_id" => $vn_set_id))."\"); return false;' title='download'>"._t("Download all files & metadata")."</a> ";
+			print caNavLink($this->request, _t("Download only metadata"), "button buttonLarge", "", "MediaCart", "downloadCartMd", array("set_id" => $vn_set_id, "download" => 1));
+?>
+		</div>
 			
 <?php
 	}

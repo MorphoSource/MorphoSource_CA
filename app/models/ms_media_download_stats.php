@@ -71,6 +71,46 @@ BaseModel::$s_ca_models_definitions['ms_media_download_stats'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Downloaded on'), 'DESCRIPTION' => _t('Date/time the download was made.'),
+		),
+		'intended_use' => array(
+				'FIELD_TYPE' => FT_VARS, 'DISPLAY_TYPE' => DT_CHECKBOXES, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true,
+				'LABEL' => _t('What is your intended use (check at most 2)?'), 'DESCRIPTION' => _t('What is your intended use (check at most 2)?'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"School assignments: K-6" => "School_K_6",
+					"School assignments: 7-12" => "School_7_12",
+					"School assignments: College/Post-Secondary" => "School_College_Post_Secondary",
+					"School assignments: Graduate school" => "School_Graduate_school",
+					"Education: K-6" => "Education_K_6",
+					"Education:7-12" => "Education_7_12",
+					"Education: College/Post-Secondary" => "Education_College_Post_Secondary",
+					"Educaton: general" => "Educaton_general",
+					"Education: museums, documentaries and/or other public outreach" => "Education_museums_public_outreach",
+					"Personal interest" => "Personal_interest",
+					"Research" => "Research",
+					"Commercial" => "Commercial",
+					"Art" => "Art"
+				)
+		),
+		'intended_use_other' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 25, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => TRUE, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Other'), 'DESCRIPTION' => _t('Other Intended Use'),
+				'BOUNDS_LENGTH' => array(0,255)
+		),
+		'3d_print' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => "0",
+				'LABEL' => _t('Do you intend to 3D print the file?'), 'DESCRIPTION' => _t('Do you intend to 3D print the file?'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"No" => 0,
+					"Yes" => 1
+				)
 		)
  	)
 );

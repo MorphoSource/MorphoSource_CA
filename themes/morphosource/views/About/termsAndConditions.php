@@ -5,7 +5,7 @@
 		In order to use MorphoSource, you must agree to the following terms and conditions.  
 	</p>
 	<p>
-		You, as a user, agree to terms of ethical conduct on MorphoSource. This means you will not utilize data for purposes which are forbidden by creative commons copyright settings applied to each dataset without written permission from the data owner (copyright holder). You agree not exploit loopholes to utilize data in disallowed ways.
+		You, as a user, agree to terms of ethical conduct on MorphoSource. This means you will not utilize data for purposes which are forbidden by creative commons copyright settings applied to each dataset without written permission from the data owner (copyright holder). You agree not to exploit loopholes to utilize data in disallowed ways.
 	</p>
 	<p>
 		You agree to adhere to both data author and data owner wishes regarding acknowledgment and citation of their data as specified in the metadata fields of the media files and media groups on MorphoSource. 

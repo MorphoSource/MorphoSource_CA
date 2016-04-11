@@ -1064,13 +1064,6 @@ class BaseModel extends BaseObject {
 					$vm_value = preg_replace("/[\"']/", "", $vm_value);
 				}
 
-				// what markup is supported for text fields?
-				$vs_markup_type = $this->getFieldInfo($vs_field, "MARKUP_TYPE");
-
-				// if markup is non-HTML then strip out HTML special chars for safety
-				if (!($vs_markup_type == __CA_MT_HTML__)) {
-					$vm_value = htmlspecialchars($vm_value, ENT_QUOTES, 'UTF-8');
-				}
 								
 				$vs_cur_value = isset($this->_FIELD_VALUES[$vs_field]) ? $this->_FIELD_VALUES[$vs_field] : null;
 				switch ($pa_fields_type) {
@@ -6980,11 +6973,12 @@ $pa_options["display_form_field_tips"] = true;
 				case(FT_NUMBER):
 				case(FT_TEXT):
 				case(FT_VARS):
+				
 					if ($va_attr["FIELD_TYPE"] == FT_VARS) {
-						if (!$pa_options['show_text_field_for_vars']) {
+						if ((!$pa_options['show_text_field_for_vars']) && ($va_attr['DISPLAY_TYPE'] != DT_CHECKBOXES)) {
 							break;
 						}
-						if (!is_string($vm_field_value) && !is_numeric($vm_field_value)) { $vm_value = ''; }
+						if ($pa_options['show_text_field_for_vars'] && !is_string($vm_field_value) && !is_numeric($vm_field_value)) { $vm_value = ''; }
 					}
 					
 					if ($va_attr['DISPLAY_TYPE'] == DT_COUNTRY_LIST) {
@@ -7350,6 +7344,33 @@ $pa_options["display_form_field_tips"] = true;
 							
 							if (method_exists('JavascriptLoadManager', 'register')) {
 								JavascriptLoadManager::register('jquery', 'colorpicker');
+							}
+						} elseif((($va_attr['DISPLAY_TYPE'] == DT_CHECKBOXES) && (isset($va_attr["BOUNDS_CHOICE_LIST"]) && is_array($va_attr["BOUNDS_CHOICE_LIST"])))) {
+							
+							
+							if ($vb_use_table = (isset($pa_options['useTable']) && (bool)$pa_options['useTable'])) {
+								$vs_element .= "<table width='100%'>";
+							}
+							$vn_num_table_columns = (isset($pa_options['numTableColumns']) && ((int)$pa_options['numTableColumns'] > 0)) ? (int)$pa_options['numTableColumns'] : 3;
+					
+							$vn_c = 0;
+							foreach($va_attr["BOUNDS_CHOICE_LIST"] as $vs_opt => $vs_val) {
+								if (is_array($vm_field_value)) {
+									$vs_selected = (in_array($vs_val, $vm_field_value)) ? "CHECKED" : "";
+								} else {
+									$vs_selected = '';
+								}
+						
+								if ($vb_use_table && ($vn_c == 0)) { $vs_element .= "<tr>"; }
+								if ($vb_use_table) { $vs_element .= "<td width='".(floor(100/$vn_num_table_columns))."%'>"; }
+								$vs_element .= "<input type='checkbox' name='".$pa_options['name']."[]' value='".htmlspecialchars($vs_val, ENT_QUOTES, 'UTF-8')."' $vs_selected> ".$vs_opt." \n";	
+						
+								if ($vb_use_table) { $vs_element .= "</td>"; }
+								$vn_c++;
+								if ($vb_use_table && !($vn_c % $vn_num_table_columns)) { $vs_element .= "</tr>\n"; $vn_c = 0; }
+							}
+							if ($vb_use_table) {
+								$vs_element .= "</table>";
 							}
 						} else {
 							# normal controls: all non-DT_SELECT display types are returned as DT_FIELD's. We could generate

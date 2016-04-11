@@ -11,7 +11,7 @@
 				<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/nsf-logo-small.jpg"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/Duke-insignia-small.jpg">
 <?php
 				 TooltipManager::add(
-					".fundingText", "<div style='padding:10px; font-size:11px; width:250px;'>This project is funded by Duke University Trinity College of Arts and Sciences and by NSF grants to D. M. Boyer, E. R. Seiffert, and E. M. StClair (NSF BCS 1317525, 1304045)</div>"
+					".fundingText", "<div style='padding:10px; font-size:11px; width:250px;'>This project is funded by Duke University Trinity College of Arts and Sciences and by NSF grants to D. M. Boyer, E. R. Seiffert, and E. M. StClair (NSF BCS 1317525, 1304045, BCS 1552848)</div>"
 				);
 ?>
 				<div style="clear:both;"><!-- empty --></div>

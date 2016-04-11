@@ -2027,3 +2027,12 @@ div.jGrowl div.jGrowl-closer {
 	border-collapse: collapse;
 	padding: 5px;
 }
+
+#surveyFormOverlay{
+	background-color:#FFF;
+	margin-top:10%;
+	width:500px;
+	padding:20px;
+	margin-left:auto;
+	margin-right:auto;
+}

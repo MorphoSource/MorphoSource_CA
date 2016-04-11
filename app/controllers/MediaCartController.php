@@ -94,6 +94,7 @@
  		}
  		# -------------------------------------------------------
  		public function cart() {
+ 			JavascriptLoadManager::register("panel");
  			# --- select all media in user's cart
  			$o_db = new Db();
  			$q_set_items = $o_db->query("SELECT si.media_file_id, m.specimen_id, m.published, mf.media, m.media_id FROM ms_media_set_items si INNER JOIN ms_media_files as mf ON si.media_file_id = mf.media_file_id INNER JOIN ms_media as m ON mf.media_id = m.media_id INNER JOIN ms_projects as p ON m.project_id = p.project_id WHERE si.set_id = ? AND p.deleted = 0", $this->opn_set_id);
@@ -301,7 +302,7 @@
 						}
 						$vs_element = str_replace(" ", "_", $vs_element);
 						# --- record download
-						$t_media->recordDownload($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"));
+						$t_media->recordDownload($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"), $_REQUEST["intended_use"], $_REQUEST["intended_use_other"], $_REQUEST["3d_print"]);
 						$vs_file_name = "";
 						$vs_file_path = "";
 						$t_media_file->load($q_set_items->get("media_file_id"));

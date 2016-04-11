@@ -47,7 +47,7 @@
  				$va_elements = array();
 				foreach($va_profile_prefs as $vs_pref) {
 					$va_pref_info = $t_user->getPreferenceInfo($vs_pref);
-					$va_elements[$vs_pref] = array('element' => $t_user->preferenceHtmlFormElement($vs_pref), 'formatted_element' => $t_user->preferenceHtmlFormElement($vs_pref, "<div class='formLabel'><b>".$va_pref_info['label']."</b><br/>^ELEMENT</div>"), 'info' => $va_pref_info, 'label' => $va_pref_info['label']);
+					$va_elements[$vs_pref] = array('element' => $t_user->preferenceHtmlFormElement($vs_pref, "", array("useTable" => true, "numTableColumns" => 4)), 'formatted_element' => $t_user->preferenceHtmlFormElement($vs_pref, "<div><b>".$va_pref_info['label']."</b><br/>^ELEMENT</div>", array("useTable" => true, "numTableColumns" => 4)), 'info' => $va_pref_info, 'label' => $va_pref_info['label']);
 				}
 				
 				$this->view->setVar("profile_settings", $va_elements);
@@ -98,8 +98,27 @@
 			$va_profile_prefs = $t_user->getValidPreferences('profile');
 			if (is_array($va_profile_prefs) && sizeof($va_profile_prefs)) {
 				foreach($va_profile_prefs as $vs_pref) {
-					$t_user->setPreference($vs_pref, $this->request->getParameter('pref_'.$vs_pref, pString));
+					#$t_user->setPreference($vs_pref, $this->request->getParameter('pref_'.$vs_pref, pString));
+					$va_pref_info = $t_user->getPreferenceInfo($vs_pref);
+					if($va_pref_info["formatType"] == "FT_ARRAY"){
+						# checkboxes
+						$vs_pref_value = $this->request->getParameter('pref_'.$vs_pref, pArray);
+					}else{
+						$vs_pref_value = $this->request->getParameter('pref_'.$vs_pref, pString);
+					}
+					if($vs_pref_value){
+						if (!$t_user->isValidPreferenceValue($vs_pref, $vs_pref_value)) {
+							$va_errors[$vs_pref] = join("; ", $t_user->getErrors());
+
+							$t_user->clearErrors();
+						}else{
+							$t_user->setPreference($vs_pref, $vs_pref_value);
+						}
+					}
 				}
+				
+				
+				
 			}
  			
  			AppNavigation::clearMenuBarCache($this->request);	// clear menu bar cache since changes may affect content
