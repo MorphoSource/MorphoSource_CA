@@ -263,6 +263,72 @@
 			}
  		}
  		# -------------------------------------------------------
+ 		public function addProjectMediaToCart() {
+ 			$t_project = new ms_projects();
+			$pn_project_id = $this->request->getParameter('project_id', pInteger);
+			$t_project->load($pn_project_id);
+			if(!$t_project->isMember($this->opo_user->get("user_id"))){
+				$this->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
+				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				return;
+			}
+			$t_media = new ms_media();
+			
+			# --- get media for project
+			$q_listings = $t_project->getProjectMedia();
+			if($q_listings && $q_listings->numRows()){
+				while($q_listings->nextRow()){
+					# --- get files for the group
+					$o_db = new Db();
+					$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ?", $q_listings->get("media_id"));
+					if($q_media_files->numRows()){
+						$t_media->load($q_listings->get("media_id"));
+						while($q_media_files->nextRow()){
+							if($t_media->userCanDownloadMediaFile($this->request->getUserID(), null, $q_media_files->get("media_file_id"))){
+								$t_media_set_items = new ms_media_set_items();
+								# --- check the media hadn't already been added to the set
+								$t_media_set_items->load(array("set_id" => $this->opn_set_id, "media_file_id" => $q_media_files->get("media_file_id")));
+								if(!$t_media_set_items->get("item_id")){
+									# --- add item
+									$t_media_set_items->set('media_file_id', $q_media_files->get("media_file_id"));
+									if ($t_media_set_items->numErrors() > 0) {
+										foreach ($t_media_set_items->getErrors() as $vs_e) {
+											$va_errors['media_file_id'] = $vs_e;
+										}
+									}
+									$t_media_set_items->set('set_id', $this->opn_set_id);
+									if ($t_media_set_items->numErrors() > 0) {
+										foreach ($t_media_set_items->getErrors() as $vs_e) {
+											$va_errors['set_id'] = $vs_e;
+										}
+									}
+									if (sizeof($va_errors) == 0) {
+										# do insert
+										$t_media_set_items->setMode(ACCESS_WRITE);
+										$t_media_set_items->insert();
+								
+										if ($t_media_set_items->numErrors()) {
+											foreach ($t_media_set_items->getErrors() as $vs_e) {  
+												$va_errors["general"] = $va_errors["general"]." ".$vs_e.", ";
+											}
+										}
+									}
+									if (sizeof($va_errors)){
+										$this->notification->addNotification("There were errors adding media to your cart: ".join(", ", $va_errors), __NOTIFICATION_TYPE_ERROR__);
+									}
+								}
+							}
+						}
+					}				
+				}
+			}else{
+				$this->notification->addNotification("There were errors adding media to your  cart: Your project has no media.", __NOTIFICATION_TYPE_ERROR__);
+				$this->cart();										
+			}
+			$this->notification->addNotification("Project media added to your cart", __NOTIFICATION_TYPE_ERROR__);
+			$this->cart();
+ 		}
+ 		# -------------------------------------------------------
  		public function clearCart() {
  			if(!$this->opn_set_id){
  				$this->notification->addNotification("No set to clear", __NOTIFICATION_TYPE_ERROR__);

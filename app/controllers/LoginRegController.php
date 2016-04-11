@@ -209,10 +209,12 @@
 					}else{
 						$vs_pref_value = $this->request->getParameter('pref_'.$vs_pref, pString);
 					}
-					if (!$t_user->isValidPreferenceValue($vs_pref, $vs_pref_value)) {
-						$va_errors[$vs_pref] = join("; ", $t_user->getErrors());
+					if(ISSET($_REQUEST['pref_'.$vs_pref])){
+						if (!$t_user->isValidPreferenceValue($vs_pref, $vs_pref_value)) {
+							$va_errors[$vs_pref] = join("; ", $t_user->getErrors());
 						
-						$t_user->clearErrors();
+							$t_user->clearErrors();
+						}
 					}
 				}
 			}
@@ -693,7 +695,7 @@
 					}else{
 						$vs_pref_value = $this->request->getParameter('pref_'.$vs_pref, pString);
 					}
-					if($vs_pref_value){
+					if(ISSET($_REQUEST['pref_'.$vs_pref])){
 						if (!$t_user->isValidPreferenceValue($vs_pref, $vs_pref_value)) {
 							$va_errors[$vs_pref] = join("; ", $t_user->getErrors());
 

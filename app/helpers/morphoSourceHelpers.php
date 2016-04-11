@@ -50,6 +50,7 @@
 		if (!$t_project->getPrimaryKey()) {
 			$o_controller->notification->addNotification("Project does not exist!", __NOTIFICATION_TYPE_ERROR__);
 			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
+			return;
 		}
 		if(!$o_request->user->canDoAction("is_administrator") && !$t_project->isMember($o_request->user->get("user_id"))){
 			$o_controller->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
