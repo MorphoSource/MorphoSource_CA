@@ -106,8 +106,10 @@
 		$(document).ready(function() {
 			$('.recentPubSlideshow').cycle({
 				fx: 'fade', 
+				timeout: 5000,
     			next:   '.recentPubSlideshowNext', 
-    			prev:   '.recentPubSlideshowPrev'
+    			prev:   '.recentPubSlideshowPrev',
+    			pause:   1 
 			});
 		});
 	</script>

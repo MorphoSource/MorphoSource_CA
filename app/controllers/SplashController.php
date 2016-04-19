@@ -63,17 +63,17 @@
 			
  			# --- featured projects
  			$va_featured_projects = array(
+ 				"207" => array("media" => array(),
+ 								"title" => "Australopithecus sediba from the site of Malapa, South Africa",
+ 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 207))."</b>"
+ 												)
+ 								),
  				"124" => array("media" => array(),
  								"title" => "Four bones of a new species of Homo from South Africa.",
  								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all the bones of the newly described Homo naledi"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 124))."</b>",
  													"<i class='fa fa-arrow-right'></i> <b><a href='http://elifesciences.org/content/4/e09560' target='_blank'>Read the published article</a></b>"
  												)
  								
- 								),
- 				"207" => array("media" => array(),
- 								"title" => "Australopithecus sediba from the site of Malapa, South Africa",
- 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 207))."</b>"
- 												)
  								)
  			);
  			
