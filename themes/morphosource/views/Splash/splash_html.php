@@ -75,20 +75,43 @@
 		<div id="hpStats">
 			<div id="hpStatsCol1">
 <?php
-	$va_recent_media = $this->getVar("recent_media");
-	if(is_array($va_recent_media) && sizeof($va_recent_media)){
+	$va_featured_projects = $this->getVar("featured_projects");
+	if(is_array($va_featured_projects) && sizeof($va_featured_projects)){
 ?>
-				<div class="blueRule"><!-- empty --></div>
-				<H1>Recently Published</H1>
+		<div class="blueRule"><!-- empty --></div>
+		<H1>Recently Published</H1>
+			<div class="recentPubSlideshow">
+<?php
+		foreach($va_featured_projects as $vn_project_id => $va_project_info){
+?>	
+			<div style="width:100%;">
 				<H2>
-					<b>Four bones of a new species of Homo from South Africa.</b>
-					<br/><i class='fa fa-arrow-right'></i> <b><?php print caNavLink($this->request, _t("See all the bones of the newly described Homo naledi"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 124)); ?></b>
-					<br/><i class='fa fa-arrow-right'></i> <b><a href="http://elifesciences.org/content/4/e09560" target="_blank">Read the published article</a></b>
+					<b><?php print $va_project_info["title"]; ?></b><br/>
+					<?php print join("<br/>", $va_project_info["links"]); ?>
 				</H2>
 <?php
-				foreach($va_recent_media as $vn_media_id => $vs_media){
+				foreach($va_project_info["media"] as $vn_media_id => $vs_media){
 					print "<div class='recentlyPublished'>".caNavLink($this->request, $vs_media, '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";	
 				}
+?>
+			</div>
+<?php
+		}
+?>
+			</div>
+			<div style="text-align:center; margin-top:20px; clear:both;">
+				<a href="#" class="recentPubSlideshowNext button buttonSmall">Previous</a> <a href="#" class="recentPubSlideshowPrev button buttonSmall">Next</a>
+			</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.recentPubSlideshow').cycle({
+				fx: 'fade', 
+    			next:   '.recentPubSlideshowNext', 
+    			prev:   '.recentPubSlideshowPrev'
+			});
+		});
+	</script>
+<?php
 	}
 ?>
 			</div>

@@ -87,6 +87,13 @@
  			$q_download_media_count = $o_db->query("SELECT DISTINCT media_id FROM ms_media_download_stats");
  			$this->view->setVar('num_downloads_media', $q_download_media_count->numRows());
  			
+ 			$q_users = $o_db->query("SELECT user_id from ca_users WHERE userclass != 255");
+ 			$this->view->setVar('users', $q_users);
+
+ 			$q_download_survey = $o_db->query("SELECT download_id, intended_use, intended_use_other, 3d_print FROM ms_media_download_stats WHERE (intended_use is not null) OR (intended_use_other is not null) OR (3d_print is not null)");
+ 			$this->view->setVar('download_survey', $q_download_survey);
+ 			
+ 			
  			$this->render('stats_list_html.php');
  		}
  		# -------------------------------------------------------

@@ -36,7 +36,7 @@ if (sizeof($va_specimen_info)) {
 	print "<H2>".$va_specimen_info["specimen_name"].", Specimen Public Views: ".$va_specimen_info["specimen_views"].", ";
 	print "Specimen Media: ".$va_specimen_info["num_specimen_media"]."</H2>";
 	if($va_specimen_info["num_specimen_media_no_access"] > 0){
-		print "<H2><b>*** ".$va_specimen_info["num_specimen_media_no_access"]." unpublished specimen media belong to projects you are not a memeber of</b></H2>";
+		print "<H2><b>*** ".$va_specimen_info["num_specimen_media_no_access"]." unpublished specimen media belong to projects you are not a member of</b></H2>";
 	}
 	if (sizeof($va_rows)) {
 ?>

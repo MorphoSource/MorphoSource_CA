@@ -478,6 +478,13 @@
 								$vs_download_diversity = sizeof($va_download_by_user);
 							}
 					
+							# --- shorten media views and downloads text to not break Excel
+							if(mb_strlen($vs_media_views) > 31000){
+								$vs_media_views = mb_substr($vs_media_views, 0, 31000)."... This info has been shortened to work with Excel";
+							}
+							if(mb_strlen($vs_media_downloads) > 31000){
+								$vs_media_downloads = mb_substr($vs_media_downloads, 0, 31000)."... This info has been shortened to work with Excel";
+							}
 							$va_output_row = array($va_info["project_name"], date("n/j/y", time()), $va_info["specimen_number"], (is_array($va_info["specimen_taxonomy"])) ? join(", ", $va_info["specimen_taxonomy"]) : "", preg_replace("/\r|\n/", " ", $va_info["element"]), $vs_media, sizeof($va_media_views_download["views"]), $vs_view_diversity,  $vs_media_views, sizeof($va_media_views_download["downloads"]), $vs_download_diversity, $vs_media_downloads);
 							$output_rows[] = join("\t", $va_output_row);
 									

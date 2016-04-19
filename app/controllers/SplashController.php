@@ -60,23 +60,43 @@
  			$o_db = new Db();
  			$t_media = new ms_media();
  			#$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.deleted = 0 GROUP BY m.project_id ORDER BY m.published_on DESC LIMIT 10");
-			# --- recent media replaces with the Rising Star project media temporarily
-			$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.project_id = 124 ORDER BY RAND() LIMIT 10");
-			$va_recent_media = array();
-			if($q_recent_media->numRows()){
-				$i = 0;
-				while($q_recent_media->nextRow()){
-					$va_preview_media = $t_media->getPreviewMediaFile($q_recent_media->get("media_id"), array("preview190"), true);
-					if($va_preview_media["media"]["preview190"]){
-						$va_recent_media[$q_recent_media->get("media_id")] = $va_preview_media["media"]["preview190"];
-						$i++;
-					}
-					if($i == 4){
-						break;
+			
+ 			# --- featured projects
+ 			$va_featured_projects = array(
+ 				"124" => array("media" => array(),
+ 								"title" => "Four bones of a new species of Homo from South Africa.",
+ 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all the bones of the newly described Homo naledi"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 124))."</b>",
+ 													"<i class='fa fa-arrow-right'></i> <b><a href='http://elifesciences.org/content/4/e09560' target='_blank'>Read the published article</a></b>"
+ 												)
+ 								
+ 								),
+ 				"207" => array("media" => array(),
+ 								"title" => "Australopithecus sediba from the site of Malapa, South Africa",
+ 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 207))."</b>"
+ 												)
+ 								)
+ 			);
+ 			
+ 			# --- get media for featured projects
+			foreach($va_featured_projects as $vn_project_id => $va_info){
+				$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.project_id = ? ORDER BY RAND() LIMIT 10", $vn_project_id);
+				$va_recent_media = array();
+				if($q_recent_media->numRows()){
+					$i = 0;
+					while($q_recent_media->nextRow()){
+						$va_preview_media = $t_media->getPreviewMediaFile($q_recent_media->get("media_id"), array("preview190"), true);
+						if($va_preview_media["media"]["preview190"]){
+							$va_recent_media[$q_recent_media->get("media_id")] = $va_preview_media["media"]["preview190"];
+							$i++;
+						}
+						if($i == 4){
+							break;
+						}
 					}
 				}
+				$va_featured_projects[$vn_project_id]["media"] = $va_recent_media;
 			}
-			$this->view->setVar("recent_media", $va_recent_media);
+			$this->view->setVar("featured_projects", $va_featured_projects);
  			
 //  			if($vn_recent = $this->request->config->get("recently_published_media_id")){
 //  				$t_media->load($vn_recent);
