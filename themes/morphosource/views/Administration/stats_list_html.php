@@ -88,7 +88,7 @@
 				}	
 			}
 			print "<div style='float:left; width:45%; padding-right:5%;'><H1>"._t("User Demographic Info")."</H1>";
-			foreach($va_prefs as $va_prefs_info){
+			foreach($va_prefs as $vs_pref_code => $va_prefs_info){
 				$vb_other = false;
 				print '<div class="stats">';
 				if($va_prefs_info["info"]["label"] == "Other"){
@@ -96,6 +96,9 @@
 					$vb_other = true;
 				}else{
 					print "<b>".$va_prefs_info["info"]["label"]."</b><br/>";
+					if($vs_pref_code == "user_profile_country"){
+						$vb_other = true;
+					}
 				}
 				arsort($va_prefs_info["values"]);
 				if(is_array($va_prefs_info["values"])){
