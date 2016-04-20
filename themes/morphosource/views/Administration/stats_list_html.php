@@ -55,8 +55,9 @@
 <?php
 		$q_users = $this->getVar("users");
 		$t_user = new ca_users();
-
-		$va_prefs = array("user_profile_professional_affiliation" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_professional_affiliation")),
+		$va_country_list = caGetCountryList();
+		$va_prefs = array("user_profile_country" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_country")),
+							"user_profile_professional_affiliation" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_professional_affiliation")),
 							"user_profile_professional_affiliation_other" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_professional_affiliation_other")),
 							"user_profile_visualize_software" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_visualize_software")),
 							"user_profile_visualize_software_other" => array("values" => array(), "info" => $t_user->getPreferenceInfo("user_profile_visualize_software_other")),
@@ -78,6 +79,9 @@
 								$va_prefs[$vs_pref_code]["values"][$vs_option] = ($va_prefs[$vs_pref_code]["values"][$vs_option]) ? $va_prefs[$vs_pref_code]["values"][$vs_option] + 1 : 1;
 							}
 						}else{
+							if($vs_pref_code == "user_profile_country"){
+								$vs_preference = array_search($vs_preference, $va_country_list);
+							}
 							$va_prefs[$vs_pref_code]["values"][$vs_preference] = ($va_prefs[$vs_pref_code]["values"][$vs_preference]) ? $va_prefs[$vs_pref_code]["values"][$vs_preference] + 1 : 1;
 						}
 					}
