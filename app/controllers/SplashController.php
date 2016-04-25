@@ -63,6 +63,12 @@
 			
  			# --- featured projects
  			$va_featured_projects = array(
+ 				"189" => array("media" => array(),
+ 								"title" => "First North American Fossil Monkey and Early Miocene Tropical Biotic Interchange",
+ 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 189))."</b>",
+ 													"<i class='fa fa-arrow-right'></i> <b><a href='http://www.nature.com/nature/journal/vaop/ncurrent/full/nature17415.html' target='_blank'>Read the published article</a></b>"
+ 												)
+ 								),
  				"207" => array("media" => array(),
  								"title" => "Australopithecus sediba from the site of Malapa, South Africa",
  								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 207))."</b>"
