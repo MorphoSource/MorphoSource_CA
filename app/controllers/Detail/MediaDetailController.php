@@ -211,7 +211,7 @@
 			$o_zip = new ZipStream();
 			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
 			if(file_exists($vs_path)){
-				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION']);	// don't try to compress
+				$o_zip->addFile($vs_path, preg_replace("![^A-Za-z0-9_\-]+!", "_", $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id).'.'.$va_version_info['EXTENSION']);	// don't try to compress
 			}
 			# --- generate text file for media downloaded and add it to zip
 			$vs_tmp_file_name = '';
@@ -230,7 +230,7 @@
 			$this->view->setVar('zip_stream', $o_zip);
 			
 			$this->view->setVar('version_path', $vs_path = $t_media_file->getMediaPath('media', $ps_version));
-			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+			$this->view->setVar('version_download_name', preg_replace("![^A-Za-z0-9_\-]+!", "_", 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id).'.zip');
 				
 			$this->response->sendHeaders();
 			$vn_rc = $this->render('media_download_binary.php');
@@ -276,7 +276,7 @@
 						$vs_idno_proc = $this->opo_item->get('media_id');
 						$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
 					
-						$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'_'.$vs_specimen_name.$vs_element.'.'.$va_version_info['EXTENSION'];
+						$vs_file_name = preg_replace("![^A-Za-z0-9_\-]+!", "_", $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'_'.$vs_specimen_name.$vs_element).'.'.$va_version_info['EXTENSION'];
 						$vs_file_path = $q_media_files->getMediaPath('media', $ps_version);
 						$va_file_names[$vs_file_name] = true;
 						$va_file_paths[$vs_file_path] = $vs_file_name;
@@ -315,7 +315,7 @@
 				$this->view->setVar('zip_stream', $o_zip);
 			
 				$this->response->sendHeaders();
-				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'.zip');
+				$this->view->setVar('version_download_name', preg_replace("![^A-Za-z0-9_\-]+!", "_", 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc).'.zip');
 				$vn_rc = $this->render('media_download_binary.php');
 			
 				$this->response->sendContent();

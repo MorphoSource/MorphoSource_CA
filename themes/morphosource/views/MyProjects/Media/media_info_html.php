@@ -84,11 +84,11 @@
 						print caNavLink($this->request, "<i class='fa fa-file-image-o'></i>", "button buttonSmall", "MyProjects", "Media", "setMediaPreview", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Set as preview for media group")));
 					}
 					#print caNavLink($this->request, "<i class='fa fa-edit'></i>", "button buttonSmall", "MyProjects", "Media", "mediaInfo", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, "formaction" => "editMediaFile"), array("title" => _t("Edit media file")));
-					if(!$q_media_files->get('doi')){
+					#if(!$q_media_files->get('doi')){
 						print "<a href='".caNavUrl($this->request, "MyProjects", "Media", "mediaInfo", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id, "formaction" => "editMediaFile"))."#editForm' class='button buttonSmall' title='"._t("Edit media file")."'><i class='fa fa-edit'></i></a>";
-					}else{
-						print "<a href='#' onClick='return false;' class='button buttonSmall buttonGray' title='"._t("You cannot edit media files with a DOI")."'><i class='fa fa-edit'></i></a>";
-					}
+					#}else{
+					#	print "<a href='#' onClick='return false;' class='button buttonSmall buttonGray' title='"._t("You cannot edit media files with a DOI")."'><i class='fa fa-edit'></i></a>";
+					#}
 					print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 					print "</div>\n";
 					print "<div class='mediaFileFormCaption'>";

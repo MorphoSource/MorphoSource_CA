@@ -1085,7 +1085,6 @@ class ms_media extends BaseModel {
  		$t_stat->set('media_id', $vn_media_id);
  		$t_stat->set('user_id', $pn_user_id);
  		
- 		print_R($pa_intended_use);
  		if($pa_intended_use){
  			$t_stat->set('intended_use', $pa_intended_use);
  		}
