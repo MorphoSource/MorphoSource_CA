@@ -43,6 +43,8 @@
 	require(__CA_LIB_DIR__."/core/Zend/Translate.php");
 	require(__CA_LIB_DIR__."/core/Zend/Registry.php");
 	require(__CA_APP_DIR__."/helpers/initializeLocale.php");
+	require(__CA_LIB_DIR__."/core/Utils/Debug.php");
+	
 
 	if (isset($_COOKIE['CA_'.__CA_APP_NAME__.'_ui_locale'])) {
 		$g_ui_locale = $_COOKIE['CA_'.__CA_APP_NAME__.'_ui_locale'];

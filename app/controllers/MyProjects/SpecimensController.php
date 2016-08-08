@@ -34,6 +34,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_taxonomy.php");
  	require_once(__CA_MODELS_DIR__."/ms_taxonomy_names.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_bibliography.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_specimens_x_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_institutions.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  
@@ -260,7 +261,7 @@
 				}
 			}
 			if(sizeof($va_errors) > 0){
-				$this->notification->addNotification("There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+				$this->notification->addNotification("There were errors in your form".(join("; ", $va_errors)), __NOTIFICATION_TYPE_INFO__);
 				$this->view->setVar("errors", $va_errors);
 				$this->form();
 			}else{
@@ -323,6 +324,68 @@
  			}
  			$this->render('Specimens/specimen_taxonomy_form_html.php');
  		}
+ 		# -------------------------------------------------------
+ 		public function linkSpecimen() {
+			$va_errors = array();
+			$vs_message = "";
+			# --- check the specimen_id and alt_id (key for ms_taxonomy_names) are passed through lookup form
+			if($pn_specimen_id = $this->request->getParameter('specimen_id', pInteger)){
+				# --- check the specimen is not already linked
+				$t_specimens_x_projects = new ms_specimens_x_projects();
+				$t_specimens_x_projects->load(array("specimen_id" => $pn_specimen_id, "project_id" => $this->opn_project_id));
+				if(!$t_specimens_x_projects->get("link_id")){
+					$t_specimens_x_projects->set("specimen_id", $pn_specimen_id);
+					$t_specimens_x_projects->set("project_id", $this->opn_project_id);
+				
+					# do insert
+					$t_specimens_x_projects->setMode(ACCESS_WRITE);
+					$t_specimens_x_projects->insert();
+	
+					if ($t_specimens_x_projects->numErrors()) {
+						foreach ($t_specimens_x_projects->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+					}else{
+						$vs_message = "Linked specimen to project";
+					}
+				}else{
+					$vs_message = "Specimen already linked to project";
+				}
+			}else{
+				$va_errors["general"] = _t("Please select a specimen");
+			}
+			if(sizeof($va_errors) > 0){
+				$vs_message = "There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+				$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+				$this->form();
+			}else{
+				$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+				$this->form();
+			} 			 			
+ 		}
+ 		# -------------------------------------------------------
+ 		public function unlinkSpecimen() {
+ 			if($pn_link_id = $this->request->getParameter('link_id', pInteger)){
+ 				$t_specimens_x_projects = new ms_specimens_x_projects($pn_link_id);
+ 				if($t_specimens_x_projects->get("project_id") == $this->opn_project_id){
+					$t_specimens_x_projects->setMode(ACCESS_WRITE);
+					$t_specimens_x_projects->delete();
+					if ($t_specimens_x_projects->numErrors() > 0) {
+						foreach ($t_specimens_x_projects->getErrors() as $vs_e) {
+							$va_errors[] = $vs_e;
+						}
+						$this->view->setVar("message", join(", ", $va_errors));
+						$this->form();
+					}else{
+						$this->notification->addNotification("Unlinked specimen from project", __NOTIFICATION_TYPE_INFO__);
+						$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
+					}
+				}else{
+					$this->notification->addNotification("invalid link_id", __NOTIFICATION_TYPE_INFO__);
+					$this->form();
+				}
+ 			}
+  		}
  		# -------------------------------------------------------
  		public function linkSpecimenTaxon() {
 			$va_errors = array();

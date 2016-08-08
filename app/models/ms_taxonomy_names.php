@@ -354,6 +354,12 @@ class ms_taxonomy_names extends BaseModel {
 		)
 	);	
 	
+	# ------------------------------------------------------
+	# Search
+	# ------------------------------------------------------
+	protected $SEARCH_CLASSNAME = 'TaxonomyNameSearch';
+	protected $SEARCH_RESULT_CLASSNAME = 'TaxonomyNameSearchResult';
+	
 	
 	# ------------------------------------------------------
 	# $FIELDS contains information about each field in the table. The order in which the fields

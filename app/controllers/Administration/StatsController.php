@@ -87,6 +87,10 @@
  			$q_download_media_count = $o_db->query("SELECT DISTINCT media_id FROM ms_media_download_stats");
  			$this->view->setVar('num_downloads_media', $q_download_media_count->numRows());
  			
+ 			$q_view_count = $o_db->query("SELECT count(*) c FROM ms_media_view_stats");
+ 			$q_view_count->nextRow();
+ 			$this->view->setVar('num_views', $q_view_count->get("c"));
+ 			
  			$q_users = $o_db->query("SELECT user_id from ca_users WHERE userclass != 255");
  			$this->view->setVar('users', $q_users);
 

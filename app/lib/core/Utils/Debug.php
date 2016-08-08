@@ -34,6 +34,7 @@
   *
   */
 
+	require __CA_BASE_DIR__ . '/vendor/autoload.php';
 	use DebugBar\StandardDebugBar;
 	
 	class Debug {
