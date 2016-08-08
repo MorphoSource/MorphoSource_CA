@@ -160,14 +160,25 @@
  		public function form() {
  			# --- clone_id is the media record we are "cloning" when making a *new* media record.
  			if(!$this->opo_item->get("media_id")){
- 				$pn_clone_id = $this->request->getParameter('clone_id', pInteger);
+ 				# --- derived_from_media_id creates a link to a record the new media group was derived from 
+ 				# --- lookup_derived_from_media_id is passed through a look up in the media group form
+ 				# --- we use the clone function to clone fields from the parent media group
+ 				$pn_lookup_derived_from_media_id = $this->request->getParameter('lookup_derived_from_media_id', pInteger);
+ 				if($pn_lookup_derived_from_media_id){
+ 					$pn_clone_id = $pn_lookup_derived_from_media_id;
+ 				}else{
+ 					$pn_clone_id = $this->request->getParameter('clone_id', pInteger);
+ 				}
  				$t_clone = new ms_media($pn_clone_id);
  				
  				$va_clone_fields = array("specimen_id", "facility_id", "notes", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_acquisition_time", "scanner_wedge", "scanner_calibration_check", "scanner_calibration_description", "scanner_technicians", "element", "title", "side", "scanner_id", "grant_support", "media_citation_instruction1", "media_citation_instruction2", "media_citation_instruction3");
  				foreach($va_clone_fields as $vs_f){
 					$this->opo_item->set($vs_f, $t_clone->get($vs_f));
 				}
- 				
+				$this->request->setParameter("specimen_id", $t_clone->get('specimen_id'));
+ 				if($pn_lookup_derived_from_media_id){
+ 					$this->opo_item->set("derived_from_media_id", $pn_lookup_derived_from_media_id);
+ 				}
  				$this->view->setvar("item", $this->opo_item);
 			}
  			
@@ -1469,5 +1480,14 @@
  			$this->mediaInfo();
  		}
  		# -------------------------------------------------------
+ 		public function derivativePreview(){
+ 			if($pn_media_derivative_id = $this->request->getParameter('media_derivative_id', pInteger)){
+ 				$t_parent = new ms_media($pn_media_derivative_id);
+ 				$this->view->setVar("parent", $t_parent);
+ 			}
+ 			$this->render('Media/derivative_preview_html.php');
+ 		}
+ 		# -------------------------------------------------------
+ 		
  	}
  ?>

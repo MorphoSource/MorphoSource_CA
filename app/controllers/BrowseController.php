@@ -195,11 +195,12 @@
  					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($pn_project_id){
 				array_unshift($va_params, $pn_project_id);
+				array_unshift($va_params, $pn_project_id);
  				$q_specimens = $o_db->query("
  					SELECT DISTINCT s.specimen_id 
  					FROM ms_specimens s
  					INNER JOIN ms_media AS m ON m.specimen_id = s.specimen_id
- 					WHERE s.project_id = ? AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
+ 					WHERE (s.project_id = ? OR m.project_id = ?) AND (m.published >= 1 ".((sizeof($this->opa_project_ids)) ? " OR (m.published = 0 AND m.project_id IN (?))" : "").")
  					ORDER BY s.institution_code, s.collection_code, s.catalog_number", $va_params);
  			}elseif($ps_genus){
 				array_unshift($va_params, $ps_genus);

@@ -191,6 +191,42 @@ if ($this->request->isLoggedIn()) {
 <?php
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
+	if($t_media->get("derived_from_media_id")){
+		$t_parent = new ms_media($t_media->get("derived_from_media_id"));
+		$t_specimen = new ms_specimens();
+?>
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Derived From</H2>
+			<div class="unit">
+<?php
+				$vb_derivative_access = false;
+				if($t_parent->get("published") > 0){
+					$vb_derivative_access = true;
+				}else{
+					if($this->request->isLoggedIn()){
+						$t_project = new ms_projects();
+						$vb_derivative_access = $t_project->isMember($this->request->user->get("user_id"), $t_parent->get("project_id"));
+					}
+				}
+				$va_parent_media = $t_parent->getPreviewMediaFile(null, array("icon"), ($vb_derivative_access) ? false : true);
+				if(is_array($va_parent_media) && sizeof($va_parent_media)){
+					print "<div style='float:left; padding-right:20px;'>".$va_parent_media["media"]["icon"]."</div>";
+				}
+				if($vb_derivative_access){
+					print caNavLink($this->request, "<b>M".$t_parent->get("media_id")."</b>", "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $t_parent->get("media_id")));
+				}else{
+					print "<b>M".$t_parent->get("media_id")."</b>";
+				}
+				print "<br/>";
+				if($t_parent->get("title")){
+					$t_parent->get("title")."<br/>";
+				}
+				print $t_specimen->getSpecimenName($t_parent->get("specimen_id"));
+?>
+				<div style='clear:left;'></div>
+			</div>
+<?php	
+	}
 	if($t_media->get("specimen_id")){
 ?>
 		<div class="tealRule"><!-- empty --></div>
