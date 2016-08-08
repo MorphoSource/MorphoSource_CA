@@ -1,5 +1,7 @@
 <?php
 	$t_item = $this->getVar("item");
+	# --- users current project id, can be different from specimen project
+	$pn_project_id = $this->getVar("project_id");
 	
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
@@ -7,7 +9,7 @@
 	
 	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
+	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "type", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
 	$va_clear_fields = array("catalog_number", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_relative_age", "last_modified_on");
 
@@ -24,6 +26,22 @@
 	if($q_specimen_project->numRows()){
 		$q_specimen_project->nextRow();
 		print "<div class='formLabelError' style='text-align:center; margin-bottom: 20px;'>This specimen was created by the project, ".$q_specimen_project->get("name").". If you need to edit this specimen please contact ".trim($q_specimen_project->get("fname")." ".$q_specimen_project->get("lname"))." at <a href='mailto:".$q_specimen_project->get("email")."'>".$q_specimen_project->get("email")."</a>.  If you have difficulties, please contact <a href='mailto:".$this->request->config->get("ca_admin_email")."'>".$this->request->config->get("ca_admin_email")."</a></div>";
+	}
+	$q_specimen_link = $o_db->query("SELECT link_id FROM ms_specimens_x_projects WHERE project_id = ?", $pn_project_id);
+	if($q_specimen_link->numRows()){
+		$qr_project_specimen_media = $o_db->query("
+				SELECT DISTINCT m.media_id
+				FROM ms_media m
+				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+				WHERE (m.specimen_id = ?) AND (m.project_id = ? OR mxp.project_id = ?)
+				ORDER BY m.media_id
+			", $t_item->get("specimen_id"), $pn_project_id, $pn_project_id);
+		if(!$qr_project_specimen_media->numRows()){
+			$q_specimen_link->nextRow();
+			if($q_specimen_link->get("link_id")){
+				print "<div class='formLabelError' style='text-align:center; margin-bottom: 20px;'>This specimen is linked to your project and has no project media<br/>".caNavLink($this->request, _t("Un-Link Specimen"), "button buttonSmall", "MyProjects", 'Specimens', "unlinkSpecimen", array('link_id' => $q_specimen_link->get("link_id")))."</div>";
+			}
+		}
 	}
 ?>
 		<div id="rightCol">
@@ -75,6 +93,7 @@
 					$t_project = new ms_projects();
 					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
 						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+						print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
 					}else{
 						$vb_read_only_access = false;
 						if($t_media->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
@@ -83,14 +102,16 @@
 						if(($t_media->get("published") > 0) || $vb_read_only_access){
 							# --- media owned by another project, but is published or user has read only access to media - so link to the public detail page
 							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+							print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</span>, ";
 						}else{
 							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div>";
+							print "<span class='mediaID'>M{$vn_media_id}</span>, ";
 						}
 					}
 					if($vb_read_only_access){
 						print "<b>READ ONLY ACCESS</b>, ";
 					}
-					print "<span class='mediaID'>M{$vn_media_id}</span>, ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
+					print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
 					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					print "<br>".$t_media->formatPublishedText();
 					print "</div><!-- end specimenMediaListContainer -->\n";

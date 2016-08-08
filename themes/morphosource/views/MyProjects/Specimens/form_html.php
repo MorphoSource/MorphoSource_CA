@@ -10,7 +10,7 @@
 	
 	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "collector", "collected_on", "element", "side", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_coordinates", "locality_northing_coordinate", "locality_easting_coordinate", "locality_datum_zone", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
+	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "collector", "collected_on", "element", "side", "type", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_coordinates", "locality_northing_coordinate", "locality_easting_coordinate", "locality_datum_zone", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
 	$va_clear_fields = array("catalog_number", "collected_on", "sex", "absolute_age", "body_mass_comments", "locality_datum_zone", "locality_easting_coordinate", "locality_relative_age", "last_modified_on");
 	$vs_delete_msg = "";
@@ -27,6 +27,8 @@ if (!$this->request->isAjax()) {
 		print "<div class='formLabel' id='specimenLookUpContainer'>";
 		print "<b>Before creating a new specimen, please enter the catalog number here to check if a specimen record already exists:</b><br/>";
 		print caHTMLTextInput("specimenLookUp", array("id" => 'specimenLookUp', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
+		print "<span id='addOrLinkButtons' style='display:none;'><a href='#' class='button buttonSmall' id='addMedia'>ADD MEDIA</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href='#' class='button buttonSmall' id='linkSpecimen'>LINK SPECIMEN TO PROJECT</a></span><!-- end addOrLinkButtons -->";
+	
 		print "</div>";
 	}
 }
@@ -200,9 +202,13 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 			break;
 			# -----------------------------------------------
 		}
+		
+		if($vs_f == 'catalog_number') {
+			print "<div class='formLabel'>Specimen identifier: <span id='specimen_identifier_preview'></span></div>";
+		}
 		if(in_array($vs_f, $va_clear_fields)){
 			print "<div style='clear:both;'><!--empty--></div>";
-		}
+		} 
 	}
 	if($pn_media_id){
 		print "<input type='hidden' value='".$pn_media_id."' name='media_id'>";
@@ -225,22 +231,49 @@ if (!$this->request->isAjax()) {
 ?>
 </form>
 </div>
-<script type='text/javascript'>
+<script type='text/javascript'>	
+	jQuery(document).ready(function() {
+		jQuery('#institution_code, #collection_code, #catalog_number').on('keyup', function(e) {
+			_updateSpecimenIdentifierPrefix();
+		});
+		
+		function _updateSpecimenIdentifierPrefix() {
+			var v = [] 
+			if (t = jQuery("#institution_code").val()) { v.push(t); }
+			if (t = jQuery("#collection_code").val()) { v.push(t); }
+			if (t = jQuery("#catalog_number").val()) { v.push(t); }
+			
+			jQuery("#specimen_identifier_preview").html(v.join('-'));
+		}
+		_updateSpecimenIdentifierPrefix();
+		
+		jQuery('#specimenItemForm').submit(function(e){		
+			if(!jQuery('#institution_code').val() || !jQuery('#catalog_number').val() || (!jQuery('#institution_id').val() && !jQuery('#name').val())){
+				alert("Please enter the specimen institution code, catalog number and institution");
+				e.preventDefault();
+				return false;
+			}else{
 <?php
 	if($pn_media_id){
 ?>
-	jQuery(document).ready(function() {
-		jQuery('#specimenItemForm').submit(function(e){		
 			jQuery('#mediaSpecimenInfo').load(
 				'<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'save'); ?>',
 				jQuery('#specimenItemForm').serialize()
 			);
 			e.preventDefault();
 			return false;
-		});
-	});
+<?php
+	}else{
+?>
+				return true;
 <?php
 	}
+?>				
+			}
+		});
+	});
+	
+<?php	
 	foreach(array("body_mass_bibref_id", "locality_absolute_age_bibref_id", "locality_relative_age_bibref_id") as $vs_field){
 ?>
 		jQuery(document).ready(function() {
@@ -298,9 +331,12 @@ if (!$this->request->isAjax()) {
 				} else {
 					// found an id
 					//alert("found specimen id: " + specimen_id);
-					window.location.href = "<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'form'); ?>/specimen_id/" + specimen_id;
+					//window.location.href = "<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'form'); ?>/specimen_id/" + specimen_id;
 					//jQuery('#specimen_id').val(specimen_id);
 					//alert("specimen id set to: " + jQuery('#specimen_id').val());
+					jQuery('#addOrLinkButtons').show();
+					$('#addMedia').attr('href', '<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'form'); ?>/specimen_id/' + specimen_id);
+					$('#linkSpecimen').attr('href', '<?php print caNavUrl($this->request, 'MyProjects', 'Specimens', 'linkSpecimen'); ?>/specimen_id/' + specimen_id);
 				}
 			}
 		}

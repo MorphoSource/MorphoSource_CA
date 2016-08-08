@@ -260,7 +260,7 @@ if (!$this->request->isAjax()) {
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabelFloat'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 			print "<div style='clear:both;'><!--empty--></div>";
-			foreach(array("published", "notes") as $vs_f){
+			foreach(array("file_type", "distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 ?>

@@ -42,6 +42,7 @@
 			<h1><?php print _t("Media results"); ?></h1>
 <?php
 			print $this->render('Results/paging_controls_html.php');
+			print caNavLink($this->request, _t("Export Report")." &rsaquo;", "exportSearch", "", "Search", "exportMediaReport", array());
 			if($vo_result->numHits() > 0){
 ?>
 				<a href='#' id='showOptions' style='margin-right:10px;' onclick='$("#searchOptionsBox").slideDown(250); $("#showOptions").hide();  $("#searchRefineBox").slideUp(250); $("#showRefine").show(); jQuery("#searchToolsBox").slideUp(250); jQuery("input.addItemToSetControl").hide(); jQuery("#showTools").show(); return false;'><?php print _t("Options"); ?> &rsaquo;</a>

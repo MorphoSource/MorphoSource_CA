@@ -119,7 +119,7 @@ print caFormTag($this->request, 'save', 'listForm', null, 'post', 'multipart/for
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#listForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
-			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array("table" => $this->getVar("table"), $ps_primary_key => $t_item->get($ps_primary_key)));
+			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "Administration", $this->request->getController(), "Delete", array("table" => $this->getVar("table"), $ps_primary_key => $t_item->get($ps_primary_key)));
 		}
 ?>
 	</div><!-- end formButtons -->

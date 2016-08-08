@@ -66,6 +66,9 @@
 		if($vs_reference_source = $t_specimen->get("reference_source", array("convertCodesToDisplayText" => true))){
 			print $vs_reference_source."<br/>";
 		}
+		if($vs_type = $t_specimen->get("type", array("convertCodesToDisplayText" => true))){
+			print "<b>Type: </b>".$vs_type."<br/>";
+		}
 		if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
 			print "<b>Sex: </b>".$vs_sex."<br/>";
 		}
@@ -79,7 +82,7 @@
 			print "<br/><b>Notes: </b>".nl2br($t_specimen->get("notes"))."<br/>";
 		}
 		if($t_specimen->get("relative_age")){
-			print "<br/><b>Relative Age: </b>".$t_specimen->get("relative_age")."<br/>";
+			print "<br/><b>Geologic Age: </b>".$t_specimen->get("relative_age")."<br/>";
 		}
 		if($t_specimen->get("absolute_age")){
 			print "<b>Absolute Age: </b>".$t_specimen->get("absolute_age")."<br/>";
@@ -130,7 +133,7 @@
 			print "<br/>";
 		}
 		if($t_specimen->get("locality_relative_age")){
-			print "<b>Locality relative age: </b><span class='locality_relative_age'>".$t_specimen->get("locality_relative_age")."</span>";
+			print "<b>Locality geologic age: </b><span class='locality_relative_age'>".$t_specimen->get("locality_relative_age")."</span>";
 			if($t_specimen->get("locality_relative_age_bibref_id")){
 				$t_bibliography->load($t_specimen->get("locality_relative_age_bibref_id"));
 				TooltipManager::add(
