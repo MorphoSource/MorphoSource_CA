@@ -7,4 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/react/promise/src/functions_include.php',
+    $vendorDir . '/symfony/polyfill-mbstring/bootstrap.php',
+    $vendorDir . '/symfony/var-dumper/Resources/functions/dump.php',
+    $vendorDir . '/icanboogie/inflector/lib/helpers.php',
 );
