@@ -80,14 +80,16 @@
 									$vn_specimen_media_downloads = $q_media_downloads->get("c");								
 								}
 								# --- what projects do the published media belong to?
-								$q_media_projects = $o_db->query("SELECT DISTINCT p.project_id, p.name from ms_media m INNER JOIN ms_projects as p ON p.project_id = m.project_id WHERE m.media_id IN (".join(", ", $va_specimen_media_ids).")");							
 								$va_project_names = array();
-								if($q_media_projects->numRows()){
-									while($q_media_projects->nextRow()){
-										$va_project_names[] = $q_media_projects->get("name");
+								if(is_array($va_specimen_media_ids) && sizeof($va_specimen_media_ids)){
+									$q_media_projects = $o_db->query("SELECT DISTINCT p.project_id, p.name from ms_media m INNER JOIN ms_projects as p ON p.project_id = m.project_id WHERE m.media_id IN (".join(", ", $va_specimen_media_ids).")");							
+									if($q_media_projects->numRows()){
+										while($q_media_projects->nextRow()){
+											$va_project_names[] = $q_media_projects->get("name");
+										}
 									}
+									$vn_media_projects = $q_media_projects->numRows();
 								}
-								$vn_media_projects = $q_media_projects->numRows();
 								$va_rows[$va_project_specimen["specimen_id"]] = array(
 												"project_name" => join("; ", $va_project_names), 
 												"specimen_number" => $this->opo_specimen->formatSpecimenNumber($va_project_specimen), 
@@ -606,7 +608,6 @@
 			$this->response->addContent(join("\n", $va_rows), 'view');
 
  		}
- 		# -------------------------------------------------------
- 		
+ 		# ------------------------------------------------------- 		
  	}
  ?>

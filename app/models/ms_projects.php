@@ -613,20 +613,22 @@ class ms_projects extends BaseModel {
 		
 		
 		$qr = $o_db->query("
-			SELECT DISTINCT s.*, m.media_id, p.name project_name, u.fname, u.lname, u.email
+			SELECT DISTINCT s.*, m.media_id, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
 			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
 			LEFT JOIN ca_users AS u ON p.user_id = u.user_id
 			LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+			LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
 			".$vs_order_by_joins."
-			WHERE (mproj.deleted != 1) AND 
+			WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
 			(s.project_id = ?
 			OR m.project_id = ?
-			OR mp.project_id = ?)".$vs_published_where."
+			OR mp.project_id = ?
+			OR sp.project_id = ?)".$vs_published_where."
 			ORDER BY ".$vs_order_by
-		, $vn_project_id, $vn_project_id, $vn_project_id);
+		, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
 			
 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {

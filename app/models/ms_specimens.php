@@ -74,7 +74,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Institution code'), 'DESCRIPTION' => _t('Institution code of specimen.'),
+				'LABEL' => _t('Inst. code prefix'), 'DESCRIPTION' => _t('Mandatory component typically equivalent to the repository institution\'s acronym in the full specimen identifier (=catalog number).'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'collection_code' => array(
@@ -82,7 +82,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Collection code'), 'DESCRIPTION' => _t('Collection code of specimen.'),
+				'LABEL' => _t('Coll. code modifier'), 'DESCRIPTION' => _t('Typically designates a sub-collection within a repository. Not a universal element because not all repositories have sub-collections.  However, this field is critical when applicable to avoid confusing specimens from different sub-collections. Please make sure you do not incorrectly omit a collection code from the specimen identifier (=catalog number).'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'catalog_number' => array(
@@ -90,7 +90,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Catalog number'), 'DESCRIPTION' => _t('Catalog number of specimen.'),
+				'LABEL' => _t('Alphanumeric suffix'), 'DESCRIPTION' => _t('Mandatory alphanumeric string that is unique within a repository and within a subcollection.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'url' => array(
@@ -140,6 +140,17 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Description of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
+		'type' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Type'), 'DESCRIPTION' => _t('Holotype'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('Yes') 	=> 0,
+					_t('No')	=> 1
+				)
+		),
 		'sex' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_SELECT, 
 				'DISPLAY_WIDTH' => 18, 'DISPLAY_HEIGHT' => 1,
@@ -170,7 +181,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 30, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Relative age'), 'DESCRIPTION' => _t('Specimen\'s relative age.'),
+				'LABEL' => _t('Geologic Age'), 'DESCRIPTION' => _t('Specimen\'s geologic age.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
 		'absolute_age' => array(
@@ -256,7 +267,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 29, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Locality relative age'), 'DESCRIPTION' => _t('Relative age of the locality of the specimen.'),
+				'LABEL' => _t('Locality geologic age'), 'DESCRIPTION' => _t('Geologic age of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'locality_absolute_age_bibref_id' => array(

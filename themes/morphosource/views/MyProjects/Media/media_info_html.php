@@ -5,7 +5,7 @@
 	# --- get all media files linked to this media record
 	$o_db = new Db();
 	$q_media_files = $o_db->query("
-		SELECT mf.media, mf.media_id, mf.media_file_id, mf.use_for_preview, mf.published, mf.side, mf.element, mf.title, mf.notes, mf.doi, m.published group_published 
+		SELECT mf.*, m.published group_published 
 		FROM ms_media_files mf
 		INNER JOIN ms_media AS m ON m.media_id = mf.media_id
 		WHERE
@@ -115,7 +115,7 @@
 						$vs_published = $t_media_file->getChoiceListValue("published", $q_media_files->get("published"));
 					}
 					$vs_downloads = "<br/><b>Downloads: </b>".((is_array($va_media_downloads_per_file) && isset($va_media_downloads_per_file[$q_media_files->get("media_file_id")])) ? sizeof($va_media_downloads_per_file[$q_media_files->get("media_file_id")]) : "0");
-					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>Notes: </b>".nl2br(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
+					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>File type: </b>".(($t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"))) ? $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type")) : "-")."<br/><b>Distance units of coordinate system for mesh files: </b>".(($t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"))) ? $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units")) : "-")."<br/><b>Maximum distance in X direction in millimeters between points of mesh coordinates: </b>".(($q_media_files->get("max_distance_x")) ? $q_media_files->get("max_distance_x") : "-")."<br/><b>Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface: </b>".(($q_media_files->get("max_distance_3d")) ? $q_media_files->get("max_distance_3d") : "-")."<br/><b>Notes: </b>".nl2br(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
 					TooltipManager::add(
 						"#info".$q_media_files->get("media_file_id"), $vs_more_info
 					);
@@ -177,12 +177,19 @@
 			}
 		}
 		print "</div>Downloads<div style='clear:both;'><!-- empty --></div></div>";
-		$va_media_display_fields = array("title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
+		$va_media_display_fields = array("derived_from_media_id", "title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
 		foreach($va_fields as $vs_field => $va_field_attr){
 			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction", "scanner_wedge")) || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";
 				print "<div class='listItemRightCol ltBlueText'>";
 				switch($vs_field){
+					case "derived_from_media_id":
+						if($t_media->get("derived_from_media_id")){
+							$t_parent = new ms_media($t_media->get("derived_from_media_id"));
+							print "<b>M".$t_parent->get("media_id")."</b>, ".$t_specimen->getSpecimenName($t_parent->get("specimen_id"));
+						}
+					break;
+					# ------------------------------
 					case "facility_id":
 						if($t_media->get("facility_id")){
 							$t_facility = new ms_facilities($t_media->get("facility_id"));
@@ -356,7 +363,7 @@
 					print $t_media_file->htmlFormElement($vs_f,"<div class='formLabelFloat'>^LABEL<br>^ELEMENT</div>");
 				}
 				print "<div style='clear:both;'><!-- end --></div>";
-				foreach(array("published", "notes") as $vs_f){
+				foreach(array("file_type", "distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
 					if($va_mediaFileErrors[$vs_f]){
 						print "<div class='formErrors'  style='clear:left;>".$va_mediaFileErrors[$vs_f]."</div>";
 					}

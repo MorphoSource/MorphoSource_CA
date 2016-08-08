@@ -1444,7 +1444,12 @@ div.delete_warning_box {
 	margin-left: 15px;
 }
 
-#mediaFormFilePreviews 
+#mediaFormFilePreviews {
 	display: block;
 	margin-left: 15px;
+}
+
+#specimen_identifier_preview {
+	font-weight: normal;
+	color: #cc0000;
 }

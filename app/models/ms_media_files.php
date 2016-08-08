@@ -108,6 +108,48 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 				'BOUNDS_VALUE' => array(0,1),
 				'LABEL' => _t('Use this file as preview for entire media record?'), 'DESCRIPTION' => _t('Use this file as preview for entire media record?')
 		),
+		'file_type' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('File type'), 'DESCRIPTION' => _t('File type'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"Raw file of group" => 1,
+					"derivative file" => 2
+				)
+		),
+		'distance_units' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
+				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => 0,
+				'LABEL' => _t('Distance units of coordinate system for mesh files'), 'DESCRIPTION' => _t('Distance units of coordinate system for mesh files'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					"microns" => 6,
+					"millimeters" => 1,
+					"centimeters" => 2,
+					"meters" => 3,
+					"inches" => 4,
+					"other" => 5
+				)
+		),
+		'max_distance_x' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Maximum distance in X direction in millimeters between points of mesh coordinates'), 'DESCRIPTION' => _t('Maximum distance in X direction in millimeters between points of mesh coordinates wedge.'),
+				'BOUNDS_LENGTH' => array(0,45)
+		),
+		'max_distance_3d' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface'), 'DESCRIPTION' => _t('Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface'),
+				'BOUNDS_LENGTH' => array(0,45)
+		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
@@ -527,7 +569,7 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -570,6 +612,9 @@ class ms_media_files extends BaseModel {
 									"flux normalization",
 									"geometric callibration",
 									"calibration description",
+									"Distance units of coordinate system for mesh files",
+									"Max X distance btw points of mesh coordinates (mm)",
+									"Max 3D distance btw two most distant points on mesh surface (mm)",
 									"technicians",
 									"grant support",
 									"copyright holder",
@@ -577,6 +622,7 @@ class ms_media_files extends BaseModel {
 									"citation instruction statement (to be copy-pasted into acknolwedgements)"
 								);
 				#$va_all_md[] = join(",", $va_header);
+				#file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d
 				$va_all_md[] = $va_header;
 				while($q_media_files->nextRow()){
 					$va_media_md = array();
@@ -600,7 +646,8 @@ class ms_media_files extends BaseModel {
 				
 					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
 					$va_media_md[] = trim($va_tmp[0]);
-					$va_media_md[] = $va_properties['MIMETYPE'];
+					$vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
+					$va_media_md[] = (($vs_file_type) ? $vs_file_type."; " : "").$va_properties['MIMETYPE'];
 					$va_media_md[] = caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
 					$va_media_md[] = $q_media_files->get("file_title");
 					$va_media_md[] = $q_media_files->get("file_notes");
@@ -608,9 +655,9 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $vs_specimen_taxonomy;
 					$va_media_md[] = $q_media_files->get("institution");
 					if($q_media_files->get("file_element")){
-						$va_media_md[] = $q_media_files->get("file_element");
+						$va_media_md[] = preg_replace("/\r|\n/", " ", $q_media_files->get("file_element"));
 					}else{
-						$va_media_md[] = $q_media_files->get("element");
+						$va_media_md[] = preg_replace("/\r|\n/", " ", $q_media_files->get("element"));
 					}
 					if($q_media_files->get("file_side")){
 						$va_media_md[] = $t_media_file->getChoiceListValue("side", $q_media_files->get("file_side"));
@@ -647,6 +694,10 @@ class ms_media_files extends BaseModel {
 					}
 					$va_media_md[] = $q_media_files->get("scanner_calibration_geometric_calibration");
 					$va_media_md[] = $q_media_files->get("scanner_calibration_description");
+					$va_media_md[] = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"));
+					$va_media_md[] = $q_media_files->get("max_distance_x");
+					$va_media_md[] = $q_media_files->get("max_distance_3d");
+					
 					$va_media_md[] = $q_media_files->get("scanner_technicians");
 					$va_media_md[] = $q_media_files->get("grant_support");
 					$va_media_md[] = $q_media_files->get("copyright_info");

@@ -49,6 +49,13 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Media id'), 'DESCRIPTION' => _t('Unique numeric identifier used to identify this media')
 		),
+		'derived_from_media_id' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => 'Derived from', 'DESCRIPTION' => 'Media id of group media was derived from'
+		),
 		'title' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 66, 'DISPLAY_HEIGHT' => 1,

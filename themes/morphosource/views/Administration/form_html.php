@@ -78,6 +78,8 @@ print caFormTag($this->request, 'save', 'listForm', null, 'post', 'multipart/for
 					print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_institution_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '354px', 'height' => 1, 'paadding-right' => '15px'));
 					print "</div>";
 					print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'></div>";
+				}elseif($ps_table == "ms_institutions"){
+					print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
 				}
 			break;
 			# -----------------------------------------------
@@ -119,7 +121,7 @@ print caFormTag($this->request, 'save', 'listForm', null, 'post', 'multipart/for
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#listForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
-			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array("table" => $this->getVar("table"), $ps_primary_key => $t_item->get($ps_primary_key)));
+			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "Administration", $this->request->getController(), "Delete", array("table" => $this->getVar("table"), $ps_primary_key => $t_item->get($ps_primary_key)));
 		}
 ?>
 	</div><!-- end formButtons -->

@@ -29,8 +29,59 @@ $va_clear_fields = array("copyright_license", "side", "scanner_z_resolution", "s
 
 ?>
 	<div id='formArea'>
-	
 <?php
+if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("derived_from_media_id")) {
+?>
+	<div id="derivativeLookupContainer" style="background-color:#ededed; padding:10px; margin-bottom:20px;">
+		<H2 class='ltBlueBottomRule' style='margin: 10px 0px 10px 0px;'>Derivative Information</H2>
+		<div style="text-align:center;">
+			<b>Are you creating a media group containing files derived from another MorphoSource media group?</b><br/>
+			If so, search for the original media group to pre-populate your record with the appropriate information:<br/>
+		</div>
+<?php
+			print caFormTag($this->request, 'form', 'mediaDerivativeForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+			print "<div class='formLabel' style='text-align:center;'>";
+			print caHTMLTextInput("derivative_lookup", array("id" => 'msMediaDerivativeID', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
+			print "</div>";
+			print "<input type='hidden' value='' name='lookup_derived_from_media_id' id='media_derivative_id'>";
+			print "</form>";		
+?>
+			<div id="derivativePreview"></div>
+			<H2 class='ltBlueBottomRule' style='margin: 10px 0px 10px 0px;'>&nbsp;</H2>
+			<div style="text-align:center;">
+				<b>No, this media group is not a derivative.</b>
+			</div>
+			<p style="text-align:center;">
+				<br/><a href="#" class="button buttonSmall" onClick="jQuery('#mediaForm').show(); jQuery('#derivativeLookupContainer').hide(); return false;">Continue With New Media Group</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<?php
+			print caNavLink($this->request, _t("Back to Project Page"), "button buttonSmall", "MyProjects", "Dashboard", "Dashboard");
+?>
+			</p>
+	</div>
+<script type='text/javascript'>
+	jQuery('#msMediaDerivativeID').autocomplete(
+		{ 
+			source: '<?php print caNavUrl($this->request, 'lookup', 'Media', 'Get', array("max" => 500, "quickadd" => false)); ?>', 
+			minLength: 3, delay: 800, html: true,
+			select: function(event, ui) {
+				var media_derivative_id = parseInt(ui.item.id);
+				if (media_derivative_id > 0) {
+					// found an id
+					jQuery('#media_derivative_id').val(media_derivative_id);
+					jQuery('#derivativePreview').load(
+						'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'derivativePreview'); ?>/media_derivative_id/' + media_derivative_id
+					);
+				}
+			}
+		}
+	).click(function() { this.select(); });
+	jQuery(document).ready(function(){
+		jQuery('#mediaForm').hide();
+	});
+</script>
+
+<?php
+}
 print caFormTag($this->request, 'save', 'mediaForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
 	<div class="formButtons tealTopBottomRule">
@@ -52,20 +103,46 @@ if (!$this->request->isAjax()) {
 	</div><!-- end formButtons -->
 
 <?php
+
 if (!$this->request->isAjax()) {
 	print "<div style='float:left; width:430px; padding-top:10px;'>";
 	if($vn_specimen_id){
+		print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>Specimen Information</H2>";
 ?>
-	<h2><em>Will be added to specimen <strong><?php print $t_specimen->getSpecimenName($vn_specimen_id); ?></strong> upon save</em></h2>
+	<h2 style='width:390px; margin: 10px 0px 10px 0px;'><em>Will be added to specimen <strong><?php print $t_specimen->getSpecimenName($vn_specimen_id); ?></strong> upon save</em></h2>
 <?php
 	}
 }
-	print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>General Information</H2>";
 	while (list($vs_f,$vs_field_info) = each($va_fields)) {
 		if($va_errors[$vs_f] && $vs_f != "facility_id"){
 			print "<div class='formErrors'>".$va_errors[$vs_f]."</div>";
 		}
 		switch($vs_f){
+			# -----------------------------------------------
+			case "derived_from_media_id":
+				if($t_item->get("derived_from_media_id")){
+					$t_parent = new ms_media($t_item->get("derived_from_media_id"));
+					$vb_derivative_access = false;
+					if($t_parent->get("published") > 0){
+						$vb_derivative_access = true;
+					}else{
+						$t_project = new ms_projects();
+						$vb_derivative_access = $t_project->isMember($this->request->user->get("user_id"), $t_parent->get("project_id"));
+					}
+					print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>Derived From</H2>";
+					print "<div style='margin-bottom:20px; padding:10px; width:390px;'>";
+					$va_parent_media = $t_parent->getPreviewMediaFile(null, array("icon"), (($vb_derivative_access) ? false : true));
+					if(is_array($va_parent_media) && sizeof($va_parent_media)){
+						print "<div style='float:left; padding-right:20px;'>".$va_parent_media["media"]["icon"]."</div>";
+					}
+					print "<b>M".$t_parent->get("media_id")."</b><br/>";
+					print $t_parent->get("title")."<br/>";
+					print $t_specimen->getSpecimenName($t_parent->get("specimen_id"));
+					print "<div style='clear:both;'></div></div>";
+				}
+				print $t_item->htmlFormElement($vs_f,"<div class='formLabel'>^LABEL<br>^ELEMENT</div>");
+				print "<H2 class='ltBlueBottomRule' style='width:390px; margin: 10px 0px 10px 0px;'>General Information</H2>";
+			break;
 			# -----------------------------------------------
 			case "facility_id":
 				#if (!$this->request->isAjax()) {
@@ -260,7 +337,7 @@ if (!$this->request->isAjax()) {
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabelFloat'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 			print "<div style='clear:both;'><!--empty--></div>";
-			foreach(array("published", "notes") as $vs_f){
+			foreach(array("file_type", "distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 ?>

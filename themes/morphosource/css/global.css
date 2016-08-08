@@ -675,7 +675,7 @@ input.addItemToSetControlInThumbnails {
 	left: 0px;
 }
 /* search/browse options box - horizontal show hide */
-#showOptions, #showTools{
+#showOptions, #showTools, .exportSearch{
 	float:right;
 	margin: 1px 2px 0px 10px;
 	text-decoration:none;

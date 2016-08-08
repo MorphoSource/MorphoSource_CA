@@ -10,7 +10,7 @@
 		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
 	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -71,7 +71,7 @@
 				$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
 				print msGetMediaFormatDisplayString($q_media_files).", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>";
 				if($q_media_files->get("title")){
-					print $q_media_files->get("title")."<br/>";
+					print $q_media_files->get("title");
 				}
 				$vs_side = $t_media->getChoiceListValue("side", $t_media->get("side"));
 				if($q_media_files->get("side")){
@@ -81,11 +81,30 @@
 				if($q_media_files->get("element")){
 					$vs_element = $q_media_files->get("element");
 				}
+				if($vs_element || $vs_side){
+					print "<br/>";
+				}
 				if($vs_element){
 					print $vs_element.", ";
 				}
 				if($vs_side){
 					print $vs_side;
+				}
+				$vs_file_type = "";
+				if($vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"))){
+					print "<br/>".$vs_file_type;
+				}
+				$vs_distance_units = "";
+				if($vs_distance_units = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"))){
+					print "<br/>Distance units of coordinate system for mesh files: ".$vs_distance_units;
+				}
+				$vs_max_distance_x = "";
+				if($vs_max_distance_x = $q_media_files->get("max_distance_x")){
+					print "<br/>Max X distance between points of mesh coordinates: ".$vs_max_distance_x."mm";
+				}
+				$vs_max_distance_3d = "";
+				if($vs_max_distance_3d = $q_media_files->get("max_distance_3d")){
+					print "<br/>Max 3d distance between points of mesh coordinates: ".$vs_max_distance_3d."mm";
 				}
 				if($vs_notes = $q_media_files->get("notes")){
 					print "<p>".nl2br($vs_notes)."</p>";
@@ -172,6 +191,42 @@ if ($this->request->isLoggedIn()) {
 <?php
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
+	if($t_media->get("derived_from_media_id")){
+		$t_parent = new ms_media($t_media->get("derived_from_media_id"));
+		$t_specimen = new ms_specimens();
+?>
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Derived From</H2>
+			<div class="unit">
+<?php
+				$vb_derivative_access = false;
+				if($t_parent->get("published") > 0){
+					$vb_derivative_access = true;
+				}else{
+					if($this->request->isLoggedIn()){
+						$t_project = new ms_projects();
+						$vb_derivative_access = $t_project->isMember($this->request->user->get("user_id"), $t_parent->get("project_id"));
+					}
+				}
+				$va_parent_media = $t_parent->getPreviewMediaFile(null, array("icon"), ($vb_derivative_access) ? false : true);
+				if(is_array($va_parent_media) && sizeof($va_parent_media)){
+					print "<div style='float:left; padding-right:20px;'>".$va_parent_media["media"]["icon"]."</div>";
+				}
+				if($vb_derivative_access){
+					print caNavLink($this->request, "<b>M".$t_parent->get("media_id")."</b>", "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $t_parent->get("media_id")));
+				}else{
+					print "<b>M".$t_parent->get("media_id")."</b>";
+				}
+				print "<br/>";
+				if($t_parent->get("title")){
+					$t_parent->get("title")."<br/>";
+				}
+				print $t_specimen->getSpecimenName($t_parent->get("specimen_id"));
+?>
+				<div style='clear:left;'></div>
+			</div>
+<?php	
+	}
 	if($t_media->get("specimen_id")){
 ?>
 		<div class="tealRule"><!-- empty --></div>

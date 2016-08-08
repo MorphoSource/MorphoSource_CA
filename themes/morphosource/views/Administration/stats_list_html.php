@@ -43,6 +43,7 @@
 	</H1>
 	<div class="stats">Projects: <span class="ltBlueText"><?php print $this->getVar("num_projects"); ?></span></div>
 	<div class="stats">Downloads: <span class="ltBlueText"><?php print $this->getVar("num_downloads"); ?> download<?php print (($this->getVar("num_downloads") == 1) ? "" : "s"); ?> of <?php print $this->getVar("num_downloads_media"); ?> media files by <?php print $this->getVar("num_downloads_users"); ?> user<?php print (($this->getVar("num_downloads_users") == 1) ? "" : "s"); ?>.</span></div>
+	<div class="stats">Total Media Views: <span class="ltBlueText"><?php print $this->getVar("num_views"); ?></span></div>
 	<div class="stats">Users: <span class="ltBlueText"><?php print $this->getVar("num_users"); ?></span></div>
 	<div class="stats">Specimens: <span class="ltBlueText"><?php print $this->getVar("num_specimens"); ?></span></div>
 	<div class="stats">Media: <span class="ltBlueText"><?php print $this->getVar("num_media"); ?></span></div>

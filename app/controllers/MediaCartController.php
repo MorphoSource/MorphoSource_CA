@@ -520,5 +520,26 @@
  			$this->cart();
  		}
  		# -------------------------------------------------------
+ 		 function MCZspecimen() {
+ 		 	$o_db = new Db();
+ 		 	$q_specimen_ids = $o_db->query("select mf.media_file_id, m.media_id, m.project_id, m.specimen_id from ms_specimens s INNER JOIN ms_media as m ON m.specimen_id = s.specimen_id  INNER JOIN ms_media_files as mf ON mf.media_id = m.media_id where s.institution_code = 'MCZ'");
+ 		 	if($q_specimen_ids->numRows()){
+ 		 		while($q_specimen_ids->nextRow()){
+ 		 			$t_media_set_items = new ms_media_set_items();
+					# --- add item
+					$t_media_set_items->set('media_file_id', $q_specimen_ids->get("media_file_id"));
+					$t_media_set_items->set('set_id', 41);
+					$t_media_set_items->setMode(ACCESS_WRITE);
+					$t_media_set_items->insert();
+				
+					if ($t_media_set_items->numErrors()) {
+						foreach ($t_media_set_items->getErrors() as $vs_e) {  
+							print "media_file_id:".$q_specimen_ids->get("media_file_id")." - ".$vs_e."<br/>";
+						}
+					}
+				}
+ 		 	}
+		}
+ 		# -------------------------------------------------------
  	}
  ?>
