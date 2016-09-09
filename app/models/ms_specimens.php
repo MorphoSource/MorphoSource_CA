@@ -436,7 +436,7 @@ class ms_specimens extends BaseModel {
 	}
 	
 	# ----------------------------------------
-	function getSpecimenName($pn_specimen_id=null) {
+	function getSpecimenName($pn_specimen_id=null, $pa_options=null) {
 		$va_name = array();
 		if(!$pn_specimen_id) { 
 			if (!($pn_specimen_id = $this->get("specimen_id"))) { return null; }
@@ -464,17 +464,19 @@ class ms_specimens extends BaseModel {
 			
 		}
 		
-		$va_name['taxa'] = $this->getSpecimenTaxonomy($pn_specimen_id);
+		if (!caGetOption('omitTaxonomy', $pa_options, false)) {
+			$va_name['taxa'] = $this->getSpecimenTaxonomy($pn_specimen_id);
+		}
 		
 		if($pn_specimen_id){
-			return $this->formatSpecimenName($va_name);
+			return $this->formatSpecimenName($va_name, $pa_options);
 		}else{
 			return null;
 		}
 	}
 	
 	# ----------------------------------------
-	function formatSpecimenName($pa_specimen) {
+	function formatSpecimenName($pa_specimen, $pa_options=null) {
 		$va_specimen_parts = array();
 		if($pa_specimen["institution_code"]){
 			$va_specimen_parts[] = $pa_specimen["institution_code"];
@@ -487,8 +489,10 @@ class ms_specimens extends BaseModel {
 		}
 		$vs_num =  join("-", $va_specimen_parts);
 		
-		if(is_array($pa_specimen["taxa"])){
-			$vs_num .= ", <em>".join("; ", $pa_specimen["taxa"])."</em>";
+		if (!caGetOption('omitTaxonomy', $pa_options, false)) {
+			if(is_array($pa_specimen["taxa"])){
+				$vs_num .= ", <em>".join("; ", $pa_specimen["taxa"])."</em>";
+			}
 		}
 		
 		return $vs_num;
@@ -514,11 +518,26 @@ class ms_specimens extends BaseModel {
 		if(!$pn_specimen_id) { $pn_specimen_id = $this->get("specimen_id"); }
 		if($pn_specimen_id){
 			$o_db = new Db();
-			$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.genus, tn.species, tn.subspecies FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id = ? AND tn.is_primary = 1", array($pn_specimen_id));
+			
 			$va_taxonomic_names = array();
-			if($q_specimen_taxonomy->numRows()){
-				while($q_specimen_taxonomy->nextRow()){
-					$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("genus")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
+			if (is_array($pn_specimen_id) && sizeof($pn_specimen_id)) {
+				$pn_specimen_id = array_map(function($v) { return (int)$v; }, $pn_specimen_id);
+				
+				$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.genus, tn.species, tn.subspecies, sxt.specimen_id FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id IN (?) AND tn.is_primary = 1", array($pn_specimen_id));
+				
+			
+				if($q_specimen_taxonomy->numRows()){
+					while($q_specimen_taxonomy->nextRow()){
+						$va_taxonomic_names[$q_specimen_taxonomy->get("specimen_id")] = trim($q_specimen_taxonomy->get("genus")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
+					}
+				}
+			} else {
+				$q_specimen_taxonomy = $o_db->query("SELECT tn.alt_id, tn.genus, tn.species, tn.subspecies FROM ms_specimens_x_taxonomy sxt INNER JOIN ms_taxonomy_names AS tn on tn.alt_id = sxt.alt_id WHERE sxt.specimen_id = ? AND tn.is_primary = 1", array($pn_specimen_id));
+							
+				if($q_specimen_taxonomy->numRows()){
+					while($q_specimen_taxonomy->nextRow()){
+						$va_taxonomic_names[$q_specimen_taxonomy->get("alt_id")] = trim($q_specimen_taxonomy->get("genus")." ".$q_specimen_taxonomy->get("species")." ".$q_specimen_taxonomy->get("subspecies"));
+					}
 				}
 			}
 			

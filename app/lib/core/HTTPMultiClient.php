@@ -101,7 +101,7 @@ class HTTPMultiClient {
 	 * Performs multi-request using cURL functions
 	 */
 	private function _curlRequest($pa_requests, $pa_options=null) {
-		
+		set_time_limit(120);
 		// multi handle
 		$o_mh = curl_multi_init();
 		
@@ -116,6 +116,7 @@ class HTTPMultiClient {
 			curl_setopt($pa_requests[$vn_i]['handle'], CURLOPT_URL, $vs_url);
 			curl_setopt($pa_requests[$vn_i]['handle'], CURLOPT_HEADER, 0);
 			curl_setopt($pa_requests[$vn_i]['handle'], CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($pa_requests[$vn_i]['handle'], CURLOPT_CONNECTTIMEOUT_MS, 60000);
 			
 			// post?
 			if (is_array($va_request_params)) {
@@ -147,4 +148,3 @@ class HTTPMultiClient {
 	 }
 	 # -------------------------------------------------------------------
 }
-	?>

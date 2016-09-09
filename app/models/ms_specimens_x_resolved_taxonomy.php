@@ -57,6 +57,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens_x_resolved_taxonomy'] = array(
 				'DEFAULT' => '',
 				'LABEL' => 'Taxon id', 'DESCRIPTION' => 'Taxon id'
 		)
+	)
 );
 
 class ms_specimens_x_resolved_taxonomy extends BaseModel {

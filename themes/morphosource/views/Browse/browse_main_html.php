@@ -28,7 +28,8 @@
 	$pn_browse_institution_id = $this->getVar("browse_institution_id");
 	$pn_browse_bibref_id = $this->getVar("browse_bibref_id");
 	$pn_browse_project_id = $this->getVar("browse_project_id");
-	$ps_browse_genus = $this->getVar("browse_genus");
+	$pn_browse_taxon_id = $this->getVar("browse_taxon_id");
+	$ps_last_browse = $this->getVar("last_browse");
 ?>
 <div id="browse">
 	<div class="blueRule"><!-- empty --></div>
@@ -37,7 +38,7 @@
 	</H1>
 	<div style="float:left; padding:15px 0px 0px 40px;">
 		<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'institutionList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Institution"); ?></a>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'genusList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Taxonomy"); ?></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'taxonList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Taxonomy"); ?></a>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'bibliographyList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Bibliography"); ?></a>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'projectList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Project"); ?></a>
 	</div>
@@ -53,7 +54,8 @@
 		$(link).addClass("browseItemSelected");
 	}
 <?php
-	if($pn_browse_institution_id){
+	switch($ps_last_browse){
+		case "institutions":
 ?>
 	jQuery(document).ready(function() {			
 		jQuery('#browseArea').load(
@@ -62,16 +64,21 @@
 		return false;
 	});
 <?php
-	}elseif($ps_browse_genus){
+		break;
+		# ---------------------------------
+		default:
+		case "taxonomy":
 ?>
 	jQuery(document).ready(function() {			
 		jQuery('#browseArea').load(
-			'<?php print caNavUrl($this->request, '', 'Browse', 'genusList', array("genus" => $ps_browse_genus)); ?>'
+			'<?php print caNavUrl($this->request, '', 'Browse', 'taxonList', array("taxon_id" => $pn_browse_taxon_id)); ?>'
 		);
 		return false;
 	});
 <?php	
-	}elseif($pn_browse_bibref_id){
+		break;
+		# ---------------------------------
+		case "bibliography":
 ?>
 	jQuery(document).ready(function() {			
 		jQuery('#browseArea').load(
@@ -80,7 +87,9 @@
 		return false;
 	});
 <?php
-	}elseif($pn_browse_project_id){
+		break;
+		# ---------------------------------
+		case "projects":
 ?>
 	jQuery(document).ready(function() {			
 		jQuery('#browseArea').load(
@@ -89,6 +98,8 @@
 		return false;
 	});
 <?php
+		break;
+		# ---------------------------------
 	}
 ?>
 </script>

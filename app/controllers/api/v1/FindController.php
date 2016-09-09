@@ -66,12 +66,17 @@
  			if ($pn_start < 1) { $pn_start = 0; }
  			
  			
+ 			$ps_naming = strtolower($this->request->getParameter('naming', pString));
+ 			if (!in_array($ps_naming, ['morphosource', 'darwincore'])) { $ps_naming = 'morphosource'; }
+ 			
+ 			
  			if (is_array($pa_sort) && sizeof($pa_sort)) {
  				$ps_sort = join(";", msDeflectFieldNames($pa_sort));
  			}
  	
  			try {		
 				switch($ps_function) {
+					default:
 					case 'specimens':
 						$o_search = new SpecimenSearch();
 					
@@ -89,9 +94,10 @@
 							"ms_projects.project_id", "ms_projects.name",
 							"ca_users.email"
 						]);
+						if (!$ps_sort) { $ps_sort = "ms_specimens.specimen_id"; }
 						break;
 					case 'taxonomy':
-						$o_search = new TaxonomyNamesSearch();
+						$o_search = new TaxonomyNameSearch();
 					
 						$va_fields = msInflectFieldNames([
 							"ms_taxonomy_names.taxon_id","ms_taxonomy_names.notes","ms_taxonomy_names.species","ms_taxonomy_names.subspecies",
@@ -116,6 +122,7 @@
 							"ms_projects.approval_status","ms_projects.url",
 							"ca_users.email"
 						]);
+						if (!$ps_sort) { $ps_sort = "ms_projects.project_id"; }
 						break;
 					case 'media':
 						$o_search = new MediaSearch();
@@ -139,6 +146,7 @@
 							"ms_projects.project_id", "ms_projects.name",
 							"ca_users.email"
 						]);
+						if (!$ps_sort) { $ps_sort = "ms_media.media_id"; }
 						break;
 					case 'facilities':
 						$o_search = new FacilitySearch();
@@ -149,11 +157,11 @@
 							"ms_facilities.postalcode","ms_facilities.country","ms_facilities.contact","ms_facilities.created_on",
 							"ms_facilities.last_modified_on"
 						]);
-					
+						if (!$ps_sort) { $ps_sort = "ms_facilities.facility_id"; }
 						break;
-					default:
-						throw new Exception("Invalid find type");
-						break;
+					//default:
+					//	throw new Exception("Invalid find type");
+					//	break;
 				}
  			
 				$va_field_info = msGetFieldInfo($va_fields);
@@ -167,24 +175,30 @@
 				$this->view->setVar('result', $qr_res);
 			
 				$va_results = [];
-			
 				$vn_c = 0;
 				while($qr_res->nextHit()) {
 					$va_row = [];
 					foreach($va_fields as $vs_field => $vs_displayname) {
 						$va_field_bits = explode(".", $vs_field);
+						
+						if ($ps_naming == 'darwincore') { $vs_displayname = msFieldToDarwinCoreName($vs_field); }
+						if (!$vs_displayname) {continue; }
 					
 						switch($va_field_info[$vs_field]['FIELD_TYPE']) {
 							case FT_TIMESTAMP:
-								$va_row[$vs_displayname] = $qr_res->getDate($vs_field);
+								if ($va_row[$vs_displayname]) { $va_row[$vs_displayname] .= '; '; }
+								$va_row[$vs_displayname] .= $qr_res->getDate($vs_field);
 								break;
 							default:
 						
 								if ($va_field_info[$vs_field]['BOUNDS_CHOICE_LIST']) {
-									$va_row[$vs_displayname] = $va_field_info['_instances'][$va_field_bits[0]]->getChoiceListValue($va_field_bits[1], $qr_res->get($vs_field));
+									if ($va_row[$vs_displayname]) { $va_row[$vs_displayname] .= ' '; }
+									$va_row[$vs_displayname] .= $va_field_info['_instances'][$va_field_bits[0]]->getChoiceListValue($va_field_bits[1], $qr_res->get($vs_field));
 									break;
 								} 
-								$va_row[$vs_displayname] = $qr_res->get($vs_field, ['delimiter' => ';']);
+								
+								if($va_row[$vs_displayname] AND $qr_res->get($vs_field)) { $va_row[$vs_displayname] .= '; '; }
+								$va_row[$vs_displayname] .= $qr_res->get($vs_field, ['delimiter' => ';']);
 								break;
 						}
 					}
@@ -198,10 +212,13 @@
 								
 								$va_row['taxonomy_name'] = [];
 								while($qr_taxa->nextHit()) {
+									
 									$va_taxon = [
-										'taxon_id' => $qr_taxa->get('ms_taxonomy.taxon_id'),
 										'names' => []
 									];
+									if ($ps_naming != 'darwincore') {
+										$va_taxon['taxon_id'] = $qr_taxa->get('ms_taxonomy.taxon_id');
+									}
 								
 									if (sizeof($va_name_ids = $qr_taxa->get('ms_taxonomy_names.alt_id', ['returnAsArray' => true]))) {
 										$qr_names = caMakeSearchResult('ms_taxonomy_names', $va_name_ids);
@@ -215,7 +232,18 @@
 												"notes", "is_primary",
 												"created_on","last_modified_on"
 											] as $vs_field) {
-												$va_name[$vs_field] = (in_array($vs_field, ["created_on","last_modified_on"])) ? $qr_names->getDate($vs_field) : $qr_names->get($vs_field);
+												$vs_displayname = $vs_field;
+												
+											if ($ps_naming == 'darwincore') { 
+												$vs_displayname = msFieldToDarwinCoreName("ms_taxonomy_names.{$vs_field}"); 
+												if (!$vs_displayname) {$vs_displayname = msFieldToDarwinCoreName("ms_taxonomy.{$vs_field}"); } 
+											}
+											if (!$vs_displayname) {continue; }
+											#if ($va_name[$vs_displayname]) { $va_name[$vs_displayname] .= ' '; }
+											$delim = '';
+											if($va_name[$vs_displayname] AND $qr_names->get($vs_field)) {$va_name[$vs_displayname] .= '; '; }
+												$va_name[$vs_displayname] .= (in_array($vs_field, ["created_on","last_modified_on"])) ? $qr_names->getDate($vs_field) : $qr_names->get($vs_field);
+											
 											}
 								
 								
@@ -235,7 +263,7 @@
 								while($qr_files->nextHit()) {
 									if (!$qr_files->get('ms_media_files.published')) { continue; }
 									$va_info = $qr_files->getMediaInfo('media', 'original');
-									$va_row['medium.media'][] = [
+									$va_info = [
 										'title' => $qr_files->get('ms_media_files.title'),
 										'mimetype' => $va_info['MIMETYPE'],
 										'filesize' => caHumanFilesize($va_info['PROPERTIES']['filesize']),
@@ -245,6 +273,17 @@
 										'published_on' => ($qr_files->get('ms_media_files.published_on') > 0) ? $qr_files->getDate('ms_media_files.published_on') : "",
 										'download' => "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id')
 									];
+									
+									if ($ps_naming == 'darwincore') {
+										foreach($va_info as $vs_field => $vs_value) {
+											$vs_displayname = msFieldToDarwinCoreName("ms_media_files.{$vs_field}");
+											if (!$vs_displayname) { continue; }
+											if($va_info[$vs_displayname] AND $vs_value) { $va_info[$vs_displayname] .= '; '; }
+											$va_info[$vs_displayname] .= $vs_value;
+											unset($va_info[$vs_field]);
+										}
+									} 	
+									$va_row['medium.media'][] = $va_info;
 								}
 							}
 							break;
@@ -261,6 +300,7 @@
 			} catch (Exception $e) {
 				$this->view->setVar('response', ['status' => 'err', 'message' => $e->getMessage()]);
 			}
+			
  			$this->render("find_json.php");
  		}
  		# -------------------------------------------------------

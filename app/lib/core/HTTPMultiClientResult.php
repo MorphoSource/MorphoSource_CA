@@ -137,9 +137,9 @@ class HTTPMultiClientResult {
 		while(($va_message = curl_multi_info_read($this->opo_multi_handle, $vb_running))) {
 			if ($va_message['msg'] == CURLMSG_DONE) {
 				if ($va_message['result'] == CURLE_OK) {
-					$this->opa_responses[$this->opa_requests_by_handle[(string)$va_message['handle']]['name']] = curl_multi_getcontent($va_message['handle']);
+					$this->opa_responses[$this->opa_requests_by_handle[(string)$va_message['handle']]['name']] = ['service' => $this->opa_requests_by_handle[(string)$va_message['handle']]['service'], 'response' => curl_multi_getcontent($va_message['handle'])];
 				} else {
-					$this->opa_responses[$this->opa_requests_by_handle[(string)$va_message['handle']]['name']] = "ERROR";
+					$this->opa_responses[$this->opa_requests_by_handle[(string)$va_message['handle']]['name']] = ['service' => $this->opa_requests_by_handle[(string)$va_message['handle']]['service'], 'response' => 'ERROR'];
 				}
 				curl_multi_remove_handle($this->opo_multi_handle, $va_message['handle']);
 			}
@@ -154,4 +154,3 @@ class HTTPMultiClientResult {
 	}
 	# -------------------------------------------------------------------
 }
-?>

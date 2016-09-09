@@ -83,6 +83,15 @@ H2{
 	padding:0px 5px 10px 5px;
 	font-weight:normal;
 }
+H5{
+	font-family: 'neuzeitrmn', sans-serif;
+	color:#00006A;
+	font-size:14px;
+	line-height:1.3em;
+	margin:0px;
+	padding:0px 5px 5px 5px;
+	font-weight:normal;
+}
 .ltBlueText, a.ltBlueText{
 	color:#689899 !important;
 }
@@ -1029,9 +1038,16 @@ H1.specimenDetailTitle{
 	line-height:1.2em;
 }
 a.browseItemSelected{
-	color:#FF861F;
+	color:#FF861F !important;
 }
-
+.taxonBrowseBy{
+	padding:5px;
+	font-size:11px;
+	color:#454545;
+}
+.taxonBrowseBy a{
+	font-size:13px;
+}
 /* Media Cart */
 .mediaCartTools{
 	padding-bottom:2px;

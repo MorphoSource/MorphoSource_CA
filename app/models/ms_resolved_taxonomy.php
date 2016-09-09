@@ -46,7 +46,7 @@ BaseModel::$s_ca_models_definitions['ms_resolved_taxonomy'] = array(
 		'parent_id' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
+				'IS_NULL' => true, 
 				'DEFAULT' => '',
 				'LABEL' => 'Parent id', 'DESCRIPTION' => 'Parent id'
 		),
@@ -81,6 +81,20 @@ BaseModel::$s_ca_models_definitions['ms_resolved_taxonomy'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('Source'), 'DESCRIPTION' => _t('Source of taxon information.'),
 				'BOUNDS_LENGTH' => array(0,100)
+		),
+		'specimen_count' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Specimen count'), 'DESCRIPTION' => _t('Number of specimens associated with this taxon.'),
+		),
+		'published_specimen_count' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Published specimen count'), 'DESCRIPTION' => _t('Number of published specimens associated with this taxon.'),
 		),
 		'hier_left' => array(
 				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT, 
@@ -155,7 +169,7 @@ class ms_resolved_taxonomy extends BaseModel {
 	protected $HIERARCHY_RIGHT_INDEX_FLD 	= 	'hier_right';
 	protected $HIERARCHY_PARENT_ID_FLD		=	'parent_id';
 	protected $HIERARCHY_DEFINITION_TABLE	=	'ms_resolved_taxonomy';
-	protected $HIERARCHY_ID_FLD				=	'hier_object_id';
+	protected $HIERARCHY_ID_FLD				=	null;
 	protected $HIERARCHY_POLY_TABLE			=	null;
 	
 	# ------------------------------------------------------
@@ -183,6 +197,9 @@ class ms_resolved_taxonomy extends BaseModel {
 	# are listed here is the order in which they will be returned using getFields()
 
 	protected $FIELDS;
+	
+	
+	static $s_ranks = ["kingdom", "subkingdom", "phylum", "subphylum",  "superclass", "class",  "subclass", "infraclass","superorder", "order", "suborder","infraorder", "superfamily", "family",  "subfamily","infrafamily", "genus", "subgenus", "species", "variety"];
 	
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
