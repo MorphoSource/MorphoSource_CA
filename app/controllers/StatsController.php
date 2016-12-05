@@ -342,7 +342,7 @@
 			$output_rows = array();
 			if(sizeof($va_projects)){
 				$output_rows = array();
-				$output_row = array("Project", "Report Date", "Specimen Number", "Taxon", "Element", "Media", "Media public views", "Media view diversity", "Media view detail", "media downloads", "media download diversity", "media download detail");
+				$output_row = array("Project", "Report Date", "Specimen Number", "Taxon", "Element", "Media", "Derivatives", "Media public views", "Media view diversity", "Media view detail", "media downloads", "media download diversity", "media download detail");
 				$output_rows[] = join("\t", $output_row);
 				foreach($va_projects as $va_project){
 					$va_media_info = array();
@@ -384,16 +384,26 @@
 						}
 					}
 					if(sizeof($va_project_media_ids)){
-						# --- get all the elements in one query for use later
-						$q_elements = $o_db->query("SELECT element, media_id from ms_media where media_id IN (".join(", ", $va_project_media_ids).")");
-						$va_elements = array();
-						if($q_elements->numRows()){
-							while($q_elements->nextRow()){
-								$va_elements[$q_elements->get("media_id")] = $q_elements->get("element");
-							}
-						}
 						# --- make array with media info
 						if(sizeof($va_project_media_ids)){
+							# --- get all the elements in one query for use later
+							$q_elements = $o_db->query("SELECT element, media_id from ms_media where media_id IN (".join(", ", $va_project_media_ids).")");
+							$va_elements = array();
+							if($q_elements->numRows()){
+								while($q_elements->nextRow()){
+									$va_elements[$q_elements->get("media_id")] = $q_elements->get("element");
+								}
+							}
+
+							# --- get all the derivatives in one query
+							$q_derivatives = $o_db->query("SELECT media_id, derived_from_media_id from ms_media where derived_from_media_id IN (".join(", ", $va_project_media_ids).")");
+							$va_derivatives = array();
+							if($q_derivatives->numRows()){
+								while($q_derivatives->nextRow()){
+									$va_derivatives[$q_derivatives->get("derived_from_media_id")][] = $q_derivatives->get("media_id");
+								}
+							}
+							
 							$va_rows = array();
 							$q_media_views = $o_db->query("SELECT mvs.*, u.fname, u.lname, u.email, u.user_id 
 													FROM ms_media_view_stats mvs 
@@ -425,7 +435,8 @@
 											"element" => $va_elements[$vn_media_id],
 											"specimen_id" => $va_project_specimen["specimen_id"],
 											"mediaDownloadsViews" => $va_rows[$vn_media_id],
-											"downloadByFile" => $va_downloads_by_file[$vn_media_id]
+											"downloadByFile" => $va_downloads_by_file[$vn_media_id],
+											"derivatives" => (is_array($va_derivatives[$vn_media_id]) && sizeof($va_derivatives[$vn_media_id])) ? join(", ", $va_derivatives[$vn_media_id]) : ""
 								);
 							}
 						}
@@ -487,7 +498,7 @@
 							if(mb_strlen($vs_media_downloads) > 31000){
 								$vs_media_downloads = mb_substr($vs_media_downloads, 0, 31000)."... This info has been shortened to work with Excel";
 							}
-							$va_output_row = array($va_info["project_name"], date("n/j/y", time()), $va_info["specimen_number"], (is_array($va_info["specimen_taxonomy"])) ? join(", ", $va_info["specimen_taxonomy"]) : "", preg_replace("/\r|\n/", " ", $va_info["element"]), $vs_media, sizeof($va_media_views_download["views"]), $vs_view_diversity,  $vs_media_views, sizeof($va_media_views_download["downloads"]), $vs_download_diversity, $vs_media_downloads);
+							$va_output_row = array($va_info["project_name"], date("n/j/y", time()), $va_info["specimen_number"], (is_array($va_info["specimen_taxonomy"])) ? join(", ", $va_info["specimen_taxonomy"]) : "", preg_replace("/\r|\n/", " ", $va_info["element"]), $vs_media, $va_info["derivatives"], sizeof($va_media_views_download["views"]), $vs_view_diversity,  $vs_media_views, sizeof($va_media_views_download["downloads"]), $vs_download_diversity, $vs_media_downloads);
 							$output_rows[] = join("\t", $va_output_row);
 									
 						}

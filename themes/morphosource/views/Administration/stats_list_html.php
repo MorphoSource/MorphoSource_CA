@@ -47,7 +47,25 @@
 	<div class="stats">Users: <span class="ltBlueText"><?php print $this->getVar("num_users"); ?></span></div>
 	<div class="stats">Specimens: <span class="ltBlueText"><?php print $this->getVar("num_specimens"); ?></span></div>
 	<div class="stats">Media: <span class="ltBlueText"><?php print $this->getVar("num_media"); ?></span></div>
+	<div class="stats">
+		&nbsp;&nbsp;&nbsp;&nbsp;Published: <span class="ltBlueText"><?php print $this->getVar("num_published_media"); ?></span>&nbsp;&nbsp;
+		Unpublished: <span class="ltBlueText"><?php print $this->getVar("num_not_published_media"); ?></span> 	
+	</div>
 	<div class="stats">Media files: <span class="ltBlueText"><?php print $this->getVar("num_media_files"); ?></span></div>
+	<div class="stats">
+		&nbsp;&nbsp;&nbsp;&nbsp;Published: <span class="ltBlueText"><?php print $this->getVar("num_published_media_files"); ?></span>&nbsp;&nbsp;
+		Unpublished: <span class="ltBlueText"><?php print $this->getVar("num_not_published_media_files"); ?></span> 	
+		<br/>&nbsp;&nbsp;&nbsp;&nbsp;File types: <span class="ltBlueText">
+<?php
+	$va_all_mimetype_counts = $this->getVar("all_mimetype_counts");
+	arsort($va_all_mimetype_counts);
+	$va_all_mimetypes = $this->getVar("all_mimetypes");
+	foreach($va_all_mimetype_counts as $vs_mime_type => $vs_count){
+		print $va_all_mimetypes[$vs_mime_type].": ".$vs_count."; ";
+	}
+?>		
+		</span>
+	</div>
 	<div class="stats">Taxonomic names: <span class="ltBlueText"><?php print $this->getVar("num_taxonomy_names"); ?></span></div>
 	<div class="stats">Bibliographic citations: <span class="ltBlueText"><?php print $this->getVar("num_bibliography"); ?></span></div>
 	<div class="stats">Facilities: <span class="ltBlueText"><?php print $this->getVar("num_facilities"); ?></span></div>

@@ -50,7 +50,7 @@
  			}
  			if(!$this->request->user->isFullAccessUser()){
  				$this->notification->addNotification("You must be a full access user to access a project", __NOTIFICATION_TYPE_ERROR__);
-				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 				return;
  			}
  			
@@ -70,10 +70,10 @@
  			}else{
  				if(!$vn_project_id){
  					$this->notification->addNotification("You must select a project", __NOTIFICATION_TYPE_ERROR__);
-					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
  				}else{
  					$this->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
-					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
  				}
  				return;
  			}

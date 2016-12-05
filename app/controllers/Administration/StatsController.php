@@ -53,9 +53,39 @@
  			$q_media_count->nextRow();
  			$this->view->setVar('num_media', $q_media_count->get("c"));
  			
+ 			$q_published_media_count = $o_db->query("SELECT count(*) c FROM ms_media where published > 0");
+ 			$q_published_media_count->nextRow();
+ 			$this->view->setVar('num_published_media', $q_published_media_count->get("c"));
+ 			
+ 			$q_not_published_media_count = $o_db->query("SELECT count(*) c FROM ms_media where published = 0");
+ 			$q_not_published_media_count->nextRow();
+ 			$this->view->setVar('num_not_published_media', $q_not_published_media_count->get("c"));
+ 			
  			$q_media_files_count = $o_db->query("SELECT count(*) c FROM ms_media_files");
  			$q_media_files_count->nextRow();
  			$this->view->setVar('num_media_files', $q_media_files_count->get("c"));
+ 			
+ 			$q_published_media_files_count = $o_db->query("SELECT count(*) c FROM ms_media_files mf INNER JOIN ms_media as m ON m.media_id = mf.media_id WHERE (mf.published > 0) OR ((mf.published IS null) AND (m.published > 0))");
+ 			$q_published_media_files_count->nextRow();
+ 			$this->view->setVar('num_published_media_files', $q_published_media_files_count->get("c"));
+ 			
+ 			$q_not_published_media_files_count = $o_db->query("SELECT count(*) c FROM ms_media_files mf INNER JOIN ms_media as m ON m.media_id = mf.media_id WHERE (mf.published = 0) OR ((mf.published IS null) AND (m.published = 0))");
+ 			$q_not_published_media_files_count->nextRow();
+ 			$this->view->setVar('num_not_published_media_files', $q_not_published_media_files_count->get("c"));
+ 			
+ 			# --- this is gonna me slow
+ 			$q_file_types = $o_db->query("SELECT media FROM ms_media_files");
+ 			$va_all_mimetypes = array();
+ 			$va_all_mimetype_counts = array();
+ 			if($q_file_types->numRows()){
+ 				while($q_file_types->nextRow()){
+ 					$va_properties = $q_file_types->getMediaInfo('media', 'original');
+ 					$va_all_mimetypes[$va_properties["MIMETYPE"]] = msGetMediaFormatDisplayString($q_file_types);
+ 					$va_all_mimetype_counts[$va_properties["MIMETYPE"]] = $va_all_mimetype_counts[$va_properties["MIMETYPE"]] + 1;
+ 				}
+ 			}
+ 			$this->view->setVar('all_mimetype_counts', $va_all_mimetype_counts);
+ 			$this->view->setVar('all_mimetypes', $va_all_mimetypes);
  			
  			$q_taxonomy_count = $o_db->query("SELECT count(*) c FROM ms_taxonomy_names");
  			$q_taxonomy_count->nextRow();

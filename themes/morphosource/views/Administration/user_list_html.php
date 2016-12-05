@@ -115,12 +115,12 @@
 				<td <?php print (($this->getVar('userclass') == 50) ? "" : 'width="100"'); ?> align="center">
 <?php
 					if($this->getVar('userclass') == 50){
-						print caNavButton($this->request, '', _t("Approve"), 'Administration', 'Users', 'approveRequest', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
-						print "&nbsp;&nbsp;".caNavButton($this->request, '', _t("Deny"), 'Administration', 'Users', 'denyRequest', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
+						print caNavLink($this->request, _t("Approve"), "button buttonSmall", "Administration", "Users", "approveRequest", array('user_id' => $va_user['user_id']));
+						print "&nbsp;&nbsp;".caNavLink($this->request, _t("Deny"), "button buttonSmall", "Administration", "Users", "denyRequest", array('user_id' => $va_user['user_id']))."&nbsp;&nbsp;";
 					}
+					print caNavLink($this->request, _t("Edit"), "button buttonSmall", "Administration", "Users", "Edit", array('user_id' => $va_user['user_id']));
+					print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "Administration", "Users", "Delete", array('user_id' => $va_user['user_id']));
 ?>
-					<?php print caNavButton($this->request, '', _t("Edit"), 'Administration', 'Users', 'Edit', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
-					&nbsp;&nbsp;<?php print caNavButton($this->request, '', _t("Delete"), 'Administration', 'Users', 'Delete', array('user_id' => $va_user['user_id']), array(), array('use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
 				</td>
 			</tr>
 <?php

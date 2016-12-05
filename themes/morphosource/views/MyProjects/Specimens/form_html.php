@@ -25,7 +25,7 @@ if (!$this->request->isAjax()) {
 	if(!$t_item->get("specimen_id")){
 		# --- display a look up for people to find an existing record before entering their own
 		print "<div class='formLabel' id='specimenLookUpContainer'>";
-		print "<b>Before creating a new specimen, please enter the catalog number here to check if a specimen record already exists:</b><br/>";
+		print "<span style='font-weight:normal;'>Before creating a new specimen, please check if a specimen record already exists.</span><br/><b>Enter any <i>individual</i> part of the catalog number, either the institution code prefix, collection code modifier or the alphanumeric suffix:</b><br/>";
 		print caHTMLTextInput("specimenLookUp", array("id" => 'specimenLookUp', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
 		print "<span id='addOrLinkButtons' style='display:none;'><a href='#' class='button buttonSmall' id='addMedia'>ADD MEDIA</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href='#' class='button buttonSmall' id='linkSpecimen'>LINK SPECIMEN TO PROJECT</a></span><!-- end addOrLinkButtons -->";
 	

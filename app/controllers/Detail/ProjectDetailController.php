@@ -84,11 +84,11 @@
 			}
 			if(!$this->opo_item->get("project_id")){
 				$this->notification->addNotification("Invalid project_id", __NOTIFICATION_TYPE_ERROR__);
-				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 			}
  			if (!$this->opo_item->get("publication_status") == 1) {
  				$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
- 				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+ 				$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
  			}
 			$this->view->setvar("item_id", $this->opn_item_id);
 			$this->view->setvar("project_id", $this->opn_item_id);

@@ -321,6 +321,7 @@
 // description
 // project membership
 // publication status
+// published on
 // copyright holder
 // copyright status
 // resolution
@@ -357,8 +358,9 @@
 									"specimen",
 									"specimen taxonomy",
 									"insitution",
+									"media group number",
 									"media file number",
-									"media file number",
+									"derived from",
 									"project",
 									"doi",
 									"description/element",
@@ -366,12 +368,14 @@
 									"copyright license",
 									"citation instruction statement (to be copy-pasted into acknolwedgements)",
 									"publication status",
+									"published on",
 									"facility",
 									"x res",
 									"y res",
 									"z res",
 									"media views",
 									"media file downloads",
+									"date of first download",
 									"media file download diversity",
 									"downloads for research",
 									"downloads for college education",
@@ -385,11 +389,12 @@
 				while($q_media_files->nextRow()){
 					$va_media_md = array();
 					$vn_pub = "";
-					if($q_media_files->get("published") !== null){
+					if($q_media_files->get("file_pub") !== null){
 						$vn_pub = $q_media_files->get("file_pub");
 					}else{
 						$vn_pub = $q_media_files->get("published");
 					}
+					#print "media_id: ".$q_media_files->get("media_id")." file pub: ".$q_media_files->get("file_pub")." - "." media pub: ".$q_media_files->get("published")." - ";
 					if($vn_pub > 0){
 						$vs_specimen_taxonomy = $vs_specimen_name = "";
 						if(!$va_specimen_info[$q_media_files->get("specimen_id")]){
@@ -412,6 +417,7 @@
 						$va_media_md[] = $q_media_files->get("institution");
 						$va_media_md[] = "M".$q_media_files->get("media_id");
 						$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
+						$va_media_md[] = ($q_media_files->get("derived_from_media_id")) ? "M".$q_media_files->get("derived_from_media_id") : "";
 						$va_media_md[] = $q_media_files->get("name");
 						$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
 						$va_media_md[] = trim($va_tmp[0]);
@@ -428,6 +434,11 @@
 							$va_media_md[] = "";
 						}
 						$va_media_md[] = $t_media->getChoiceListValue("published", $vn_pub);
+						if($q_media_files->get("published_on")){
+							$va_media_md[] = date("m/j/y", $q_media_files->get("published_on"));
+						}else{
+							$va_media_md[] = "NA";
+						}
 						$va_media_md[] = $q_media_files->get("facility");
 						$va_media_md[] = $q_media_files->get("scanner_x_resolution")." mm";
 						$va_media_md[] = $q_media_files->get("scanner_y_resolution")." mm";
@@ -438,15 +449,19 @@
 						$va_media_md[] = $q_media_views->numRows();
 					
 						# --- media file download
-						$q_media_file_downloads = $o_db->query("SELECT download_id, user_id, intended_use, intended_use_other from ms_media_download_stats where media_file_id = ?", $q_media_files->get("media_file_id"));
+						$q_media_file_downloads = $o_db->query("SELECT download_id, user_id, intended_use, intended_use_other, downloaded_on from ms_media_download_stats where media_file_id = ? ORDER BY downloaded_on asc", $q_media_files->get("media_file_id"));
 						$va_media_md[] = $q_media_file_downloads->numRows();
 						# --- download diversity and use
 						$va_download_users = array();
 						$va_download_use = array("research" => 0, "college" => 0, "k-12" => 0, "other" => 0);
+						$vs_first_download = "";
 						if($q_media_file_downloads->numRows()){
 							while($q_media_file_downloads->nextRow()){
 								if($q_media_file_downloads->get("user_id")){
 									$va_download_users[$q_media_file_downloads->get("user_id")] = $q_media_file_downloads->get("user_id");
+								}
+								if(!$vs_first_download && $q_media_file_downloads->get("downloaded_on")){
+									$vs_first_download = date("m/j/y", $q_media_file_downloads->get("downloaded_on"));
 								}
 								$t_download_stats->load($q_media_file_downloads->get("download_id"));
 								$va_intended_use = $t_download_stats->get("intended_use");
@@ -478,6 +493,7 @@
 								}
 							}
 						}
+						$va_media_md[] = $vs_first_download;
 						$va_media_md[] = sizeof($va_download_users);
 						$va_media_md[] = $va_download_use["research"];
 						$va_media_md[] = $va_download_use["college"];
@@ -487,7 +503,7 @@
 						$va_all_md[] = $va_media_md;
 					}
 				}
-					
+				#exit;	
 				#return join($va_all_md, "\n")."\n\nThis text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.\n\n";
 				
 				if(sizeof($va_all_md)){

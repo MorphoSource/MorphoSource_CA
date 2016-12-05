@@ -219,7 +219,7 @@ if ($this->request->isLoggedIn()) {
 				}
 				print "<br/>";
 				if($t_parent->get("title")){
-					$t_parent->get("title")."<br/>";
+					print $t_parent->get("title")."<br/>";
 				}
 				print $t_specimen->getSpecimenName($t_parent->get("specimen_id"));
 ?>
@@ -364,6 +364,51 @@ if ($this->request->isLoggedIn()) {
 			print "</div>";
 		}
 	}
-	print "</div>";
+	# --- check to see if there are any derivatives of this record
+	$q_derivatives = $o_db->query("SELECT * from ms_media WHERE derived_from_media_id = ?", $t_media->get("media_id"));
+	if($q_derivatives->numRows()){
+		# --- loop through them all to check access first
+		$t_project = new ms_projects();
+		$t_specimen = new ms_specimens();
+		$va_derivatives = array();
+		while($q_derivatives->nextRow()){
+			$t_derivative = new ms_media($q_derivatives->get("media_id"));
+			$vb_derivative_access = false;
+			if($q_derivatives->get("published") > 0){
+				$vb_derivative_access = true;
+			}else{
+				if($this->request->isLoggedIn()){
+					$vb_derivative_access = $t_project->isMember($this->request->user->get("user_id"), $q_derivatives->get("project_id"));
+				}
+			}
+			if($vb_derivative_access){
+				$va_parent_media = $t_derivative->getPreviewMediaFile(null, array("icon"), ($vb_derivative_access) ? false : true);
+				$vs_derivative = "";
+				if(is_array($va_parent_media) && sizeof($va_parent_media)){
+					$vs_derivative .= "<div style='float:left; padding-right:20px;'>".$va_parent_media["media"]["icon"]."</div>";
+				}
+				if($vb_derivative_access){
+					$vs_derivative .= caNavLink($this->request, "<b>M".$t_derivative->get("media_id")."</b>", "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $t_derivative->get("media_id")));
+				}else{
+					$vs_derivative .= "<b>M".$t_derivative->get("media_id")."</b>";
+				}
+				$vs_derivative .= "<br/>";
+				if($t_derivative->get("title")){
+					$vs_derivative .= $t_derivative->get("title")."<br/>";
+				}
+				$vs_derivative .= $t_specimen->getSpecimenName($t_derivative->get("specimen_id"));
+				$va_derivatives[] = $vs_derivative;
+			}			
+		}
+		if(sizeof($va_derivatives)){
+?>
+			<div class="tealRule"><!-- empty --></div>
+			<H2>Derivatives</H2>
+<?php
+			foreach($va_derivatives as $vs_derivative){
+				print "<div class='unit'>".$vs_derivative."<div style='clear:left;'></div></div>";
+			}
+		}
+	}
 ?>
 </div>

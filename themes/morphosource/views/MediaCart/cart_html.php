@@ -46,7 +46,7 @@
 		</H1>
 			<div style="float:right; width:250px; text-align:right; margin-top:-10px;">
 <?php
-			print caFormTag($this->request, 'removeByMimetype', 'removeMimetypeForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+			print caFormTag($this->request, 'removeByMimetype', 'removeMimetypeForm', 'mediaCart', 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 ?>
 				<span style="font-size:12px;">Remove files from cart by type:
 				<select name='mimetype' style='width:150px;'>

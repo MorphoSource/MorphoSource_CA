@@ -327,7 +327,8 @@
  		public function delete() {
 			# --- only project owner can edit project info
 			if ($this->opo_project->get("project_id") && ($this->opo_project->get("user_id") != $this->request->user->get("user_id"))) {
-				$this->form();
+				$this->notification->addNotification("Only the project administrator can remove members", __NOTIFICATION_TYPE_ERROR__);
+				$this->listForm();
 				return;
  			}
 

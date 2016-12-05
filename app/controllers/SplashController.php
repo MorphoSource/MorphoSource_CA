@@ -63,6 +63,13 @@
 			
  			# --- featured projects
  			$va_featured_projects = array(
+ 				"249" => array("media" => array(),
+ 								"title" => "A new species of Brachycephalus from Santa Catarina, southern Brazil",
+ 								"links" => array(
+ 													"<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("More about Brachycephalus albolineatus"), '', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => 4217))."</b>",
+ 													"<i class='fa fa-arrow-right'></i> <b><a href='https://peerj.com/articles/2629/' target='_blank'>Read the published article</a></b>"
+ 												)
+ 								),
  				"189" => array("media" => array(),
  								"title" => "First North American Fossil Monkey and Early Miocene Tropical Biotic Interchange",
  								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 189))."</b>",

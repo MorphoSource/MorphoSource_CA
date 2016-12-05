@@ -247,7 +247,7 @@
 					# -----------------------------------------------
 					case 'published':
 						if($_REQUEST['published'] != $this->opo_item->get('published')){
-							if(($_REQUEST['published'] == 1)){
+							if(($_REQUEST['published'] > 0)){
 								# --- publishing media so set published on date
 								$this->opo_item->set("published_on",'now');
 							}else{

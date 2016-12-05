@@ -269,7 +269,7 @@
 			$t_project->load($pn_project_id);
 			if(!$t_project->isMember($this->opo_user->get("user_id"))){
 				$this->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
-				$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+				$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 				return;
 			}
 			$t_media = new ms_media();

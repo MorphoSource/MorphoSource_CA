@@ -567,8 +567,10 @@ class ms_specimens extends BaseModel {
 					FROM ms_media m
 					INNER JOIN ms_projects AS p ON m.project_id = p.project_id
 					LEFT JOIN ms_project_users AS pu ON p.project_id = pu.project_id
-					WHERE (m.specimen_id = ?) AND (p.deleted = 0) AND (".$vs_published_where." (pu.user_id = ?))",
-					array($pn_specimen_id, $pa_options['user_id']));
+					LEFT JOIN ms_media_x_projects AS mp ON mp.media_id = m.media_id
+					LEFT JOIN ms_project_users AS puReadOnly ON mp.project_id = puReadOnly.project_id
+					WHERE (m.specimen_id = ?) AND (p.deleted = 0) AND (".$vs_published_where." (pu.user_id = ?) OR (puReadOnly.user_id = ?))",
+					array($pn_specimen_id, $pa_options['user_id'], $pa_options['user_id']));
 			}else{
 				if($pa_options['published']){
 					$vs_published_where = " AND m.published > 0";

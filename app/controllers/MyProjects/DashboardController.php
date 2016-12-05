@@ -165,6 +165,7 @@
  				
  				$t_req = new ms_media_download_requests($pn_request_id);
  				$t_media = new ms_media($t_req->get('media_id'));
+ 				$t_project = new ms_projects($t_media->get("project_id"));
  				if (($t_media->get('project_id') == $this->opn_project_id) || ($this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $t_media->get('project_id')))) {
  					$t_req->setMode(ACCESS_WRITE);
  					$t_req->set('status', $pn_value);
@@ -178,18 +179,18 @@
 							switch($pn_value) {
 								case 1:
 									caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] APPROVED request for download of media M".$t_req->get('media_id'), 'user_download_request_approved_notification.tpl', array(
-										'user' => $this->request->user,
+										'user' => $t_user,
 										'media' => $t_media,
-										'project' => $this->opo_project,
+										'project' => $t_project,
 										'downloadRequest' => $t_req,
 										'request' => $this->request
 									));
 									break;
 								case 2:
 									caSendMessageUsingView($this->request, $vs_email, 'do-not-reply@morphosource.org', "[Morphosource] DENIED request for download of media M".$t_req->get('media_id'), 'user_download_request_denied_notification.tpl', array(
-										'user' => $this->request->user,
+										'user' => $t_user,
 										'media' => $t_media,
-										'project' => $this->opo_project,
+										'project' => $t_project,
 										'downloadRequest' => $t_req,
 										'request' => $this->request
 									));
@@ -376,7 +377,7 @@
 				ob_end_clean();
 				if(caSendmail($this->request->config->get("contributor_request_email"), "do-not-reply@morphosource.org", _t("User request to contribute to MorphoSource"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
 					$this->notification->addNotification(_t('Your request was sent.'), __NOTIFICATION_TYPE_INFO__);
-					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 				}else{
 					$this->notification->addNotification(_t('Your request could not be sent at this time.'), __NOTIFICATION_TYPE_INFO__);
 				}

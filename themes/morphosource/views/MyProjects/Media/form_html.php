@@ -36,7 +36,8 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
 		<H2 class='ltBlueBottomRule' style='margin: 10px 0px 10px 0px;'>Derivative Information</H2>
 		<div style="text-align:center;">
 			<b>Are you creating a media group containing files derived from another MorphoSource media group?</b><br/>
-			If so, search for the original media group to pre-populate your record with the appropriate information:<br/>
+			If so, search for the original media group to pre-populate your record with the appropriate information.<br/>
+			When searching by media number, do not include the "M".  For example to find M1234, enter 1234:<br/>
 		</div>
 <?php
 			print caFormTag($this->request, 'form', 'mediaDerivativeForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));

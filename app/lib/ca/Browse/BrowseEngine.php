@@ -61,7 +61,7 @@
 		private $opa_browse_type_ids = null;
 		private $opb_dont_expand_type_restrictions = false;
 		
-		private $opo_datamodel;
+		public $opo_datamodel;
 		protected $opo_db;
 		
 		private $opo_config;

@@ -74,7 +74,7 @@
 				}
 				if(!$this->opo_item->get("media_id")){
 					$this->notification->addNotification("Invalid media_id", __NOTIFICATION_TYPE_ERROR__);
-					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 				}
 				# --- does user have read only access to the media group?
 				if($this->opo_item->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
@@ -88,13 +88,13 @@
 					$t_project = new ms_projects($this->opo_item->get("project_id"));
 					if(!($this->request->isLoggedIn()) || (!$t_project->isMember($this->request->user->get("user_id")) && !$this->opn_read_only)){
 						$this->notification->addNotification("Item is not published", __NOTIFICATION_TYPE_ERROR__);
-						$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+						$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 					}
 				}
 				$t_project = new ms_projects($this->opo_item->get("project_id"));
 				if($t_project->get("deleted")){
 					$this->notification->addNotification("Item is deleted", __NOTIFICATION_TYPE_ERROR__);
-					$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+					$this->response->setRedirect(caNavUrl($this->request, "splash", "index", ""));
 				}
 				$this->view->setvar("item_id", $this->opn_item_id);
 				$this->view->setvar("media_id", $this->opn_item_id);

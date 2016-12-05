@@ -110,7 +110,11 @@
 					if(sizeof($va_projects)){
 						print "<div>CHANGE PROJECT:</div>";
 						foreach($va_projects as $va_project){
-							print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
+							if($va_project["membership_type"] == 1){
+								print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]))."</div>";
+							}else{
+								print "<div>".caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]))."</div>";
+							}
 						}
 					}
 					print "</div>\n";

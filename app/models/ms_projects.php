@@ -819,6 +819,7 @@ class ms_projects extends BaseModel {
 			$t_media = new ms_media($qr_res->get('media_id'));
 			$t_media->setMode(ACCESS_WRITE);
 			$t_media->set('published', $pn_published);
+			$t_media->set('published_on','now');
 			$t_media->update();
 			if ($t_media->numErrors() == 0) {
 				$vn_pub_count++;
