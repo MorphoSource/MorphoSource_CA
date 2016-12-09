@@ -37,6 +37,7 @@ require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_view_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_files.php");
+require_once(__CA_MODELS_DIR__."/ms_media_shares.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media group'),
@@ -917,6 +918,7 @@ class ms_media extends BaseModel {
  	}
  	# ------------------------------------------------------
  	# --- media project owner shared media with another project
+ 	# --- or link has been shared with specific user
  	public function userHasReadOnlyAccessToMedia($pn_user_id, $pn_media_id=null){
  		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
@@ -933,6 +935,11 @@ class ms_media extends BaseModel {
  				}
  			}
  		}
+ 		
+		$q_media_shares = $o_db->query("SELECT link_id, media_id FROM ms_media_shares where user_id = ? AND media_id = ? AND created_on > ".(time() - (60 * 60 * 24 * 30)), $pn_user_id, $vn_media_id);
+		if($q_media_shares->numRows()){
+			return true;
+		}
  		return false;
  	}
 	# ------------------------------------------------------
@@ -1008,6 +1015,10 @@ class ms_media extends BaseModel {
  		}
  		# --- check if user has read only access to the media group
  		if($t_media->userHasReadOnlyAccessToMedia($pn_user_id)){
+ 			return true;
+ 		}
+ 		# --- check if media was shared with user -> this lets them view/download even if not part of project or published
+ 		if($t_media->mediaShared($pn_user_id)){
  			return true;
  		}
  		# -- is the file published?
@@ -1276,5 +1287,6 @@ class ms_media extends BaseModel {
  		return $vs_citation_text;
 	}
 	# ------------------------------------------------------
+	
 }
 ?>

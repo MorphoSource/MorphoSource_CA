@@ -41,7 +41,8 @@
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
  	require_once(__CA_LIB_DIR__.'/ms/DOI.php');
- 
+ 	require_once(__CA_MODELS_DIR__."/ms_media_shares.php");
+ 	
  	class MediaController extends ActionController {
  		# -------------------------------------------------------
 			protected $opo_project;
@@ -1488,6 +1489,89 @@
  			$this->render('Media/derivative_preview_html.php');
  		}
  		# -------------------------------------------------------
- 		
+ 		public function shareMediaUser(){
+			if($this->opo_item->get("media_id") && ($pn_share_user_id = $this->request->getParameter('share_user_id', pInteger))){
+				$t_share_media = new ms_media_shares();
+				
+				$t_share_media->set("media_id", $this->opo_item->get("media_id"));
+				$t_share_media->set("user_id", $pn_share_user_id);
+				$t_share_media->set("shared_by_user_id", $this->request->user->get("user_id"));
+				$vs_use_restrictions = $this->request->getParameter('use_restrictions', pString);
+				$t_share_media->set("use_restrictions", $vs_use_restrictions);
+				if ($t_share_media->numErrors() == 0) {
+					# do insert
+					$t_share_media->setMode(ACCESS_WRITE);
+					$t_share_media->insert();
+		
+					if ($t_share_media->numErrors()) {
+						foreach ($t_share_media->getErrors() as $vs_e) {  
+							$va_errors["general"] = "Could not share media: ".join(", ", $t_share_media->getErrors());
+						}
+					}
+				}else{
+					$va_errors["general"] = "Could not share media: ".join(", ", $t_share_media->getErrors());
+				}
+				if(sizeof($va_errors) > 0){
+					$vs_message = $va_errors["general"];
+				}else{
+					
+					# --- send email to user
+					# -- generate mail text from template - get both html and text versions
+					# --- get current user's name and email address
+					$o_db = new Db();
+					$q_user_info = $o_db->query("SELECT fname, lname, email from ca_users where user_id = ?", $pn_share_user_id);
+					if($q_user_info->numRows()){
+						$q_user_info->nextRow();
+						$vs_user_name = trim($q_user_info->get("fname")." ".$q_user_info->get("lname"));
+						$vs_user_email = $q_user_info->get("email");
+					}
+					$vs_specimen_info = "";
+					if($this->opo_item->get("specimen_id")){
+						$t_specimen = new ms_specimens($this->opo_item->get("specimen_id"));
+						$vs_specimen_info = $t_specimen->getSpecimenName();
+					}
+					$vs_sharing_name = trim($this->request->user->get("fname")." ".$this->request->user->get("lname"));
+
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/share_media.tpl");
+					$vs_mail_message_text = ob_get_contents();
+					ob_end_clean();
+					ob_start();
+					require($this->request->getViewsDirectoryPath()."/mailTemplates/share_media_html.tpl");
+					$vs_mail_message_html = ob_get_contents();
+					ob_end_clean();
+									
+					if(caSendmail($vs_user_email, $this->request->user->get("email"), _t("MorphoSource Media Share"), $vs_mail_message_text, $vs_mail_message_html, null, null)){
+						$vs_message = $vs_user_name." has been emailed how to access the media.";
+					}else{
+						$vs_message = "Could not send email notification";
+					}
+				}
+			}else{
+				$vs_message = "Please search for and select a user from the options provided";
+			}
+			$this->view->setVar("message", $vs_message);
+			$this->render('Media/share_media_user_form_html.php');	
+				
+			
+ 		}
+ 		# -------------------------------------------------------
+ 		public function removeShareMediaUser() {
+ 			if($pn_link_id = $this->request->getParameter('link_id', pInteger)){
+ 				$t_media_shares = new ms_media_shares($pn_link_id);
+ 				$t_media_shares->setMode(ACCESS_WRITE);
+ 				$t_media_shares->delete();
+				if ($t_media_shares->numErrors() > 0) {
+					foreach ($t_media_shares->getErrors() as $vs_e) {
+						$va_errors[] = $vs_e;
+					}
+					$this->view->setVar("message", join(", ", $va_errors));
+				}else{
+					$this->notification->addNotification("Removed user's access to media", __NOTIFICATION_TYPE_INFO__);
+				}
+ 			}
+ 			$this->mediaInfo();
+ 		}
+ 		# -------------------------------------------------------
  	}
  ?>

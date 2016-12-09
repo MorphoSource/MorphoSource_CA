@@ -191,6 +191,21 @@ if ($this->request->isLoggedIn()) {
 <?php
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
+	
+	# --- is this record shared with the current user?
+	if($this->getVar("share")){
+?>
+			<div class="tealRule"><!-- empty --></div>
+			<H2>Sharing Details</H2>
+			<div class="unit">
+<?php		
+			print "<b>Person responsible for sharing media:</b> ".$this->getVar("share_shared_by")."</br>";
+			print "<b>Access expires:</b> ".$this->getVar("share_expires")."</br>";
+			if($this->getVar("share_use_restrictions")){
+				print "<b>Use restrictions:</b> ".$this->getVar("share_use_restrictions")."</br>";
+			}
+			print "</div>";
+	}
 	if($t_media->get("derived_from_media_id")){
 		$t_parent = new ms_media($t_media->get("derived_from_media_id"));
 		$t_specimen = new ms_specimens();

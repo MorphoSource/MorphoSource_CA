@@ -1,13 +1,13 @@
 <?php
 /* ----------------------------------------------------------------------
- * lookup/ajax_user_list_html.php : 
+ * default/views/mailTemplates/share_media.tpl
  * ----------------------------------------------------------------------
  * CollectiveAccess
  * Open-source collections management software
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2012 Whirl-i-Gig
+ * Copyright 2009-2016 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -25,8 +25,15 @@
  *
  * ----------------------------------------------------------------------
  */
-	#foreach($this->getVar('user_list') as $vn_item_id => $va_item) {
-	#	print str_replace("|", "-", $va_item['_display'])."|".$vn_item_id."|".$va_item['type_id']."|".($va_item['fname'] ? $va_item['fname'] : $va_item['_query'])."|".$va_item['lname']."|".$va_item['email']."\n";
-	#}
-	print json_encode($this->getVar('user_list'));
+ 
+	print "Dear ".$vs_user_name.",\n";
+	print $vs_sharing_name." has shared the media record M".$this->opo_item->get("media_id")." ".$vs_specimen_info." with you. Access will expire in 30 days.\n\n";
+	if($vs_use_restrictions){
+		print "The following use restrictions apply: ".$vs_use_restrictions."\n\n";
+	}
+	print "Please login to MorphoSource and click on the Shared Media option in the site navigation to access this media.\n";
+	print "Thank you,\n\nThe MorphoSource system administrators\n";
+
+
+	print "\n\n".$this->request->config->get("site_host");
 ?>

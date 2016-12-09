@@ -442,6 +442,9 @@
 <?php			
 			print $this->render('Media/share_media_form_html.php');
 ?>
+<?php			
+			print $this->render('Media/share_media_user_form_html.php');
+?>
 	</div><!-- end rightCol -->
 </div><!-- end mediaInfo -->
 

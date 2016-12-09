@@ -78,12 +78,25 @@
 				print "</li>\n";
 				print "<li>".caNavLink($this->request, _t("Stats"), "", "", "Stats", "dashboard")."</li>";
 				print "<li>".caNavLink($this->request, _t("Media Cart")." <i class='fa fa-shopping-cart'></i>", "", "", "MediaCart", "cart")."</li>";
+				# --- does user have media links shared with them
+				$o_db = new Db();
+				$q_media_links = $o_db->query("SELECT link_id, media_id FROM ms_media_shares where user_id = ? AND created_on > ".(time() - (60 * 60 * 24 * 30)), $this->request->user->get("user_id"));
+				if($q_media_links->numRows()){
+					print "<li><a href='#' onClick='return false;'>Shared Media</a>";
+					print "<div class='jumpMenu' id='userJumpMenu'>\n";
+					while($q_media_links->nextRow()){
+						print "<div>".caNavLink($this->request, "M".$q_media_links->get("media_id"), "", "Detail", "MediaDetail", "Show", array("media_id" => $q_media_links->get("media_id")))."</div>\n";
+					}
+					print "</div>\n";
+					print "</li>\n";
+				}
+				
 				# --- display the current project if there is one
 				if($this->request->session->getVar('current_project_id')){
 					require_once(__CA_MODELS_DIR__."/ms_projects.php");
 					$t_project = new ms_projects($this->request->session->getVar('current_project_id'));
 					print "<li style='text-transform:none;'>";
-					print "<a href='#' onClick='return false;' class='ltBlueText'>".((strlen($t_project->get("name")) > 30) ? mb_substr($t_project->get("name"), 0, 30)."..." : $t_project->get("name"));
+					print "<a href='#' onClick='return false;' class='ltBlueText'>".((strlen($t_project->get("name")) > 25) ? mb_substr($t_project->get("name"), 0, 25)."..." : $t_project->get("name"));
 					print " <i class='fa fa-cog'></i></a>";
 					print "<div class='jumpMenu' id='projectJumpMenu'>\n";
 					print "<div>VIEW:</div>";

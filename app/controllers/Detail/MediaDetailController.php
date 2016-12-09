@@ -79,6 +79,16 @@
 				# --- does user have read only access to the media group?
 				if($this->opo_item->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
 					$this->opn_read_only = true;
+					# --- check if this is a shared media so can display the info about it
+					$o_db = new Db();
+					$q_media_shares = $o_db->query("SELECT ms.created_on, u.fname, u.lname, u.email, ms.use_restrictions FROM ms_media_shares ms INNER JOIN ca_users as u ON ms.shared_by_user_id = u.user_id WHERE ms.user_id = ? AND ms.media_id = ? AND ms.created_on > ".(time() - (60 * 60 * 24 * 30)), $this->request->user->get("user_id"), $this->opn_item_id);
+					if($q_media_shares->numRows()){
+						$q_media_shares->nextRow();
+						$this->view->setVar("share", true);
+						$this->view->setVar("share_use_restrictions", $q_media_shares->get("use_restrictions"));
+						$this->view->setVar("share_expires", date("m/d/y", $q_media_shares->get("created_on") + (60 * 60 * 24 * 30)));
+						$this->view->setVar("share_shared_by", trim($q_media_shares->get("fname")." ".$q_media_shares->get("lname"))." (".$q_media_shares->get("email").")");
+					}
 				}else{
 					$this->opn_read_only = false;
 				}

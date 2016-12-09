@@ -150,7 +150,9 @@
 				}
 				
 				// do search
-				$qr_res = $o_search->search('('.$ps_query.(intval($pb_exact) ? '' : '*').')'.$vs_type_query.$vs_additional_query_params, array('search_source' => 'Lookup', 'no_cache' => false, 'sort' => $vs_sort));
+				#$qr_res = $o_search->search('('.$ps_query.(intval($pb_exact) ? '' : '*').')'.$vs_type_query.$vs_additional_query_params, array('search_source' => 'Lookup', 'no_cache' => false, 'sort' => $vs_sort));
+				# --- 12/8/16 broadening search to do both exact and * when pb_exact is not passed - not sure this is a good idea
+				$qr_res = $o_search->search('('.$ps_query.(intval($pb_exact) ? '' : '* OR '.$ps_query).')'.$vs_type_query.$vs_additional_query_params, array('search_source' => 'Lookup', 'no_cache' => false, 'sort' => $vs_sort));
 		
 				$qr_res->setOption('prefetch', $pn_limit);
 				$qr_res->setOption('dontPrefetchAttributes', true);
