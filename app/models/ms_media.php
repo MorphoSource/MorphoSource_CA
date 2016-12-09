@@ -1017,10 +1017,6 @@ class ms_media extends BaseModel {
  		if($t_media->userHasReadOnlyAccessToMedia($pn_user_id)){
  			return true;
  		}
- 		# --- check if media was shared with user -> this lets them view/download even if not part of project or published
- 		if($t_media->mediaShared($pn_user_id)){
- 			return true;
- 		}
  		# -- is the file published?
  		$t_media_file = new ms_media_files($pn_media_file_id);
  		if($t_media_file->get("published") == 1){
