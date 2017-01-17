@@ -133,7 +133,7 @@
 							"ms_media.notes","ms_media.is_copyrighted","ms_media.copyright_info","ms_media.copyright_permission",
 							"ms_media.copyright_license","ms_media.created_on","ms_media.last_modified_on","ms_media.approval_status",
 							"ms_media.scanner_x_resolution","ms_media.scanner_y_resolution","ms_media.scanner_z_resolution","ms_media.scanner_voltage",
-							"ms_media.scanner_amperage","ms_media.scanner_watts","ms_media.scanner_projections","ms_media.scanner_frame_averaging",
+							"ms_media.scanner_amperage","ms_media.scanner_watts","ms_media.scanner_exposure_time","ms_media.scanner_filter","ms_media.scanner_projections","ms_media.scanner_frame_averaging",
 							"ms_media.scanner_acquisition_time","ms_media.scanner_wedge","ms_media.scanner_calibration_description",
 							"ms_media.scanner_technicians","ms_media.published_on","ms_media.element","ms_media.title",
 							"ms_media.side","ms_media.grant_support","ms_media.media_citation_instructions",

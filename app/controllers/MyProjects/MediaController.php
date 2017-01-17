@@ -1025,6 +1025,7 @@
 						case 'application/ply':
 						case 'application/stl':
 						case 'application/surf':
+						case 'text/prs.wavefront-obj':
 							$vs_resource_type = 'Model';	
 							break(2);
 						case 'application/zip':

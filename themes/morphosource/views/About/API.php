@@ -596,6 +596,16 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>measurement</td>
 				</tr>
 				<tr>
+					<td>scanner_exposure_time</td>
+					<td>Exposure time, units in seconds</td>
+					<td>measurement</td>
+				</tr>
+				<tr>
+					<td>scanner_filter</td>
+					<td>Filter</td>
+					<td>measurement</td>
+				</tr>
+				<tr>
 					<td>scanner_frame_averaging</td>
 					<td>Frame Averaging. The number of images acquired at each projection angle and their average</td>
 					<td>measurement</td>

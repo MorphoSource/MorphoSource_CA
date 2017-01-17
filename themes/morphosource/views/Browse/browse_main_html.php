@@ -38,9 +38,9 @@
 	</H1>
 	<div style="float:left; padding:15px 0px 0px 40px;">
 		<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'institutionList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Institution"); ?></a>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'taxonList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Taxonomy"); ?></a>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'bibliographyList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Bibliography"); ?></a>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'projectList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Project"); ?></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'taxonList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Taxonomy"); ?></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'bibliographyList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Bibliography"); ?></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onClick='jQuery("#browseArea").load("<?php print caNavUrl($this->request, '', 'Browse', 'projectList'); ?>"); return false;' class="button buttonLarge"><?php print _t("Project"); ?></a>
 	</div>
 	<div id="browseArea"><!-- load the specimen results here --></div></div>
 </div>

@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------
  *
  * Software by Whirl-i-Gig (http://www.whirl-i-gig.com)
- * Copyright 2013 Whirl-i-Gig
+ * Copyright 2013-2017 Whirl-i-Gig
  *
  * For more information visit http://www.CollectiveAccess.org
  *
@@ -60,6 +60,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 			"application/ply" 					=> "ply",
 			"application/stl" 					=> "stl",
 			"application/surf" 					=> "surf",
+			"text/prs.wavefront-obj" 			=> "obj"
 		),
 		
 		"EXPORT" => array(
@@ -67,6 +68,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 			"application/ctm" 						=> "ctm",
 			"application/stl" 						=> "stl",
 			"application/surf" 						=> "surf",
+			"text/prs.wavefront-obj" 				=> "obj", 
 			"text/plain"							=> "txt",
 			"image/jpeg"							=> "jpg",
 			"image/png"								=> "png"
@@ -99,6 +101,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		"application/ply" 				=> "Polygon File Format",
 		"application/stl" 				=> "Standard Tessellation Language File",
 		"application/surf" 				=> "Surface Grid Format",
+		"text/prs.wavefront-obj" 		=> "Wavefront OBJ",
 		"application/ctm" 				=> "CTM"
 	);
 	
@@ -106,6 +109,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		"application/ply" 				=> "PLY",
 		"application/stl" 				=> "STL",
 		"application/surf" 				=> "SURF",
+		"text/prs.wavefront-obj" 		=> "OBJ",
 		"application/ctm" 				=> "CTM"
 	);
 	
@@ -178,14 +182,27 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 			$vs_section = file_get_contents($ps_filepath, NULL, NULL, 0, 79);
 			fseek($r_fp, 80);
 			$vs_data = fread($r_fp, 4);
-			$vn_num_facets = array_shift(unpack("I", $vs_data));
-			if ((84 + ($vn_num_facets * 50)) == ($vn_filesize = filesize($ps_filepath))) {
+			
+			if (is_array($va_facets = @unpack("I", $vs_data))) {
+				$vn_num_facets = array_shift($va_facets);
+				if ((84 + ($vn_num_facets * 50)) == ($vn_filesize = filesize($ps_filepath))) {
+					$this->properties = $this->handle = $this->ohandle = array(
+						"mimetype" => 'application/stl',
+						"filesize" => $vn_filesize,
+						"typename" => "Standard Tessellation Language File"
+					);
+					return "application/stl";
+				}
+			}
+			
+			// OBJ?
+			if ($this->_parseOBJ($ps_filepath)) {
 				$this->properties = $this->handle = $this->ohandle = array(
-					"mimetype" => 'application/stl',
-					"filesize" => $vn_filesize,
-					"typename" => "Standard Tessellation Language File"
+					"mimetype" => 'text/prs.wavefront-obj',
+					"filesize" => filesize($ps_filepath),
+					"typename" => "Wavefront OBJ"
 				);
-				return "application/stl";
+				return "text/prs.wavefront-obj";
 			}
 		}
 
@@ -418,7 +435,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		$vn_progress_total_filesize = (isset($pa_options["progress_total_filesize"]) && ($pa_options["progress_total_filesize"] > 0)) ? $pa_options["progress_total_filesize"] : 0;
 		
 
-		if(in_array($pa_properties['mimetype'], array("application/ply", "application/stl", "application/ctm"))){
+		if(in_array($pa_properties['mimetype'], array("application/ply", "application/stl", "application/ctm", "text/prs.wavefront-obj"))){
 			ob_start();
 			
 			if(false) {
@@ -474,14 +491,17 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				var loader = new THREE.CTMLoader();
 <?php
 				break;
+		case 'text/prs.wavefront-obj':
+?>
+				var loader = new THREE.OBJLoader();
+<?php
+				break;
 	}
 ?>
 				function postLoad ( event ) {
-
 					var geometry = event;
 					if(!geometry.center) { geometry = event.content; }
-					//THREE.GeometryUtils.center(geometry);
-					//console.log(event);
+					
 					geometry.center();
 					var material = new THREE.MeshPhongMaterial( { ambient: 0xFFFFCC, color: 0xFFFFCC, specular: 0x111111, shininess: 200, side: THREE.DoubleSide } );
 					var mesh = new THREE.Mesh( geometry, material );
@@ -642,10 +662,33 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 			return caGetDefaultMediaIconTag(__CA_MEDIA_3D_DEFAULT_ICON__,$vn_width,$vn_height);
 		}
 	}
+	
+	# ------------------------------------------------
+	/**
+	 *
+	 */
+	public function _parseOBJ($ps_filepath) {
+		if (!($r_rp = fopen($ps_filepath, "r"))) { return false; }
+		
+		while(($vs_line = trim(fgets($r_rp), "\n")) !== false) {
+			if ($vs_line[0] === '#') { continue; }
+			
+			$va_toks = preg_split('![ ]+!', $vs_line);
+			if (in_array($va_toks[0], ['v', 'vn']) && (sizeof($va_toks) >= 4) && is_numeric($va_toks[1]) && is_numeric($va_toks[2]) && is_numeric($va_toks[3])) {
+				fclose($r_rp);
+				return true;
+			}
+			if (($va_toks[0] === 'vt') && (sizeof($va_toks) >= 3) && is_numeric($va_toks[1]) && is_numeric($va_toks[2])) {
+				fclose($r_rp);
+				return true;
+			}
+		}
+		fclose($r_rp);
+		return false;
+	}
 	# ------------------------------------------------
 	public function cleanup() {
 		return;
 	}
 	# ------------------------------------------------
 }
-?>

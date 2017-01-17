@@ -23,9 +23,9 @@ if (!$this->request->isAjax()) {
 }
 # --- formatting variables
 # --- all fields in float_fields array  will be floated to the left
-$va_float_fields = array("element", "side", "copyright_permission", "copyright_license", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_flux_normalization", "scanner_calibration_geometric_calibration", "created_on", "approval_status");
+$va_float_fields = array("element", "side", "copyright_permission", "copyright_license", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_exposure_time", "scanner_filter", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_flux_normalization", "scanner_calibration_geometric_calibration", "created_on", "approval_status");
 # --- all fields in clear_fields array  will have a clear output after them
-$va_clear_fields = array("copyright_license", "side", "scanner_z_resolution", "scanner_watts", "scanner_wedge", "approval_status", "scanner_calibration_description");
+$va_clear_fields = array("copyright_license", "side", "scanner_z_resolution", "scanner_watts", "scanner_filter", "scanner_wedge", "approval_status", "scanner_calibration_description");
 
 ?>
 	<div id='formArea'>

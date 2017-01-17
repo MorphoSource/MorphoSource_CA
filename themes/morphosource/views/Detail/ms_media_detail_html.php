@@ -294,7 +294,7 @@ if ($this->request->isLoggedIn()) {
 // 					print "<b>Filesize: </b>".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>\n";
 					
 	$va_fields = $t_media->getFormFields();
-	$va_media_display_fields = array("title", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "grant_support", "media_citation_instruction1", "created_on", "last_modified_on");
+	$va_media_display_fields = array("title", "notes", "facility_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_exposure_time", "scanner_filter", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "grant_support", "media_citation_instruction1", "created_on", "last_modified_on");
 	foreach($va_fields as $vs_field => $va_field_attr){
 		if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("scanner_wedge", "scanner_calibration_shading_correction")) || $t_media->get($vs_field))){
 			switch($vs_field){

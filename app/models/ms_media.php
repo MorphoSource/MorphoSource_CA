@@ -269,7 +269,8 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
-				"BOUNDS_CHOICE_LIST" => array(),
+				"DISPLAY_FIELD" => array('ms_scanners.name'), 
+				"DISPLAY_ORDERBY" => array('ms_scanners.name'),
 				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => true, "DEFAULT" => "",
 				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner at the selected facility used to create this media."
@@ -327,6 +328,23 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'SUFFIX' => "W",
 				'LABEL' => _t('Watts'), 'DESCRIPTION' => _t('Scanner watts.'),
 				'BOUNDS_LENGTH' => array(0,45)
+		),
+		'scanner_exposure_time' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'SUFFIX' => "sec",
+				'LABEL' => _t('Exposure Time'), 'DESCRIPTION' => _t('Exposure Time'),
+				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'scanner_filter' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => false, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Filter'), 'DESCRIPTION' => _t('Filter'),
+				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'scanner_projections' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
