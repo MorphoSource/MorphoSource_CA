@@ -131,5 +131,61 @@
  			$this->render('stats_list_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function statsOverTime() {
+ 			JavascriptLoadManager::register('tableList');
+ 			$t_project = new ms_projects();
+ 			$this->view->setVar('project', $t_project);
+ 			
+ 			$o_db = new Db();
+ 			$va_counts = array();
+ 			# --- show counts every 4 months since Jan 1 2013
+ 			$vn_year = 2013;
+ 			$vn_current_year = intval(date("Y"));
+ 			$vn_current_month = intval(date("n"));
+ 			while($vn_year <= $vn_current_year){
+ 				$vn_month = 1;
+ 				while($vn_month < 12){
+ 					$va_tmp = array();
+ 					$vn_time_stamp = mktime(0, 0, 0, $vn_month, 1, $vn_year);
+ 					# --- do the queries
+ 					$q_project_count = $o_db->query("SELECT count(*) c FROM ms_projects WHERE created_on < ".$vn_time_stamp);
+ 					$q_project_count->nextRow();
+ 					$va_tmp["projects"] = $q_project_count->get("c");
+ 					
+ 					$q_specimen_count = $o_db->query("SELECT count(*) c FROM ms_specimens WHERE created_on < ".$vn_time_stamp);
+ 					$q_specimen_count->nextRow();
+ 					$va_tmp["specimen"] = $q_specimen_count->get("c");
+ 					
+ 					$q_media_count = $o_db->query("SELECT count(*) c FROM ms_media WHERE created_on < ".$vn_time_stamp);
+ 					$q_media_count->nextRow();
+ 					$va_tmp["media"] = $q_media_count->get("c");
+ 					
+ 					$q_media_files_count = $o_db->query("SELECT count(*) c FROM ms_media_files WHERE created_on < ".$vn_time_stamp);
+ 					$q_media_files_count->nextRow();
+ 					$va_tmp["media files"] = $q_media_files_count->get("c");
+ 					
+ 					$q_taxonomy_names_count = $o_db->query("SELECT count(*) c FROM ms_taxonomy_names WHERE created_on < ".$vn_time_stamp);
+ 					$q_taxonomy_names_count->nextRow();
+ 					$va_tmp["taxonomic names"] = $q_taxonomy_names_count->get("c");
+ 					
+ 					$q_users_count = $o_db->query("SELECT count(*) c FROM ca_users WHERE registered_on < ".$vn_time_stamp);
+ 					$q_users_count->nextRow();
+ 					$va_tmp["registered users"] = $q_users_count->get("c");
+ 					
+ 					$va_counts[$vn_year][$vn_month] = $va_tmp;
+ 					
+ 					$vn_month = $vn_month + 3;
+ 					if(($vn_year == $vn_current_year) && ($vn_month > $vn_current_month)){
+ 						break;
+ 					}
+ 				}
+ 				$vn_year++;
+ 			}
+ 			
+ 			$this->view->setVar('counts', $va_counts);
+ 	
+ 	 		$this->render('stats_over_time_html.php');
+ 	 	}
+ 		# -------------------------------------------------------
  	}
  ?>

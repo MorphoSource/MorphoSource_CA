@@ -107,7 +107,23 @@
  		# -------------------------------------------------------
  		public function listItems() {
 			$o_db = new Db();
-			$q_listings = $o_db->query("SELECT * FROM ms_institutions ORDER BY name, location_city");
+			# --- all institutions made by the user, or used in this project
+			$va_institution_ids = array();
+			$va_specimens = $this->opo_project->getProjectSpecimens();
+			$vs_project_institutions = "";
+			if(is_array($va_specimens) && sizeof($va_specimens)){
+				foreach($va_specimens as $va_specimen){
+					$va_institution_ids[] = $va_specimen["institution_id"];
+				}
+				$vs_project_institutions = " OR i.institution_id IN (".join(", ", $va_institution_ids).") ";
+			}
+			$q_listings = $o_db->query("
+				SELECT i.* 
+				FROM ms_institutions i 
+				WHERE i.user_id = ? 
+				".$vs_project_institutions."
+				ORDER BY i.name, i.location_city
+				", $this->request->user->get("user_id"));
 			$this->view->setVar("listings", $q_listings);
 			$this->render('Institutions/list_html.php');
  		}

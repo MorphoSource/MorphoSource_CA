@@ -28,7 +28,7 @@ print caFormTag($this->request, 'save', 'institutionForm', null, 'post', 'multip
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#institutionForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
-			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
+			#print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
 		}
 ?>
 	</div><!-- end formButtons -->
@@ -69,7 +69,7 @@ if (!$this->request->isAjax()) {
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#institutionForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php
 		if($t_item->get($ps_primary_key)){
-			print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
+			#print "&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $t_item->get($ps_primary_key)));
 		}
 ?>
 	</div><!-- end formButtons -->

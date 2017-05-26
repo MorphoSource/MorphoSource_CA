@@ -657,6 +657,102 @@ class ms_projects extends BaseModel {
 		return $va_specimens;
 	}
 	# ----------------------------------------
+	# $ps_group_by = string (genus, species)
+	# options include taxonomy_type = genus or species; taxonomy_term = name of genus or species to limit query to
+	# ----------------------------------------
+	function getProjectSpecimensByTaxonomy($pa_versions=null, $ps_group_by=null, $pa_options=null) {
+		$vn_project_id = $this->getPrimaryKey();
+		if (!$vn_project_id) { return null; }
+		
+		if(!$ps_group_by || (!in_array($ps_group_by, array("genus", "species")))){
+			$ps_group_by = "genus";
+		}
+		if(!$pa_options){
+			$pa_options = array();
+		}
+		# --- order by the group_by
+		$vs_order_by = "";
+		$vs_order_by = " t.".$ps_group_by;
+		
+		$vs_published_where = "";
+		if($pa_options["published_media_only"]){
+			$vs_published_where = " AND m.published != 0 ";
+		}
+		
+		
+		$o_db = $this->getDb();		
+		if($pa_options["taxonomy_type"] && $pa_options["taxonomy_term"]){
+			$qr = $o_db->query("
+				SELECT DISTINCT s.*, m.media_id, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen, t.species, t.genus, t.taxon_id
+				FROM ms_specimens s
+				LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+				LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
+				LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+				LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+				LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+				LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+				LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
+				(s.project_id = ?
+				OR m.project_id = ?
+				OR mp.project_id = ?
+				OR sp.project_id = ?)
+				AND (t.".$pa_options["taxonomy_type"]." = ?) ".$vs_published_where."
+				ORDER BY ".$vs_order_by
+			, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id, $pa_options["taxonomy_term"]);
+		}else{
+			$qr = $o_db->query("
+				SELECT DISTINCT s.*, m.media_id, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen, t.species, t.genus, t.taxon_id
+				FROM ms_specimens s
+				LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+				LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
+				LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+				LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+				LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+				LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+				LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
+				(s.project_id = ?
+				OR m.project_id = ?
+				OR mp.project_id = ?
+				OR sp.project_id = ?)".$vs_published_where."
+				ORDER BY ".$vs_order_by
+			, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
+		}	
+			
+		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
+			$pa_versions = array('small', 'preview190');
+		}
+		
+		$va_specimens_by_taxonomy = array();
+		$vn_count = 0;
+		while($qr->nextRow()) {
+			$va_specimen = $qr->getRow();
+			$vs_group_by = trim($va_specimen[$ps_group_by]);
+			if(!isset($va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']])) {
+				$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']] = $va_specimen;
+				$va_specimens_by_taxonomy[$vs_group_by]["taxon_id"] = $qr->get("taxon_id");
+				$va_specimens_by_taxonomy[$vs_group_by]["genus"] = $qr->get("genus");
+				$vn_count++;
+			}
+			if ($vn_media_id = $va_specimen['media_id']) {
+				$t_media = new ms_media();
+				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
+				$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
+				foreach($pa_versions as $vs_version) {
+					$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+					$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+					$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+					$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+				}
+			}
+		}
+
+		return array("specimen" => $va_specimens_by_taxonomy, "numSpecimen" => $vn_count);
+	}
+	# ----------------------------------------
 	function getProjectTaxonomy() {
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }

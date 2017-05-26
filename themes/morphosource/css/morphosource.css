@@ -195,6 +195,11 @@ a.blueText:hover{
 	font-size:15px;
 	line-height:20px;
 }
+.buttonMedium{ 
+	padding: 4px 6px 4px;
+	font-size:13px;
+	line-height:15px;
+}
 .buttonSmall{ 
 	padding: 3px 5px 3px;
 	font-size:11px;
@@ -592,6 +597,9 @@ styles for original hp layout
 	text-align:left;
 	clear:both;
 }
+.listItemLtBlue.bg{
+	background-color:#FEFEFE;
+}
 .listItemBlue{
 	padding:10px 5px 10px 5px;
 	border-bottom:1px solid #003880;
@@ -638,6 +646,8 @@ styles for original hp layout
 }
 .dashboardButtons a{
 	margin-top:10px;
+	margin-right:2px;
+	margin-left:2px;
 }
 #dashboardColRight .dashboardButtons{
 	margin:15px 0px 15px 0px;
@@ -673,7 +683,18 @@ styles for original hp layout
 	margin: 0px;
 	overflow:hidden;
 }
-
+#dashboardMedia .specimensByTaxonomySpecimenInfo{
+	position:absolute;
+	left:-55px;
+	top:-15px;
+	width:300px;
+	box-shadow: 0 0px 3px #828282;
+	padding:15px;
+	min-height:250px;
+	display:none;
+	z-index:100;
+	background-color:#FFF;
+}
 #dashboardMedia .projectMedia, #mediaListings .projectMedia {
 	width: 190px;
 	padding: 0px;
@@ -744,7 +765,7 @@ styles for original hp layout
 }	
 #mediaInfo .mediaImage{
 	text-align:center;
-	margin:5px 0px 5px 25px;
+	margin:5px 0px 5px 15px;
 	width:192px;
 	float:left;
 	position: relative;
@@ -756,7 +777,7 @@ styles for original hp layout
 }
 #mediaInfo .mediaImage .mediaFileButtons{
 	position:absolute;
-	bottom:75px;
+	bottom:90px;
 	right:4px;
 }
 #mediaInfo .mediaImage .mediaFileButtonsDelete{
@@ -771,11 +792,22 @@ styles for original hp layout
 }
 #mediaInfo .mediaImage .mediaFileFormCaption{
 	font-size:10px;
-	height:65px;
+	height:80px;
 	overflow:hidden;
 	text-align:left;
 	line-height:1.2em;
 	padding-top:5px;
+}
+#mediaInfo .mediaImage .fileCitationOverlay{
+	padding:10px;
+	background-color:#FFF;
+	border:2px solid #003880;
+	position:absolute;
+	z-index:10000;
+	top:0px;
+	left:0px;
+	font-size:11px;
+	width:170px;
 }
 #mediaInfo #rightCol{
 	float:right;
@@ -967,7 +999,7 @@ H1.specimenDetailTitle{
 #mediaDetail .tealRule, #specimenDetail .tealRule, #projectDetail .tealRule{
 	margin-bottom:10px;
 }
-#mediaDetail .unit, #specimenDetail .unit, #projectDetail .unit{
+#mediaDetail .unit, #specimenDetail .unit, #projectDetail .unit, #groupCitationElements .unit{
 	border-top: 1px solid #689899;
 	padding:10px;
 	margin-bottom:10px;

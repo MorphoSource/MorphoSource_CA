@@ -115,8 +115,50 @@
 				}
  			}
  			$this->view->setVar("show_edit_link", $vb_show_edit_link);
+ 			
+ 			$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
+			
+			if($vs_specimens_group_by){
+				$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
+			}elseif($this->request->session->getVar('specimens_group_by')){
+				$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			}else{
+				$vs_specimens_group_by = "specimen";
+			}
+			$this->view->setVar("specimens_group_by", $vs_specimens_group_by);		
+			
  			$this->render('ms_project_detail_html.php');
  		}
  		# -------------------------------------------------------
+ 		function specimenByTaxonomy() {
+ 			JavascriptLoadManager::register("cycle");
+			$vn_taxon_id = $this->request->getParameter('taxon_id', pInteger);
+			if(!$vn_taxon_id){
+				$this->dashboard();
+				return;
+			}
+			# --- are we showing by genus or species?
+			$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			if(!in_array($vs_specimens_group_by, array("genus", "species"))){
+				$vs_specimens_group_by = "genus";
+			}
+			# --- select the genus or taxa we want to show specimen for
+			$o_db = new Db();
+			$q_taxonomy = $o_db->query("SELECT ".$vs_specimens_group_by." FROM ms_taxonomy_names WHERE taxon_id = ?", $vn_taxon_id);
+			$vs_taxon = "";
+			if($q_taxonomy->numRows()){
+				while($q_taxonomy->nextRow()){
+					$vs_taxon = $q_taxonomy->get($vs_specimens_group_by);
+				}
+			}
+			# --- get the specimen
+			$va_specimens_by_taxomony = $this->opo_item->getProjectSpecimensByTaxonomy(null, $vs_specimens_group_by, array("published_media_only" => true, "taxonomy_term" => $vs_taxon, "taxonomy_type" => $vs_specimens_group_by));
+			
+			$this->view->setVar("specimens_by_taxomony", $va_specimens_by_taxomony);
+			$this->view->setVar("taxomony_term", $vs_taxon);
+			
+			$this->render('specimens_by_taxonomy_html.php');
+		}
+  		# -------------------------------------------------------
  	}
  ?>

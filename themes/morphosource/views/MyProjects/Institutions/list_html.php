@@ -15,8 +15,12 @@
 		while($q_listings->nextRow()){
 			print "<div class='listItemLtBlue'>";
 			print "<div class='listItemRightCol'>";
-			print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $q_listings->get($ps_primary_key)));
-			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
+			if($q_listings->get("user_id") == $this->request->user->get("user_id")){
+				print caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", $this->request->getController(), "form", array($ps_primary_key => $q_listings->get($ps_primary_key)));
+				#print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Delete"), "button buttonSmall", "MyProjects", $this->request->getController(), "Delete", array($ps_primary_key => $q_listings->get($ps_primary_key)));
+			}else{
+				print "<div class='editMessage'>This institution was created by another user.  If you need to edit this institution please contact <a href='mailto:doug.boyer@duke.edu'>doug.boyer@duke.edu</a></div>";			
+			}
 			print "</div>";
 			$i = 0;
 			foreach($pa_list_fields as $vs_field){

@@ -32,7 +32,8 @@
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_specimen_view_stats.php");
-
+ 	#require_once(__CA_APP_DIR__.'/lib/vendor/autoload.php');
+use GuzzleHttp\Client;
 BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
  	'NAME_SINGULAR' 	=> _t('specimen'),
  	'NAME_PLURAL' 		=> _t('specimens'),
@@ -100,6 +101,22 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DEFAULT' => '',
 				'LABEL' => _t('URL to specimen record in home repository'), 'DESCRIPTION' => _t('External link to specimen record in home repository'),
 				'BOUNDS_LENGTH' => array(0,65535)
+		),
+		'occurrence_id' => array(
+				"FIELD_TYPE" => FT_TEXT, "DISPLAY_TYPE" => DT_FIELD, 
+				"DISPLAY_WIDTH" => 65, "DISPLAY_HEIGHT" =>1,
+				"IS_NULL" => 0, 
+				"DEFAULT" => "",
+				"LABEL" => "Occurrence ID", "DESCRIPTION" => "Specimen Occurrence ID",
+				"BOUNDS_LENGTH" => array(0,255)
+		),
+		'uuid' => array(
+				"FIELD_TYPE" => FT_TEXT, "DISPLAY_TYPE" => DT_HIDDEN, 
+				"DISPLAY_WIDTH" => 40, "DISPLAY_HEIGHT" =>1,
+				"IS_NULL" => 0, 
+				"DEFAULT" => "",
+				"LABEL" => "UUID", "DESCRIPTION" => "iDigBio UUID",
+				"BOUNDS_LENGTH" => array(0,255)
 		),
 		// 'element' => array(
 // 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
@@ -715,6 +732,44 @@ class ms_specimens extends BaseModel {
 		}
 		return $vn_num_views;
 	}
+	# ------------------------------------------------------
+	# iDigBio - load specimen data from idigbio.org 
+	# institutioncode, collectioncode, catalognumber, genus, specificepithet, uuid
 	# ----------------------------------------
+	public function getIDBSpecimenInfo($va_lookup_values, $vn_limit = 500) {
+		$client = new GuzzleHttp\Client();
+		if(is_array($va_lookup_values) && sizeof($va_lookup_values)){
+			$va_tmp = array();
+			foreach($va_lookup_values as $vs_field => $vs_search_term){
+				if(($vs_field == "catalognumber") && $vs_coll_code = trim($va_lookup_values["collectioncode"])){
+					$va_tmp[] = '"'.$vs_field.'":["'.trim($vs_search_term).'", "'.$vs_coll_code.'-'.trim($vs_search_term).'"]';
+				}else{
+					if(trim($vs_search_term)){
+						$va_tmp[] = '"'.$vs_field.'":"'.trim($vs_search_term).'"';
+					}
+				}
+			}
+			if(sizeof($va_tmp)){
+				$vs_search = "{".join(",", $va_tmp)."}";
+			}
+		}
+		#$vs_search = '{"institutioncode":"AMNH","genus": "Lavia","specificepithet":"frons"}';
+		if($vs_search){
+			$vn_specimen_found = 0;
+			try{
+				$response = $client->get("https://search.idigbio.org/v2/search/records/?rq=".urlencode($vs_search)."&limit=".$vn_limit);
+				$data = $response->json();
+			}catch(Exception $e){
+				return array("success" => false, "error" => "could not connect to idigbio.org: ".$e->getMessage(), "retry" => true);
+			}
+			if(is_array($data["items"]) && (sizeof($data["items"]) > 0)){
+				return array("success" => true, "error" => "", "data" => $data);
+			}else{
+				return array("success" => false, "error" => "No results found on idigbio.org");
+			}
+		}else{
+			return array("success" => false, "error" => "search not defined");
+		}
+	}
 }
 ?>

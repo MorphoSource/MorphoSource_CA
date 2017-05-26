@@ -202,5 +202,27 @@
 			}
  		}
  		# -------------------------------------------------------
+ 		public function DownloadInstitutionReport() {		
+			$o_db = new Db();
+			$q_institutions = $o_db->query("SELECT institution_id, name, description, location_city, location_state, location_country from ms_institutions order by name");
+			$va_institutions[] = array();
+			while($q_institutions->nextRow()){
+				$va_institutions[$q_institutions->get("institution_id")] = array("institution_id" => $q_institutions->get("institution_id"), "name" => mb_convert_encoding($q_institutions->get("name"),'utf-16','utf-8'), "description" => mb_convert_encoding(preg_replace("/\r|\n/", " ", $q_institutions->get("description")),'utf-16','utf-8'), "location_city" => $q_institutions->get("location_city"), "location_state" => $q_institutions->get("location_state"), "location_country" => $q_institutions->get("location_country"));
+			}
+			if(sizeof($va_institutions)){
+ 				header("Content-Disposition: attachment; filename=MorphoSourceInstitutions_".date("m-d-y").".xls");
+				header("Content-type: application/vnd.ms-excel; charset=utf-16");
+				
+				$va_rows = array();
+				$va_row = array("Institution ID", "Name", "Description", "City", "State", "Country");
+				$va_rows[] = join("\t", $va_row);
+				$vs_display_project = "";
+				foreach($va_institutions as $vn_institution_id => $va_institution){
+					$va_rows[] = join("\t", $va_institution);
+				}
+			}
+			$this->response->addContent(join("\n", $va_rows), 'view'); 	
+		}	
+ 		# -------------------------------------------------------
  	}
  ?>

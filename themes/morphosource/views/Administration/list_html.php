@@ -13,6 +13,13 @@
 /* ]]> */
 </script>
 <div class="blueRule"><!-- empty --></div>
+<?php
+	if($this->getVar("table") == "ms_institutions"){
+?>
+	<div style="float:right; margin-top:15px;"><?php print caNavLink($this->request, _t("Download Institution List"), 'button buttonSmall', 'Administration', 'List', 'DownloadInstitutionReport', array('table' => 'ms_institutions', 'download' => 1)); ?></div>
+<?php
+	}
+?>
 	<H1>
 		<?php print $q_listings->numRows()." ".ucfirst(($q_listings->numRows() == 1) ? $this->getVar("name_singular") : $this->getVar("name_plural")); ?>
 	</H1>

@@ -119,7 +119,25 @@
 					TooltipManager::add(
 						"#info".$q_media_files->get("media_file_id"), $vs_more_info
 					);
-					
+					# --- media citation info
+?>
+					<br/><a href="#" onClick="jQuery('#fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>').toggle(); return false;" style="text-decoration:none; position:relative;"><i class='fa fa-info'></i> Citation Elements</a>
+<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" class="fileCitationOverlay" style="display:none;">
+	<H2 style="padding-left:0px;">File Citation Elements</H2>
+	<b>Media number:</b> 
+<?php
+		print "<b class='blueText'>M".$t_media->get("media_id")."-".$q_media_files->get("media_file_id")."</b><br/><br/>";
+		print "<b>DOI:</b> ";
+		if($q_media_files->get("doi")){
+			print $q_media_files->get("doi");
+		}else{
+			print "not requested by data author or assigned";
+		}
+?>
+		<br/><br/><b>Public URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
+		<div style="text-align:center; padding-top:20px;"><a href="#" onClick="jQuery('#fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-close'></i> Close</a></div>
+</div>
+<?php
 					print "</div>";
 ?>
 				</div><!-- end mediaImage -->
@@ -291,6 +309,28 @@
 		}
 ?>
 		</div><!-- end mediaMd -->
+		<div>
+			<br/><a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-info'></i> Citation Elements</a>
+		</div>
+		<div id="groupCitationElements" style="padding:10px; display:none;">
+			<div class="tealRule"><!-- empty --></div>
+			<H2 style="padding-top:10px;">Media Group Citation Elements</H2>
+			<div class="unit">
+				<b><i>Essential</i></b><br/>
+				<b>Media group-file numbers:</b> see info for individual files<br/>
+				<b>DOIs:</b> see info for individual files<br/>
+<?php
+				if($vs_by_author = $t_media->getMediaCitationInstructions()){
+					print "<b>Media citation instructions from data author:</b> ".$vs_by_author;
+				}
+?>	
+			</div>
+			<div class="unit">
+				<b><i>Optional</i></b><br/>
+				<b>URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
+			</div>
+			<div style="text-align:center;"><a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-close'></i> Close</a></div>
+		</div>
 	</div><!-- end leftCol -->
 	<div id="rightCol"><a name='editForm'></a>
 		<div class="tealRule"><!-- empty --></div>

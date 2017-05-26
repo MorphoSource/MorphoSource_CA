@@ -1040,11 +1040,11 @@
 					break;
 			
 			}
-			
+			$pn_media_id = $t_media_file->get("media_id");
 			try {
 				if ($vs_doi = $o_doi->createDOI("M{$pn_media_file_id}", array(
 					"datacite.creator" => trim($t_user->get('fname').' '.$t_user->get('lname')),
-					"datacite.title" => "M{$pn_media_file_id} from ".$this->opo_project->get('name'),
+					"datacite.title" => "M{$pn_media_id}-{$pn_media_file_id}",
 					"datacite.publisher" => "MorphoSource.org",
 					"datacite.publicationyear" => date("Y"),
 					"datacite.resourcetype" => $vs_resource_type,	

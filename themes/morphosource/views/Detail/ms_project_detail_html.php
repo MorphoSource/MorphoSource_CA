@@ -69,47 +69,108 @@
 	<div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
 <?php
+	$vs_specimens_group_by = $this->getVar("specimens_group_by");
+	print "<div style='float:right; clear:right; text-align:right; padding:5px 0px 5px 0px;'><b>Group by:</b> ";
+	print (($vs_specimens_group_by == "specimen") ? "<b>" : "").caNavLink($this->request, "Specimen Number", "", "Detail", "ProjectDetail", "Show", array("specimens_group_by" => "specimen", "project_id" => $t_project->get("project_id"))).(($vs_specimens_group_by == "specimen") ? "</b>" : "")." | ";
+	print (($vs_specimens_group_by == "genus") ? "<b>" : "").caNavLink($this->request, "Genus", "", "Detail", "ProjectDetail", "Show", array("specimens_group_by" => "genus", "project_id" => $t_project->get("project_id"))).(($vs_specimens_group_by == "genus") ? "</b>" : "")." | ";
+	print (($vs_specimens_group_by == "species") ? "<b>" : "").caNavLink($this->request, "Species", "", "Detail", "ProjectDetail", "Show", array("specimens_group_by" => "species", "project_id" => $t_project->get("project_id"))).(($vs_specimens_group_by == "species") ? "</b>" : "");
+	print "</div>";
 	$t_specimen = new ms_specimens();
-	$vs_order_by = $this->request->getParameter('specimens_order_by', pString);
-	if(!$vs_order_by){
-		$vs_order_by = "number";
-	}
-	$va_specimens = $t_project->getProjectSpecimens(null, $vs_order_by, array("published_media_only" => true));
+	switch($vs_specimens_group_by){
+		case "genus":
+		case "species":
+			$va_specimens_by_taxomony = $t_project->getProjectSpecimensByTaxonomy(null, $vs_specimens_group_by, array("published_media_only" => true, "taxonomy_term" => $vs_taxon, "taxonomy_type" => $vs_specimens_group_by));
+			$vn_count = $va_specimens_by_taxomony["numSpecimen"];
+			$va_specimens = $va_specimens_by_taxomony["specimen"];
 ?>
-	<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
+			<H1><?php print $vn_count." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
+			<br style="clear:both;" />
 <?php
-	if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-		print "<div style='text-align:right; margin:5px 0px 5px 0px;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "Detail", "ProjectDetail", "Show", array("specimens_order_by" => "number", "project_id" => $t_project->get("project_id"))).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "Detail", "ProjectDetail", "Show", array("specimens_order_by" => "taxon", "project_id" => $t_project->get("project_id"))).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
-		
-		foreach($va_specimens as $vn_specimen_id => $va_specimen) {
-			$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
+
+			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
+				$vn_taxon_count = 1;
+				foreach($va_specimens as $vs_taxon => $va_taxon_specimen) {
+					$vn_num_media = is_array($va_taxon_specimen['media']) ? sizeof($va_taxon_specimen['media']) : 0;
+
+					print "<div class='projectMediaContainer'>";
+					print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
 			
-			print "<div class='projectMediaContainer'>";
-			print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
-			
-			if (is_array($va_specimen['media']) && ($vn_num_media > 0)) {
-				foreach($va_specimen['media'] as $vn_media_id => $va_media) {
-					if (!($vs_media_tag = $va_media['tags']['preview190'])) {
-						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+					if (is_array($va_taxon_specimen['media']) && ($vn_num_media > 0)) {
+						$vn_max = 3;
+						$c = 0;
+						foreach($va_taxon_specimen['media'] as $vn_media_id => $va_media) {
+							$c++;
+							if (!($vs_media_tag = $va_media['tags']['preview190'])) {
+								$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+							}
+							print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "ProjectDetail", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id'], "project_id" => $t_project->get("project_id")))."</div>";
+							if($c == $vn_max){
+								break;
+							}
+						}
+					} else {
+						print "<div class='projectMediaPlaceholder'> </div>";
 					}
-					print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "SpecimenDetail", "Show", array("specimen_id" => $vn_specimen_id))."</div>";
-					//print "<span class='mediaID'>M{$vn_media_id}</span>";
-				}
-			} else {
-				print "<div class='projectMediaPlaceholder'> </div>";
-			}
-			print "</div><!-- end projectMedia -->";
+					print "</div><!-- end projectMedia -->";
 			
-			$vs_specimen_taxonomy = join(" ", $t_specimen->getSpecimenTaxonomy($vn_specimen_id));
-			print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "Detail", "SpecimenDetail", "Show", array("specimen_id" => $vn_specimen_id));
-			if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
-					//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
-			print "</div>\n";
-			print "</div><!-- end projectMediaContainer -->";
+					$vs_genus = "";
+					if($vs_specimens_group_by == "species"){
+						$vs_genus = $va_taxon_specimen["genus"]." ";
+					}
+					print "<div class='projectMediaSlideCaption'><b><em>".$vs_genus.$vs_taxon."</em></b><br/>".caNavLink($this->request, sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : ""), "", "Detail", "ProjectDetail", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id'], "project_id" => $t_project->get("project_id")))."</div>\n";
+					print "</div><!-- end projectMediaContainer -->";
+
+					$vn_taxon_count++;
+				}
+			}else{
+				print "<H2>"._t("This project has no published specimen/media")."</H2>";
+			}
+
+		break;
+		# --------------------------------------------------------------------
+		default:
+
+			$vs_order_by = $this->request->getParameter('specimens_order_by', pString);
+			if(!$vs_order_by){
+				$vs_order_by = "number";
+			}
+			$va_specimens = $t_project->getProjectSpecimens(null, $vs_order_by, array("published_media_only" => true));
+?>
+			<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
+<?php
+			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
+				print "<div style='text-align:right; margin:5px 0px 5px 0px; clear:right;''><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "Detail", "ProjectDetail", "Show", array("specimens_order_by" => "number", "project_id" => $t_project->get("project_id"))).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "Detail", "ProjectDetail", "Show", array("specimens_order_by" => "taxon", "project_id" => $t_project->get("project_id"))).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
+		
+				foreach($va_specimens as $vn_specimen_id => $va_specimen) {
+					$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
+			
+					print "<div class='projectMediaContainer'>";
+					print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
+			
+					if (is_array($va_specimen['media']) && ($vn_num_media > 0)) {
+						foreach($va_specimen['media'] as $vn_media_id => $va_media) {
+							if (!($vs_media_tag = $va_media['tags']['preview190'])) {
+								$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
+							}
+							print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "SpecimenDetail", "Show", array("specimen_id" => $vn_specimen_id))."</div>";
+							//print "<span class='mediaID'>M{$vn_media_id}</span>";
+						}
+					} else {
+						print "<div class='projectMediaPlaceholder'> </div>";
+					}
+					print "</div><!-- end projectMedia -->";
+			
+					$vs_specimen_taxonomy = join(" ", $t_specimen->getSpecimenTaxonomy($vn_specimen_id));
+					print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "Detail", "SpecimenDetail", "Show", array("specimen_id" => $vn_specimen_id));
+					if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
+							//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
+					print "</div>\n";
+					print "</div><!-- end projectMediaContainer -->";
+				}
+			}else{
+				print "<H2>"._t("This project has no published specimen/media")."</H2>";
+			}
 		}
-	}else{
-		print "<H2>"._t("This project has no published specimen/media")."</H2>";
-	}
 ?>
 </div><!-- end dashboardMedia -->
 <script type="text/javascript">

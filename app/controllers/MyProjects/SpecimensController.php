@@ -36,7 +36,11 @@
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_bibliography.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens_x_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_institutions.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_taxonomy.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_BASE_DIR__."/vendor/autoload.php");
+ 	require_once(__CA_LIB_DIR__."/ca/Search/TaxonomyNamesSearch.php");
+ 	require_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearch.php");
  
  	class SpecimensController extends ActionController {
  		# -------------------------------------------------------
@@ -587,5 +591,257 @@
 			}
  		}
  		# -------------------------------------------------------
+ 		public function lookupSpecimen() {
+			$va_lookup_fields = array("Institution Code" => "institutioncode", "Collection Code" => "collectioncode", "Catalog Number" => "catalognumber", "Genus" => "genus", "Species" => "specificepithet");
+			$this->view->setVar("lookup_fields", $va_lookup_fields);
+			$va_errors = array();
+			if($this->request->getParameter('doLookup', pInteger)){
+				# build array of lookup terms to send to iDigBio
+				$va_lookup_values = array();
+				foreach($va_lookup_fields as $vs_label => $vs_field){
+					if($vs_tmp = $this->request->getParameter($vs_field, pString)){
+						$va_lookup_values[$vs_field] = $vs_tmp;
+					}
+				}
+				if(sizeof($va_lookup_values)){
+					# --- search iDigBio
+					$t_specimen = new ms_specimens();
+					$va_results = $t_specimen->getIDBSpecimenInfo($va_lookup_values);
+					if($va_results["success"]){
+						$this->view->setVar("results", $va_results["data"]);
+					}else{
+						$va_errors[] = $va_results["error"];
+					}
+					# --- search MorphoSource
+					$o_search = new SpecimenSearch();
+					# --- build the search terms
+					$va_search_parts = array();
+					if($ps_institution_code = $this->request->getParameter("institutioncode", pString)){
+						$va_search_parts[] = "ms_specimens.institution_code:".$ps_institution_code;
+					}
+					if($ps_collection_code = $this->request->getParameter("collectioncode", pString)){
+						$va_search_parts[] = "ms_specimens.collection_code:".$ps_collection_code;
+					}
+					if($ps_catalog_number = $this->request->getParameter("catalognumber", pString)){
+						$va_search_parts[] = "ms_specimens.catalog_number:".$ps_catalog_number;
+					}
+					if($ps_genus = $this->request->getParameter("genus", pString)){
+						$va_search_parts[] = "ms_taxonomy_names.genus:".$ps_genus;
+					}
+					if($ps_species = $this->request->getParameter("specificepithet", pString)){
+						$va_search_parts[] = "ms_taxonomy_names.species:".$ps_species;
+					}
+					
+					$qr_ms_specimens = $o_search->search(join(" AND ", $va_search_parts));
+					$this->view->setVar("morphosource_results", $qr_ms_specimens);
+					$this->view->setVar("num_morphosource_results", $qr_ms_specimens->numHits());
+					if(!$qr_ms_specimens->numHits()){
+						$va_errors[] = "No results found on MorphoSource";
+					}
+				}else{
+					$va_errors[] = "Please enter a search term";
+					
+				}
+				if(sizeof($va_errors)){
+					$this->view->setVar("errors", $va_errors);
+				}
+			}
+			$this->render('Specimens/specimen_lookup_html.php');
+		}
+		# -------------------------------------------------------
+		public function importIDBSpecimen() {
+			if($vs_uuid = $this->request->getParameter('uuid', pString)){
+				# build array of lookup terms to send to iDigBio
+				$va_lookup_values = array("uuid" => $vs_uuid);
+				if(sizeof($va_lookup_values)){
+					$t_specimen = new ms_specimens();
+					$va_results = $t_specimen->getIDBSpecimenInfo($va_lookup_values);
+					if($va_results["success"]){
+						if(is_array($va_results["data"]["items"][0]) && sizeof($va_results["data"]["items"][0])){
+							$va_specimen_info = $va_results["data"]["items"][0];
+							#print "<pre>";
+							#print_r($va_specimen_info);
+							#print "</pre>";
+							#exit;
+							# --- set the fields for the specimen
+							$this->opo_item->set("reference_source", 0);
+							$this->opo_item->set("notes", "imported from iDigBio. uuid:".$vs_uuid." Occurrence ID:".$va_specimen_info["indexTerms"]["occurrenceid"]);
+							$this->opo_item->set("institution_code", $va_specimen_info["indexTerms"]["institutioncode"]);
+							$this->opo_item->set("collection_code", $va_specimen_info["indexTerms"]["collectioncode"]);
+							$this->opo_item->set("catalog_number", $va_specimen_info["indexTerms"]["catalognumber"]);
+							$this->opo_item->set("uuid", $vs_uuid);
+							$this->opo_item->set("occurrence_id", $va_specimen_info["indexTerms"]["occurrenceid"]);
+							$this->opo_item->set('project_id', $this->opn_project_id);
+							$this->opo_item->set('user_id', $this->request->getUserID());
+							$this->opo_item->set('url', $va_specimen_info["data"]["dcterms:references"]);
+							$this->opo_item->set('collector', $va_specimen_info["indexTerms"]["collector"]);
+							$this->opo_item->set('collected_on', $va_specimen_info["indexTerms"]["datecollected"]);
+							//$this->opo_item->set('description', );
+							//$this->opo_item->set('type', );
+							if($va_specimen_info["data"]["dwc:sex"]){
+								if(strpos(strtolower($va_specimen_info["data"]["dwc:sex"]), "female") !== false){
+									$this->opo_item->set('sex', 'F');
+								}else{
+									$this->opo_item->set('sex', 'M');
+								}
+							}
+							//$this->opo_item->set('relative_age', "");
+							//$this->opo_item->set('absolute_age', );
+							//$this->opo_item->set('body_mass', );
+							//$this->opo_item->set('body_mass_comments', );
+							$this->opo_item->set('locality_description', $va_specimen_info["indexTerms"]["locality"]);
+							//$this->opo_item->set('locality_datum_zone', );
+							//$this->opo_item->set('locality_coordinates', );
+							$this->opo_item->set('locality_northing_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lat"]);
+							$this->opo_item->set('locality_easting_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lon"]);
+							//$this->opo_item->set('locality_absolute_age', );
+							//$this->opo_item->set('locality_relative_age', );
+			
+							
+			# --- Don't have enough data to make a new institution record!
+							
+							# --- check if there is a taxonomy record in MorphoSource to link to
+							$vb_taxon_linked = false;
+							$vb_taxon_created = false;
+							$o_search = new TaxonomyNamesSearch();
+							$q_taxon_hits = $o_search->search(trim($va_specimen_info["indexTerms"]["specificepithet"]." ".$va_specimen_info["indexTerms"]["genus"]." ".["indexTerms"]["infraspecificepithet"])."*", array('sort' => 'ms_taxonomy_names.genus'));
+							if($q_taxon_hits->numHits() > 0){
+								$q_taxon_hits->nextHit();
+								$vn_taxon_id = $q_taxon_hits->get("taxon_id");
+								$vn_alt_id = $q_taxon_hits->get("taxon_id");
+								$vb_taxon_linked = true;		
+							}else{
+								# --- add the ms_taxonomy record
+								$t_taxonomy = new ms_taxonomy();
+								$t_taxonomy->set('project_id', $this->opn_project_id);
+								$t_taxonomy->set('user_id', $this->request->getUserID());
+								$t_taxonomy->set("common_name", $va_specimen_info["indexTerms"]["commonname"]);
+				# --- don't see extinct in iDigBio service in$t_taxonomy->set("is_extinct", );
+								$t_taxonomy->set("notes", "imported from iDigBio");
+								
+								# --- add the taxonomy_names record
+								$t_taxonomy_names = new ms_taxonomy_names();
+								$t_taxonomy_names->set("genus", $va_specimen_info["indexTerms"]["genus"]);
+								$t_taxonomy_names->set("species", $va_specimen_info["indexTerms"]["specificepithet"]);
+								$t_taxonomy_names->set("subspecies", $va_specimen_info["indexTerms"]["infraspecificepithet"]);
+								//$t_taxonomy_names->set("variety", );
+								//$t_taxonomy_names->set("author", );
+								//$t_taxonomy_names->set("year", $va_specimen_info["dwc:eventDate"]);
+								//$t_taxonomy_names->set("ht_supraspecific_clade", );
+								$t_taxonomy_names->set("ht_kingdom", $va_specimen_info["indexTerms"]["kingdom"]);
+								$t_taxonomy_names->set("ht_phylum", $va_specimen_info["indexTerms"]["phylum"]);
+								$t_taxonomy_names->set("ht_class", $va_specimen_info["indexTerms"]["class"]);
+								//$t_taxonomy_names->set("ht_subclass", );
+								//$t_taxonomy_names->set("ht_superorder", );
+								$t_taxonomy_names->set("ht_order", $va_specimen_info["indexTerms"]["order"]);
+								//$t_taxonomy_names->set("ht_suborder", );
+								//$t_taxonomy_names->set("ht_superfamily", );
+								$t_taxonomy_names->set("ht_family", $va_specimen_info["indexTerms"]["family"]);
+								//$t_taxonomy_names->set("ht_subfamily", );
+								$t_taxonomy_names->set("source_info", "imported from iDigBio");
+								$t_taxonomy_names->set("notes", "imported from iDigBio");
+								$t_taxonomy_names->set("is_primary", 1);
+								$t_taxonomy_names->set('project_id', $this->opn_project_id);
+								$t_taxonomy_names->set('user_id', $this->request->getUserID());
+								
+								// Taxa must have at least one field entered
+								if (!$t_taxonomy_names->get("genus") && !$t_taxonomy_names->get("species") && !!$t_taxonomy_names->get("subspecies")) {
+									$va_errors['general'] = 'Specimen taxon could not be saved: At least one taxonomic field must be set.';
+								}
+								if (sizeof($va_errors) == 0) {
+									# do insert for ms_taxonomy
+									$t_taxonomy->setMode(ACCESS_WRITE);
+									$t_taxonomy->insert();
+									
+									if ($t_taxonomy->numErrors()) {
+										foreach ($t_taxonomy->getErrors() as $vs_e) {  
+											$va_errors["general"] = $vs_e;
+										}
+									}else{
+										# do insert for ms_taxonomy_names
+										$t_taxonomy_names->set('taxon_id', $t_taxonomy->get("taxon_id"));
+										$t_taxonomy_names->setMode(ACCESS_WRITE);
+										$t_taxonomy_names->insert();
+	
+										if ($t_taxonomy_names->numErrors()) {
+											foreach ($t_taxonomy_names->getErrors() as $vs_e) {  
+												$va_errors["general"] = $vs_e;
+											}
+										}else{
+											$vb_taxon_created = true;
+											$vn_taxon_id = $t_taxonomy->get("taxon_id");
+											$vn_alt_id = $t_taxonomy_names->get("alt_id");
+										}
+									}
+								}
+								if(sizeof($va_errors) > 0){
+									$this->notification->addNotification("There were errors saving the taxa for this specimen".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+									$this->content->setVar("errors", $va_errors);
+									$this->lookupSpecimen();
+									return;
+								}
+							}
+							# --- link the taxa to the specimen
+							if(sizeof($va_errors) == 0){
+								# do specimen insert or update
+								$this->opo_item->setMode(ACCESS_WRITE);
+								$this->opo_item->insert();
+	
+								if ($this->opo_item->numErrors()) {
+									foreach ($this->opo_item->getErrors() as $vs_e) {  
+										$va_errors["general"] = $vs_e;
+										$this->content->setVar("errors", $va_errors);
+										$this->notification->addNotification("There were errors saving the specimen: ".join("; ", $va_errors) , __NOTIFICATION_TYPE_INFO__);
+										$this->form();
+										return;
+									}
+								}else{
+									# --- link taxonomy to specimen
+									$t_specimens_x_taxonomy = new ms_specimens_x_taxonomy();
+									$t_specimens_x_taxonomy->set("specimen_id",$this->opo_item->get("specimen_id"));
+									$t_specimens_x_taxonomy->set("alt_id",$vn_alt_id);
+									$t_specimens_x_taxonomy->set("user_id",$this->request->user->get("user_id"));
+									$t_specimens_x_taxonomy->set("taxon_id",$vn_taxon_id);
+	
+									# do insert
+									$t_specimens_x_taxonomy->setMode(ACCESS_WRITE);
+									$t_specimens_x_taxonomy->insert();
+		
+									if ($t_specimens_x_taxonomy->numErrors()) {
+										foreach ($t_specimens_x_taxonomy->getErrors() as $vs_e) {  
+											$va_errors["general"] = $vs_e;
+											$this->content->setVar("errors", $va_errors);
+											$this->notification->addNotification("There were errors linking the specimen to taxonomy: ".join("; ", $va_errors) , __NOTIFICATION_TYPE_INFO__);
+											$this->form();
+											return;
+										}
+									}else{
+										if($vb_taxon_linked){
+											$this->notification->addNotification("Linked existing project Taxon to Specimen", __NOTIFICATION_TYPE_INFO__);
+										}elseif($vb_taxon_created){
+											$this->notification->addNotification("Created Taxon for Specimen", __NOTIFICATION_TYPE_INFO__);
+										}
+										$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);								
+										$this->form();
+										return;
+									}
+								}
+							}
+						}
+					}else{
+						$this->content->setVar("errors", array($va_results["error"]));
+						$this->lookupSpecimen();
+					}
+				}else{
+					$this->content->setVar("errors", array("Could not import specimen"));
+					$this->lookupSpecimen();
+				}
+				
+			}else{
+				$this->content->setVar("errors", array("Could not import specimen; no uuid passed"));
+				$this->lookupSpecimen();
+			}
+		}
+		# -------------------------------------------------------
  	}
  ?>

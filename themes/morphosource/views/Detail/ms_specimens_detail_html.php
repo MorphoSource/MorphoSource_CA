@@ -37,6 +37,20 @@
 <div id="specimenDetail">
 <?php
 	if($t_specimen->get("specimen_id")){
+		# --- link to project if public
+		$t_project = new ms_projects($t_specimen->get("project_id"));
+		if($t_project->get("publication_status")){
+?>
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Project</H2>
+			<div class="unit">
+<?php
+			print caNavLink($this->request, $t_project->get("name"), 'blueText', 'Detail', 'ProjectDetail', 'Show', array('project_id' => $t_project->get("project_id"))); 
+?>
+			</div>
+<?php
+		}
+
 ?>
 		<div class="tealRule"><!-- empty --></div>
 <?php
@@ -71,6 +85,9 @@
 		}
 		if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
 			print "<b>Sex: </b>".$vs_sex."<br/>";
+		}
+		if($vs_occurrence_id = $t_specimen->get("occurrence_id")){
+			print "<b>Occurrene ID: </b>".$vs_occurrence_id."<br/>";
 		}
 		if($t_specimen->get("url")){
 			print "<br/><b>Link to specimen in home repository: </b><a href='".$t_specimen->get("url")."' target='_blank'>".$t_specimen->get("url")."</a><br/>";

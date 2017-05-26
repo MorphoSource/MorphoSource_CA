@@ -10,7 +10,7 @@
 		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
 	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -37,6 +37,28 @@
 		}
 	}
 ?>
+<div style="float:right; position:relative; padding:5px 5px 0px 0px;">
+	<a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-info'></i> Citation Elements</a>
+</div>
+<div id="groupCitationElements" style="background-color:#FFF; padding:10px; display:none; width:65%; margin-left:auto; margin-right:auto;">
+	<br/><div class="tealRule"><!-- empty --></div>
+	<H2 style="padding-top:10px;">Citation Elements</H2>
+	<div class="unit">
+		<b><i>Essential</i></b><br/>
+		<b>Media group-file numbers:</b> see info for individual files<br/>
+		<b>DOIs:</b> see info for individual files<br/>
+<?php
+		if($vs_by_author = $t_media->getMediaCitationInstructions()){
+			print "<b>Media citation instructions from data author:</b> ".$vs_by_author;
+		}
+?>	
+	</div>
+	<div class="unit">
+		<b><i>Optional</i></b><br/>
+		<b>URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
+	</div>
+	<div style="text-align:center;"><a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-close'></i> Close</a></div>
+</div>
 <H1>
 <?php
 	print _t("Media: M%1", $t_media->get("media_id"));
@@ -109,6 +131,23 @@
 				if($vs_notes = $q_media_files->get("notes")){
 					print "<p>".nl2br($vs_notes)."</p>";
 				}
+				#---- file level citation elements
+?>
+				<br/><a href="#" onClick="jQuery('#fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-info'></i> Citation Elements</a>
+<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" style="display:none; padding:10px;">
+	<b>Media number:</b> 
+<?php
+		print "<b class='blueText'>M".$t_media->get("media_id")."-".$q_media_files->get("media_file_id")."</b><br/>";
+		print "<b>DOI:</b> ";
+		if($q_media_files->get("doi")){
+			print $q_media_files->get("doi");
+		}else{
+			print "not requested by data author or assigned";
+		}
+?>
+		<br/><b>URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
+</div>
+<?php
 				if($this->request->isLoggedIn()){
 					if($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id"))){
 						print "<div class='mediaFileButtons'>";
@@ -242,6 +281,19 @@ if ($this->request->isLoggedIn()) {
 			</div>
 <?php	
 	}
+	# --- link to project if public
+	$t_project = new ms_projects($t_media->get("project_id"));
+	if($t_project->get("publication_status")){
+?>
+		<div class="tealRule"><!-- empty --></div>
+		<H2>Project</H2>
+			<div class="unit">
+<?php
+		print caNavLink($this->request, $t_project->get("name"), 'blueText', 'Detail', 'ProjectDetail', 'Show', array('project_id' => $t_project->get("project_id"))); 
+?>
+			</div>
+<?php
+	}	
 	if($t_media->get("specimen_id")){
 ?>
 		<div class="tealRule"><!-- empty --></div>

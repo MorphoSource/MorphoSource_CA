@@ -37,7 +37,26 @@ if (!$this->request->isAjax()) {
 	<div class="formButtons tealTopBottomRule">
 <?php
 if (!$this->request->isAjax()) {
-		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+		print "<div style='float:right;'>Back to: ";
+		$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+		# --- get the taxon_id from this specimen so can pass to the species/genus list
+		$o_db = new Db();
+		$q_taxonomy = $o_db->query("SELECT t.taxon_id
+									FROM ms_specimens s
+									RIGHT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+									RIGHT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+									WHERE s.specimen_id = ?
+									", $t_item->get("specimen_id"));
+		if($q_taxonomy->numRows()){
+			$q_taxonomy->nextRow();
+			if(in_array($vs_specimens_group_by, array("genus", "species"))){
+				print caNavLink($this->request, _t("%1 Specimens", $vs_specimens_group_by), "button buttonSmall", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $q_taxonomy->get("taxon_id")))." ";
+			}
+		}
+		print caNavLink($this->request, _t("Specimen list"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")." ";
+		
+		print caNavLink($this->request, _t("Dashboard"), "button buttonSmall", "MyProjects", "Dashboard", "dashboard");
+		print "</div>";
 }else{
 	if($pn_media_id){
 		print "<div style='float:right;'><a href='#' class='button buttonSmall' onclick='jQuery(\"#mediaSpecimenInfo\").load(\"".caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id))."\");'>"._t("Cancel")."</a></div>";

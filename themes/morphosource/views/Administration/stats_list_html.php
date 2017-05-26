@@ -38,6 +38,9 @@
 /* ]]> */
 </script>
 <div class="blueRule"><!-- empty --></div>
+	<div style="float:right; margin-top:10px;">
+		<?php print caNavLink($this->request, _t("View Stats Over Time"), "button buttonSmall", "Administration", "Stats", "statsOverTime"); ?>
+	</div>
 	<H1>
 		<?php print _t("Site Stats"); ?>
 	</H1>

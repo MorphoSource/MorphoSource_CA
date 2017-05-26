@@ -3766,7 +3766,7 @@ class BaseModel extends BaseObject {
 							$vn_c = 0;
 							while(($vn_c < 1000) && !$vb_got_first_file) {
 								$vs_file_to_test = $va_archive_files[(int)rand(0, sizeof($va_archive_files)-1)];
-								if (in_array(strtolower(pathinfo($vs_file_to_test, PATHINFO_EXTENSION)), array('tif', 'tiff', 'jpg', 'jpeg', 'dicom', 'png', 'psd', 'dcm'))) {
+								if (in_array(strtolower(pathinfo($vs_file_to_test, PATHINFO_EXTENSION)), array('tif', 'tiff', 'jpg', 'jpeg', 'dicom', 'png', 'psd', 'dcm', 'bmp'))) {
 									$vb_got_first_file = true;
 									$vs_first_file = $vs_file_to_test;
 								}
