@@ -225,6 +225,10 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 		if($vs_f == 'catalog_number') {
 			print "<div class='formLabel'>Specimen identifier: <span id='specimen_identifier_preview'></span></div>";
 		}
+		if($vs_f == 'uuid' && $t_item->get("uuid")) {
+			print "<div class='formLabel'><a href='https://www.idigbio.org/portal/records/".$t_item->get("uuid")."' target='_blank' class='button buttonSmall'>View on iDigBio</a></div>";
+		}
+		
 		if(in_array($vs_f, $va_clear_fields)){
 			print "<div style='clear:both;'><!--empty--></div>";
 		} 

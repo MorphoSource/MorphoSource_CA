@@ -89,6 +89,10 @@
 		if($vs_occurrence_id = $t_specimen->get("occurrence_id")){
 			print "<b>Occurrene ID: </b>".$vs_occurrence_id."<br/>";
 		}
+		
+		if($vs_uuid_id = $t_specimen->get("uuid")){
+			print "<a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='button buttonSmall'>View on iDigBio</a><br/>";
+		}
 		if($t_specimen->get("url")){
 			print "<br/><b>Link to specimen in home repository: </b><a href='".$t_specimen->get("url")."' target='_blank'>".$t_specimen->get("url")."</a><br/>";
 		}

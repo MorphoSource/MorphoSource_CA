@@ -9,9 +9,9 @@
 	
 	# --- formatting variables
 	# --- all fields in float_fields array  will be floated to the left
-	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "element", "side", "type", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
+	$va_float_fields = array("institution_code", "collection_code", "catalog_number", "occurrence_id", "uuid", "element", "side", "type", "sex", "relative_age", "absolute_age", "body_mass", "body_mass_comments", "locality_description", "locality_coordinates", "locality_absolute_age", "locality_relative_age", "created_on", "last_modified_on");
 	# --- all fields in clear_fields array  will have a clear output after them
-	$va_clear_fields = array("catalog_number", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_relative_age", "last_modified_on");
+	$va_clear_fields = array("catalog_number", "occurrence_id", "uuid", "sex", "absolute_age", "body_mass_comments", "locality_coordinates", "locality_relative_age", "last_modified_on");
 
 ?>
 	<div class="blueRule"><!-- empty --></div>
@@ -188,6 +188,12 @@
 						print "<div style='clear:both;'><!--empty--></div><div class='formLabel'>Taxonomy<br/><span style='font-weight:normal;'>".$vs_specimen_taxonomy."</span></div>";
 						break;
 					}
+				}
+			break;
+			# -----------------------------------------------
+			case "uuid":
+				if($t_item->get("uuid")){
+					print "<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'><a href='https://www.idigbio.org/portal/records/".$t_item->get("uuid")."' target='_blank' class='button buttonSmall'>View on iDigBio</a></div>";
 				}
 			break;
 			# -----------------------------------------------
