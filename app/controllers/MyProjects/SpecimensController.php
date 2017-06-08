@@ -598,9 +598,29 @@
 			if($this->request->getParameter('doLookup', pInteger)){
 				# build array of lookup terms to send to iDigBio
 				$va_lookup_values = array();
+				$va_lookup_values2 = array();
+				$vb_search_twice = false;
 				foreach($va_lookup_fields as $vs_label => $vs_field){
 					if($vs_tmp = $this->request->getParameter($vs_field, pString)){
 						$va_lookup_values[$vs_field] = $vs_tmp;
+						switch($vs_field){
+							case "collectioncode":
+								# --- skip
+							break;
+							# ----------------
+							case "catalognumber":
+								# --- merge collectioncode and catalognumber
+								if($va_lookup_values["collectioncode"] && $vs_tmp){
+									$va_lookup_values2[$vs_field] = $va_lookup_values["collectioncode"]."-".$vs_tmp;
+									$vb_search_twice = true;
+								}
+							break;
+							# ----------------
+							default:
+								$va_lookup_values2[$vs_field] = $vs_tmp;
+							break;
+							# ----------------
+						}
 					}
 				}
 				if(sizeof($va_lookup_values)){
@@ -608,9 +628,26 @@
 					$t_specimen = new ms_specimens();
 					$va_results = $t_specimen->getIDBSpecimenInfo($va_lookup_values);
 					if($va_results["success"]){
-						$this->view->setVar("results", $va_results["data"]);
+						$va_data = $va_results["data"];
+					}
+					if($vb_search_twice){
+						# --- search again with the collection and catalog number combo
+						$va_results2 = $t_specimen->getIDBSpecimenInfo($va_lookup_values2);
+						if($va_results2["success"]){
+							# --- merge results if the first search found something
+							if(is_array($va_data) && sizeof($va_data)){
+								$va_data["items"] = array_merge($va_data["items"], $va_results2["data"]["items"]);
+								$va_data["itemCount"] = $va_data["itemCount"] + $va_results2["data"]["itemCount"];
+							}else{
+								$va_data = $va_results2["data"];
+							}
+						}
+						
+					}
+					if(is_array($va_data) && sizeof($va_data)){
+						$this->view->setVar("results", $va_data);
 					}else{
-						$va_errors[] = $va_results["error"];
+						$va_errors[] = "No results found on idigbio.org";
 					}
 					# --- search MorphoSource
 					$o_search = new SpecimenSearch();
@@ -623,7 +660,11 @@
 						$va_search_parts[] = "ms_specimens.collection_code:".$ps_collection_code;
 					}
 					if($ps_catalog_number = $this->request->getParameter("catalognumber", pString)){
-						$va_search_parts[] = "ms_specimens.catalog_number:".$ps_catalog_number;
+						if($ps_collection_code && $ps_catalog_number){
+							$va_search_parts[] = "(ms_specimens.catalog_number:".$ps_catalog_number." OR ms_specimens.catalog_number:".$ps_collection_code."-".$ps_catalog_number.")";
+						}else{
+							$va_search_parts[] = "ms_specimens.catalog_number:".$ps_catalog_number;
+						}
 					}
 					if($ps_genus = $this->request->getParameter("genus", pString)){
 						$va_search_parts[] = "ms_taxonomy_names.genus:".$ps_genus;
@@ -631,7 +672,7 @@
 					if($ps_species = $this->request->getParameter("specificepithet", pString)){
 						$va_search_parts[] = "ms_taxonomy_names.species:".$ps_species;
 					}
-					
+					#print join(" AND ", $va_search_parts);
 					$qr_ms_specimens = $o_search->search(join(" AND ", $va_search_parts));
 					$this->view->setVar("morphosource_results", $qr_ms_specimens);
 					$this->view->setVar("num_morphosource_results", $qr_ms_specimens->numHits());
@@ -676,7 +717,7 @@
 							$this->opo_item->set('url', $va_specimen_info["data"]["dcterms:references"]);
 							$this->opo_item->set('collector', $va_specimen_info["indexTerms"]["collector"]);
 							$this->opo_item->set('collected_on', $va_specimen_info["indexTerms"]["datecollected"]);
-							//$this->opo_item->set('description', );
+							//$this->opo_item->set('description', $va_specimen_info["data"]["dwc:preparations"]);
 							//$this->opo_item->set('type', );
 							if($va_specimen_info["data"]["dwc:sex"]){
 								if(strpos(strtolower($va_specimen_info["data"]["dwc:sex"]), "female") !== false){
@@ -689,11 +730,17 @@
 							//$this->opo_item->set('absolute_age', );
 							//$this->opo_item->set('body_mass', );
 							//$this->opo_item->set('body_mass_comments', );
-							$this->opo_item->set('locality_description', $va_specimen_info["indexTerms"]["locality"]);
+							if($va_specimen_info["indexTerms"]["locality"]){
+								$this->opo_item->set('locality_description', $va_specimen_info["indexTerms"]["verbatimlocality"]);
+							}elseif($va_specimen_info["indexTerms"]["verbatimlocality"]){
+								$this->opo_item->set('locality_description', $va_specimen_info["indexTerms"]["locality"]);
+							}elseif($va_specimen_info["indexTerms"]["country"]){
+								$this->opo_item->set('locality_description', $va_specimen_info["indexTerms"]["country"]);
+							}
 							//$this->opo_item->set('locality_datum_zone', );
 							//$this->opo_item->set('locality_coordinates', );
-							$this->opo_item->set('locality_northing_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lat"]);
-							$this->opo_item->set('locality_easting_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lon"]);
+						//$this->opo_item->set('locality_northing_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lat"]);
+						//$this->opo_item->set('locality_easting_coordinate', $va_specimen_info["indexTerms"]["geopoint"]["lon"]);
 							//$this->opo_item->set('locality_absolute_age', );
 							//$this->opo_item->set('locality_relative_age', );
 			
@@ -728,15 +775,16 @@
 								//$t_taxonomy_names->set("author", );
 								//$t_taxonomy_names->set("year", $va_specimen_info["dwc:eventDate"]);
 								//$t_taxonomy_names->set("ht_supraspecific_clade", );
-								$t_taxonomy_names->set("ht_kingdom", $va_specimen_info["indexTerms"]["kingdom"]);
-								$t_taxonomy_names->set("ht_phylum", $va_specimen_info["indexTerms"]["phylum"]);
-								$t_taxonomy_names->set("ht_class", $va_specimen_info["indexTerms"]["class"]);
+				# --- Doug doesn't want to populate the higher taxonomy fields at import
+							#$t_taxonomy_names->set("ht_kingdom", $va_specimen_info["indexTerms"]["kingdom"]);
+							#$t_taxonomy_names->set("ht_phylum", $va_specimen_info["indexTerms"]["phylum"]);
+							#$t_taxonomy_names->set("ht_class", $va_specimen_info["indexTerms"]["class"]);
 								//$t_taxonomy_names->set("ht_subclass", );
 								//$t_taxonomy_names->set("ht_superorder", );
-								$t_taxonomy_names->set("ht_order", $va_specimen_info["indexTerms"]["order"]);
+							#$t_taxonomy_names->set("ht_order", $va_specimen_info["indexTerms"]["order"]);
 								//$t_taxonomy_names->set("ht_suborder", );
 								//$t_taxonomy_names->set("ht_superfamily", );
-								$t_taxonomy_names->set("ht_family", $va_specimen_info["indexTerms"]["family"]);
+							#$t_taxonomy_names->set("ht_family", $va_specimen_info["indexTerms"]["family"]);
 								//$t_taxonomy_names->set("ht_subfamily", );
 								$t_taxonomy_names->set("source_info", "imported from iDigBio");
 								$t_taxonomy_names->set("notes", "imported from iDigBio");
@@ -822,6 +870,14 @@
 											$this->notification->addNotification("Created Taxon for Specimen", __NOTIFICATION_TYPE_INFO__);
 										}
 										$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);								
+										# --- email Doug about Specimen import --- douglasmb@gmail.com
+										caSendMessageUsingView($this->request, 'douglasmb@gmail.com', 'do-not-reply@morphosource.org', "[Morphosource] iDigBio specimen import notification", 'idigbio_specimen_import_notification.tpl', array(
+											'user' => $this->request->user,
+											'specimen' => $this->opo_item,
+											'project' => $this->opo_project,
+											'request' => $this->request
+										));
+										
 										$this->form();
 										return;
 									}

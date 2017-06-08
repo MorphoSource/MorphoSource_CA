@@ -42,7 +42,10 @@
 		$col = 0;
 		while($qr_morphosource_results->nextHit()){
 			print "<div class='listItemLtBlue".(($col == 0) ? " bg" : "")."'>";
-			print $t_specimen->getSpecimenName($qr_morphosource_results->get("specimen_id"));
+			print caNavLink($this->request, $t_specimen->getSpecimenName($qr_morphosource_results->get("specimen_id")), '', "Detail", "SpecimenDetail", "Show", array("specimen_id" => $qr_morphosource_results->get("specimen_id")));
+			if($qr_morphosource_results->get("uuid")){
+				print "<br/><i class='fa fa-check-circle' style='color:#21c721;'></i> <a href='https://www.idigbio.org/portal/records/".$qr_morphosource_results->get("uuid")."' class='blueText' target='_blank'>iDigBio integrated</a>";
+			}
 			print "<div style='margin-top:5px;'>".caNavLink($this->request, _t("Add Media"), "button buttonSmall", "MyProjects", "Media", "form", array("specimen_id" => $qr_morphosource_results->get("specimen_id")));
 			print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Link Specimen to Project"), "button buttonSmall", "MyProjects", "Specimens", "linkSpecimen", array("specimen_id" => $qr_morphosource_results->get("specimen_id")))."</div>";
 			print "</div>";
@@ -72,8 +75,15 @@
 		$i = 0;
 		$col = 0;
 		foreach($va_results["items"] as $va_result){
+			# --- is there already a MS specimen for this iDigBio specimen?
+			$t_specimen_lookup = new ms_specimens();
+			$t_specimen_lookup->load(array("uuid" => $va_result["uuid"]));
 			print "<div class='listItemLtBlue".(($col == 0) ? " bg" : "")."'>";
-			print "<div class='listItemRightCol'>".caNavLink($this->request, _t("Import Specimen"), "button buttonSmall", "MyProjects", "Specimens", "importIDBSpecimen", array("uuid" => $va_result["uuid"]))."</div>";
+			$vn_spec_id = "";
+			$vn_spec_id = $t_specimen_lookup->get("specimen_id");
+			if(!$vn_spec_id){
+				print "<div class='listItemRightCol'>".caNavLink($this->request, _t("Import Specimen"), "button buttonSmall", "MyProjects", "Specimens", "importIDBSpecimen", array("uuid" => $va_result["uuid"]))."</div>";
+			}
 			if($va_result["indexTerms"]["institutioncode"]){
 				print $va_result["indexTerms"]["institutioncode"]."-";
 			}
@@ -87,6 +97,12 @@
 				print ", <i>".$va_result["indexTerms"]["scientificname"]."</i>";
 			}
 			print "<br/><a href='https://www.idigbio.org/portal/records/".$va_result["uuid"]."' target='_blank'>View on iDigBio</a>";
+			
+			if($vn_spec_id){
+				print "<br/><b>This specimen is already available in MorphoSource as ".caNavLink($this->request, $t_specimen_lookup->getSpecimenName(), '', "Detail", "SpecimenDetail", "Show", array("specimen_id" => $vn_spec_id))."</b>";
+				print "<div style='margin-top:5px;'>".caNavLink($this->request, _t("Add Media"), "button buttonSmall", "MyProjects", "Media", "form", array("specimen_id" => $vn_spec_id));
+				print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Link Specimen to Project"), "button buttonSmall", "MyProjects", "Specimens", "linkSpecimen", array("specimen_id" => $vn_spec_id))."</div>";
+			}
 			
 			print "</div>";
 			$col++;

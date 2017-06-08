@@ -142,9 +142,10 @@
  			$vn_year = 2013;
  			$vn_current_year = intval(date("Y"));
  			$vn_current_month = intval(date("n"));
+ 			$vn_last_timestamp = 0;
  			while($vn_year <= $vn_current_year){
  				$vn_month = 1;
- 				while($vn_month < 12){
+				while($vn_month < 12){
  					$va_tmp = array();
  					$vn_time_stamp = mktime(0, 0, 0, $vn_month, 1, $vn_year);
  					# --- do the queries
@@ -172,8 +173,23 @@
  					$q_users_count->nextRow();
  					$va_tmp["registered users"] = $q_users_count->get("c");
  					
+ 					$q_download_count_quarter = $o_db->query("SELECT count(*) c FROM ms_media_download_stats WHERE downloaded_on < ".$vn_time_stamp." AND  downloaded_on > ".$vn_last_timestamp);
+ 					$q_download_count_quarter->nextRow();
+ 					$va_tmp["total downloads this quarter"] = $q_download_count_quarter->get("c");
+ 			
+ 					$q_download_count = $o_db->query("SELECT count(*) c FROM ms_media_download_stats WHERE downloaded_on < ".$vn_time_stamp);
+ 					$q_download_count->nextRow();
+ 					$va_tmp["total downloads"] = $q_download_count->get("c");
+ 			
+ 					$q_download_users_count = $o_db->query("SELECT DISTINCT user_id FROM ms_media_download_stats WHERE downloaded_on < ".$vn_time_stamp);
+ 					$va_tmp["users downloaded media"] = $q_download_users_count->numRows();
+ 			
+ 					$q_download_media_count = $o_db->query("SELECT DISTINCT media_id FROM ms_media_download_stats WHERE downloaded_on < ".$vn_time_stamp);
+ 					$va_tmp["media downloaded"] = $q_download_media_count->numRows();	
+ 					
  					$va_counts[$vn_year][$vn_month] = $va_tmp;
  					
+ 					$vn_last_timestamp = $vn_time_stamp;
  					$vn_month = $vn_month + 3;
  					if(($vn_year == $vn_current_year) && ($vn_month > $vn_current_month)){
  						break;

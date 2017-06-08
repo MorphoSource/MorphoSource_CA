@@ -36,6 +36,9 @@
 					print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
 					if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
 							//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
+					if($vs_uuid_id = $va_specimen["uuid"]){
+						print "<div style='margin-top:3px; '><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='blueText' style='text-decoration:none; font-weight:bold;'>iDigBio <i class='fa fa-external-link'></i></a></div>";
+					}
 					print "</div>\n";
 					print "</div><!-- end projectMediaContainer -->";
 				}

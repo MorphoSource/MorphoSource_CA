@@ -22,18 +22,19 @@ if (!$this->request->isAjax()) {
 		<?php print _t("Specimen Information"); ?>
 	</H1>
 <?php
-	if(!$t_item->get("specimen_id")){
-		# --- display a look up for people to find an existing record before entering their own
-		print "<div class='formLabel' id='specimenLookUpContainer'>";
-		print "<span style='font-weight:normal;'>Before creating a new specimen, please check if a specimen record already exists.</span><br/><b>Enter any <i>individual</i> part of the catalog number, either the institution code prefix, collection code modifier or the alphanumeric suffix:</b><br/>";
-		print caHTMLTextInput("specimenLookUp", array("id" => 'specimenLookUp', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
-		print "<span id='addOrLinkButtons' style='display:none;'><a href='#' class='button buttonSmall' id='addMedia'>ADD MEDIA</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href='#' class='button buttonSmall' id='linkSpecimen'>LINK SPECIMEN TO PROJECT</a></span><!-- end addOrLinkButtons -->";
-	
-		print "</div>";
-	}
+	// if(!$t_item->get("specimen_id")){
+// 		# --- display a look up for people to find an existing record before entering their own
+// 		print "<div class='formLabel' id='specimenLookUpContainer'>";
+// 		print "<span style='font-weight:normal;'>Before creating a new specimen, please check if a specimen record already exists.</span><br/><b>Enter any <i>individual</i> part of the catalog number, either the institution code prefix, collection code modifier or the alphanumeric suffix:</b><br/>";
+// 		print caHTMLTextInput("specimenLookUp", array("id" => 'specimenLookUp', 'class' => 'lookupBg', 'value' => ''), array('width' => "200px", 'height' => 1));
+// 		print "<span id='addOrLinkButtons' style='display:none;'><a href='#' class='button buttonSmall' id='addMedia'>ADD MEDIA</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href='#' class='button buttonSmall' id='linkSpecimen'>LINK SPECIMEN TO PROJECT</a></span><!-- end addOrLinkButtons -->";
+// 	
+// 		print "</div>";
+// 	}
 }
 ?>
-	<div id='formArea' <?php print ((!$this->request->isAjax()) && (!$t_item->get("specimen_id"))) ? "style='display:none;'" : ""; ?>>
+	<!--<div id='formArea' <?php print ((!$this->request->isAjax()) && (!$t_item->get("specimen_id"))) ? "style='display:none;'" : ""; ?>>-->
+	<div id='formArea'>
 	<div class="formButtons tealTopBottomRule">
 <?php
 if (!$this->request->isAjax()) {
@@ -209,6 +210,15 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				print $vs_field_info["LABEL"].":<br/>".caHTMLTextInput($vs_f."_lookup", array("id" => 'ms_institution_lookup', 'class' => 'lookupBg', 'value' => $vs_name), array('width' => '354px', 'height' => 1, 'paadding-right' => '15px'));
 				print "</div>";
 				print "<input type='hidden' id='".$vs_f."' name='".$vs_f."' value='".$t_item->get($vs_f)."'></div>";
+			break;
+			# -----------------------------------------------
+			case "occurrence_id":
+				# --- don't allow editing of occ id when there is an idigbio uuid
+				if($t_item->get("uuid")){
+					print $t_item->htmlFormElement("occurrence_id","<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL").": <span style='font-weight:normal;'>".$t_item->get("occurrence_id")."</span></div>";
+				}else{
+					print $t_item->htmlFormElement("occurrence_id","<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
+				}
 			break;
 			# -----------------------------------------------
 			#case "catalog_number":

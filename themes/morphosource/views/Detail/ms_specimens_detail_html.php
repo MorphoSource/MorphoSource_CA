@@ -32,6 +32,10 @@
 <H1 class="specimenDetailTitle">
 <?php 
 	print _t("Specimen: ").$vs_specimen_name;
+	if($vs_uuid_id = $t_specimen->get("uuid")){
+		print "<br/><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='button buttonSmall' style='margin-top:3px;'>View specimen on iDigBio</a><br/>";
+	}
+		
 ?>
 </H1>
 <div id="specimenDetail">
@@ -77,6 +81,7 @@
 		<H2>Specimen Information</H2>
 			<div class="unit">
 <?php
+		print "<b>MorphoSource Identifier:</b> S".$t_specimen->get("specimen_id")."<br/>";
 		if($vs_reference_source = $t_specimen->get("reference_source", array("convertCodesToDisplayText" => true))){
 			print $vs_reference_source."<br/>";
 		}
@@ -87,12 +92,11 @@
 			print "<b>Sex: </b>".$vs_sex."<br/>";
 		}
 		if($vs_occurrence_id = $t_specimen->get("occurrence_id")){
-			print "<b>Occurrene ID: </b>".$vs_occurrence_id."<br/>";
+			print "<b>Occurrence ID: </b>".$vs_occurrence_id."<br/>";
+		}else{
+			print "<b>Occurrence ID: </b>An occurence ID has not yet been identified or created for this specimen and it has not been integrated with iDigBio<br/>";
 		}
 		
-		if($vs_uuid_id = $t_specimen->get("uuid")){
-			print "<a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='button buttonSmall'>View on iDigBio</a><br/>";
-		}
 		if($t_specimen->get("url")){
 			print "<br/><b>Link to specimen in home repository: </b><a href='".$t_specimen->get("url")."' target='_blank'>".$t_specimen->get("url")."</a><br/>";
 		}

@@ -107,7 +107,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"DISPLAY_WIDTH" => 65, "DISPLAY_HEIGHT" =>1,
 				"IS_NULL" => 0, 
 				"DEFAULT" => "",
-				"LABEL" => "Occurrence ID", "DESCRIPTION" => "Specimen Occurrence ID",
+				"LABEL" => "Occurrence ID", "DESCRIPTION" => "Unique Institutional identifier for the specimen",
 				"BOUNDS_LENGTH" => array(0,255)
 		),
 		'uuid' => array(
@@ -236,7 +236,7 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'DISPLAY_WIDTH' => 64, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => TRUE, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Locality description'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
+				'LABEL' => _t('Verbatim locality'), 'DESCRIPTION' => _t('Description of the locality of the specimen.'),
 				'BOUNDS_LENGTH' => array(0,65535)
 		),
 		'locality_coordinates' => array(
@@ -734,7 +734,7 @@ class ms_specimens extends BaseModel {
 	}
 	# ------------------------------------------------------
 	# iDigBio - load specimen data from idigbio.org 
-	# institutioncode, collectioncode, catalognumber, genus, specificepithet, uuid
+	# institutioncode, collectioncode, catalognumber, genus, specificepithet, uuid, occurrenceid
 	# ----------------------------------------
 	public function getIDBSpecimenInfo($va_lookup_values, $vn_limit = 500) {
 		$client = new GuzzleHttp\Client();

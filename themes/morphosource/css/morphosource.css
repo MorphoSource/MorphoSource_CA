@@ -205,6 +205,11 @@ a.blueText:hover{
 	font-size:11px;
 	line-height:15px;
 }
+.buttonXSmall{ 
+	padding: 2px 3px 2px 3px;
+	font-size:10px;
+	line-height:12px;
+}
 .buttonCircle{ 
 	padding: 3px;
 	font-size:11px;
@@ -676,7 +681,7 @@ styles for original hp layout
 #dashboardMedia .projectMediaContainer, #mediaListings .projectMediaContainer {
 	float: left;
 	width: 190px;
-	height:255px;
+	height:265px;
 	font-size:11px;
 	
 	padding:0px 12px 15px 11px;

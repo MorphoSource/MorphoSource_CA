@@ -629,7 +629,7 @@ class ca_users extends BaseModel {
 			if (is_array($va_volatile_vars = $qr_users->getVars('volatile_vars'))) {
 				$va_vars = array_merge($va_vars, $va_volatile_vars);
 			}
- 			$va_users[$qr_users->get('user_id')] = array_merge($qr_users->getRow(), array('last_login' => $va_vars['last_login'], 'num_downloads' => $this->numDownloads($qr_users->get("user_id"))));
+			$va_users[$qr_users->get('user_id')] = array_merge($qr_users->getRow(), array('organization' => $va_vars['_user_preferences']['user_profile_organization'], 'address_1' => $va_vars['_user_preferences']['user_profile_address1'], 'address_2' => $va_vars['_user_preferences']['user_profile_address2'], 'last_login' => $va_vars['last_login'], 'num_downloads' => $this->numDownloads($qr_users->get("user_id"))));
  		}
 		
 		return $va_users;

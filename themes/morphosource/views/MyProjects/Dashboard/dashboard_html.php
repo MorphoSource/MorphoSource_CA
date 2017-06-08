@@ -186,7 +186,7 @@
 <a name='dashboardSpecimen'></a>
 <div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
-	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
+	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "lookupSpecimen"); ?></div>
 <?php
 	$vs_specimens_group_by = $this->getVar("specimens_group_by");
 	print "<div style='float:right; clear:right; text-align:right; padding:5px 0px 5px 0px;'><b>Group by:</b> ";
@@ -279,6 +279,9 @@
 					print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
 					if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
 							//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
+					if($vs_uuid_id = $va_specimen["uuid"]){
+						print "<div style='margin-top:3px; '><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='blueText' style='text-decoration:none; font-weight:bold;'>iDigBio <i class='fa fa-external-link'></i></a></div>";
+					}
 					print "</div>\n";
 					print "</div><!-- end projectMediaContainer -->";
 				}

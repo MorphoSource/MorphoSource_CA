@@ -117,7 +117,7 @@
 					print "<div>MANAGE:</div>";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("All download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
 					print "<div>NEW:</div>";
-					print "<div>".caNavLink($this->request, _t("New Specimen"), "", "MyProjects", "Specimens", "form")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("New Specimen"), "", "MyProjects", "Specimens", "lookupSpecimen")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Media Group"), "", "MyProjects", "Media", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Bibliographic Citation"), "", "MyProjects", "Bibliography", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Taxonomic Name"), "", "MyProjects", "Taxonomy", "form")."</div>\n";

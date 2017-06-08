@@ -7,7 +7,7 @@
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1 class="capitalize">
-		<div style="float:right;"><?php print caNavLink($this->request, _t("New %1", $this->getVar("name_singular")), "button buttonLarge", "MyProjects", $this->request->getController(), "form"); ?></div>
+		<div style="float:right;"><?php print caNavLink($this->request, _t("New %1", $this->getVar("name_singular")), "button buttonLarge", "MyProjects", $this->request->getController(), "lookupSpecimen"); ?></div>
 		<?php print $this->getVar("name_plural"); ?>
 	</H1>
 <?php

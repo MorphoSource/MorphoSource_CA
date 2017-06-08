@@ -64,6 +64,12 @@
 						<?php print _t('Name'); ?>
 					</th>
 					<th class="list-header-unsorted">
+						<?php print _t('Org'); ?>
+					</th>
+					<th class="list-header-unsorted">
+						<?php print _t('address'); ?>
+					</th>
+					<th class="list-header-unsorted">
 						<?php print _t('Active?'); ?>
 					</th>
 					<th class="list-header-unsorted">
@@ -95,6 +101,12 @@
 				</td>
 				<td>
 					<?php print $va_user['lname'].', '.$va_user['fname']; ?>
+				</td>
+				<td>
+					<?php print $va_user['organization']; ?>
+				</td>
+				<td>
+					<?php print $va_user['address_1']."<br/>".$va_user['address_2']; ?>
 				</td>
 				<td>
 					<?php print $va_user['active'] ? _t('Yes') : _t('No'); ?>
