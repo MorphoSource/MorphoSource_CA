@@ -94,7 +94,7 @@
 		if($vs_occurrence_id = $t_specimen->get("occurrence_id")){
 			print "<b>Occurrence ID: </b>".$vs_occurrence_id."<br/>";
 		}else{
-			print "<b>Occurrence ID: </b>An occurence ID has not yet been identified or created for this specimen and it has not been integrated with iDigBio<br/>";
+			print "<b>Occurrence ID: </b>An occurence ID has not yet been identified or created for this specimen".((!$t_specimen->get("uuid")) ? " and it has not been integrated with iDigBio" : "")."<br/>";
 		}
 		
 		if($t_specimen->get("url")){

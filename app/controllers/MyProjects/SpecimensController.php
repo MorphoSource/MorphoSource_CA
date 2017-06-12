@@ -755,7 +755,7 @@
 							if($q_taxon_hits->numHits() > 0){
 								$q_taxon_hits->nextHit();
 								$vn_taxon_id = $q_taxon_hits->get("taxon_id");
-								$vn_alt_id = $q_taxon_hits->get("taxon_id");
+								$vn_alt_id = $q_taxon_hits->get("alt_id");
 								$vb_taxon_linked = true;		
 							}else{
 								# --- add the ms_taxonomy record
@@ -824,7 +824,7 @@
 								}
 								if(sizeof($va_errors) > 0){
 									$this->notification->addNotification("There were errors saving the taxa for this specimen".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
-									$this->content->setVar("errors", $va_errors);
+									$this->view->setVar("errors", $va_errors);
 									$this->lookupSpecimen();
 									return;
 								}
@@ -838,7 +838,7 @@
 								if ($this->opo_item->numErrors()) {
 									foreach ($this->opo_item->getErrors() as $vs_e) {  
 										$va_errors["general"] = $vs_e;
-										$this->content->setVar("errors", $va_errors);
+										$this->view->setVar("errors", $va_errors);
 										$this->notification->addNotification("There were errors saving the specimen: ".join("; ", $va_errors) , __NOTIFICATION_TYPE_INFO__);
 										$this->form();
 										return;
@@ -858,7 +858,7 @@
 									if ($t_specimens_x_taxonomy->numErrors()) {
 										foreach ($t_specimens_x_taxonomy->getErrors() as $vs_e) {  
 											$va_errors["general"] = $vs_e;
-											$this->content->setVar("errors", $va_errors);
+											$this->view->setVar("errors", $va_errors);
 											$this->notification->addNotification("There were errors linking the specimen to taxonomy: ".join("; ", $va_errors) , __NOTIFICATION_TYPE_INFO__);
 											$this->form();
 											return;
@@ -885,16 +885,16 @@
 							}
 						}
 					}else{
-						$this->content->setVar("errors", array($va_results["error"]));
+						$this->view->setVar("errors", array($va_results["error"]));
 						$this->lookupSpecimen();
 					}
 				}else{
-					$this->content->setVar("errors", array("Could not import specimen"));
+					$this->view->setVar("errors", array("Could not import specimen"));
 					$this->lookupSpecimen();
 				}
 				
 			}else{
-				$this->content->setVar("errors", array("Could not import specimen; no uuid passed"));
+				$this->view->setVar("errors", array("Could not import specimen; no uuid passed"));
 				$this->lookupSpecimen();
 			}
 		}

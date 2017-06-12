@@ -216,6 +216,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				# --- don't allow editing of occ id when there is an idigbio uuid
 				if($t_item->get("uuid")){
 					print $t_item->htmlFormElement("occurrence_id","<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL").": <span style='font-weight:normal;'>".$t_item->get("occurrence_id")."</span></div>";
+					print "<input type='hidden' name='occurrence_id' value='".$t_item->get("occurrence_id")."'>";
 				}else{
 					print $t_item->htmlFormElement("occurrence_id","<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>");
 				}
@@ -281,7 +282,7 @@ if (!$this->request->isAjax()) {
 		_updateSpecimenIdentifierPrefix();
 		
 		jQuery('#specimenItemForm').submit(function(e){		
-			if(!jQuery('#institution_code').val() || !jQuery('#catalog_number').val() || (!jQuery('#institution_id').val() && !jQuery('#name').val())){
+			if(!jQuery('#institution_code').val() || !jQuery('#catalog_number').val() || !jQuery('#institution_id').val()){
 				alert("Please enter the specimen institution code, catalog number and institution");
 				e.preventDefault();
 				return false;
