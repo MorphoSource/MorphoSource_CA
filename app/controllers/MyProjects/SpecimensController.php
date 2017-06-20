@@ -768,7 +768,7 @@
 								
 								# --- add the taxonomy_names record
 								$t_taxonomy_names = new ms_taxonomy_names();
-								$t_taxonomy_names->set("genus", $va_specimen_info["indexTerms"]["genus"]);
+								$t_taxonomy_names->set("genus", ucfirst($va_specimen_info["indexTerms"]["genus"]));
 								$t_taxonomy_names->set("species", $va_specimen_info["indexTerms"]["specificepithet"]);
 								$t_taxonomy_names->set("subspecies", $va_specimen_info["indexTerms"]["infraspecificepithet"]);
 								//$t_taxonomy_names->set("variety", );

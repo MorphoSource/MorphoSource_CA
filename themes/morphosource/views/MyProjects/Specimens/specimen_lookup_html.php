@@ -36,6 +36,9 @@
 		}
 		$t_specimen = new ms_specimens();
 		print "<div class='blueRule'><!-- empty --></div><H1>MorphoSource Results</H1>";
+		if($vn_num_morphosource_results > 9){
+			print "<div style='float:right; font-size:11px;'>scroll list for more <i class='blueText fa fa-arrow-down' style='font-size:14px;'></i></div>";
+		}
 		print "<b>Showing ".$vn_num_morphosource_results." MorphoSource Result".(($vn_num_morphosource_results == 1) ? "" : "s")."</b>";
 		print "<div id='itemListings' style='overflow-y:auto; max-height:500px;'>";
 		$i = 0;
@@ -56,6 +59,9 @@
 			$i++;
 		}
 		print "</div><!-- end itemListings -->";
+		if($vn_num_morphosource_results > 9){
+			print "<div style='float:right; font-size:11px;'>scroll list for more <i class='blueText fa fa-arrow-down' style='font-size:14px;'></i></div>";
+		}
 		if(is_array($va_results) && sizeof($va_results)){
 			print "</div>";
 		}		
@@ -70,8 +76,11 @@
 			print "<div style='float:left; width:45%; margin-right:5%'>";
 		}
 		print "<div class='blueRule'><!-- empty --></div><H1>iDigBio Results</H1>";
+		if($vn_num_hits > 9){
+			print "<div style='float:right; font-size:11px;'>scroll list for more <i class='blueText fa fa-arrow-down' style='font-size:14px;'></i></div>";
+		}
 		print "<b>Showing ".(($vn_num_hits_displayed < $vn_num_hits) ? $vn_num_hits_displayed." of " : "").$vn_num_hits." iDigBio Result".(($vn_num_hits == 1) ? "" : "s")."</b>";
-		print "<div id='itemListings' style='overflow-y:auto; max-height:500px;'>";
+		print "<div id='itemListings' style='overflow-y:auto; max-height:500px; '>";
 		$i = 0;
 		$col = 0;
 		foreach($va_results["items"] as $va_result){
@@ -112,6 +121,9 @@
 			$i++;
 		}
 		print "</div><!-- end itemListings -->";
+		if($vn_num_hits > 9){
+			print "<div style='float:right; font-size:11px;'>scroll list for more <i class='blueText fa fa-arrow-down' style='font-size:14px;'></i></div>";
+		}
 		if($vn_num_morphosource_results){
 			print "</div>";
 		}
