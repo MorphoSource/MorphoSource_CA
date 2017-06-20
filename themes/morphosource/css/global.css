@@ -663,7 +663,7 @@ td.advSearchElement{
 	text-decoration:none;
 }
 
-/* find results add to set controls */
+/* find results add to set controls */ 
 input.addItemToSetControl {
 	display: none;
 }
