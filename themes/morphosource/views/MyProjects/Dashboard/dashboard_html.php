@@ -54,15 +54,18 @@
 		}
 ?>
 	</div><!-- end dashboardAbstract -->
-	<div class="dashboardButtons">
+	<div class="dashboardButtons" style="text-align:center;">
 <?php
 	print caNavLink($this->request, _t("New Project"), "button buttonSmall", "MyProjects", "Project", "form", array("new_project" => 1));
 	if($this->request->user->canDoAction("is_administrator") || ($this->request->user->get("user_id") == $t_project->get("user_id"))){
-		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
-		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
+		print "&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
+		print "&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
 	}
 	if($this->getVar("num_projects") > 1){
-		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
+		print "&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
+	}
+	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7))){
+		print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonSmall", "MyProjects", "BatchImport", "overview");
 	}
 ?>
 	</div>

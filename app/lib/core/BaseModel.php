@@ -5078,6 +5078,40 @@ class BaseModel extends BaseObject {
 		}
 	}
 	# --------------------------------------------------------------------------------
+	/**
+	 * Fetches the choice list database value for a given field when passed the display text
+	 * 
+	 * @access public
+	 * @param string $field field name
+	 * @param string $value choice list value
+	 * @return string/integer
+	 */
+	public function getChoiceListInternalValue($field, $display_value) {
+		$va_attr = $this->getFieldInfo($field);
+		$va_list = $va_attr["BOUNDS_CHOICE_LIST"];
+		
+		if (isset($va_attr['LIST']) && $va_attr['LIST']) {
+			$t_list = new ca_lists();
+			if ($t_list->load(array('list_code' => $va_attr['LIST']))) {
+				$va_items = caExtractValuesByUserLocale($t_list->getItemsForList($va_attr['LIST']));
+				$va_list = array();
+				
+				foreach($va_items as $vn_item_id => $va_item_info) {
+					$va_list[$va_item_info['name_singular']] = $va_item_info['item_value'];
+				}
+			}
+		}
+		if ($va_list) {
+			foreach ($va_list as $k => $v) {
+				if ($k == $display_value) {
+					return $v;
+				}
+			}
+		} else {
+			return;
+		}
+	}
+	# --------------------------------------------------------------------------------
 	# --- Field input verification
 	# --------------------------------------------------------------------------------
 	/**

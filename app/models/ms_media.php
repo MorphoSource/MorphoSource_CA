@@ -62,7 +62,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'DISPLAY_WIDTH' => 66, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
-				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Optional description of media group.'),
+				'LABEL' => _t('Description'), 'DESCRIPTION' => _t('Description of media group.'),
 				'BOUNDS_LENGTH' => array(1,255)
 		),
 		'project_id' => array(
@@ -427,6 +427,16 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Merged media records summary'), 'DESCRIPTION' => _t('Serialized array of merged media')
+		),
+		'batch_status' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Batch Import Status'), 'DESCRIPTION' => _t('used to find newly imported records for review'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('Batch uploaded') => 1
+				)
 		)
  	)
 );

@@ -323,6 +323,16 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				'IS_NULL' => false, 
 				'DEFAULT' => '',
 				'LABEL' => _t('Last modified on'), 'DESCRIPTION' => _t('Date/time the specimen record was last modified.'),
+		),
+		'batch_status' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('Batch Import Status'), 'DESCRIPTION' => _t('used to find newly imported records for review'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('Batch Uploaded') => 1
+				)
 		)
  	)
 );
