@@ -22,10 +22,11 @@
 		}
 		print caFormTag($this->request, 'linkSpecimenTaxon', 'specimenTaxonomyForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
 		print "<div class='formLabel'>";
-		print (($vs_specimen_taxonomy) ? "Current " : "Select a")." taxonomic name for this specimen:<br/>".caHTMLTextInput("specimen_taxonomy_lookup", array("id" => 'msSpecimenTaxonomyID', 'class' => 'lookupBg', 'value' => $vs_specimen_taxonomy), array('width' => "200px", 'height' => 1));
+		print (($vs_specimen_taxonomy) ? "Current " : "Look up a")." taxonomic name for this specimen:<br/>".caHTMLTextInput("specimen_taxonomy_lookup", array("id" => 'msSpecimenTaxonomyID', 'class' => 'lookupBg', 'value' => $vs_specimen_taxonomy), array('width' => "200px", 'height' => 1));
 		print "&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#specimenTaxonomyForm\").submit(); return false;'>"._t("Save")."</a></div>";
 		print "<input type='hidden' value='".$vn_taxonomy_id."' name='alt_id' id='alt_id'>";
 		print "<input type='hidden' value='".$pn_specimen_id."' name='specimen_id' id='specimen_id'>";
+		print "<div style='padding-left:10px; padding-right:10px; font-size:11px;'>".(($vs_specimen_taxonomy) ? "To change " : "To add ")." the taxonomic name, type part of the name and select a match.  If no match is found, select the create option from the dropdown.</div>";
 ?>
 	</div>
 </form>
