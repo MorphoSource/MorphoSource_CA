@@ -908,6 +908,57 @@
 			$this->listItems();
  		}
  		# -------------------------------------------------------
+ 		public function batchMediaCopyright() {
+ 			$va_errors = array();
+			$vs_message = "";
+			$ps_copyright_permission = $this->request->getParameter('copyright_permission', pInteger);
+			$ps_copyright_license = $this->request->getParameter('copyright_license', pInteger);
+			$ps_copyright_info = $this->request->getParameter('copyright_info', pString);
+			if($ps_copyright_permission && $ps_copyright_license){
+				# --- get all project media to link
+				$o_db = new Db();
+				$q_project_media = $o_db->query("SELECT media_id FROM ms_media WHERE project_id = ?", $this->opn_project_id);
+				if($q_project_media->numRows()){
+					$va_item_errors = array();
+					$t_media = new ms_media();
+					while($q_project_media->nextRow()){
+						$t_media->load($q_project_media->get("media_id"));
+						$t_media->set("is_copyrighted", 1);
+						$t_media->set("copyright_permission", $ps_copyright_permission);
+						$t_media->set("copyright_license", $ps_copyright_license);
+						$t_media->set("copyright_info", $ps_copyright_info);
+						if ($t_media->numErrors() > 0) {
+							foreach ($t_media->getErrors() as $vs_e) {
+								$va_item_errors[] = $vs_e;
+							}
+						}
+						if (sizeof($va_item_errors) == 0) {
+							# do update
+							$t_media->setMode(ACCESS_WRITE);
+							$t_media->update();
+						
+							if ($t_media->numErrors()) {
+								foreach ($t_media->getErrors() as $vs_e) {  
+									$va_errors["general"] = $va_errors["general"]."M".$q_project_media->get("media_id")." ".$vs_e.", ";
+								}
+							}
+						}else{
+							$va_errors["general"] = $va_errors["general"]."M".$q_project_media->get("media_id")." ".implode(", ", $va_item_errors)."; ";
+						}
+					}					
+					if(sizeof($va_errors) > 0){
+						$vs_message = "There were errors:".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
+					}else{
+						$vs_message = "Copyright settings were linked to all project media";
+					} 
+				}
+				$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+			}else{
+				$this->notification->addNotification("You must enter all copyright settings", __NOTIFICATION_TYPE_INFO__);
+			}
+			$this->listItems();
+ 		}
+ 		# -------------------------------------------------------
  		public function delete() {
  			if ($this->request->getParameter('delete_confirm', pInteger)) {
  				$va_errors = array();

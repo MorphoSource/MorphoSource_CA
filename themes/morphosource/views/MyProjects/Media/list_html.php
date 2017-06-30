@@ -15,10 +15,11 @@
 <?php
 	if($q_listings->numRows()){
 ?>
+		<H2 style="font-size:25px; margin-top:15px; margin-bottom:0px; padding-bottom:0px;" class="ltBlueBottomRule">Batch options</H2>
 		<div id="mediaBibliographyInfo">
 			<!-- load Bib form here -->
 		</div><!-- end mediaBibliographyInfo -->
-		<div id="mediaListCitationForm" style="padding:10px 0px 15px 0px;">
+		<div id="mediaListCitationForm" style="padding:10px 0px 0px 0px;">
 <?php
 			print caFormTag($this->request, 'batchMediaCitationInstructions', 'mediaCitationInstructionsForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 			print "<div class='formLabel'>Apply the following Media Citation Instructions to all project media:<div style='font-weight:normal; padding:0px 0px 0px 15px;'>".$t_item->htmlFormElement("media_citation_instruction1", "^ELEMENT")." provided access to these data ".$t_item->htmlFormElement("media_citation_instruction2", "^ELEMENT").$t_item->htmlFormElement("media_citation_instruction3", "^ELEMENT").". The files were downloaded from www.MorphoSource.org, Duke University.";
@@ -26,9 +27,20 @@
 ?>
 			</div></form>
 		</div>
+		<div id="mediaListcopyrightForm" style="padding:10px 0px 25px 0px;">
+<?php
+			print caFormTag($this->request, 'batchMediaCopyright', 'mediaCopyrightForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+			print "<div><b>Apply the following Copyright settings to all project media:</b></div>";
+			print "<div style='padding:0px 0px 0px 15px;'>Permission: ".$t_item->htmlFormElement("copyright_permission", "^ELEMENT", array("width" => "150px"))."&nbsp;&nbsp;";
+			print "License: ".$t_item->htmlFormElement("copyright_license", "^ELEMENT", array("width" => "150px"))."&nbsp;&nbsp;";
+			print "Copyright Holder: ".$t_item->htmlFormElement("copyright_info", "^ELEMENT", array("width" => "150px"))."&nbsp;&nbsp;";
+			print "<a href='#' name='save' class='button buttonSmall' style='margin-top:5px;' onclick='jQuery(\"#mediaCopyrightForm\").submit(); return false;'>"._t("Save")."</a></div>";
+?>
+			</form>
+		</div>
 <?php
 		$t_own_project = new ms_projects();
-		print '<div id="mediaListings">';
+		print '<div id="mediaListings"><H2 style="font-size:25px; margin-top:15px; margin-bottom:25px;" class="ltBlueBottomRule">Media Groups</H2>';
 		while($q_listings->nextRow()){
 			print "<div class='projectMediaContainer'>";
 			print "<div class='projectMedia'>";
