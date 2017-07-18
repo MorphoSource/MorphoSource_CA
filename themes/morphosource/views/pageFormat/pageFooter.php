@@ -41,6 +41,14 @@ print TooltipManager::getLoadHTML();
 		</div>
 	</div>
 	<script type="text/javascript">
+	
+		function copyToClipboard(element) {
+			var $temp = $("<input>");
+			$("body").append($temp);
+			$temp.val("http://www.morphosource.org" + $(element).text()).select();
+			document.execCommand("copy");
+			$temp.remove();
+		}
 	/*
 		Set up the "msMediaPanel" panel that will be triggered by links in object detail
 		Note that the actual <div>'s implementing the panel are located here in views/pageFormat/pageFooter.php

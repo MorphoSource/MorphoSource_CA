@@ -671,21 +671,23 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 		if (!($r_rp = fopen($ps_filepath, "r"))) { return false; }
 		
 		$vn_c = 0;
-		while((($vs_line = trim(fgets($r_rp), "\n")) !== false) && ($vn_c > 100)) {
+		while((($vs_line = trim(fgets($r_rp), "\n")) !== false) && ($vn_c <= 100)) {
 			if ($vs_line[0] === '#') { continue; }
-			
+			$vs_line = preg_replace("![^0-9A-Za-z_\.\-]+$!", "", $vs_line);
 			$va_toks = preg_split('![ ]+!', $vs_line);
-			if (in_array($va_toks[0], ['v', 'vn']) && (sizeof($va_toks) >= 4) && is_numeric($va_toks[1]) && is_numeric($va_toks[2]) && is_numeric($va_toks[3])) {
+		
+			if (in_array(trim($va_toks[0]), ['v', 'vn']) && (sizeof($va_toks) >= 4) && is_numeric($va_toks[1]) && is_numeric($va_toks[2]) && is_numeric($va_toks[3])) {
 				fclose($r_rp);
 				return true;
 			}
-			if (($va_toks[0] === 'vt') && (sizeof($va_toks) >= 3) && is_numeric($va_toks[1]) && is_numeric($va_toks[2])) {
+			if ((trim($va_toks[0]) === 'vt') && (sizeof($va_toks) >= 3) && is_numeric($va_toks[1]) && is_numeric($va_toks[2])) {
 				fclose($r_rp);
 				return true;
 			}
 			
 			$vn_c++;
 		}
+		
 		fclose($r_rp);
 		return false;
 	}

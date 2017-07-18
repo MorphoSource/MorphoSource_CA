@@ -134,12 +134,12 @@
  			JavascriptLoadManager::register("cycle");
 			$vn_taxon_id = $this->request->getParameter('taxon_id', pInteger);
 			if(!$vn_taxon_id){
-				$this->dashboard();
+				$this->show();
 				return;
 			}
 			# --- are we showing by genus or species?
 			$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
-			if(!in_array($vs_specimens_group_by, array("genus", "species"))){
+			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
 				$vs_specimens_group_by = "genus";
 			}
 			# --- select the genus or taxa we want to show specimen for
@@ -158,6 +158,34 @@
 			$this->view->setVar("taxomony_term", $vs_taxon);
 			
 			$this->render('specimens_by_taxonomy_html.php');
+		}
+  		# -------------------------------------------------------
+ 		function specimenWithoutTaxonomy() {
+ 			JavascriptLoadManager::register("cycle");
+			if(!$this->opn_item_id){
+				$this->dashboard();
+				return;
+			}
+			# --- are we showing those missing genus, species, or family?
+			$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
+				$vs_specimens_group_by = "genus";
+			}
+			$vs_specimens_group_by_display = $vs_specimens_group_by;
+			if($vs_specimens_group_by == "ht_family"){
+				$vs_specimens_group_by_display = "family";
+			}
+			# --- 
+			$o_db = new Db();
+			
+			# --- get the specimen
+			$va_specimens_by_taxomony = $this->opo_item->getProjectSpecimenWithoutTaxonomy(null, null, $vs_specimens_group_by, array("published_media_only" => true));
+			
+			$this->view->setVar("specimens_by_taxomony", $va_specimens_by_taxomony);
+			$this->view->setVar("taxomony_term", $vs_specimens_group_by);
+			$this->view->setVar("taxomony_term_display", $vs_specimens_group_by_display);
+			
+			$this->render('specimen_without_taxonomy_html.php');
 		}
   		# -------------------------------------------------------
  	}

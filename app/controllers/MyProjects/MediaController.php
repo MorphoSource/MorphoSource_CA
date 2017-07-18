@@ -926,7 +926,9 @@
 						$t_media->set("is_copyrighted", 1);
 						$t_media->set("copyright_permission", $ps_copyright_permission);
 						$t_media->set("copyright_license", $ps_copyright_license);
-						$t_media->set("copyright_info", $ps_copyright_info);
+						if($ps_copyright_info){
+							$t_media->set("copyright_info", $ps_copyright_info);
+						}
 						if ($t_media->numErrors() > 0) {
 							foreach ($t_media->getErrors() as $vs_e) {
 								$va_item_errors[] = $vs_e;

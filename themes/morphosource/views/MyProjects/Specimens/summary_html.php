@@ -15,6 +15,13 @@
 
 ?>
 	<div class="blueRule"><!-- empty --></div>
+<?php
+	if($t_item->get("specimen_id")){
+		print "<div style='float:right; padding-top:20px;'>".caNavLink($this->request, _t("View public page"), "", "Detail", "SpecimenDetail", "Show", array("specimen_id" => $t_item->get("specimen_id")))." or <a href='#' onClick='copyToClipboard(\"#specimenGroupLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a>";
+		print "<div style='display:none;' id='specimenGroupLink'>".caNavUrl($this->request, "Detail", "SpecimenDetail", "Show", array("specimen_id" => $t_item->get("specimen_id")))."</div>";
+		print "</div>";
+	}
+?>
 	<H1>
 		<?php print _t("Specimen Information"); ?>
 	</H1>

@@ -27,8 +27,6 @@
  */
  
 	$t_project = $this->getVar("project");
-	$vn_specimen_with_family = $t_project->getProjectSpecimensCountWithFamily(array("published_media_only" => true));
-	
 	$va_media_counts = $this->getVar('media_counts');
 	$va_media_file_counts = $this->getVar('media_file_counts');
 	$t_media = new ms_media();
@@ -54,26 +52,17 @@
 		if($t_project->get("url")){
 			print "<br/><br/><b>"._t("More Information").":</b> <a href='".$t_project->get("url")."' target='_blank'>".$t_project->get("url")."</a>\n";
 		}
-		if($t_project->get("publication_status")){
-			print "<div id='projectLink' style='display:none;'>".caNavUrl($this->request, "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))."</div>";
-			print "<br/><br/><b>"._t("Your project is public.")."</b><br/>".caNavLink($this->request, _t("View public page"), "publicProjectLink", "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))." or <a href='#' onClick='copyToClipboard(\"#projectLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a><br/>";
-		}else{
-			print "<br/><br/><b>"._t("Your project is private.")."</b>";
-		}
 ?>
 	</div><!-- end dashboardAbstract -->
-	<div class="dashboardButtons" style="text-align:center;">
+	<div class="dashboardButtons">
 <?php
 	print caNavLink($this->request, _t("New Project"), "button buttonSmall", "MyProjects", "Project", "form", array("new_project" => 1));
 	if($this->request->user->canDoAction("is_administrator") || ($this->request->user->get("user_id") == $t_project->get("user_id"))){
-		print "&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
-		print "&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
 	}
 	if($this->getVar("num_projects") > 1){
-		print "&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
-	}
-	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37))){
-		print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonSmall", "MyProjects", "BatchImport", "overview");
+		print "&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
 	}
 ?>
 	</div>
@@ -197,32 +186,21 @@
 <a name='dashboardSpecimen'></a>
 <div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
-	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "lookupSpecimen"); ?></div>
+	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "form"); ?></div>
 <?php
 	$vs_specimens_group_by = $this->getVar("specimens_group_by");
-	print "<div style='float:right; clear:right; text-align:right; padding:5px 0px 5px 0px;'><b>Group by:</b> ";
-	print (($vs_specimens_group_by == "specimen") ? "<b>" : "").caNavLink($this->request, "Specimen Number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "specimen")).(($vs_specimens_group_by == "specimen") ? "</b>" : "")." | ";
-	if($vn_specimen_with_family){
-		print (($vs_specimens_group_by == "ht_family") ? "<b>" : "").caNavLink($this->request, "Family", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "ht_family")).(($vs_specimens_group_by == "ht_family") ? "</b>" : "")." | ";
-	}
-	print (($vs_specimens_group_by == "genus") ? "<b>" : "").caNavLink($this->request, "Genus", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "genus")).(($vs_specimens_group_by == "genus") ? "</b>" : "")." | ";
-	print (($vs_specimens_group_by == "species") ? "<b>" : "").caNavLink($this->request, "Species", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "species")).(($vs_specimens_group_by == "species") ? "</b>" : "");
-	print "</div>";
 	$t_specimen = new ms_specimens();
 	switch($vs_specimens_group_by){
 		case "genus":
 		case "species":
-		case "ht_family":
 			$va_specimens_by_taxomony = $t_project->getProjectSpecimensByTaxonomy(null, $vs_specimens_group_by);
 			$vn_count = $va_specimens_by_taxomony["numSpecimen"];
 			$va_specimens = $va_specimens_by_taxomony["specimen"];
 ?>
 			<H1><?php print $vn_count." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
-			<br style="clear:both;" />
 <?php
 
 			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-				$vn_taxon_count = 1;
 				foreach($va_specimens as $vs_taxon => $va_taxon_specimen) {
 					$vn_num_media = is_array($va_taxon_specimen['media']) ? sizeof($va_taxon_specimen['media']) : 0;
 
@@ -237,13 +215,7 @@
 							if (!($vs_media_tag = $va_media['tags']['preview190'])) {
 								$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 							}
-							print "<div class='projectMediaSlide'>";
-							if($va_taxon_specimen['no_link']){
-								print caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Dashboard", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_specimens_group_by));
-							}else{
-								print caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id']));
-							}
-							print "</div>";
+							print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id))."</div>";
 							//print "<span class='mediaID'>M{$vn_media_id}</span>";
 							if($c == $vn_max){
 								break;
@@ -253,20 +225,9 @@
 						print "<div class='projectMediaPlaceholder'> </div>";
 					}
 					print "</div><!-- end projectMedia -->";
-					$vs_genus = "";
-					if($vs_specimens_group_by == "species"){
-						$vs_genus = $va_taxon_specimen["genus"]." ";
-					}
-					print "<div class='projectMediaSlideCaption'><b><em>".$vs_genus.$vs_taxon."</em></b><br/>";
-					if($va_taxon_specimen['no_link']){
-						print caNavLink($this->request, sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : ""), "", "MyProjects", "Dashboard", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_specimens_group_by));
-					}else{
-						print caNavLink($this->request, sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : ""), "", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id']));
-					}
-					print "</div>\n";
+			
+					print "<div class='projectMediaSlideCaption'><b><em>".$vs_taxon."</em></b><br/>".sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : "")."</div>\n";
 					print "</div><!-- end projectMediaContainer -->";
-
-					$vn_taxon_count++;
 				}
 			}else{
 				print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
@@ -281,7 +242,7 @@
 			<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
 <?php
 			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-				print "<div style='text-align:right; margin:5px 0px 5px 0px; clear:right;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
+				print "<div style='text-align:right; margin:5px 0px 5px 0px;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
 		
 				foreach($va_specimens as $vn_specimen_id => $va_specimen) {
 					$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
@@ -306,9 +267,6 @@
 					print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
 					if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
 							//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
-					if($vs_uuid_id = $va_specimen["uuid"]){
-						print "<div style='margin-top:3px; '><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='blueText' style='text-decoration:none; font-weight:bold;'>iDigBio <i class='fa fa-external-link'></i></a></div>";
-					}
 					print "</div>\n";
 					print "</div><!-- end projectMediaContainer -->";
 				}
@@ -322,5 +280,4 @@
 	jQuery(document).ready(function() {
 		jQuery('.projectMediaSlideCycle').cycle();
 	});
-
 </script>

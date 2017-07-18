@@ -1,29 +1,28 @@
 <?php
-	$vn_taxon_id = $this->getVar("taxon_id");
+	$vs_taxomony_term = $this->getVar("taxomony_term");
+	$vs_taxomony_term_display = $this->getVar("taxomony_term_display");
 	$vn_project_id = $this->getVar("project_id");
 	$t_project = $this->getVar("project");
 	$va_specimens_by_taxonomy = $this->getVar("specimens_by_taxomony");
 	
-	$vn_count = $va_specimens_by_taxonomy["numSpecimen"];
-	$va_specimens = array_pop($va_specimens_by_taxonomy["specimen"]);
 	$t_specimen = new ms_specimens();
 ?>
 	<div class="blueRule"><!-- empty --></div>
 <?php
 	if($t_project->get("publication_status")){
-		print "<div style='float:right; padding-top:20px;'>".caNavLink($this->request, _t("View public page"), "", "Detail", "ProjectDetail", "specimenByTaxonomy", array("taxon_id" => $vn_taxon_id, "project_id" => $vn_project_id))." or <a href='#' onClick='copyToClipboard(\"#specimenGroupLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a>";
-		print "<div style='display:none;' id='specimenGroupLink'>".caNavUrl($this->request, "Detail", "ProjectDetail", "specimenByTaxonomy", array("taxon_id" => $vn_taxon_id, "project_id" => $vn_project_id))."</div>";
+		print "<div style='float:right; padding-top:20px;'>".caNavLink($this->request, _t("View public page"), "", "Detail", "ProjectDetail", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_taxomony_term, "project_id" => $vn_project_id))." or <a href='#' onClick='copyToClipboard(\"#specimenGroupLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a>";
+		print "<div style='display:none;' id='specimenGroupLink'>".caNavUrl($this->request, "Detail", "ProjectDetail", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_taxomony_term, "project_id" => $vn_project_id))."</div>";
 		print "</div>";
 	}
 ?>
 	<H1 class="capitalize">
-		<?php print sizeof($va_specimens["specimens"])." Specimen".((sizeof($va_specimens["specimens"]) == 1) ? "" : "s")." for <i>".$this->getVar("taxomony_term")."</i>"; ?>
+		<?php print sizeof($va_specimens_by_taxonomy)." Specimen".((sizeof($va_specimens_by_taxonomy) == 1) ? "" : "s")." without <i>".$vs_taxomony_term_display."</i>"; ?>
 	</H1>
 	<div id="dashboardMedia">
 
 <?php
-			if(is_array($va_specimens["specimens"]) && (sizeof($va_specimens["specimens"]))){
-				foreach($va_specimens["specimens"] as $vn_specimen_id => $va_specimen) {
+			if(is_array($va_specimens_by_taxonomy) && (sizeof($va_specimens_by_taxonomy))){
+				foreach($va_specimens_by_taxonomy as $vn_specimen_id => $va_specimen) {
 					$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
 			
 					print "<div class='projectMediaContainer'>";

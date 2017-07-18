@@ -36,7 +36,15 @@
 			print "<H1>".$vs_specimen_info.(($t_media->get("element")) ? ", ".$t_media->get("element") : "")."</H1>";
 		}
 ?>		
-		<H2><?php print _t("Media Group: M%1", $t_media->get("media_id"))."; ".$q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?></H2>
+		<H2>
+			<?php print _t("Media Group: M%1", $t_media->get("media_id"))."; ".$q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?>
+<?php
+				if($t_media->get("published")){
+					print ";&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("View public page"), "", "Detail", "MediaDetail", "Show", array("media_id" => $t_media->get("media_id")))." or <a href='#' onClick='copyToClipboard(\"#mediaGroupLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a>";
+					print "<div style='display:none;' id='mediaGroupLink'>".caNavUrl($this->request, "Detail", "MediaDetail", "Show", array("media_id" => $t_media->get("media_id")))."</div>";
+				}
+			?>
+		</H2>
 <?php
 		if($t_media->get("notes")){
 			print "<div class='mediaGroupNotes'>".nl2br($t_media->get("title"))."</div>";
