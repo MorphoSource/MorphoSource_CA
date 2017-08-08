@@ -83,11 +83,11 @@
 						$va_fields = msInflectFieldNames([
 							"ms_specimens.specimen_id","ms_specimens.notes",
 							"ms_specimens.reference_source","ms_specimens.institution_code","ms_specimens.collection_code","ms_specimens.catalog_number",
-							"ms_specimens.created_on","ms_specimens.last_modified_on","ms_specimens.sex","ms_specimens.element","ms_specimens.side",
-							"ms_specimens.relative_age","ms_specimens.absolute_age","ms_specimens.body_mass","ms_specimens.body_mass_comments",
+							"ms_specimens.created_on","ms_specimens.last_modified_on","ms_specimens.occurrence_id","ms_specimens.uuid","ms_specimens.type","ms_specimens.sex",
+							"ms_specimens.relative_age","ms_specimens.absolute_age","ms_specimens.body_mass","ms_specimens.body_mass_bibref_id","ms_specimens.body_mass_comments",
 							"ms_specimens.locality_description","ms_specimens.locality_coordinates",
-							"ms_specimens.locality_absolute_age","ms_specimens.locality_relative_age",
-							"ms_specimens.locality_relative_age_bibref_id","ms_specimens.approval_status","ms_specimens.institution_id",
+							"ms_specimens.locality_absolute_age","ms_specimens.locality_absolute_age_bibref_id","ms_specimens.locality_relative_age",
+							"ms_specimens.locality_relative_age_bibref_id","ms_specimens.institution_id",
 							"ms_specimens.description","ms_specimens.collector","ms_specimens.collected_on","ms_specimens.locality_northing_coordinate",
 							"ms_specimens.locality_easting_coordinate","ms_specimens.locality_datum_zone","ms_specimens.url",
 							"ms_institutions.name",
@@ -105,8 +105,7 @@
 							"ms_taxonomy_names.ht_kingdom","ms_taxonomy_names.ht_phylum","ms_taxonomy_names.ht_class","ms_taxonomy_names.ht_subclass",
 							"ms_taxonomy_names.ht_order","ms_taxonomy_names.ht_suborder","ms_taxonomy_names.ht_superfamily","ms_taxonomy_names.ht_family",
 							"ms_taxonomy_names.ht_subfamily","ms_taxonomy_names.created_on","ms_taxonomy_names.last_modified_on",
-							"ms_taxonomy_names.justification","ms_taxonomy_names.review_status","ms_taxonomy_names.review_notes",
-							"ms_taxonomy_names.is_primary","ms_taxonomy_names.genus","ms_taxonomy_names.ht_superorder",
+							"ms_taxonomy_names.genus","ms_taxonomy_names.ht_superorder",
 						
 							"ms_taxonomy.notes", "ms_taxonomy.is_extinct"
 						]);
@@ -119,7 +118,7 @@
 						$va_fields = msInflectFieldNames([
 							"ms_projects.project_id","ms_projects.name","ms_projects.abstract","ms_projects.published_on",
 							"ms_projects.created_on","ms_projects.last_modified_on",
-							"ms_projects.approval_status","ms_projects.url",
+							"ms_projects.url",
 							"ca_users.email"
 						]);
 						if (!$ps_sort) { $ps_sort = "ms_projects.project_id"; }
@@ -129,14 +128,14 @@
 						$o_search->addResultFilter("ms_media.published", "=", 1);
 					
 						$va_fields = msInflectFieldNames([
-							"ms_media.media_id",
+							"ms_media.media_id", "ms_media.derived_from_media_id",
 							"ms_media.notes","ms_media.is_copyrighted","ms_media.copyright_info","ms_media.copyright_permission",
-							"ms_media.copyright_license","ms_media.created_on","ms_media.last_modified_on","ms_media.approval_status",
+							"ms_media.copyright_license","ms_media.created_on","ms_media.last_modified_on",
 							"ms_media.scanner_x_resolution","ms_media.scanner_y_resolution","ms_media.scanner_z_resolution","ms_media.scanner_voltage",
 							"ms_media.scanner_amperage","ms_media.scanner_watts","ms_media.scanner_exposure_time","ms_media.scanner_filter","ms_media.scanner_projections","ms_media.scanner_frame_averaging",
 							"ms_media.scanner_acquisition_time","ms_media.scanner_wedge","ms_media.scanner_calibration_description",
 							"ms_media.scanner_technicians","ms_media.published_on","ms_media.element","ms_media.title",
-							"ms_media.side","ms_media.grant_support","ms_media.media_citation_instructions",
+							"ms_media.side","ms_media.grant_support",
 							"ms_media.scanner_calibration_shading_correction","ms_media.scanner_calibration_flux_normalization",
 							"ms_media.scanner_calibration_geometric_calibration","ms_media.media_citation_instruction1","ms_media.media_citation_instruction2",
 							"ms_media.media_citation_instruction3",
@@ -258,18 +257,24 @@
 							// get media files
 							if (sizeof($va_file_ids = $qr_res->get('ms_media_files.media_file_id', ['returnAsArray' => true])) > 0) {
 								if (!($qr_files = caMakeSearchResult('ms_media_files', $va_file_ids))) { break; }
-							
+								$t_media_files = new ms_media_files();
 								$va_row['medium.media'] = [];
 								while($qr_files->nextHit()) {
 									if (!$qr_files->get('ms_media_files.published')) { continue; }
 									$va_info = $qr_files->getMediaInfo('media', 'original');
 									$va_info = [
+										'media_file_id' => $qr_files->get('ms_media_files.media_file_id'),
 										'title' => $qr_files->get('ms_media_files.title'),
+										'file_type' => $t_media_files->getChoiceListValue("file_type", $qr_files->get('ms_media_files.file_type')),
 										'mimetype' => $va_info['MIMETYPE'],
 										'filesize' => caHumanFilesize($va_info['PROPERTIES']['filesize']),
 										'doi' => $qr_files->get('ms_media_files.doi'),
 										'side' => $qr_files->get('ms_media_files.side'),
 										'element' => $qr_files->get('ms_media_files.element'),
+										'distance_units' => $qr_files->get('ms_media_files.distance_units'),
+										'max_distance_x' => $qr_files->get('ms_media_files.max_distance_x'),
+										'max_distance_3d' => $qr_files->get('ms_media_files.max_distance_3d'),
+										'notes' => $qr_files->get('ms_media_files.notes'),
 										'published_on' => ($qr_files->get('ms_media_files.published_on') > 0) ? $qr_files->getDate('ms_media_files.published_on') : "",
 										'download' => "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id')
 									];

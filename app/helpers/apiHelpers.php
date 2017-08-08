@@ -165,6 +165,7 @@
 		"ms_specimens.sex" => "sex",
 		"ms_specimens.side" => "occurrenceRemarks", // Generic field, mapped same as Element
 		"ms_specimens.specimen_id" => "occurrenceID",
+		"ms_specimens.occurrence_id" => "occurrenceID",
 		"ms_specimens.taxon_id" => "associatedTaxa",
 		"ms_specimens.url"	=> "dcterms:references",
 		
@@ -222,6 +223,12 @@
 		"ms_media_files.element" => "associatedMedia",
 		// "ms_media_file.published_on" => "N/A",
 		"ms_media_files.download" => "associatedMedia",
+		"ms_media_files.distance_units" => "measurement",
+		"ms_media_files.max_distance_x" => "measurement",
+		"ms_media_files.max_distance_3d" => "measurement",
+		"ms_media_files.media_file_id" => "associatedMedia",
+		"ms_media_files.notes" => "associatedMedia",
+		"ms_media_files.file_type" => "associatedMedia",
 
 		"ms_projects.abstract" => "dcterms:bibliographicCitation",
 		"ms_projects.approval_status" => "dcterms:accessRights",
@@ -259,7 +266,7 @@
 		"ms_taxonomy_names.justification" => "taxonRemarks", 		
 
 		"ms_scanners.facility_id" => "institutionID",
-		"ms_scanners.make_model" => "institutionID",
+		"ms_scanners.name" => "institutionID",
 		"ms_scanners.description" => "institutionID",
 
 		"ms_institutions.name" => "institutionID",

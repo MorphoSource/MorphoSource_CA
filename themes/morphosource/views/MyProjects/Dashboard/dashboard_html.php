@@ -52,7 +52,7 @@
 			print $t_project->get('abstract');
 		}
 		if($t_project->get("url")){
-			print "<br/><br/><b>"._t("More Information").":</b> <a href='".$t_project->get("url")."' target='_blank'>".$t_project->get("url")."</a>\n";
+			print "<br/><br/><a href='".$t_project->get("url")."' target='_blank' title='".$t_project->get("url")."'><b>"._t("More Information")."</b></a>\n";
 		}
 		if($t_project->get("publication_status")){
 			print "<div id='projectLink' style='display:none;'>".caNavUrl($this->request, "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))."</div>";
@@ -72,7 +72,7 @@
 	if($this->getVar("num_projects") > 1){
 		print "&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
 	}
-	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37))){
+	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37, 2348))){
 		print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonSmall", "MyProjects", "BatchImport", "overview");
 	}
 ?>

@@ -113,7 +113,9 @@
 			$vs_project_institutions = "";
 			if(is_array($va_specimens) && sizeof($va_specimens)){
 				foreach($va_specimens as $va_specimen){
-					$va_institution_ids[] = $va_specimen["institution_id"];
+					if($va_specimen["institution_id"]){
+						$va_institution_ids[$va_specimen["institution_id"]] = $va_specimen["institution_id"];
+					}
 				}
 				$vs_project_institutions = " OR i.institution_id IN (".join(", ", $va_institution_ids).") ";
 			}

@@ -2086,7 +2086,9 @@ $ca_relationship_lookup_parse_cache = array();
 		
 		$vn_c = 0;
 		$vb_include_inline_add_message = $vb_include_empty_result_message = false;
-	
+		if ($ps_inline_create_message) { 
+			$vb_include_inline_add_message = true;	
+		}
 		if (is_object($qr_rel_items)) {
 			if (!$qr_rel_items->numHits()) {
 				if ($ps_inline_create_message) { 
@@ -2097,6 +2099,9 @@ $ca_relationship_lookup_parse_cache = array();
 					}
 				}
 			} else {
+				if ($ps_inline_create_message) { 
+					$vb_include_inline_add_message = true;	
+				}
 				while($qr_rel_items->nextHit()) {
 					$vn_id = $qr_rel_items->get("{$vs_rel_table}.{$vs_rel_pk}");
 					if(in_array($vn_id, $va_exclude)) { continue; }

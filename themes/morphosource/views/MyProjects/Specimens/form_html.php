@@ -289,7 +289,7 @@ if (!$this->request->isAjax()) {
 		_updateSpecimenIdentifierPrefix();
 		
 		jQuery('#specimenItemForm').submit(function(e){		
-			if(!jQuery('#institution_code').val() || !jQuery('#catalog_number').val() || !jQuery('#institution_id').val()){
+			if(!jQuery('#institution_code').val() || !jQuery('#catalog_number').val() || (!jQuery('#institution_id').val() && !jQuery('#name').val())){
 				alert("Please enter the specimen institution code, catalog number and institution");
 				e.preventDefault();
 				return false;

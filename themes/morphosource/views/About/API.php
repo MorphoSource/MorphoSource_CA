@@ -129,8 +129,8 @@
       "project.name":"Allen Primate Skull Collection",
       "project.project_id":"77",
       "specimen.absolute_age":"",
-      "specimen.approval_status":"New",
       "specimen.body_mass":"",
+      "specimen.body_mass_bibref_id":"",
       "specimen.body_mass_comments":"",
       "specimen.catalog_number":"0179",
       "specimen.collected_on":"",
@@ -138,11 +138,11 @@
       "specimen.collector":"",
       "specimen.created_on":"April 24 2013 at 15:37:02",
       "specimen.description":"",
-      "specimen.element":"skull",
       "specimen.institution_code":"BAA",
       "specimen.institution_id":"7",
       "specimen.last_modified_on":"October 24 2013 at 14:40:10",
       "specimen.locality_absolute_age":"",
+      "specimen.locality_absolute_age_bibref_id":"",
       "specimen.locality_coordinates":"",
       "specimen.locality_datum_zone":"",
       "specimen.locality_description":"DUPC",
@@ -151,12 +151,14 @@
       "specimen.locality_relative_age":"",
       "specimen.locality_relative_age_bibref_id":"",
       "specimen.notes":"",
+      "specimen.occurrence_id":"",
       "specimen.reference_source":"Vouchered",
       "specimen.relative_age":"adult",
+      "specimen.type":"Yes",
       "specimen.sex":"Female",
-      "specimen.side":"",
       "specimen.specimen_id":"17",
       "specimen.url":"",
+      "specimen.uuid":"",
       "taxonomy_name":[
         {
           "taxon_id":"24",
@@ -180,7 +182,6 @@
               "author":"",
               "year":"0",
               "notes":"",
-              "is_primary":"1",
               "created_on":null,
               "last_modified_on":null
             }
@@ -265,15 +266,15 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>Absolute age of the specimen</td>
 					<td>earliestEonOrLowestEonothem</td>
 				</tr>
-				</tr>
-					<td>approval_status</td>
-					<td>Status of user's permission for download access</td>
-					<td>dcterms:accessRights</td>
-				</tr>
 				<tr>
 					<td>body_mass</td>
 					<td>Specimen body mass</td>
 					<td>measurement</td>
+				</tr>
+				<tr>
+					<td>body_mass_bibref_id</td>
+					<td>A unique identifier for a bibliographic reference to the body mass of the specimen</td>
+					<td>dcterms:references</td>
 				</tr>
 				<tr>
 					<td>body_mass_comments</td>
@@ -311,18 +312,13 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>occurrenceRemarks</td>
 				</tr>
 				<tr>
-					<td>element</td>
-					<td>The anatomical element of the organism that the media file represents</td>
-					<td>occurrenceRemarks</td>
-				</tr>
-				<tr>
 					<td>institution_code</td>
 					<td>Institution code prefix, mandatory component typically equivalent to repository institution’s acronym in full specimen identifier</td>
 					<td>institutionCode</td>
 				</tr>
 				<tr>
 					<td>institution_id</td>
-					<td>Unique identifier of the institution which owns the physical specimen</td>
+					<td>Morphosource identifier of the associated institution which owns the physical specimen</td>
 					<td>institutionID</td>
 				</tr>
 				<tr>
@@ -334,6 +330,11 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>locality_absolute_age</td>
 					<td>Absolute age of locality in years</td>
 					<td>earliestEonOrLowestEonothem</td>
+				</tr>
+				<tr>
+					<td>locality_absolute_age_bibref_id</td>
+					<td>A unique identifier for a bibliographic reference to the absolute age of the locality</td>
+					<td>dcterms:references</td>
 				</tr>
 				<tr>
 					<td>locality_coordinates</td>
@@ -376,6 +377,16 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>occurrenceRemarks</td>
 				</tr>
 				<tr>
+					<td>occurrence_id</td>
+					<td>Unique Institutional identifier for the specimen</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>project_id</td>
+					<td>MorphoSource identifier for the assocaited project</td>
+					<td></td>
+				</tr>
+				<tr>
 					<td>reference_source</td>
 					<td>Indicates if this specimen was acessioned as part of a collection. "Vouchered" if true, "Unvouchered" if false</td>
 					<td>dynamicProperties</td>
@@ -391,19 +402,9 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>sex</td>
 				</tr>
 				<tr>
-					<td>side</td>
-					<td>The anatomical side (left/right/midline) of the specimen when applicable</td>
-					<td>occurrenceRemarks</td>
-				</tr>
-				<tr>
 					<td>specimen_id</td>
 					<td>MorphoSource identifier for specimen</td>
 					<td>occurrenceID</td>
-				</tr>
-				<tr>
-					<td>specimen_voucher</td>
-					<td>Voucher-type identifier including institution code, collection code and aphanumeric suffix.</td>
-					<td>catalogNumber</td>
 				</tr>
 				<tr>
 					<td>taxon_id</td>
@@ -411,8 +412,18 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>associatedTaxa</td>
 				</tr>
 				<tr>
+					<td>type</td>
+					<td>Holotype? (yes/no)</td>
+					<td></td>
+				</tr>
+				<tr>
 					<td>url</td>
 					<td>A URL to the specimen's record in the owning institutions' repository or DOI identifier for the record</td>
+					<td>dcterms:references</td>
+				</tr>
+				<tr>
+					<td>uuid</td>
+					<td>iDigBio UUID</td>
 					<td>dcterms:references</td>
 				</tr>
 
@@ -495,11 +506,6 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 				</tr>
 			</thead>
 			<tbody>
-				</tr>
-					<td>approval_status</td>
-					<td>Status of user's permission for download access</td>
-					<td>dcterms:accessRights</td>
-				</tr>
 				<tr>
 					<td>copyright_info</td>
 					<td>Copyright holder</td>
@@ -514,6 +520,11 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>copyright_permission</td>
 					<td>Specific rights granted for use or  reuse of the media</td>
 					<td>dcterms:accessRights</td>
+				</tr>
+				<tr>
+					<td>derived_from_media_id</td>
+					<td>MorphoSource identifier of media group record was derived from</td>
+					<td>associatedMedia</td>
 				</tr>
 				<tr>
 					<td>created_on</td>
@@ -539,11 +550,6 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>last_modified_on</td>
 					<td>Date the media record was last changed</td>
 					<td>dcterms:modified</td>
-				</tr>
-				<tr>
-					<td>media_citation_instructions</td>
-					<td>A description of the current copyright status of the media, and instructions for proper citation</td>
-					<td>dcterms:bibliographicCitations</td>
 				</tr>
 				<tr>
 					<td>media_citation_instruction1-3</td>
@@ -687,7 +693,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 				</tr>
 				<tr>
 					<td>title</td>
-					<td>Full name of the media created from the combined titles of the associated media files</td>
+					<td>Title of media group</td>
 					<td>datasetName</td>
 				</tr>
 			</tbody>
@@ -708,14 +714,44 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>associatedMedia</td>
 				</tr>
 				<tr>
+					<td>distance_units</td>
+					<td>Distance units of coordinate system for mesh files</td>
+					<td>measurement</td>
+				</tr>
+				<tr>
 					<td>element</td>
 					<td>The anatomical element depicted by the media file</td>
 					<td>associatedMedia</td>
 				</tr>
 				<tr>
+					<td>file_type</td>
+					<td>Raw file of group or derivative file</td>
+					<td></td>
+				</tr>
+				<tr>
 					<td>filesize</td>
 					<td>Size of the file in mebibyte (MiB)</td>
 					<td>associatedMedia</td>
+				</tr>
+				<tr>
+					<td>max_distance_x</td>
+					<td>Maximum distance in X direction in millimeters between points of mesh coordinates</td>
+					<td>measurement</td>
+				</tr>
+				<tr>
+					<td>max_distance_3d</td>
+					<td>Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface</td>
+					<td>measurement</td>
+				</tr>
+				<tr>
+					<td>notes</td>
+					<td>Media file notes</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>media_file_id</td>
+					<td>MorphoSource identifier for media file</td>
+					<td></td>
 				</tr>
 				<tr>
 					<td>mimetype</td>
@@ -748,10 +784,6 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>abstract</td>
 					<td>A general description of the goals and scope of the project</td>
 					<td>dcterms:bibliographicCitation</td>
-				</tr>
-					<td>approval_status</td>
-					<td>Status of user's permission for download access</td>
-					<td>dcterms:accessRights</td>
 				</tr>
 				<tr>
 					<td>created_on</td>
@@ -880,7 +912,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>Flag that indicates if the subject of the current taxonomy is extinct</td>
 					<td>taxonRemarks</td>
 				</tr>
-				<tr>
+				<!--<tr>
 					<td>is_primary</td>
 					<td>Flag that indicates if the current taxonomy is the primary identification</td>
 					<td>taxonomicStatus</td>
@@ -889,7 +921,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>justification</td>
 					<td>Explanation for creation of current taxonomy</td>
 					<td>taxonRemarks</td>
-				</tr>
+				</tr>-->
 				<tr>
 					<td>last_modified_on</td>
 					<td>Date taxonomy was last modified</td>
@@ -900,7 +932,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>General remarks pertaining to the Taxonomy</td>
 					<td>taxonRemarks</td>
 				</tr>
-				<tr>
+				<!--<tr>
 					<td>review_notes</td>
 					<td>Notes on the status of review of this taxonomy</td>
 					<td>taxonRemarks</td>
@@ -909,7 +941,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>review_status</td>
 					<td>Status of the review of this taxonomy</td>
 					<td>taxonRemarks</td>
-				</tr>
+				</tr>-->
 				<tr>
 					<td>taxon_id</td>
 					<td>Unique MorphoSource identifier for the taxonomy</td>
@@ -938,7 +970,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>institutionID</td>
 				</tr>
 				<tr>
-					<td>make_model</td>
+					<td>name</td>
 					<td>Make &amp; Model of the scanner</td>
 					<td>institutionID</td>
 				</tr>
