@@ -672,24 +672,24 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>associatedMedia</td>
 				</tr>
 				<tr>
-					<td>specimen_catalog_number</td>
-					<td>Unique code identifying a specimen within a sub-collection or institution</td>
-					<td>catalogNumber</td>
-				</tr>
-				<tr>
 					<td>specimen_institution_code</td>
 					<td>Unique code identifying an institution</td>
 					<td>institutionCode</td>
 				</tr>
 				<tr>
-					<td>specimen_specimen_id</td>
-					<td>Unique MorpoSource identifier for the specimen</td>
-					<td>occurrenceID</td>
+					<td>specimen_collection_code</td>
+					<td>Code identifying institutional collection specimen resides in</td>
+					<td>collectionCode</td>
 				</tr>
 				<tr>
 					<td>specimen_catalog_number</td>
 					<td>Unique code identifying a specimen within a sub-collection or institution</td>
 					<td>catalogNumber</td>
+				</tr>
+				<tr>
+					<td>specimen_specimen_id</td>
+					<td>Unique MorpoSource identifier for the specimen</td>
+					<td>occurrenceID</td>
 				</tr>
 				<tr>
 					<td>title</td>

@@ -594,6 +594,7 @@ class ms_media_files extends BaseModel {
 				$va_header = array(
 									"media",
 									"downloaded file name",
+									"public url",
 									"doi",
 									"file type",
 									"file size",
@@ -653,7 +654,8 @@ class ms_media_files extends BaseModel {
 					
 					$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
 					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
-				
+					$va_media_md[] = "http://www.morphosource.org/Detail/MediaDetail/Show/media_id/".$q_media_files->get("media_id");
+					
 					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
 					$va_media_md[] = trim($va_tmp[0]);
 					$vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
