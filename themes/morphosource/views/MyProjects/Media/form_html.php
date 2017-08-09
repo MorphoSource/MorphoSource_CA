@@ -10,7 +10,7 @@
 	if (!$vn_media_id) { // new media
 		$t_item->set('specimen_id', $vn_specimen_id);	// if specimen_id is present on request for newly created media set it here
 	}
-	
+	$o_db = new Db();
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
 if (!$this->request->isAjax()) {
@@ -338,7 +338,34 @@ if (!$this->request->isAjax()) {
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabelFloat'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 			print "<div style='clear:both;'><!--empty--></div>";
-			foreach(array("file_type", "distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
+			# --- file type set to derivative if the group is a derivative
+			$va_derived_from_media_file_ids = array();
+			if($t_item->get("derived_from_media_id")){
+				# --- get the file numbers of the media group this group was derived from so can add to derived from file id dropdown
+				$q_derived_from_media_file_ids = $o_db->query("select media_file_id, media_id, title from ms_media_files where media_id = ?", $t_item->get("derived_from_media_id"));
+				if($q_derived_from_media_file_ids->numRows()){
+					while($q_derived_from_media_file_ids->nextRow()){
+						$va_derived_from_media_file_ids[$q_derived_from_media_file_ids->get("media_file_id")] = "M".$q_derived_from_media_file_ids->get("media_id")."-".$q_derived_from_media_file_ids->get("media_file_id")."; ".$q_derived_from_media_file_ids->get("title");
+					}
+				}
+				# --- file is a derivative
+				print "<div class='formLabel'>File Type: Derivative File</div>";
+				print "<input type='hidden' value='2'  name='media[0][file_type]' id='media_0_file_type' data-pattern-name='media[++][file_type]' data-pattern-id='media_++_file_type'>";
+			}else{
+				$vs_f = "file_type";
+				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
+			
+			}
+			if(is_array($va_derived_from_media_file_ids) && sizeof($va_derived_from_media_file_ids)){
+				$vs_derived_from_file_select = "<div class='formLabel'><label for='media_0_derived_from_media_file_id' data-pattern-text='Derived from file ++:'>Derived from file</label><br/><select name='media[0][derived_from_media_file_id]' id='media_0_derived_from_media_file_id' data-pattern-name='media[++][derived_from_media_file_id]' data-pattern-id='media_++_derived_from_media_file_id'><option value=''>-</option>";
+				foreach($va_derived_from_media_file_ids as $vn_derived_from_id => $vs_derived_from_title){
+					$vs_derived_from_file_select .= "<option value='".$vn_derived_from_id."'>".$vs_derived_from_title."</option>";	
+				
+				}
+				$vs_derived_from_file_select .= "</select></div>";
+			}
+			print $vs_derived_from_file_select;
+			foreach(array("distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
 				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
 			}
 ?>

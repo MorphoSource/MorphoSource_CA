@@ -10,7 +10,7 @@
 		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
 	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -115,6 +115,10 @@
 				$vs_file_type = "";
 				if($vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"))){
 					print "<br/>".$vs_file_type;
+				}
+				if($q_media_files->get("derived_from_media_file_id")){
+					$t_media_file->load($q_media_files->get("derived_from_media_file_id"));
+					print " from M".$t_media_file->get("media_id")."-".$q_media_files->get("derived_from_media_file_id");
 				}
 				$vs_distance_units = "";
 				if($vs_distance_units = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"))){
