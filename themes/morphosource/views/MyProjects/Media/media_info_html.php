@@ -375,7 +375,7 @@
 					}
 					print $t_media_file->htmlFormElement("title","<div class='formLabelFloat'>^LABEL<br>^ELEMENT</div>");
 					if($pn_media_file_id){
-						print "<div class='formLabel'>".$t_media_file->getMediaTag("media", "thumbnail")."</div>";
+						print "<div class='formLabel' style='clear:left;'>".$t_media_file->getMediaTag("media", "thumbnail")."</div>";
 					}else{
 						if($va_mediaFileErrors["media"]){
 							print "<div class='formErrors' style='clear:left;'>".$va_mediaFileErrors["media"]."</div>";
@@ -411,7 +411,52 @@
 					print $t_media_file->htmlFormElement($vs_f,"<div class='formLabelFloat'>^LABEL<br>^ELEMENT</div>");
 				}
 				print "<div style='clear:both;'><!-- end --></div>";
-				foreach(array("file_type", "distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
+				
+				
+				# --- file type set to derivative if the group is a derivative
+				$va_derived_from_media_file_ids = array();
+				$q_group_media_file_ids = $o_db->query("select media_file_id, title, media_id from ms_media_files where media_id = ?", $t_media->get("media_id"));
+				if($q_group_media_file_ids->numRows()){
+					while($q_group_media_file_ids->nextRow()){
+						if($q_group_media_file_ids->get("media_file_id") != $t_media_file->get("media_file_id")){
+							$va_derived_from_media_file_ids[$q_group_media_file_ids->get("media_file_id")] = "M".$q_group_media_file_ids->get("media_id")."-".$q_group_media_file_ids->get("media_file_id")."; ".$q_group_media_file_ids->get("title");
+						}
+					}
+				}
+				if($t_media->get("derived_from_media_id")){
+					# --- get the file numbers of the media group this group was derived from so can add to derived from file id dropdown
+					$q_derived_from_media_file_ids = $o_db->query("select media_file_id, media_id, title from ms_media_files where media_id = ?", $t_media->get("derived_from_media_id"));
+					if($q_derived_from_media_file_ids->numRows()){
+						while($q_derived_from_media_file_ids->nextRow()){
+							$va_derived_from_media_file_ids[$q_derived_from_media_file_ids->get("media_file_id")] = "M".$q_derived_from_media_file_ids->get("media_id")."-".$q_derived_from_media_file_ids->get("media_file_id")."; ".$q_derived_from_media_file_ids->get("title");
+						}
+					}
+					# --- file is a derivative
+					print "<div class='formLabel'>File Type: Derivative File</div>";
+					print "<input type='hidden' value='2' name='file_type' id='file_type'>";
+				}else{
+					$vs_f = "file_type";
+					print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'>^LABEL<br>^ELEMENT</div>");
+			
+				}
+				$vb_show_derived_from = false;
+				if(is_array($va_derived_from_media_file_ids) && sizeof($va_derived_from_media_file_ids)){
+					$vs_derived_from_file_select = "<div class='formLabel' id='derivedFromFile'>Derived from file<br/><select name='derived_from_media_file_id' id='derived_from_media_file_id' style='width:100%;'><option value=''>-</option>";
+					foreach($va_derived_from_media_file_ids as $vn_derived_from_id => $vs_derived_from_title){
+						if($t_media_file->get("media_file_id") != $vn_derived_from_id){
+							$vs_derived_from_file_select .= "<option value='".$vn_derived_from_id."'".(($vn_derived_from_id == $t_media_file->get("derived_from_media_file_id")) ? " selected" : "").">".$vs_derived_from_title."</option>";	
+							$vb_show_derived_from = true;
+						}
+					}
+					$vs_derived_from_file_select .= "</select></div>";
+				}
+				if($vb_show_derived_from){
+					print $vs_derived_from_file_select;
+				}
+				
+				
+				
+				foreach(array("distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
 					if($va_mediaFileErrors[$vs_f]){
 						print "<div class='formErrors'  style='clear:left;>".$va_mediaFileErrors[$vs_f]."</div>";
 					}
@@ -526,6 +571,22 @@
 			e.preventDefault();
 			return false;
 		});
+		
+		if(jQuery('#file_type').val() == 2){
+			jQuery('#derivedFromFile').show();
+		}else{
+			jQuery('#derivedFromFile').hide();
+		}
+		jQuery('#file_type').bind('change', function(event) {
+			if(jQuery('#file_type').val() == 2){
+				jQuery('#derivedFromFile').show();
+			}else{
+				jQuery('#derivedFromFile').val("");
+				jQuery('#derivedFromFile').hide();
+			}
+		}
+	);
+
 		
 		return false;
 	});
