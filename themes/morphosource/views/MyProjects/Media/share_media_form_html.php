@@ -59,7 +59,7 @@
 ?>
 					</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaShareForm").submit(); return false;'>Share</a>
 					<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
-					<div style="font-size:10px; font-style:italic;">Read only media will only be available for download if the media is published.  Please make sure to publish this media if you want other projects to be able to download it.</div>
+					<div style="font-size:10px; font-style:italic;">Read only media will be available for download to all project members.</div>
 					</form>
 					<script type="text/javascript">
 						jQuery(document).ready(function() {

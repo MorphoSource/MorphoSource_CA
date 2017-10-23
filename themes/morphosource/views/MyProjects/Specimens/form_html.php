@@ -125,22 +125,30 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 						print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
 					}else{
-						if($t_media->get("published")){
-							# --- media owned by antoher project, but is published so link to the public detail page
-							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div><span class='mediaID'>M{$vn_media_id}</span>, ";
-						}else{
-							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div><span class='mediaID'>M{$vn_media_id}</span>, ";
+						$vb_read_only_access = false;
+						if($t_media->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
+							$vb_read_only_access = true;
 						}
+						if(($t_media->get("published") > 0) || $vb_read_only_access){
+							# --- media owned by another project, but is published or user has read only access to media - so link to the public detail page
+							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+							print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</span>, ";
+						}else{
+							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div>";
+							print "<span class='mediaID'>M{$vn_media_id}</span>, ";
+						}
+					}
+					if($vb_read_only_access){
+						print "<b>READ ONLY ACCESS</b>, ";
 					}
 					print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
 					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
 					print "<br>".$t_media->formatPublishedText();
-					print "</div>\n";
+					print "</div><!-- end specimenMediaListContainer -->\n";
 				}
 			} else {
 				print "<H2>"._t("This specimen has no media.  Use the \"ADD MEDIA\" button to add media files for this specimen.")."</H2>";
-			}
-?>
+			}?>
 			</div><!-- end specimenMediaListContainer -->
 		
 		

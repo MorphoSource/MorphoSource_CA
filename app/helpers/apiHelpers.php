@@ -196,6 +196,7 @@
 		"ms_media.media_citation_instruction1-3" => "dcterms:bibliographicCitations",
 		"ms_media.media_id" => "datasetID", // This seems to be the most accurrate mapping
 		"ms_media.notes" => "associatedMedia",
+		"ms_media.published" => "dcterms:accessRights",
 		//"ms_media.published_on" => "N/A",
 		"ms_media.scanner_acquisition_time" => "measurement",
 		"ms_media.scanner_amperage" => "measurement",
@@ -221,6 +222,7 @@
 		"ms_media_files.doi" => "dcterms:references",
 		"ms_media_files.side" => "associatedMedia",
 		"ms_media_files.element" => "associatedMedia",
+		"ms_media_files.published" => "dcterms:accessRights",
 		// "ms_media_file.published_on" => "N/A",
 		"ms_media_files.download" => "associatedMedia",
 		"ms_media_files.distance_units" => "measurement",

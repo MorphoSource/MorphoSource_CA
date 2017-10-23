@@ -31,7 +31,7 @@
 	if($ps_member_message){
 		print "<p>$vs_from_name wrote:\n".$ps_member_message."</p>";
 	}
-	print "<p>If you are not interested in participating in this project please contact $vs_from_name (".$vs_from_email.").  Otherwise log on to the MorphoSource site at ".$this->request->config->get("site_host")." and select '".$this->opo_project->get("name")."' in the Dashboard section of the site. Your login name is your email address.";
+	print "<p>If you are not interested in participating in this project please contact $vs_from_name (".$vs_from_email.").  Otherwise log on to the MorphoSource site at ".$this->request->config->get("site_host")." and select '".$this->opo_project->get("name")."' in the Dashboard section of the site.</p><p>Your username is your email address.";
 	if($vn_password){
 		print " Your password is $vn_password";
 	}

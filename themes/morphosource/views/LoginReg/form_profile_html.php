@@ -41,6 +41,9 @@
 		$va_profile_settings = $this->getVar("profile_settings");
 		if(is_array($va_profile_settings) and sizeof($va_profile_settings)){
 			foreach($va_profile_settings as $vs_field => $va_profile_element){
+				if($vs_field == "user_upload_directory"){
+					continue;
+				}
 				if($vs_field == "user_profile_terms_conditions"){
 					print "<input type='hidden' name='user_profile_terms_conditions'>";
 				}

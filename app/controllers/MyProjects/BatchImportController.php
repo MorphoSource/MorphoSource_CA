@@ -145,6 +145,7 @@
  				$va_field_key = array();
  				$va_batch = array();
  				$va_linked_specimen = array();
+ 				$va_idigbio_imported_specimen = array(); 
  				$vn_new_specimen = 0;
  				$vn_new_media_groups = 0;
  				$vn_new_media_files = 0;
@@ -190,6 +191,22 @@
 															$vn_specimen_id = $t_specimen_lookup->get("specimen_id");
 														}else{
 															$t_specimen->set($vs_field, $vs_value);
+															# --- see if we can get the idigbio uuid by searching on the occurrence id
+															$va_idigbio_results = $t_specimen->getIDBSpecimenInfo(array("occurrenceid" => $vs_value));
+															if($va_idigbio_results["success"]){
+																$vs_uuid = $va_idigbio_results["data"]["items"][0]["uuid"];
+																# --- try to make a new specimen from iDigBio
+																if($vs_uuid){
+																	$va_import_response = $va_import_results = $t_specimen->importIDBSpecimen($this->request, $this->opn_project_id, $vs_uuid);
+																	if($va_import_response["success"]){
+																		$t_new_specimen = $va_import_response["specimen"];
+																		$vn_specimen_id = $t_new_specimen->get("specimen_id");
+																		$va_idigbio_imported_specimen[] = $t_new_specimen->get("specimen_id");
+																	}else{
+																		$t_specimen->set("uuid", $vs_uuid);
+																	}
+																}
+															}
 														}
 													}elseif($vs_field == "catalog_number"){
 														$t_specimen->set($vs_field, $vs_value);
@@ -316,6 +333,7 @@
 												# --- do this here since there can be more than one file per row
 												$t_media_files = new ms_media_files();
 											}
+											$vs_error = "";
 											if($vs_value){
 												$va_batch[$vn_row]['hasData'] = true;
 												# --- need to handle dropdown values
@@ -325,7 +343,7 @@
 														# --- check if file_exists - but don't set it.
 														if(!file_exists($vs_user_upload_directory.$vs_value)){
 															$va_batch[$vn_row]['errors'] = true;
-															$va_batch[$vn_row][$vs_table_field] = "<div class='formErrors'>File is not in your upload directory</div>";
+															$vs_error = "<div class='formErrors'>File is not in your upload directory: ".$vs_value."</div>";
 														}elseif($vs_field == "media"){
 															$t_media_files->set($vs_field, $vs_user_upload_directory.$vs_value);
 															$vn_new_media_files++;
@@ -348,9 +366,8 @@
 													# -------------------------------------
 												}
 											}
-											$vs_error = "";
 											if ($t_media_files->numErrors() > 0) {
-												$vs_error = join("; ", $t_media_files->getErrors());
+												$vs_error .= join("; ", $t_media_files->getErrors());
 												$va_batch[$vn_row]['errors'] = true;
 											}
 											$va_batch[$vn_row][$vs_table_field] = (($vs_error) ? "<div class='formErrors'>".$vs_error."</div>" : "").$vs_value;
@@ -364,7 +381,9 @@
 						if($va_batch[$vn_row]['hasData']){
 							if(!$va_batch[$vn_row]['errors']){
 								if($vn_specimen_id){
-									$va_linked_specimen[] = $vn_specimen_id;
+									if(!in_array($vn_specimen_id, $va_idigbio_imported_specimen)){
+										$va_linked_specimen[] = $vn_specimen_id;
+									}
 									$va_batch[$vn_row]["ms_specimens.specimen_id"] = $vn_specimen_id;
 								}else{
 									$vn_new_specimen++;
@@ -382,8 +401,9 @@
 				}
 				# --- build array of all batch info and stats and save as session/ pass to view for review
 				$va_batch_info = array(
-					"stats" => array("errors" => $vn_error_rows, "linked_specimen" => sizeof($va_linked_specimen), "new_specimen" => $vn_new_specimen, "new_media_groups" => $vn_new_media_groups, "new_media_files" => $vn_new_media_files),
-					"batch" => $va_batch
+					"stats" => array("errors" => $vn_error_rows, "linked_specimen" => sizeof($va_linked_specimen), "idigbio_imported_specimen" => sizeof($va_idigbio_imported_specimen), "new_specimen" => $vn_new_specimen, "new_media_groups" => $vn_new_media_groups, "new_media_files" => $vn_new_media_files),
+					"batch" => $va_batch,
+					"iDigBio_imported_specimen" => $va_idigbio_imported_specimen
 				);
 				$this->view->setVar("batch_info", $va_batch_info);
 				$this->request->session->setVar('batch_info', $va_batch_info);
@@ -407,6 +427,8 @@
 			$this->view->setVar("batch_scanner_id", $this->opn_batch_scanner_id);
  			$va_rows_not_imported = array();
  			$vn_linked_specimen = 0;
+ 			$va_idigbio_imported_specimen = $va_batch_info["iDigBio_imported_specimen"];
+ 			$vn_idigbio_imported_specimen = 0;
  			$vn_new_specimen = 0;
  			$vn_linked_taxonomy = 0;
 			$vn_new_taxonomy = 0;
@@ -684,6 +706,8 @@
 										$va_rows_not_imported[] = $vs_row;
 									}
 								}
+							}elseif(in_array($vn_specimen_id, $va_idigbio_imported_specimen)){
+								$vn_idigbio_imported_specimen++;
 							}else{
 								$vn_linked_specimen++;
 							}
@@ -765,7 +789,7 @@
 				$this->request->session->setVar('batch_scanner_id', '');
 				$this->request->session->setVar('batch_info', '');
  				
-				$this->view->setVar("stats", array("linked_specimen" => $vn_linked_specimen,  "new_specimen" => $vn_new_specimen, "linked_taxonomy" => $vn_linked_taxonomy, "new_taxonomy" => $vn_new_taxonomy, "new_media_groups" => $vn_new_media_groups, "new_media_group_ids" => $va_new_media_groups, "new_media_files" => $vn_new_media_files));
+				$this->view->setVar("stats", array("linked_specimen" => $vn_linked_specimen, "idigbio_imported_specimen" => $vn_idigbio_imported_specimen, "new_specimen" => $vn_new_specimen, "linked_taxonomy" => $vn_linked_taxonomy, "new_taxonomy" => $vn_new_taxonomy, "new_media_groups" => $vn_new_media_groups, "new_media_group_ids" => $va_new_media_groups, "new_media_files" => $vn_new_media_files));
 				$this->view->setVar("rows_not_imported", $va_rows_not_imported);
 				$this->view->setVar("errors", $va_errors);
 				$this->render('BatchImport/review_imported_records_html.php');

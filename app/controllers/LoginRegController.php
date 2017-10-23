@@ -343,7 +343,7 @@
 							break;
 							# --------------------
 							default:
-								$this->response->setRedirect(caNavUrl($this->request, "", "", ""));
+								$this->response->setRedirect(caNavUrl($this->request, "", "Splash", "Index"));
 							break;
 							# --------------------
 						}

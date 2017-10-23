@@ -28,10 +28,10 @@
 				<span class="blueText"><b>How to enter specimen information</b></span>
 					<ul>
 						<li>
-							If the specimen is already in MorphoSource, lookup the MorphoSource identifier on the specimen's detail page and enter it in the MorphoSource Identifier column of your batch import worksheet.  When the MorphoSource Identifier is entered there is no need to enter any additional specimen information for that specimen.  MorphoSource Identifiers are available on Specimen Detail pages and begin with "S" followed by a number.
+							If the specimen is already in MorphoSource, lookup the MorphoSource identifier on the specimen's detail page and enter it in the MorphoSource Identifier column of your batch import worksheet.  When the MorphoSource Identifier is entered there is no need to enter any additional specimen or taxonomy information for that specimen.  MorphoSource Identifiers are available on Specimen Detail pages and begin with "S" followed by a number.
 						</li>
 						<li>
-							If the specimen is not in MophoSource please complete the batch import worksheet's specimen record columns.  The Occurrence ID will be used to attempt to link your specimen record with a cooresponding specimen record on iDigBio.org.
+							If the specimen is not in MophoSource you can either complete the batch import worksheet's specimen and taxonomy columns or just enter the specimen's Occurrence ID as entered in iDigBio.org.  The Occurrence ID will be used to attempt to link your specimen record with a cooresponding specimen record on iDigBio.org.  If a match is found, no additional specimen or taxonomy information is necessary.
 						</li>
 					</ul>
 			</li>

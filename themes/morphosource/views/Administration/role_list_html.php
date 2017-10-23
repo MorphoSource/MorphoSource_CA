@@ -81,8 +81,14 @@
 					<?php print $va_role['description']; ?>
 				</td>
 				<td width="100" align="center">
-					<?php print caNavButton($this->request, '', _t("Edit"), 'Administration', 'Roles', 'Edit', array('role_id' => $va_role['role_id']), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
-					&nbsp;&nbsp;<?php print caNavButton($this->request, '', _t("Delete"), 'Administration', 'Roles', 'Delete', array('role_id' => $va_role['role_id']), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true)); ?>
+<?php
+					#print caNavButton($this->request, '', _t("Edit"), 'Administration', 'Roles', 'Edit', array('role_id' => $va_role['role_id']), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
+					#print caNavButton($this->request, '', _t("Delete"), 'Administration', 'Roles', 'Delete', array('role_id' => $va_role['role_id']), array(), array('icon_position' => __CA_NAV_BUTTON_ICON_POS_LEFT__, 'use_class' => 'button buttonSmall', 'no_background' => true, 'dont_show_content' => true));
+					print caNavLink($this->request, _t("Edit"), "button buttonSmall", "Administration", "Roles", "Edit", array('role_id' => $va_role['role_id']));
+					print "&nbsp;&nbsp;";
+					print caNavLink($this->request, _t("Delete"), "button buttonSmall", "Administration", "Roles", "Delete", array('role_id' => $va_role['role_id']));
+					
+?>
 				</td>
 			</tr>
 <?php

@@ -125,7 +125,7 @@
 						break;
 					case 'media':
 						$o_search = new MediaSearch();
-						$o_search->addResultFilter("ms_media.published", "=", 1);
+						$o_search->addResultFilter("ms_media.published", ">", 0);
 					
 						$va_fields = msInflectFieldNames([
 							"ms_media.media_id", "ms_media.derived_from_media_id",
@@ -134,7 +134,7 @@
 							"ms_media.scanner_x_resolution","ms_media.scanner_y_resolution","ms_media.scanner_z_resolution","ms_media.scanner_voltage",
 							"ms_media.scanner_amperage","ms_media.scanner_watts","ms_media.scanner_exposure_time","ms_media.scanner_filter","ms_media.scanner_projections","ms_media.scanner_frame_averaging",
 							"ms_media.scanner_acquisition_time","ms_media.scanner_wedge","ms_media.scanner_calibration_description",
-							"ms_media.scanner_technicians","ms_media.published_on","ms_media.element","ms_media.title",
+							"ms_media.scanner_technicians","ms_media.published","ms_media.published_on","ms_media.element","ms_media.title",
 							"ms_media.side","ms_media.grant_support",
 							"ms_media.scanner_calibration_shading_correction","ms_media.scanner_calibration_flux_normalization",
 							"ms_media.scanner_calibration_geometric_calibration","ms_media.media_citation_instruction1","ms_media.media_citation_instruction2",
@@ -260,8 +260,9 @@
 								$t_media_files = new ms_media_files();
 								$va_row['medium.media'] = [];
 								while($qr_files->nextHit()) {
-									if (!$qr_files->get('ms_media_files.published')) { continue; }
+									if (($qr_files->get('ms_media_files.published') != null) && ($qr_files->get('ms_media_files.published') == 0)) { continue; }
 									$va_info = $qr_files->getMediaInfo('media', 'original');
+									$vn_published = ($qr_files->get('ms_media_files.published')) ? $qr_files->get('ms_media_files.published') : $qr_res->get('ms_media.published');
 									$va_info = [
 										'media_file_id' => $qr_files->get('ms_media_files.media_file_id'),
 										'title' => $qr_files->get('ms_media_files.title'),
@@ -275,8 +276,9 @@
 										'max_distance_x' => $qr_files->get('ms_media_files.max_distance_x'),
 										'max_distance_3d' => $qr_files->get('ms_media_files.max_distance_3d'),
 										'notes' => $qr_files->get('ms_media_files.notes'),
+										'published' => $t_media_files->getChoiceListValue("published", $vn_published),
 										'published_on' => ($qr_files->get('ms_media_files.published_on') > 0) ? $qr_files->getDate('ms_media_files.published_on') : "",
-										'download' => "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id')
+										'download' => ($vn_published==1) ? "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id') : "Permission must be granted to download"
 									];
 									
 									if ($ps_naming == 'darwincore') {

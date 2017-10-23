@@ -690,7 +690,7 @@
 			$this->render('Specimens/specimen_lookup_html.php');
 		}
 		# -------------------------------------------------------
-		public function importIDBSpecimen() {
+		public function importIDBSpecimenOld() {
 			if($vs_uuid = $this->request->getParameter('uuid', pString)){
 				# build array of lookup terms to send to iDigBio
 				$va_lookup_values = array("uuid" => $vs_uuid);
@@ -751,7 +751,7 @@
 							$vb_taxon_linked = false;
 							$vb_taxon_created = false;
 							$o_search = new TaxonomyNamesSearch();
-							$q_taxon_hits = $o_search->search(trim($va_specimen_info["indexTerms"]["specificepithet"]." ".$va_specimen_info["indexTerms"]["genus"]." ".["indexTerms"]["infraspecificepithet"])."*", array('sort' => 'ms_taxonomy_names.genus'));
+							$q_taxon_hits = $o_search->search(trim($va_specimen_info["indexTerms"]["specificepithet"]." ".$va_specimen_info["indexTerms"]["genus"]." ".$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", array('sort' => 'ms_taxonomy_names.genus'));
 							if($q_taxon_hits->numHits() > 0){
 								$q_taxon_hits->nextHit();
 								$vn_taxon_id = $q_taxon_hits->get("taxon_id");
@@ -891,6 +891,38 @@
 				}else{
 					$this->view->setVar("errors", array("Could not import specimen"));
 					$this->lookupSpecimen();
+				}
+				
+			}else{
+				$this->view->setVar("errors", array("Could not import specimen; no uuid passed"));
+				$this->lookupSpecimen();
+			}
+		}
+		# -------------------------------------------------------
+		public function importIDBSpecimen() {
+			if($vs_uuid = $this->request->getParameter('uuid', pString)){
+				$t_specimen = new ms_specimens();
+				$va_import_results = $t_specimen->importIDBSpecimen($this->request, $this->opn_project_id, $vs_uuid);
+				if($va_import_results["success"]){
+					$this->opo_item = $va_import_results["specimen"];
+					$this->notification->addNotification($va_import_results["message"], __NOTIFICATION_TYPE_INFO__);								
+										
+					# --- email Doug about Specimen import --- douglasmb@gmail.com
+					caSendMessageUsingView($this->request, 'douglasmb@gmail.com', 'do-not-reply@morphosource.org', "[Morphosource] iDigBio specimen import notification", 'idigbio_specimen_import_notification.tpl', array(
+						'user' => $this->request->user,
+						'specimen' => $this->opo_item,
+						'project' => $this->opo_project,
+						'request' => $this->request
+					));
+					$this->view->setvar("item_id", $this->opo_item->get("specimen_id"));
+					$this->view->setvar("item", $this->opo_item);
+					$this->form();
+					return;
+				}else{
+					$this->notification->addNotification("There were errors importing the specimen: ".join("; ", $va_import_results["errors"]), __NOTIFICATION_TYPE_INFO__);
+					$this->view->setVar("errors", $va_import_results["errors"]);
+					$this->lookupSpecimen();
+					return;
 				}
 				
 			}else{

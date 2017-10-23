@@ -361,6 +361,7 @@
 									"media group number",
 									"media file number",
 									"derived from",
+									"file type",
 									"project",
 									"doi",
 									"description/element",
@@ -418,6 +419,8 @@
 						$va_media_md[] = "M".$q_media_files->get("media_id");
 						$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
 						$va_media_md[] = ($q_media_files->get("derived_from_media_id")) ? "M".$q_media_files->get("derived_from_media_id") : "";
+						$t_media_file = new ms_media_files($q_media_files->get("media_file_id"));
+						$va_media_md[] = strip_tags(msGetMediaFilesFormatDisplayString($t_media_file));
 						$va_media_md[] = $q_media_files->get("name");
 						$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
 						$va_media_md[] = trim($va_tmp[0]);

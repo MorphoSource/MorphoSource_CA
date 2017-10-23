@@ -16,6 +16,7 @@
 	<H3>Summary</H3>
 	<span class="blueText"><b>New Specimen:</b></span> <?php print $va_stats["new_specimen"]; ?><br/>
 	<span class="blueText"><b>Linked Specimen (already existed in MorphoSource):</b></span> <?php print $va_stats["linked_specimen"]; ?><br/>
+	<span class="blueText"><b>Specimen imported from iDigBio:</b></span> <?php print $va_stats["idigbio_imported_specimen"]; ?><br/>
 	<span class="blueText"><b>New Taxonomy:</b></span> <?php print $va_stats["new_taxonomy"]; ?><br/>
 	<span class="blueText"><b>New Media Groups:</b></span> <?php print $va_stats["new_media_groups"]; ?><br/>
 	<span class="blueText"><b>New Media Files:</b></span> <?php print $va_stats["new_media_files"]; ?><br/>

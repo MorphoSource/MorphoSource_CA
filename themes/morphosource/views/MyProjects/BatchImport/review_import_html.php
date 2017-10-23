@@ -25,6 +25,7 @@
 	<H3>Summary</H3>
 	<span class="blueText"><b>New Specimen:</b></span> <?php print $va_batch_info["stats"]["new_specimen"]; ?><br/>
 	<span class="blueText"><b>Linked Specimen (already existed in MorphoSource):</b></span> <?php print $va_batch_info["stats"]["linked_specimen"]; ?><br/>
+	<span class="blueText"><b>Specimen imported from iDigBio:</b></span> <?php print $va_batch_info["stats"]["idigbio_imported_specimen"]; ?><br/>
 	<span class="blueText"><b>New Media Groups:</b></span> <?php print $va_batch_info["stats"]["new_media_groups"]; ?><br/>
 	<span class="blueText"><b>New Media Files:</b></span> <?php print $va_batch_info["stats"]["new_media_files"]; ?><br/>
 	<span class="<?php print ($va_batch_info["stats"]["errors"]) ? "formErrors" : "blueText"; ?>"><b>Rows with Errors (can not be imported):</b></span> <?php print $va_batch_info["stats"]["errors"]; ?><br/>

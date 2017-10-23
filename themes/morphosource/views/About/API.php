@@ -283,8 +283,8 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 				</tr>
 				<tr>
 					<td>catalog_number</td>
-					<td>Alphanumeric string unique within a repository and subcollection</td>
-					<td>recordNumber</td>
+					<td>Unique alphanumeric string identifying a specimen within a repository and subcollection</td>
+					<td>catalogNumber</td>
 				</tr>
 				<tr>
 					<td>collected_on</td>
@@ -567,6 +567,11 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>associatedMedia</td>
 				</tr>
 				<tr>
+					<td>published</td>
+					<td>Publication status</td>
+					<td>dcterms:accessRights</td>
+				</tr>
+				<tr>
 					<td>published_on</td>
 					<td>Date on which the media record was published in MorphoSource</td>
 					<td>N/A</td>
@@ -683,7 +688,7 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 				</tr>
 				<tr>
 					<td>specimen_catalog_number</td>
-					<td>Unique code identifying a specimen within a sub-collection or institution</td>
+					<td>Unique alphanumeric string identifying a specimen within a repository and subcollection</td>
 					<td>catalogNumber</td>
 				</tr>
 				<tr>
@@ -757,6 +762,11 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>mimetype</td>
 					<td>Identifier for file format (e.g. "application/ply" or "image/tiff")</td>
 					<td>associatedMedia</td>
+				</tr>
+				<tr>
+					<td>published</td>
+					<td>Publication status (supersedes that of the media group)</td>
+					<td>dcterms:accessRights</td>
 				</tr>
 				<tr>
 					<td>published_on</td>

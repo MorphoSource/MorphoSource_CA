@@ -121,7 +121,7 @@
 					print "<div>".caNavLink($this->request, _t("New Media Group"), "", "MyProjects", "Media", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Bibliographic Citation"), "", "MyProjects", "Bibliography", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Taxonomic Name"), "", "MyProjects", "Taxonomy", "form")."</div>\n";
-					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Facility"), "", "MyProjects", "Facility", "form")."</div>\n";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Facility"), "", "MyProjects", "Facilities", "form")."</div>\n";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Project"), "", "MyProjects", "Project", "form", array("new_project" => 1))."</div>";
 					if($t_project->get("user_id") == $this->request->user->get("user_id")){
 						print "<div>PROJECT:</div>";
