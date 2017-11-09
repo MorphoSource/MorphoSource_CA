@@ -173,7 +173,7 @@
 				
 				print "</div>";
 ?>
-			</div><!-- end mediaImage -->
+			<div style='clear:both;'></div></div><!-- end mediaImage -->
 <?php
 			if($q_media_files->get("published") != null){
 				$va_file_permissions[] = $q_media_files->get("published");
