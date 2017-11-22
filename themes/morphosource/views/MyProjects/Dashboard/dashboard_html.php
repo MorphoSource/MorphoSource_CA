@@ -72,7 +72,7 @@
 	if($this->getVar("num_projects") > 1){
 		print "&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
 	}
-	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37, 2348, 4346, 4450, 4253))){
+	if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37, 2348, 4346, 4450, 4253, 4864, 3298))){
 		print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonSmall", "MyProjects", "BatchImport", "overview");
 	}
 ?>
