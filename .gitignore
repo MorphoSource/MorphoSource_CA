@@ -1,0 +1,6 @@
+# Directories where CollectiveAccess stores data (temporary or permanent)
+media/*
+app/tmp/*
+
+# Setup File
+setup.php

@@ -109,8 +109,7 @@
 					print " <i class='fa fa-cog'></i></a>";
 					print "<div class='jumpMenu' id='projectJumpMenu'>\n";
 					print "<div>VIEW:</div>";
-					print "<div><a href='".caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard")."#SpecimenList'>"._t("Specimen")."</a></div>\n";
-					print "<div>".caNavLink($this->request, _t("Media"), "", "MyProjects", "Media", "ListItems")."</div>\n";
+					print "<div><a href='".caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard")."'>"._t("Dashboard")."</a></div>\n";
 					print "<div>".caNavLink($this->request, _t("Bibliography"), "", "MyProjects", "Bibliography", "ListItems")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("Taxonomy"), "", "MyProjects", "Taxonomy", "ListItems")."</div>\n";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Facilities"), "", "MyProjects", "Facilities", "ListItems")."</div>\n";
