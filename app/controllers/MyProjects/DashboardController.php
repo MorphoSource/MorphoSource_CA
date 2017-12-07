@@ -801,6 +801,9 @@
 			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
 				$vs_specimens_group_by = "genus";
 			}
+			$this->request->session->setVar('sBT_taxon_term', 
+				$vs_specimens_group_by);
+
 			# --- select the genus or taxa we want to show specimen for
 			$o_db = new Db();
 			$q_taxonomy = $o_db->query("SELECT ".$vs_specimens_group_by." FROM ms_taxonomy_names WHERE taxon_id = ?", $vn_taxon_id);
