@@ -785,6 +785,8 @@ styles for original hp layout
 	right:5px;
 }
 
+/* entity view header */
+
 #dashboardMediaHeader {
 	background-color: #003880;
 	padding-left: 10px;
@@ -811,13 +813,6 @@ styles for original hp layout
 	margin-right: 10px;
 }
 
-/* entity view */
-
-#entityView {
-	margin-top: 15px;
-	margin-bottom: 15px;
-}
-
 .entityViewHeaderText {
 	color: #fff !important;
 	text-decoration: none;
@@ -831,6 +826,13 @@ styles for original hp layout
 
 .entityFormatIconInactive{
 	opacity: 0.5;
+}
+
+/* entity view */
+
+#entityView {
+	margin-top: 15px;
+	margin-bottom: 15px;
 }
 
 .marginTop10Px {
