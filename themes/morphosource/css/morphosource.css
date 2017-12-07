@@ -114,6 +114,7 @@ a.blueText:hover{
 .pointer, a.pointer{
 	cursor:default;
 }
+
 /* Rules */
 .blueRule{
 	background-color:#003880;
@@ -163,6 +164,43 @@ a.blueText:hover{
 .ltBlueBottomRule{
 	border-bottom: 1px solid #689899 !important;
 }
+/* Tabs */
+.tab, .tab:visited {
+	display: inline-block;
+	color: #003880;
+	text-decoration: none;
+	border-top-left-radius: 5px;
+	-moz-border-top-left-radius: 5px; 
+	-webkit-border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-moz-border-top-right-radius: 5px; 
+	-webkit-border-top-right-radius: 5px;
+	position: relative;
+	cursor: pointer;font-family:'neuzeitrmn', Helvetica, sans-serif;
+	text-transform:uppercase;
+	font-weight:normal;
+	background-color:#fff;
+	width: 200px;
+	height: 40px;
+	font-size:15px;
+	line-height:40px;
+	text-align: center;
+	box-shadow: 0 0px 3px #828282;
+	border-top: 1px solid #003880;
+	border-left: 1px solid #003880;
+	border-right: 1px solid #003880;
+	vertical-align: middle;
+}
+
+.tab:hover{
+	background-color:#F7F7F7;
+}
+
+.tabActive, .tabActive:hover, .tabActive:visited {
+	color: #fff;
+	background-color: #003880;
+}
+
 /* Buttons */
 .button, .button:visited {
 	display: inline-block;
@@ -190,6 +228,21 @@ a.blueText:hover{
 .buttonGray, .buttonGray:hover, .buttonGray:visited{
 	background-color:#828282;
 }
+
+.buttonGreen, .buttonGreen:hover, .buttonGreen:visited{
+	background-color:#578686;
+}
+
+.buttonGreen:hover{
+	background-color:#507c7c;
+}
+
+.buttonWhiteBorder{
+	border: 1px solid #fff;
+	border-bottom: 1px solid #fff !important;
+	margin-right: 10px;
+}
+
 .buttonLarge{ 
 	padding: 5px 8px 5px;
 	font-size:15px;
@@ -215,6 +268,20 @@ a.blueText:hover{
 	font-size:11px;
 	line-height:15px;
 	border-radius: 15px;
+}
+
+.batchButton {
+	width: 70px;
+}
+
+.batchTopButton {
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 2px;
+}
+
+.treeSortButtons {
+	margin-top: 15px;
 }
 
 #contentArea{
@@ -704,14 +771,189 @@ styles for original hp layout
 	width: 190px;
 	padding: 0px;
 	margin: 0px;
-	line-height:1.2em;
+	line-height:1.4em;
+	position:relative;
 }
+
+#dashboardMedia .projectMedia {
+	height: 190px;
+}
+
+#dashboardMedia .projectMedia .entityBatchCheckContainer{
+	position:absolute;
+	top:5px;
+	right:5px;
+}
+
+/* entity view header */
+
+#dashboardMediaHeader {
+	background-color: #003880;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 50px;
+	border-radius: 5px;
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;
+}
+
+#dashboardMediaHeader:before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+}
+
+.dashboardMediaHeaderItem {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.dashboardMediaHeaderSelect {
+	margin-right: 10px;
+}
+
+.entityViewHeaderText {
+	color: #fff !important;
+	text-decoration: none;
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	font-family:'neuzeitrmn', Helvetica, sans-serif;
+	text-transform:uppercase;
+	font-weight:normal;
+	font-size: 15px;
+	margin-right: 5px;
+}
+
+.entityFormatIconInactive{
+	opacity: 0.5;
+}
+
+/* entity view */
+
+#entityView {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.marginTop10Px {
+	margin-top: 10px;
+}
+
+.entityListItem {
+	min-height: 40px;
+}
+
+.entityListItemFooter {
+	text-align: center;
+}
+
+.entityTileContainer {
+	height: 320px !important;
+}
+
+.entityListContainer{
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 10px;
+}
+
+.entityListCell {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.entityGroup {
+	overflow: auto;
+}
+
+.entityGroup .projectMediaContainer {
+	padding-left: 10px !important;
+	padding-right: 10px !important;
+}
+
+.entityNestGroupContainer {
+	overflow: auto; 
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px; 
+	margin-bottom: 10px
+}
+
+.entityNestSpeciesGroup {
+	border-top: 1px solid #689899;
+	border-left: 1px solid #689899;
+	border-right: 1px solid #689899;
+	border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+.entityGroupLabel {
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 25px;
+	border-radius: 5px;
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;
+}
+
+.entityGroupLabel:before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+}
+
+.entityGroupLabelItem {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/* entity view batch edit menu */
+
+#entityBatchPaneContainer{
+	border: 1px solid #003880;
+	box-shadow: 0 0px 3px #828282;
+	padding: 10px;
+}
+
+#entityBatchPaneContainer .formLabel {
+	font-weight: normal;
+	font-family: 'neuzeitlgt', sans-serif;
+	font-size: 13px;
+	margin-left: 5px;
+}
+
+#entityMediaBatchFormContainer {
+	height: 400px;
+}
+
+#batchColLeft {
+	float: left;
+	width: 415px;
+}
+
+#batchColRight {
+	float: right;
+	width: 415px;
+}
+
+#batchButtonContainer{
+	height: 60px;
+}
+
+#entityMediaBatchEditContainer {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
 #mediaListings .projectMedia a{
 	color:#689899;
 	text-decoration:none;
 	font-weight:bold;
 	font-size:12px;
 }
+
 #mediaListings .projectMediaListItem{
 	margin-bottom:20px;
 }

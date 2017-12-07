@@ -25,13 +25,13 @@
  *
  * ----------------------------------------------------------------------
  */
- 
 	$t_project = $this->getVar("project");
 	$vn_specimen_with_family = $t_project->getProjectSpecimensCountWithFamily(array("published_media_only" => true));
 	
 	$va_media_counts = $this->getVar('media_counts');
 	$va_media_file_counts = $this->getVar('media_file_counts');
 	$t_media = new ms_media();
+
 ?>
 <div id="dashboardColLeft">
 	<div class="blueRule"><!-- empty --></div>
@@ -86,7 +86,6 @@
 <div id="dashboardColRight">
 	<div class="dashboardButtons">
 <?php
-	print caNavLink($this->request, _t("Media"), "button buttonMedium", "MyProjects", "Media", "listItems");
 	print caNavLink($this->request, _t("Bibliography"), "button buttonMedium", "MyProjects", "Bibliography", "listItems");
 	print caNavLink($this->request, _t("Taxonomy"), "button buttonMedium", "MyProjects", "Taxonomy", "listItems");
 	print caNavLink($this->request, _t("Facilities"), "button buttonMedium", "MyProjects", "Facilities", "listItems");
@@ -149,9 +148,6 @@
 			print (int)$va_media_file_counts[2]." ".$t_media->formatPublishedText(2)."<br/>";
 			print (int)$va_media_file_counts[0]." ".$t_media->formatPublishedText(0)."<br/>";
 			print _t('<em>(%1 total)</em>', $vn_num_media_files);
-			#if ($va_media_file_counts[0] > 0) {
-			#	print "<div style='padding-top:10px;'>".caNavLink($this->request, _t("Publish unpublished media files (%1)", $va_media_file_counts[0]), "button buttonSmall", "MyProjects", "Dashboard", "publishAllMediaFiles", array("project_id" => $t_project->get("project_id")))."</div>";
-			#}
 		}else{
 			print "0";
 		}
@@ -197,131 +193,365 @@
 </div><!-- end dashboardColRight -->
 <a name='dashboardSpecimen'></a>
 <div id="dashboardMedia">
-	<div class="tealRule"><!-- empty --></div>
-	<div style="float:right; padding-top:10px;"><?php print caNavLink($this->request, _t("View as List"), "button buttonLarge", "MyProjects", "Specimens", "listItems")."&nbsp;&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("New Specimen"), "button buttonLarge", "MyProjects", "Specimens", "lookupSpecimen"); ?></div>
+	<!-- entity view header -->
+	<div id='dashboardMediaHeader'>
 <?php
-	$vs_specimens_group_by = $this->getVar("specimens_group_by");
-	print "<div style='float:right; clear:right; text-align:right; padding:5px 0px 5px 0px;'><b>Group by:</b> ";
-	print (($vs_specimens_group_by == "specimen") ? "<b>" : "").caNavLink($this->request, "Specimen Number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "specimen")).(($vs_specimens_group_by == "specimen") ? "</b>" : "")." | ";
-	if($vn_specimen_with_family){
-		print (($vs_specimens_group_by == "ht_family") ? "<b>" : "").caNavLink($this->request, "Family", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "ht_family")).(($vs_specimens_group_by == "ht_family") ? "</b>" : "")." | ";
-	}
-	print (($vs_specimens_group_by == "genus") ? "<b>" : "").caNavLink($this->request, "Genus", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "genus")).(($vs_specimens_group_by == "genus") ? "</b>" : "")." | ";
-	print (($vs_specimens_group_by == "species") ? "<b>" : "").caNavLink($this->request, "Species", "", "MyProjects", "Dashboard", "dashboard", array("specimens_group_by" => "species")).(($vs_specimens_group_by == "species") ? "</b>" : "");
-	print "</div>";
-	$t_specimen = new ms_specimens();
-	switch($vs_specimens_group_by){
-		case "genus":
-		case "species":
-		case "ht_family":
-			$va_specimens_by_taxomony = $t_project->getProjectSpecimensByTaxonomy(null, $vs_specimens_group_by);
-			$vn_count = $va_specimens_by_taxomony["numSpecimen"];
-			$va_specimens = $va_specimens_by_taxomony["specimen"];
-?>
-			<H1><?php print $vn_count." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
-			<br style="clear:both;" />
-<?php
+		print "<div class='dashboardMediaHeaderItem' style='width: 65%;'>";
+		$va_type_opts = array('Specimens' => 'specimen', 
+			'Media groups' => 'media');
+		$vs_entity_type = $this->getVar('entity_type');
+		if (!$vs_entity_type) { $vs_entity_type = 'specimen'; }
+		print "<select class='dashboardMediaHeaderSelect' 
+			id='entityTypeSelect'>";
+		foreach ($va_type_opts as $label => $type) {
+			print "<option value='".$type."'".
+			(($vs_entity_type == $type) ? "selected" : "" ).">".
+			$label."</option>";
+		}
+		print "</select>";
 
-			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-				$vn_taxon_count = 1;
-				foreach($va_specimens as $vs_taxon => $va_taxon_specimen) {
-					$vn_num_media = is_array($va_taxon_specimen['media']) ? sizeof($va_taxon_specimen['media']) : 0;
+		if ($vs_entity_type == 'specimen') {
+			print caNavLink($this->request, "New Specimen", 
+				"button buttonMedium buttonWhiteBorder", "MyProjects", 
+				"Specimens", "lookupSpecimen");
+		} else if ($vs_entity_type == 'media') {
+			print caNavLink($this->request, "New Media Group", 
+				"button buttonMedium buttonWhiteBorder", "MyProjects", 
+				"Media", "form");
+			print "<a href='#' name='mediaBatchButton' ". 
+				"class='button buttonMedium buttonWhiteBorder' id='mediaBatchButton' ".
+				"title='Batch edit media groups' >Batch Edit</a>";
+		}
 
-					print "<div class='projectMediaContainer'>";
-					print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
-			
-					if (is_array($va_taxon_specimen['media']) && ($vn_num_media > 0)) {
-						$vn_max = 3;
-						$c = 0;
-						foreach($va_taxon_specimen['media'] as $vn_media_id => $va_media) {
-							$c++;
-							if (!($vs_media_tag = $va_media['tags']['preview190'])) {
-								$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
-							}
-							print "<div class='projectMediaSlide'>";
-							if($va_taxon_specimen['no_link']){
-								print caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Dashboard", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_specimens_group_by));
-							}else{
-								print caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id']));
-							}
-							print "</div>";
-							//print "<span class='mediaID'>M{$vn_media_id}</span>";
-							if($c == $vn_max){
-								break;
-							}
-						}
-					} else {
-						print "<div class='projectMediaPlaceholder'> </div>";
-					}
-					print "</div><!-- end projectMedia -->";
-					$vs_genus = "";
-					if($vs_specimens_group_by == "species"){
-						$vs_genus = $va_taxon_specimen["genus"]." ";
-					}
-					print "<div class='projectMediaSlideCaption'><b><em>".$vs_genus.$vs_taxon."</em></b><br/>";
-					if($va_taxon_specimen['no_link']){
-						print caNavLink($this->request, sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : ""), "", "MyProjects", "Dashboard", "specimenWithoutTaxonomy", array("specimens_group_by" => $vs_specimens_group_by));
-					}else{
-						print caNavLink($this->request, sizeof($va_taxon_specimen["specimens"])." Specimen".((sizeof($va_taxon_specimen["specimens"]) != 1) ? "s" : ""), "", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $va_taxon_specimen['taxon_id']));
-					}
-					print "</div>\n";
-					print "</div><!-- end projectMediaContainer -->";
+		$sort_opt_selected = $this->getVar("specimens_group_by");
+		if (!$sort_opt_selected) { $sort_opt_selected = 'number'; }
 
-					$vn_taxon_count++;
-				}
-			}else{
-				print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
+		print "</div>";
+
+		print "<div class='dashboardMediaHeaderItem' style='width: 26%;'>";
+		$sort_options = array(
+			'Flat list' => array('Specimen number' => 'number', 
+				'Taxon name' => 'taxon', 'Date added' => 'added', 
+				'Date modified' => 'modified'), 
+			'Taxonomy tree' => array('User-entered data' => 'ut', 
+				"VertNet data" => 'vt'));
+		print "<span class='entityViewHeaderText'>sort by</span>";
+		print "<select class='dashboardMediaHeaderSelect' id='mediaSortSelect'>";
+		foreach ($sort_options as $group => $opts) {
+			print "<optgroup label='".$group."'>";
+			foreach ($opts as $label => $value) {
+				print "<option value='".$value."'".
+				(($sort_opt_selected == $value) ? "selected" : "" ).">".$label.
+				"</option>";
 			}
+			print "</optgroup>";
+		}
+		print "</select>";
+		print "</div>";	
 
-		break;
-		# --------------------------------------------------------------------
-		default:
-			$vs_order_by = $this->getVar("specimens_order_by");
-			$va_specimens = $t_project->getProjectSpecimens(null, $vs_order_by);
+		$vs_entity_format = $this->getVar('entity_format');
+		if (!$vs_entity_format) { $vs_entity_format = 'tile'; }
+		print "<div class='dashboardMediaHeaderItem' style='width: 8%;'>";
+		print "<a href='#' id='entityFormatIconTile' style='float: right;' class='".
+			($vs_entity_format != 'tile' ? "entityFormatIconInactive" : "").
+			"' style='display: inline-block;'>
+			<img src='/themes/morphosource/graphics/morphosource/ic_view_module_white_24px.svg' 
+			onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_view_module_white_24dp_1x.png\"' 
+			style='display: inline-block;' /></a>";
+		print "<a href='#' id='entityFormatIconList' style='float: right;' class='".
+			($vs_entity_format != 'list' ? "entityFormatIconInactive" : "").
+			"'  style='display: inline-block;'>
+			<img src='/themes/morphosource/graphics/morphosource/ic_view_headline_white_24px.svg' 
+			onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_view_headline_white_24dp_1x.png\"' 
+			style='display: inline-block;'></a>";
+		print "</div>";	
 ?>
-			<H1><?php print sizeof($va_specimens)." Project Specimen".((sizeof($va_specimens) == 1) ? "" : "s"); ?></H1>
+	</div><!-- end dashboardMediaHeader --> 
+	<!-- end entity view header -->
+	
+	<!-- batch media edit pane (hidden by default) -->
+	<div id='entityMediaBatchEditContainer' style='display: none;'>
 <?php
-			if(is_array($va_specimens) && ($vn_num_media = sizeof($va_specimens))){
-				print "<div style='text-align:right; margin:5px 0px 5px 0px; clear:right;'><b>Order by:</b> ".(($vs_order_by == "number") ? "<b>" : "").caNavLink($this->request, "Specimen number", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "number")).(($vs_order_by == "number") ? "</b>" : "")." | ".(($vs_order_by == "taxon") ? "<b>" : "").caNavLink($this->request, "Taxonomic name", "", "MyProjects", "Dashboard", "dashboard", array("specimens_order_by" => "taxon")).(($vs_order_by == "taxon") ? "</b>" : "")."</div>";
-		
-				foreach($va_specimens as $vn_specimen_id => $va_specimen) {
-					$vn_num_media = is_array($va_specimen['media']) ? sizeof($va_specimen['media']) : 0;
-			
-					print "<div class='projectMediaContainer'>";
-					print "<div class='projectMedia".(($vn_num_media > 1) ? " projectMediaSlideCycle" : "")."'>";
-			
-					if (is_array($va_specimen['media']) && ($vn_num_media > 0)) {
-						foreach($va_specimen['media'] as $vn_media_id => $va_media) {
-							if (!($vs_media_tag = $va_media['tags']['preview190'])) {
-								$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
-							}
-							print "<div class='projectMediaSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id))."</div>";
-							//print "<span class='mediaID'>M{$vn_media_id}</span>";
-						}
-					} else {
-						print "<div class='projectMediaPlaceholder'> </div>";
-					}
-					print "</div><!-- end projectMedia -->";
-			
-					$vs_specimen_taxonomy = join(" ", $t_specimen->getSpecimenTaxonomy($vn_specimen_id));
-					print "<div class='projectMediaSlideCaption'>".caNavLink($this->request, $t_specimen->formatSpecimenName($va_specimen), '', "MyProjects", "Specimens", "form", array("specimen_id" => $vn_specimen_id));
-					if ($vs_specimen_taxonomy) { print ", <em>{$vs_specimen_taxonomy}</em>"; }
-							//print ($vs_element = $va_specimen['element']) ? " ({$vs_element})" : "";
-					if($vs_uuid_id = $va_specimen["uuid"]){
-						print "<div style='margin-top:3px; '><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='blueText' style='text-decoration:none; font-weight:bold;'>iDigBio <i class='fa fa-external-link'></i></a></div>";
-					}
-					print "</div>\n";
-					print "</div><!-- end projectMediaContainer -->";
-				}
-			}else{
-				print "<H2>"._t("Your project has no specimens.  Use the \"NEW SPECIMEN\" button to add specimens, to which media may be added.")."</H2>";
-			}
+		// tab buttons
+		print "<a href='#' name='generalButton' ".
+			"class='tab tabActive' id='generalButton' ".
+			"title='General batch edit options' ".
+			">General</a>";
+		print "<a href='#' name='scanOriginButton' class='tab' ".
+			"id='scanOriginButton' ".
+			"title='Scan origin batch edit options coming soon' 
+			style='opacity: 0.3;'>Scan Origin</a>";
+
+		print "<a href='#' name='mediaBatchSelectNoneButton' ". 
+				"class='button buttonLarge batchTopButton' 
+				id='mediaBatchSelectNoneButton' ".
+				"title='Unselect all media groups' 
+				style='display: none; float: right;'>Select None</a>";
+		print "<a href='#' name='mediaBatchSelectAllButton' ". 
+				"class='button buttonLarge batchTopButton' 
+				id='mediaBatchSelectAllButton' ".
+				"title='Select all media groups' 
+				style='display: none; float: right;'>Select All</a>";
+
+		print "<div id='entityBatchPaneContainer'>";
+		// form divs
+		print $this->render('Dashboard/entity_batch_html.php');
+		print "</div><!-- end entityBatchPaneContainer -->";
+?>
+	</div> <!-- end entityMediaBatchEditContainer -->
+	<!-- end batch media edit pane -->
+<?php
+	if ($sort_opt_selected == 'ut' || $sort_opt_selected == 'vt') {
+		print "<div class='treeSortButtons'>";
+		print "<a href='#' name='expandNestButton' ". 
+			"class='button buttonMedium' id='expandNestButton' ".
+			"title='Expand all taxonomy tree nodes' 
+			style='margin-right: 10px;'>Expand All Tree Nodes</a>";
+		print "<a href='#' name='collapseNestButton' ". 
+			"class='button buttonMedium' id='collapseNestButton' ".
+			"title='Collapse all taxonomy tree nodes'>
+			Collapse All Tree Nodes</a>";
+		print "</div><!-- end treeSortButtons -->";
 	}
 ?>
-</div><!-- end dashboardMedia -->
+	<div id='entityView'>
+<?php
+		print $this->render('Dashboard/entity_view_html.php');		
+?>
+	</div>
+	<!-- end entityView -->
 <script type="text/javascript">
 	jQuery(document).ready(function() {
 		jQuery('.projectMediaSlideCycle').cycle();
+
+		var entityFormat = '<?php print($vs_entity_format); ?>';
+		if (!entityFormat || entityFormat == 'undefined') { 
+			entityFormat = 'tile'; 
+		};
+		if (entityFormat == 'list') {
+			jQuery('#entityContainerTile').hide();
+			jQuery('#entityContainerList').show();
+			jQuery('#entityFormatIconTile').addClass('entityFormatIconInactive');
+			jQuery('#entityFormatIconList').removeClass('entityFormatIconInactive');
+			jQuery('.entityBatchCheck').prop('checked', false);
+		} else if (entityFormat == 'tile') {
+			jQuery('#entityContainerTile').show();
+			jQuery('#entityContainerList').hide();
+			jQuery('#entityFormatIconTile').removeClass('entityFormatIconInactive');
+			jQuery('#entityFormatIconList').addClass('entityFormatIconInactive');
+			jQuery('.entityBatchCheck').prop('checked', false);
+		}
 	});
 
+	// Entity view header behavior
+
+	// When sort select value changes, reload page with new value
+	jQuery('#mediaSortSelect').change(function() {
+		if (jQuery('#entityContainerTile').is(':visible')) {
+			var entityFormat = 'tile';
+		} else if (jQuery('#entityContainerList').is(':visible')) {
+			var entityFormat = 'list';
+		}
+		window.location.href = 
+			'/index.php/MyProjects/Dashboard/dashboard/s/'+ 
+			jQuery('#mediaSortSelect').val() + '/t/' + 
+			jQuery('#entityTypeSelect').val() + '/f/' + 
+			entityFormat;
+	});
+
+	// When type select value changes, reload page with new value
+	jQuery('#entityTypeSelect').change(function() {
+		if (jQuery('#entityContainerTile').is(':visible')) {
+			var entityFormat = 'tile';
+		} else if (jQuery('#entityContainerList').is(':visible')) {
+			var entityFormat = 'list';
+		} else {
+			var entityFormat = 'tile';
+		}
+		window.location.href = 
+			'/index.php/MyProjects/Dashboard/dashboard/s/'+ 
+			jQuery('#mediaSortSelect').val() + '/t/' + 
+			jQuery('#entityTypeSelect').val() + '/f/' + 
+			entityFormat;
+	});
+
+
+	// List/tile view toggles, refer to elements from entity_view_html.php
+	jQuery('#entityFormatIconTile').click(function () {
+		jQuery('#entityContainerTile').show();
+		jQuery('#entityContainerList').hide();
+		jQuery('#entityFormatIconTile').removeClass('entityFormatIconInactive');
+		jQuery('#entityFormatIconList').addClass('entityFormatIconInactive');
+		jQuery('.entityBatchCheck').prop('checked', false);
+		return false;
+	});
+
+	jQuery('#entityFormatIconList').click(function () {
+		jQuery('#entityContainerTile').hide();
+		jQuery('#entityContainerList').show();
+		jQuery('#entityFormatIconTile').addClass('entityFormatIconInactive');
+		jQuery('#entityFormatIconList').removeClass('entityFormatIconInactive');
+		jQuery('.entityBatchCheck').prop('checked', false);
+		return false;
+	});
+
+	// Batch edit menu and related buttons behavior
+
+	// Bibliography autocomplete field from entity_batch_html.php
+	jQuery('#msBibliographyID').autocomplete({ 
+		source: '<?php print caNavUrl($this->request, 'lookup', 'Bibliography', 'Get', array("max" => 500, "quickadd" => false)); ?>',
+		minLength: 3, delay: 800, html: true,
+		select: function(event, ui) {
+			var bibliography_id = parseInt(ui.item.id);
+			if (bibliography_id < 1) {
+				// nothing found...
+				jQuery("#mediaBibLookupContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Bibliography', 'form', array('media_id' => $pn_media_id)); ?>");
+			} else {
+				// found an id
+				jQuery('input[name=bibliography_id]').val(bibliography_id);
+			}
+		}
+	}).click(function() { this.select(); });
+
+	jQuery('.buttonGray').click(function() {
+		return false;
+	});
+
+	jQuery('#mediaBatchButton').click(function () {
+		jQuery('#entityMediaBatchEditContainer').show();
+		jQuery('#entityListHeaderEditText').show();
+		jQuery('#mediaBatchSelectAllButton').show();
+		jQuery('#mediaBatchSelectNoneButton').show();
+		jQuery('.entityBatchCheck').show();
+		return false;
+	});
+
+	jQuery('#mediaBatchSelectAllButton').click(function () {
+		if (jQuery('#entityContainerTile').is(':visible')) {
+			jQuery('#entityContainerTile').
+				find('.entityBatchCheck').prop('checked', true);
+		} else if (jQuery('#entityContainerList').is(':visible')) {
+			jQuery('#entityContainerList').
+				find('.entityBatchCheck').prop('checked', true);
+		}
+		return false;
+	});
+
+	jQuery('#mediaBatchSelectNoneButton').click(function () {
+		jQuery('.entityBatchCheck').prop('checked', false);
+		return false;
+
+	});
+
+	jQuery('#generalButton').click(function () {
+		if (!jQuery('#generalButton').hasClass('buttonGray')) {
+			// Hide/show form divs, Make buttons active/gray
+			jQuery('#mediaBatchGeneralContainer').show();
+			jQuery('#mediaBatchScanOriginContainer').hide();
+			jQuery('#generalButton').addClass('tabActive');
+			jQuery('#scanOriginButton').removeClass('tabActive');
+		}
+		return false;
+	});
+
+	jQuery('#scanOriginButton').click(function () {
+		return false; // disable temporarily
+		if (!jQuery('#scanOriginButton').hasClass('buttonGray')) {
+			// Hide/show form divs, Make buttons active/gray
+			jQuery('#mediaBatchScanOriginContainer').show();
+			jQuery('#mediaBatchGeneralContainer').hide();
+			jQuery('#scanOriginButton').addClass('tabActive');
+			jQuery('#generalButton').removeClass('tabActive');
+		}
+		return false;
+	});
+
+	jQuery('#batchSaveButton').click(function () {
+		var formName = '';
+		if (jQuery('#mediaBatchGeneralContainer').is(':visible')) {
+			formName = 'batchGeneralForm';
+		} else if (jQuery('#mediaBatchScanOriginContainer').is(':visible')) {
+			formName = 'batchScanOriginForm';
+		}
+		jQuery('.entityBatchCheck').attr('form', formName);
+		jQuery('#' + formName).submit();
+		return false;
+	});
+
+	jQuery('#batchCancelButton').click(function () {
+		jQuery('#entityMediaBatchEditContainer').hide();
+		jQuery('#entityListHeaderEditText').hide();
+		jQuery('#mediaBatchSelectAllButton').hide();
+		jQuery('#mediaBatchSelectNoneButton').hide();
+		jQuery('.entityBatchCheck').hide();
+		return false;
+	});
+
+	// Taxonomically (class, order, etc.) nested entity display behavior
+
+	jQuery('.entityGroupToggle').click(function() {
+		var group_div = jQuery(this).closest('.entityNestGroupContainer');
+		var subgroup_div = group_div.children('.entityNestGroupContainer');
+
+		var target_img = jQuery(this).children('img').attr('src');
+		var img_root = target_img.substring(0, Math.max(
+			target_img.lastIndexOf("/"), target_img.lastIndexOf("\\")));
+
+		if (subgroup_div.is(':visible')) {
+			subgroup_div.hide();
+			jQuery(this).children('img').attr('src', 
+				img_root+'/ic_chevron_right_black_24px.svg');
+			jQuery(this).children('img').attr('onerror', 
+				'this.src=\"' + img_root + 
+				'/ic_chevron_right_black_24px.svg\"');
+		} else {
+			subgroup_div.show();
+			jQuery(this).children('img').attr('src', 
+				img_root+'/ic_keyboard_arrow_down_black_24px.svg');
+			jQuery(this).children('img').attr('onerror', 
+				'this.src=\"' + img_root + 
+				'/ic_keyboard_arrow_down_black_24px.svg\"');
+		}
+		return false;
+	});
+
+	jQuery('#expandNestButton').click(function () {
+		var target_div = jQuery('.entityNestContainer').
+			find('.entityNestGroupContainer');
+		target_div.show();
+
+		var target_img =  target_div.children('.entityGroupLabel').
+			find('.entityGroupToggle').find('img');
+		var img_src = target_img.attr('src');
+		var img_root = img_src.substring(0, Math.max(
+			img_src.lastIndexOf("/"), img_src.lastIndexOf("\\")));
+		target_img.attr('src', 
+			img_root + '/ic_keyboard_arrow_down_black_24px.svg');
+		target_img.attr('onerror', 
+			'this.src=\"' + img_root + 
+			'/ic_keyboard_arrow_down_black_24px.svg\"');
+
+		return false; 
+	});
+
+	jQuery('#collapseNestButton').click(function () {
+		var top_level_div = jQuery('.entityNestContainer').
+			children('.entityNestGroupContainer');
+		var target_div = top_level_div.find('.entityNestGroupContainer');
+		target_div.hide();
+
+		var target_img =  jQuery('.entityNestContainer').
+			find('.entityNestGroupContainer').
+			children('.entityGroupLabel').
+			find('.entityGroupToggle').find('img');
+		var img_src = target_img.attr('src');
+		var img_root = img_src.substring(0, Math.max(
+			img_src.lastIndexOf("/"), img_src.lastIndexOf("\\")));
+		target_img.attr('src', img_root + '/ic_chevron_right_black_24px.svg');
+		target_img.attr('onerror', 'this.src=\"' + img_root + 
+			'/ic_chevron_right_black_24px.svg\"');
+
+		return false; 
+	});
+	
 </script>

@@ -61,7 +61,6 @@ if (!$this->request->isAjax()) {
 				print caNavLink($this->request, _t("%1 Specimens", $vs_specimens_group_by), "button buttonSmall", "MyProjects", "Dashboard", "specimenByTaxonomy", array("taxon_id" => $q_taxonomy->get("taxon_id")))." ";
 			}
 		}
-		print caNavLink($this->request, _t("Specimen list"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")." ";
 		
 		print caNavLink($this->request, _t("Dashboard"), "button buttonSmall", "MyProjects", "Dashboard", "dashboard");
 		print "</div>";
