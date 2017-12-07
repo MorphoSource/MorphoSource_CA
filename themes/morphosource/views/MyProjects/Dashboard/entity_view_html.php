@@ -59,13 +59,18 @@
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 105px; 
 				text-align: center;'>";
-			$media_count = count($va_entity['media']);
-			$pub_media_count = count(
-				array_filter($va_entity['media'], function ($a) { 
-					if ($a['published'] == 1 || $a['published'] == 2) { 
-						return true; 
-					} 
+			if ($va_entity['media']) {
+				$media_count = count($va_entity['media']);
+				$pub_media_count = count(
+					array_filter($va_entity['media'], function ($a) { 
+						if ($a['published'] == 1 || $a['published'] == 2) { 
+							return true; 
+						} 
 				}));
+			} else {
+				$media_count = 0;
+				$pub_media_count = 0;
+			}
 			print $pub_media_count."/".$media_count;
 			print "</div>";
 
@@ -517,9 +522,15 @@
 		} else if ($vs_taxon_level == 'genus') {
 			$vs_taxon_name = "<em>".ucfirst($vs_taxon_term)."</em>";
 			$vn_count = sizeof($va_entity);
+			if (array_key_exists('no_link', $va_entity)) { 
+				$vn_count = $vn_count - 1; 
+			}
 		} else {
 			$vs_taxon_name = ucfirst($vs_taxon_term);
 			$vn_count = sizeof($va_entity);
+			if (array_key_exists('no_link', $va_entity)) { 
+				$vn_count = $vn_count - 1; 
+			}
 		}
 		
 		print "<div class='entityGroupLabelItem entityGroupLabelText' 
