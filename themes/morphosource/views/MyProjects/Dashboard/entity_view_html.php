@@ -534,13 +534,20 @@
 			print "<div class='entityGroupLabelItem entityGroupLabelText' 
 				style='width: 36%'>";
 			print "<div style='float: right'>";
+			
 			$vn_taxon_id = null;
+			if (is_bool(current($va_entity))) {
+			 	$va_child = next($va_entity);
+			} else if (is_array(current($va_entity))) {
+			 	$va_child = current($va_entity);
+			}
+			
 			switch ($vs_taxon_level) {
 			 	case 'ht_family':
-			 		$vn_taxon_id = current(current($va_entity))['taxon_id'];
+			 		$vn_taxon_id = current($va_child)['taxon_id'];
 			 		break;
 			 	case 'genus':
-			 		$vn_taxon_id = current($va_entity)['taxon_id'];
+			 		$vn_taxon_id = $va_child['taxon_id'];
 			 		break;
 			 	case 'species':
 			 		$vn_taxon_id = $va_entity['taxon_id'];
