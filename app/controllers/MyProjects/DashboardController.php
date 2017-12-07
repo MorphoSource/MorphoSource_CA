@@ -77,50 +77,6 @@
  			$this->render('Dashboard/projects_list_html.php');
  		}
  		# -------------------------------------------------------
- 		function dashboard_old() {
- 			if(!$this->request->user->isFullAccessUser()){
- 				$this->projectList();
- 				return;
- 			}
- 			JavascriptLoadManager::register("cycle");
-			if(!$this->opn_project_id){
-				$this->projectList();
-				return;
-			}
-			$vs_specimens_order_by = $this->request->getParameter('specimens_order_by', pString);
-			
-			if($vs_specimens_order_by){
-				$this->request->session->setVar('specimens_order_by', $vs_specimens_order_by);
-			}elseif($this->request->session->getVar('specimens_order_by')){
-				$vs_specimens_order_by = $this->request->session->getVar('specimens_order_by');
-			}else{
-				$vs_specimens_order_by = "number";
-			}
-			$this->view->setVar("specimens_order_by", $vs_specimens_order_by);		
-			
-			$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
-			
-			if($vs_specimens_group_by){
-				$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
-			}elseif($this->request->session->getVar('specimens_group_by')){
-				$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
-			}else{
-				$vs_specimens_group_by = "specimen";
-			}
-			$this->view->setVar("specimens_group_by", $vs_specimens_group_by);		
-			
-			
-			$o_db = new Db();
-			$q_institutions = $o_db->query("SELECT * FROM ms_institutions WHERE user_id = ?", $this->request->user->get("user_id"));
-			$this->view->setVar("institution_count", $q_institutions->numRows());
-			
-			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
-			$this->view->setVar("num_projects", sizeof($va_projects));
-			$this->view->setVar("media_counts", $this->opo_project->getProjectMediaCounts());
-			$this->view->setVar("media_file_counts", $this->opo_project->getProjectMediaFileCounts());
- 			$this->render('Dashboard/dashboard_html.php');
- 		}
- 		# -------------------------------------------------------
  		function dashboard() {
  			if(!$this->request->user->isFullAccessUser()){
  				$this->projectList();
@@ -133,46 +89,42 @@
 			}
 					
 			// Sort variable handling
-			$vs_specimens_group_by = 
-				$this->request->getParameter('s', pString);
-			
-			if($vs_specimens_group_by){
-				$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
-			}elseif($this->request->session->getVar('specimens_group_by')){
-				$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
-			}else{
+			if ($this->request->getParameter('s', pString)) {
+				$vs_specimens_group_by = 
+					$this->request->getParameter('s', pString);
+			} elseif ($this->request->session->getVar('specimens_group_by')) {
+				$vs_specimens_group_by = 
+					$this->request->session->getVar('specimens_group_by');
+			} else {
 				$vs_specimens_group_by = 'number';
 			}
-			if (!in_array($vs_specimens_group_by, ['number', 'taxon', 'added', 'modified', 'ut', 'vt'])) {
+			if (!in_array($vs_specimens_group_by, 
+				['number', 'taxon', 'added', 'modified', 'ut', 'vt'])) {
 				$vs_specimens_group_by = 'number';
 			}
-			$this->view->setVar("specimens_group_by", $vs_specimens_group_by);		
+			$this->view->setVar('specimens_group_by', $vs_specimens_group_by);
+			$this->request->session->setVar('specimens_group_by', 
+				$vs_specimens_group_by);		
 
 			// Entity format variable handling
-			$vs_entity_format = 
-				$this->request->getParameter('f', pString);
-			
-			if($vs_entity_format){
-				$this->request->session->setVar('entity_format', 
-					$vs_entity_format);
-			}elseif($this->request->session->getVar('entity_format')){
-				$vs_entity_format = $this->request->session->getVar('entity_format');
-			}else{
+			if ($this->request->getParameter('f', pString)) {
+				$vs_entity_format = $this->request->getParameter('f', pString);
+			} elseif ($this->request->session->getVar('entity_format')){
+				$vs_entity_format = 
+					$this->request->session->getVar('entity_format');
+			} else {
 				$vs_entity_format = 'tile';
 			}
 			if (!in_array($vs_entity_format, ['tile', 'list'])) {
-				$vs_entity_format = 'number';
+				$vs_entity_format = 'tile';
 			}
 			$this->view->setVar("entity_format", $vs_entity_format);
+			$this->request->session->setVar('entity_format', $vs_entity_format);
 
-			// Entity type variable handling
-			$vs_entity_type = 
-				$this->request->getParameter('t', pString);
-			
-			if($vs_entity_type){
-				$this->request->session->setVar('entity_type', 
-					$vs_entity_type);
-			}elseif($this->request->session->getVar('entity_type')){
+			// Entity type variable handling			
+			if ($this->request->getParameter('t', pString)) {
+				$vs_entity_type = $this->request->getParameter('t', pString);
+			} elseif ($this->request->session->getVar('entity_type')) {
 				$vs_entity_type = $this->request->session->getVar('entity_type');
 			}else{
 				$vs_entity_type = 'specimen';
@@ -180,26 +132,31 @@
 			if (!in_array($vs_entity_type, ['specimen', 'media'])) {
 				$vs_entity_format = 'specimen';
 			}
-			$this->view->setVar("entity_type", $vs_entity_type);
+			$this->view->setVar('entity_type', $vs_entity_type);
+			$this->request->session->setVar('entity_type', $vs_entity_type);
 
+			// Initial db query
 			$o_db = new Db();
-			$q_institutions = $o_db->query("SELECT * FROM ms_institutions WHERE user_id = ?", $this->request->user->get("user_id"));
-			$this->view->setVar("institution_count", $q_institutions->numRows());
+			$q_institutions = $o_db->query(
+				"SELECT * FROM ms_institutions WHERE user_id = ?", 
+				$this->request->user->get("user_id"));
+			$this->view->setVar("institution_count", 
+				$q_institutions->numRows());
 			
-			$va_projects = $this->opo_project->getProjectsForMember($this->request->user->get("user_id"));
+			$va_projects = $this->opo_project->getProjectsForMember(
+				$this->request->user->get("user_id"));
 			$this->view->setVar("num_projects", sizeof($va_projects));
-			$this->view->setVar("media_counts", $this->opo_project->getProjectMediaCounts());
-			$this->view->setVar("media_file_counts", $this->opo_project->getProjectMediaFileCounts());
+			$this->view->setVar("media_counts", 
+				$this->opo_project->getProjectMediaCounts());
+			$this->view->setVar("media_file_counts", 
+				$this->opo_project->getProjectMediaFileCounts());
 
-			# Get entity data
+			// Get entity data
 			if ($vs_entity_type == 'specimen') {
 				switch ($vs_specimens_group_by) {
 					case 'ut':
 						$va_specimens_by_taxonomy = $this->opo_project->
 							getProjectSpecimensNestTaxonomy(null, 0);
-						// echo "<pre>";
-						// print_r($va_specimens_by_taxonomy);
-						// echo "</pre>";
 						$va_entity = $va_specimens_by_taxonomy['specimen'];
 						$vn_count = $va_specimens_by_taxonomy['numSpecimen'];
 						$vb_entity_nest = 1;
@@ -207,9 +164,6 @@
 					case 'vt':
 						$va_specimens_by_taxonomy = $this->opo_project->
 							getProjectSpecimensNestTaxonomy(null, 1);
-						// echo "<pre>";
-						// print_r($va_specimens_by_taxonomy);
-						// echo "</pre>";
 						$va_entity = $va_specimens_by_taxonomy['specimen'];
 						$vn_count = $va_specimens_by_taxonomy['numSpecimen'];
 						$vb_entity_nest = 1;
@@ -227,9 +181,6 @@
 					case 'ut':
 						$va_media_by_taxonomy = $this->opo_project->
 							getProjectMediaNestTaxonomy(null, 0);
-						// echo "<pre>";
-						// print_r($va_specimens_by_taxonomy);
-						// echo "</pre>";
 						$va_entity = $va_media_by_taxonomy['media'];
 						$vn_count = $va_media_by_taxonomy['numMedia'];
 						$vb_entity_nest = 1;
@@ -237,9 +188,6 @@
 					case 'vt':
 						$va_media_by_taxonomy = $this->opo_project->
 							getProjectMediaNestTaxonomy(null, 1);
-						// echo "<pre>";
-						// print_r($va_specimens_by_taxonomy);
-						// echo "</pre>";
 						$va_entity = $va_media_by_taxonomy['media'];
 						$vn_count = $va_media_by_taxonomy['numMedia'];
 						$vb_entity_nest = 1;
@@ -253,7 +201,8 @@
 							$va_media = $qr->getRow();
 							if(!isset($va_entity[$va_media['media_id']])) {
 								$va_media['preview'] = 
-									$t_media->getPreviewMediaFile($va_media['media_id']); 
+									$t_media->getPreviewMediaFile(
+										$va_media['media_id']); 
 								$va_entity[$va_media['media_id']] = $va_media;
 							}
 						}
@@ -272,24 +221,45 @@
  		}
  		# -------------------------------------------------------
  		public function batchGeneralSave() {
-			# Error and message variables
+ 			// Entity viewer batch edit general media group options
+
+			// Error and message variables
 			$va_nonbib_attempt = array();
 			$va_errors = array();
 			$va_success = array();
 			$vs_message = array();
 
-			# Form fields
-			$section_f = array("bibliography" => array("bibliography_id"), "media_citation" => array("media_citation_instruction1", "media_citation_instruction2", "media_citation_instruction3"), "copyright" => array("copyright_permission", "copyright_license", "copyright_info"), "grant_support" => array("grant_support"));
-			$f_type = array("bibliography_id" => pInteger, "media_citation_instruction1" => pString, "media_citation_instruction2" => pString, "media_citation_instruction3" => pString, "copyright_permission" => pInteger, "copyright_license" => pInteger, "copyright_info" => pString, "grant_support" => pString); # don't know a better way of getting types
+			// Form fields
+			$section_f = array(
+				"bibliography" => array("bibliography_id"), 
+				"media_citation" => array("media_citation_instruction1", 
+					"media_citation_instruction2", "media_citation_instruction3"), 
+				"copyright" => array("copyright_permission", "copyright_license", 
+					"copyright_info"), 
+				"grant_support" => array("grant_support"));
+			$f_type = array(
+				"bibliography_id" => pInteger, 
+				"media_citation_instruction1" => pString, 
+				"media_citation_instruction2" => pString, 
+				"media_citation_instruction3" => pString, 
+				"copyright_permission" => pInteger, 
+				"copyright_license" => pInteger, 
+				"copyright_info" => pString, 
+				"grant_support" => pString);
+
 			$f_val = array();
 			foreach ($f_type as $f => $type) {
 					$f_val[$f] = $this->request->getParameter($f, $type);
 			}
-			# Save logic
-			# TODO: Validation for all form fields being entered within a sub-category (citation instructions, etc.); validation for everything being empty lol
+			
+			// Save logic
+			// TODO: Validation for all form fields being entered within a sub-category
+			// TODO: Validation for everything being empty
 			$va_media_ids = $this->request->getParameter('media_ids', pArray);
 			if(!is_array($va_media_ids)){
-				$this->notification->addNotification("You did not select any media groups.", __NOTIFICATION_TYPE_ERROR__);
+				$this->notification->addNotification(
+					"You did not select any media groups.", 
+					__NOTIFICATION_TYPE_ERROR__);
 			}else{
 				$t_media = new ms_media();
 				$t_bib_link = new ms_media_x_bibliography();
@@ -298,38 +268,52 @@
 					$t_media->load($media_id);
 					$media_set = FALSE;
 					foreach ($section_f as $section => $f) {
-						if ($section == "bibliography" && $f_val['bibliography_id']) {
-							# Bibliographic citation
-							$t_bib_link->load(array("bibref_id" => $f_val['bibliography_id'], "media_id" => $media_id));
+						// Special case for bibliographic citation
+						if ($section == "bibliography" && 
+							$f_val['bibliography_id']) {
+							$t_bib_link->load(
+								array("bibref_id" => $f_val['bibliography_id'], 
+									"media_id" => $media_id));
 							if (!$t_bib_link->get("link_id")) {
-								$t_bib_link->set("bibref_id", $f_val['bibliography_id']);
+								$t_bib_link->set("bibref_id", 
+									$f_val['bibliography_id']);
 								$t_bib_link->set("media_id", $media_id);
-								$t_bib_link->set("user_id", $this->request->user->get("user_id"));	
+								$t_bib_link->set("user_id", 
+									$this->request->user->get("user_id"));	
 								if ($t_bib_link->numErrors() > 0) {
 									foreach ($t_bib_link->getErrors() as $vs_e) {
 										$va_item_errors["bibliography"][] = $vs_e;
 									}
 								}
 
-								if (!array_key_exists("bibliography", $va_item_errors)) {
-									# do insert
+								if (!array_key_exists("bibliography", 
+									$va_item_errors)) {
+									// do insert
 									$t_bib_link->setMode(ACCESS_WRITE);
 									$t_bib_link->insert();
 
 									if ($t_bib_link->numErrors()) {
 										foreach ($t_bib_link->getErrors() as $vs_e) {  
-											$va_errors["bibliography"] = $va_errors["bibliography"]."M".$media_id." ".$vs_e.", ";
+											$va_errors["bibliography"] = 
+												$va_errors["bibliography"].
+												"M".$media_id." ".$vs_e.", ";
 										}
 									} else {
 										$va_success[] = "bibliography";
 									}
 								}else{
-									$va_errors["bibliography"] = $va_errors["bibliography"]."M".$media_id." ".implode(", ", $va_item_errors["bibliography"])."; ";
+									$va_errors["bibliography"] = 
+										$va_errors["bibliography"].
+										"M".$media_id." ".
+										implode(", ", 
+											$va_item_errors["bibliography"]).
+										"; ";
 								}
 							}
-						}else{
-							# Everything else
-							$section_f_val = array_intersect_key($f_val, array_flip($f));
+						} else {
+							// All non-bibliographic citation cases
+							$section_f_val = array_intersect_key($f_val, 
+								array_flip($f));
 							if (!array_search("", $section_f_val)) {
 								$media_set = TRUE;
 								$va_nonbib_attempt[] = $section;
@@ -346,38 +330,46 @@
 						}
 					}
 
+					// Was there an attempt to change any nonbib fields?
 					if ($media_set == TRUE) {
 						if (sizeof($va_item_errors) == 0) {
-							# do update
+							// do update
 							$t_media->setMode(ACCESS_WRITE);
 							$t_media->update();
 								
 							if ($t_media->numErrors()) {
 								foreach ($t_media->getErrors() as $vs_e) {  
-									$va_errors["general"] = $va_errors["general"]."M".$media_id." ".$vs_e.", ";
+									$va_errors["general"] = $va_errors["general"].
+									"M".$media_id." ".$vs_e.", ";
 								}
 							}else{
-								$va_success = array_merge($va_success, $va_nonbib_attempt);
+								$va_success = array_merge($va_success, 
+									$va_nonbib_attempt);
 							}
 						}else{
 							foreach ($va_item_errors as $key => $value) {
-								$va_errors[$key] = $va_errors[$key]."M".$media_id." ".implode(", ", $va_item_errors[$key])."; ";
+								$va_errors[$key] = $va_errors[$key].
+									"M".$media_id." ".
+									implode(", ", $va_item_errors[$key])."; ";
 							}
 						}
 					}
 				}	
 
-				# Construct error and success messages
+				// Construct error and success messages
 				if (sizeof($va_errors) > 0) {
 					$vs_message = "There were errors.";
 					foreach ($va_errors as $key => $value) {
 						$vs_message = $vs_message." ".$key.": ".$value;
 					}
-					$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_ERROR__);
+					$this->notification->addNotification($vs_message, 
+						__NOTIFICATION_TYPE_ERROR__);
 				}else{
 					if (sizeof($va_success) > 0) {
-						$vs_message = "General details successfully updated for selected media groups.";
-						$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+						$vs_message = "General details successfully updated for 
+							selected media groups.";
+						$this->notification->addNotification($vs_message, 
+							__NOTIFICATION_TYPE_INFO__);
 					}
 				}
 			}
@@ -385,21 +377,44 @@
 		}
 		# -------------------------------------------------------
 		public function batchScanOriginSave() {
-			# Error and message variables
+			// Error and message variables
 			$va_attempt = array();
 			$va_errors = array();
 			$va_success = array();
 			$vs_message = "";
 
-			$f_types = array("facility_id" => pInteger, "scanner_id" => pInteger, "scanner_x_resolution" => pFloat, "scanner_y_resolution" => pFloat, "scanner_z_resolution" => pFloat, "scanner_voltage" => pFloat, "scanner_amperage" => pFloat, "scanner_watts" => pFloat, "scanner_exposure_time" => pFloat, "scanner_filter" => pString, "scanner_projections" => pString, "scanner_frame_averaging" => pString, "scanner_wedge" => pString, "scanner_calibration_shading_correction" => pInteger, "scanner_calibration_flux_normalization" => pInteger, "scanner_calibration_geometric_calibration" => pInteger, "scanner_calibration_description" => pString, "scanner_technicians" => pString);
+			// Form fields
+			$f_types = array(
+				"facility_id" => pInteger, 
+				"scanner_id" => pInteger, 
+				"scanner_x_resolution" => pFloat, 
+				"scanner_y_resolution" => pFloat, 
+				"scanner_z_resolution" => pFloat, 
+				"scanner_voltage" => pFloat, 
+				"scanner_amperage" => pFloat, 
+				"scanner_watts" => pFloat, 
+				"scanner_exposure_time" => pFloat, 
+				"scanner_filter" => pString, 
+				"scanner_projections" => pString, 
+				"scanner_frame_averaging" => pString, 
+				"scanner_wedge" => pString, 
+				"scanner_calibration_shading_correction" => pInteger, 
+				"scanner_calibration_flux_normalization" => pInteger, 
+				"scanner_calibration_geometric_calibration" => pInteger, 
+				"scanner_calibration_description" => pString, 
+				"scanner_technicians" => pString);
+
 			$f_val = array();
 			foreach ($f_types as $f => $ftype) {
 				$f_val[$f] = $this->request->getParameter($f, $ftype);
 			}
 
+			// Save logic
 			$va_media_ids = $this->request->getParameter('media_ids', pArray);
 			if(!is_array($va_media_ids)){
-				$this->notification->addNotification("You did not select any media groups.", __NOTIFICATION_TYPE_ERROR__);
+				$this->notification->addNotification(
+					"You did not select any media groups.", 
+					__NOTIFICATION_TYPE_ERROR__);
 			}else{
 				$t_media = new ms_media();
 				foreach ($va_media_ids as $media_id) {
@@ -420,45 +435,51 @@
 						}
 					}
 
+					// Was there an attempt to update any fields?
 					if ($media_set == TRUE) {
 						if (sizeof($va_item_errors) == 0) {
-							# do update
+							// Do update
 							$t_media->setMode(ACCESS_WRITE);
 							$t_media->update();
 								
 							if ($t_media->numErrors()) {
 								foreach ($t_media->getErrors() as $vs_e) {  
-									$va_errors["general"] = $va_errors["general"]."M".$media_id." ".$vs_e.", ";
+									$va_errors["general"] = 
+										$va_errors["general"].
+										"M".$media_id." ".$vs_e.", ";
 								}
 							}else {
-								$va_success = array_merge($va_success, $va_attempt);
+								$va_success = array_merge($va_success, 
+									$va_attempt);
 							}
 						}else{
 							foreach ($va_item_errors as $key => $value) {
-								$va_errors[$key] = $va_errors[$key]."M".$media_id." ".implode(", ", $va_item_errors[$key])."; ";
+								$va_errors[$key] = $va_errors[$key].
+									"M".$media_id." ".
+									implode(", ", $va_item_errors[$key])."; ";
 							}
 						}
 					}
 				}
 
-				# Construct error and success messages
+				// Construct error and success messages
 				if (sizeof($va_errors) > 0) {
 					$vs_message = "There were errors.";
 					foreach ($va_errors as $key => $value) {
 						$vs_message = $vs_message." ".$key.": ".$value;
 					}
-					$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_ERROR__);
+					$this->notification->addNotification($vs_message, 
+						__NOTIFICATION_TYPE_ERROR__);
 				}else{
 					if (sizeof($va_success) > 0) {
-						$vs_message = "Scan origin details successfully updated for selected media groups.";
-						$this->notification->addNotification($vs_message, __NOTIFICATION_TYPE_INFO__);
+						$vs_message = "Scan origin details successfully updated 
+							for selected media groups.";
+						$this->notification->addNotification($vs_message, 
+							__NOTIFICATION_TYPE_INFO__);
 					}
 				}
 				
 			}
-			// print_r($va_attempt);
-			// print_r($va_errors);
-			// print_r($va_success);
 			$this->dashboard();
 		}
  		# -------------------------------------------------------

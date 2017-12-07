@@ -557,7 +557,8 @@ class ms_projects extends BaseModel {
 		$vs_order_by = "";
 		switch($ps_order_by){
 			case "number":
-				$vs_order_by = " s.institution_code, s.collection_code, s.catalog_number";
+				$vs_order_by = " s.institution_code, s.collection_code, 
+					s.catalog_number";
 			break;
 			# -----------------
 			case "taxon":
@@ -578,7 +579,11 @@ class ms_projects extends BaseModel {
 		}
 		
 		$vs_select_join = "
-			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id, m.element, m.created_on, m.last_modified_on, s.institution_code, s.collection_code, s.catalog_number, t.taxon_id, t.species, t.genus, t.ht_family, t.ht_order, t.ht_class 
+			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
+				m.title, m.project_id, m.element, m.created_on, 
+				m.last_modified_on, s.institution_code, s.collection_code, 
+				s.catalog_number, t.taxon_id, t.species, t.genus, t.ht_family, 
+				t.ht_order, t.ht_class 
 			FROM ms_media m
 			LEFT JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
 			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = m.specimen_id
@@ -596,31 +601,16 @@ class ms_projects extends BaseModel {
 				ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
 		}
 
-		// $va_entity = array();
-		// $t_media = new ms_media();
-		// while ($qr->nextRow()) {
-		// 	$va_media = $qr->getRow();
-
-		// 	if(!isset($va_entity[$va_media['media_id']])) {
-		// 		$va_media['preview'] = 
-		// 			$t_media->getPreviewMediaFile($va_media['media_id']); 
-		// 		$va_entity[$va_media['media_id']] = $va_media;
-
-		// 	}
-		// }
-
-		// echo "<pre>";
-		// print_r($va_entity);
-		// echo "</pre>";
-		// return $va_entity;
 		return $qr;
 	}
 	# ----------------------------------------
 	# --- $pn_owned_by true returns only media owned directly by the project - this excludes read only media
 	function getProjectMediaNestTaxonomy($pn_owned_by = null, $pb_vertnet = false) {
+		// Return media groups in a series of nested taxonomic (family, order, etc.) arrays
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
 
+		// Constructing db query
 		if(!$ps_order_by){
 			$ps_order_by = "media_id";
 		}
@@ -628,7 +618,8 @@ class ms_projects extends BaseModel {
 		$vs_order_by = "";
 		switch($ps_order_by){
 			case "number":
-				$vs_order_by = " s.institution_code, s.collection_code, s.catalog_number";
+				$vs_order_by = " s.institution_code, s.collection_code, 
+					s.catalog_number";
 			break;
 			# -----------------
 			case "taxon":
@@ -650,7 +641,13 @@ class ms_projects extends BaseModel {
 		
 		if($pb_vertnet){
 			$vs_select_join = "
-			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id, m.element, m.created_on, m.last_modified_on, s.institution_code, s.collection_code, s.catalog_number, t.taxon_id, t.species, t.genus, g.name AS 'vn_genus', f.name AS 'ht_family', o.name AS 'ht_order', c.name AS 'ht_class', g.taxon_id AS 'vn_taxon_id' 
+			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
+				m.title, m.project_id, m.element, m.created_on, 
+				m.last_modified_on, s.institution_code, s.collection_code, 
+				s.catalog_number, t.taxon_id, t.species, t.genus, 
+				g.name AS 'vn_genus', f.name AS 'ht_family', 
+				o.name AS 'ht_order', c.name AS 'ht_class', 
+				g.taxon_id AS 'vn_taxon_id' 
 			FROM ms_media m
 			LEFT JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
 			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = m.specimen_id
@@ -662,29 +659,30 @@ class ms_projects extends BaseModel {
 			LEFT JOIN ms_resolved_taxonomy AS  c ON o.parent_id = c.taxon_id ";
 		}else{
 			$vs_select_join = "
-			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, m.title, m.project_id, m.element, m.created_on, m.last_modified_on, s.institution_code, s.collection_code, s.catalog_number, t.taxon_id, t.species, t.genus, t.ht_family, t.ht_order, t.ht_class 
+			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
+			m.title, m.project_id, m.element, m.created_on, m.last_modified_on, 
+			s.institution_code, s.collection_code, s.catalog_number, t.taxon_id, 
+			t.species, t.genus, t.ht_family, t.ht_order, t.ht_class 
 			FROM ms_media m
 			LEFT JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
 			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = m.specimen_id
 			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id ";
 		}
 		
-
 		$o_db = $this->getDb();
 		if($pn_owned_by){
-			$qr = $o_db->query($vs_select_join."
-				WHERE m.project_id = ?
-				ORDER BY".$vs_order_by, $vn_project_id);
+			$qr = $o_db->query($vs_select_join."WHERE m.project_id = ? ORDER BY".
+				$vs_order_by, $vn_project_id);
 		}else{
 			$qr = $o_db->query($vs_select_join."
-				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
-				WHERE (m.project_id = ? OR mxp.project_id = ?)
+				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id 
+				WHERE (m.project_id = ? OR mxp.project_id = ?) 
 				ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
 		}
 		
+		// Constructing taxonomically nested arrays 
 		$va_taxon_levels = ['Class' => 'ht_class', 'Order' => 'ht_order', 
-			'Family' => 'ht_family', 'Genus' => 'genus', 
-			'Species' => 'species'];
+			'Family' => 'ht_family', 'Genus' => 'genus', 'Species' => 'species'];
 
 		$t_media = new ms_media();
 		$va_nm = array();
@@ -692,7 +690,8 @@ class ms_projects extends BaseModel {
 
 		while ($qr->nextRow()) {
 			$va_media = $qr->getRow();
-			$va_media['preview'] = $t_media->getPreviewMediaFile($va_media['media_id']);
+			$va_media['preview'] = 
+				$t_media->getPreviewMediaFile($va_media['media_id']);
 
 			$va_st = array();
 			$va_no_link = array();
@@ -708,13 +707,21 @@ class ms_projects extends BaseModel {
 				$va_no_link[$vs_taxon_name] = $vb_no_link;
 			}
 
-			if ($va_no_link["ht_class"]) { $va_nm[$va_st["ht_class"]]["no_link"] = $va_no_link["ht_class"]; }
-			if ($va_no_link["ht_order"]) { $va_nm[$va_st["ht_class"]][$va_st["ht_order"]]["no_link"] = $va_no_link["ht_order"]; }
-			if ($va_no_link["ht_family"]) { $va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]]["no_link"] = $va_no_link["ht_family"]; }
-			if ($va_no_link["genus"]) { $va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]]["no_link"] = $va_no_link["genus"]; }
-			if ($va_no_link["species"]) { $va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["no_link"] = $va_no_link["species"]; }
-
-
+			if ($va_no_link["ht_class"]) { 
+				$va_nm[$va_st["ht_class"]]["no_link"] = $va_no_link["ht_class"]; 
+			}
+			if ($va_no_link["ht_order"]) { 
+				$va_nm[$va_st["ht_class"]][$va_st["ht_order"]]["no_link"] = $va_no_link["ht_order"]; 
+			}
+			if ($va_no_link["ht_family"]) { 
+				$va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]]["no_link"] = $va_no_link["ht_family"]; 
+			}
+			if ($va_no_link["genus"]) { 
+				$va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]]["no_link"] = $va_no_link["genus"]; 
+			}
+			if ($va_no_link["species"]) { 
+				$va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["no_link"] = $va_no_link["species"]; 
+			}
 
 			if (!isset($va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$va_media['media_id']])) {
 				$va_nm[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$va_media['media_id']] = $va_media;
@@ -726,9 +733,6 @@ class ms_projects extends BaseModel {
 			}
 		}
 
-		// echo "<pre>";
-		// print_r($va_nm);
-		// echo "</pre>";
 		return array("media" => $va_nm, "numMedia" => $vn_count);
 	}
 	# ----------------------------------------
@@ -771,16 +775,7 @@ class ms_projects extends BaseModel {
 			break;
 		}
 		
-		$o_db = $this->getDb();
-// 		$qr = $o_db->query("
-// 			SELECT s.*, m.media_id, m.media
-// 			FROM ms_specimens s
-// 			LEFT JOIN ms_media AS m ON s.specimen_id = m.specimen_id
-// 			WHERE m.project_id = ?
-// 			ORDER BY s.specimen_id
-// 		", $vn_project_id);
-		
-		
+		$o_db = $this->getDb();		
 		$qr = $o_db->query("
 			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen
 			FROM ms_specimens s
@@ -829,6 +824,7 @@ class ms_projects extends BaseModel {
 	# options include taxonomy_type = ht_family, genus, or species; taxonomy_term = name of ht_family, genus or species to limit query to
 	# ----------------------------------------
 	function getProjectSpecimensNestTaxonomy($pa_versions=null, $pb_vertnet=false, $pa_options=null) {
+		// Return specimens in a series of nested taxonomic (family, order, etc.) arrays
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
 		
@@ -836,7 +832,9 @@ class ms_projects extends BaseModel {
 			$pa_options = array();
 		}
 
-		$vs_order_by = " s.institution_code, s.collection_code, s.catalog_number";
+		// Constructing db query
+		$vs_order_by = " s.institution_code, s.collection_code, 
+			s.catalog_number";
 		
 		$vs_published_where = "";
 		if($pa_options["published_media_only"]){
@@ -845,7 +843,11 @@ class ms_projects extends BaseModel {
 		
 		if($pb_vertnet){
 			$vs_select_from = "
-			SELECT s.*, m.media_id, m.published, p.name AS 'project_name', u.fname, u.lname, u.email, sp.link_id AS 'linked_specimen',  t.species, t.genus AS 'genus', g.name AS 'vn_genus', f.name AS 'ht_family', o.name AS 'ht_order', c.name AS 'ht_class', t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
+			SELECT s.*, m.media_id, m.published, p.name AS 'project_name', 
+				u.fname, u.lname, u.email, sp.link_id AS 'linked_specimen', 
+				t.species, t.genus AS 'genus', g.name AS 'vn_genus', 
+				f.name AS 'ht_family', o.name AS 'ht_order', 
+				c.name AS 'ht_class', t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
@@ -862,7 +864,10 @@ class ms_projects extends BaseModel {
 			LEFT JOIN ms_resolved_taxonomy AS  c ON o.parent_id = c.taxon_id ";
 		}else{
 			$vs_select_from = "
-			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen, t.species, t.genus, t.ht_family, t.ht_order, t.ht_class, t.taxon_id
+			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, 
+				u.fname, u.lname, u.email, sp.link_id linked_specimen, 
+				t.species, t.genus, t.ht_family, t.ht_order, t.ht_class, 
+				t.taxon_id
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
@@ -874,7 +879,7 @@ class ms_projects extends BaseModel {
 			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id ";
 		}
 
-		$o_db = $this->getDb();		
+		$o_db = $this->getDb();
 		if($pa_options["taxonomy_type"] && $pa_options["taxonomy_term"]){
 			$qr = $o_db->query($vs_select_from."
 				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
@@ -882,20 +887,22 @@ class ms_projects extends BaseModel {
 				OR m.project_id = ?
 				OR mp.project_id = ?
 				OR sp.project_id = ?)
-				AND (t.".$pa_options["taxonomy_type"]." = ?) ".$vs_published_where."
-				ORDER BY ".$vs_order_by
-			, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id, $pa_options["taxonomy_term"]);
+				AND (t.".$pa_options["taxonomy_type"]." = ?) ".
+				$vs_published_where." ORDER BY ".$vs_order_by, $vn_project_id, 
+				$vn_project_id, $vn_project_id, $vn_project_id, 
+				$pa_options["taxonomy_term"]);
 		}else{
 			$qr = $o_db->query($vs_select_from."
 				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
 				(s.project_id = ?
 				OR m.project_id = ?
 				OR mp.project_id = ?
-				OR sp.project_id = ?)".$vs_published_where."
-				ORDER BY ".$vs_order_by
-			, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
+				OR sp.project_id = ?)".$vs_published_where." ORDER BY ".
+				$vs_order_by, $vn_project_id, $vn_project_id, $vn_project_id, 
+				$vn_project_id);
 		}	
-			
+
+		// Constructing taxonomically nested arrays 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
 			$pa_versions = array('small', 'preview190');
 		}
@@ -922,11 +929,21 @@ class ms_projects extends BaseModel {
 				$va_no_link[$vs_taxon_name] = $vb_no_link;
 			}
 
-			if ($va_no_link["ht_class"]) { $va_ns[$va_st["ht_class"]]["no_link"] = $va_no_link["ht_class"]; }
-			if ($va_no_link["ht_order"]) { $va_ns[$va_st["ht_class"]][$va_st["ht_order"]]["no_link"] = $va_no_link["ht_order"]; }
-			if ($va_no_link["ht_family"]) { $va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]]["no_link"] = $va_no_link["ht_family"]; }
-			if ($va_no_link["genus"]) { $va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]]["no_link"] = $va_no_link["genus"]; }
-			if ($va_no_link["species"]) { $va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["no_link"] = $va_no_link["species"]; }
+			if ($va_no_link["ht_class"]) { 
+				$va_ns[$va_st["ht_class"]]["no_link"] = $va_no_link["ht_class"]; 
+			}
+			if ($va_no_link["ht_order"]) { 
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]]["no_link"] = $va_no_link["ht_order"]; 
+			}
+			if ($va_no_link["ht_family"]) { 
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]]["no_link"] = $va_no_link["ht_family"]; 
+			}
+			if ($va_no_link["genus"]) { 
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]]["no_link"] = $va_no_link["genus"]; 
+			}
+			if ($va_no_link["species"]) { 
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["no_link"] = $va_no_link["species"]; 
+			}
 
 			if (!isset($va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']])) {
 				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']] = $va_specimen;
@@ -1055,18 +1072,18 @@ class ms_projects extends BaseModel {
 				
 				$vn_count++;
 			}
-			// if ($vn_media_id = $va_specimen['media_id']) {
-			// 	$t_media = new ms_media();
-			// 	$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
-			// 	$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
-			// 	$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
-			// 	foreach($pa_versions as $vs_version) {
-			// 		$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
-			// 		$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
-			// 		$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
-			// 		$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
-			// 	}
-			// }
+			if ($vn_media_id = $va_specimen['media_id']) {
+				$t_media = new ms_media();
+				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
+				$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
+				$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
+				foreach($pa_versions as $vs_version) {
+					$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+					$va_specimens_by_taxonomy[$vs_group_by]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+					$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+					$va_specimens_by_taxonomy[$vs_group_by]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+				}
+			}
 		}
 
 		return array("specimen" => $va_specimens_by_taxonomy, "numSpecimen" => $vn_count);
