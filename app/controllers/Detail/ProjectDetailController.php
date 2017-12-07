@@ -138,7 +138,7 @@
 				return;
 			}
 			# --- are we showing by genus or species?
-			$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			$vs_specimens_group_by = $this->request->session->getVar('sBT_taxon_term');
 			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
 				$vs_specimens_group_by = "genus";
 			}
@@ -167,7 +167,7 @@
 				return;
 			}
 			# --- are we showing those missing genus, species, or family?
-			$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
 			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
 				$vs_specimens_group_by = "genus";
 			}
