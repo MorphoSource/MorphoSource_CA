@@ -2,5 +2,11 @@
 media/*
 app/tmp/*
 
+# Web server local config
+.htaccess
+
 # Setup File
 setup.php
+
+# Local extra files directory
+etc/*
