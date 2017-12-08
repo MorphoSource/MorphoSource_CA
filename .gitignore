@@ -1,0 +1,12 @@
+# Directories where CollectiveAccess stores data (temporary or permanent)
+media/*
+app/tmp/*
+
+# Web server local config
+.htaccess
+
+# Setup File
+setup.php
+
+# Local extra files directory
+etc/*

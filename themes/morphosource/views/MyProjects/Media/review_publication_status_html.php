@@ -10,7 +10,7 @@
 ?>
 	<div class="blueRule"><!-- empty --></div>
 	<H1 class="capitalize">
-		<div style="float:right;"><?php print caNavLink($this->request, _t("Back to List"), "button buttonLarge", "MyProjects", "Media", "listItems"); ?></div>
+		<div style="float:right;"><?php print caNavLink($this->request, "Back to Dashboard", "button buttonLarge", "MyProjects", "Dashboard", "dashboard"); ?></div>
 		Media Publication Settings
 	</H1>
 <?php
