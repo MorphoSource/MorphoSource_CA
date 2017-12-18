@@ -344,7 +344,12 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 					if(file_exists($this->filepath)){
 						if (file_exists("/usr/local/bin/meshlabserver")) {
 							chdir('/usr/local/bin');
-							exec("export LD_LIBRARY_PATH=/lib/ ; xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+							$vs_env_saved = getenv("LD_LIBRARY_PATH"); 
+							$vs_env_new = "/lib/"; 
+							if ($vs_env_saved) { $vs_env_new .= ":$vs_env_saved"; } 
+							putenv("LD_LIBRARY_PATH=$vs_env_new"); 
+							exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+							putenv("LD_LIBRARY_PATH=$vs_env_saved");
 							return $ps_filepath.'.stl';	
 						} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
 							return $ps_filepath.'.stl';	
