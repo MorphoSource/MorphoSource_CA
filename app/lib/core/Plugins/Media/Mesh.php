@@ -330,7 +330,6 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				if(file_exists($this->filepath)){
 					if (file_exists("/usr/local/bin/ctmconv")) {
 						exec("/usr/local/bin/ctmconv ".$this->filepath." {$ps_filepath}.ctm --method MG2 --level 9 2>&1", $va_output);
-						
 						return $ps_filepath.'.ctm';	
 					} else {
 						@unlink($ps_filepath.'.ctm');
@@ -344,9 +343,8 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 				if(($this->properties['mimetype'] == 'application/ply') && ($ps_mimetype == 'application/stl')){
 					if(file_exists($this->filepath)){
 						if (file_exists("/usr/local/bin/meshlabserver")) {
-							putenv("DISPLAY=:0");
 							chdir('/usr/local/bin');
-							exec("/usr/local/bin/meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+							exec("export LD_LIBRARY_PATH=/lib/ ; xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
 							return $ps_filepath.'.stl';	
 						} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
 							return $ps_filepath.'.stl';	
