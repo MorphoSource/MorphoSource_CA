@@ -830,13 +830,27 @@ class ms_specimens extends BaseModel {
 						$vb_taxon_linked = false;
 						$vb_taxon_created = false;
 						$o_search = new TaxonomyNamesSearch();
-						$q_taxon_hits = $o_search->search(trim($va_specimen_info["indexTerms"]["specificepithet"]." ".$va_specimen_info["indexTerms"]["genus"]." ".$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", array('sort' => 'ms_taxonomy_names.genus'));
+						$q_taxon_hits = $o_search->search(
+											trim($va_specimen_info["indexTerms"]["genus"]." ".
+												$va_specimen_info["indexTerms"]["specificepithet"]." ".
+												$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", 
+											array('sort' => 'ms_taxonomy_names.genus')
+										);
+					
 						if($q_taxon_hits->numHits() > 0){
-							$q_taxon_hits->nextHit();
-							$vn_taxon_id = $q_taxon_hits->get("taxon_id");
-							$vn_alt_id = $q_taxon_hits->get("alt_id");
-							$vb_taxon_linked = true;		
-						}else{
+							while($q_taxon_hits->nextHit()){
+								if(($q_taxon_hits->get("genus") == $va_specimen_info["indexTerms"]["genus"]) 
+									&& ($q_taxon_hits->get("species") == $va_specimen_info["indexTerms"]["specificepithet"]) 
+									&& ($q_taxon_hits->get("subspecies") == $va_specimen_info["indexTerms"]["infraspecificepithet"])
+								){
+									$vn_taxon_id = $q_taxon_hits->get("taxon_id");
+									$vn_alt_id = $q_taxon_hits->get("alt_id");
+									$vb_taxon_linked = true;
+									break;
+								}
+							}
+						}
+						if(!$vb_taxon_linked){
 							# --- add the ms_taxonomy record
 							$t_taxonomy = new ms_taxonomy();
 							$t_taxonomy->set('project_id', $vn_project_id);
