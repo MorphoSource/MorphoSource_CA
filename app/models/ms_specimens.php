@@ -831,11 +831,11 @@ class ms_specimens extends BaseModel {
 						$vb_taxon_created = false;
 						$o_search = new TaxonomyNamesSearch();
 						$q_taxon_hits = $o_search->search(
-											trim($va_specimen_info["indexTerms"]["genus"]." ".
-												$va_specimen_info["indexTerms"]["specificepithet"]." ".
-												$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", 
-											array('sort' => 'ms_taxonomy_names.genus')
-										);
+							trim($va_specimen_info["indexTerms"]["genus"]." ".
+								$va_specimen_info["indexTerms"]["specificepithet"]." ".
+								$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", 
+							array('sort' => 'ms_taxonomy_names.genus')
+						);
 					
 						if($q_taxon_hits->numHits() > 0){
 							while($q_taxon_hits->nextHit()){
