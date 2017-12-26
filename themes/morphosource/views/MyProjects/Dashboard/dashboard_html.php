@@ -221,6 +221,10 @@
 			print "<a href='#' name='mediaBatchButton' ". 
 				"class='button buttonMedium buttonWhiteBorder' id='mediaBatchButton' ".
 				"title='Batch edit media groups' >Batch Edit</a>";
+			print caNavLink($this->request, _t("Add All Media to Cart"), 
+				"button buttonMedium buttonWhiteBorder", "", "MediaCart", 
+				"addProjectMediaToCart", 
+				array("project_id" => $t_project->get("project_id")));
 		}
 
 		$sort_opt_selected = $this->getVar("specimens_group_by");
