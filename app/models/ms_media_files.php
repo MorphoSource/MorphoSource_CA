@@ -634,6 +634,8 @@ class ms_media_files extends BaseModel {
 									"Max X distance btw points of mesh coordinates (mm)",
 									"Max 3D distance btw two most distant points on mesh surface (mm)",
 									"technicians",
+									"date uploaded",
+									"published on MorphoSource",
 									"grant support",
 									"copyright holder",
 									"copyright license",
@@ -716,8 +718,10 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"));
 					$va_media_md[] = $q_media_files->get("max_distance_x");
 					$va_media_md[] = $q_media_files->get("max_distance_3d");
-					
 					$va_media_md[] = $q_media_files->get("scanner_technicians");
+
+					$va_media_md[] = caGetLocalizedDate($q_media_files->get("created_on"), array('dateFormat' => delimited));
+					$va_media_md[] = $this->formatPublishedText($q_media_files->get("published"));
 					$va_media_md[] = $q_media_files->get("grant_support");
 					$va_media_md[] = $q_media_files->get("copyright_info");
 					$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->getChoiceListValue("copyright_license"));
@@ -738,6 +742,32 @@ class ms_media_files extends BaseModel {
 			return array();
 		}
 	}
-	
+	# ------------------------------------------------------
+	/* 
+	*
+	*/
+	public function formatPublishedText($pn_published=null) {
+		if (!isset($pn_published)) {
+			$pn_published = $this->get("published");
+		}
+		$vs_publish_text = "";
+		switch($pn_published){
+			# ------------------------------
+			case 0:
+				$vs_publish_text = "Unpublished";
+			break;
+			# ------------------------------
+			case 1:
+				$vs_publish_text = "Published with unrestricted download";
+			break;
+			# ------------------------------
+			case 2:
+				$vs_publish_text = "Published with restricted download";
+			break;
+			# ------------------------------
+		}
+ 		
+ 		return $vs_publish_text;
+	}
 	# ------------------------------------------------------
 }
