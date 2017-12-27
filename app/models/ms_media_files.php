@@ -635,6 +635,7 @@ class ms_media_files extends BaseModel {
 									"Max 3D distance btw two most distant points on mesh surface (mm)",
 									"technicians",
 									"date uploaded",
+									"time uploaded",
 									"published on MorphoSource",
 									"grant support",
 									"copyright holder",
@@ -720,7 +721,8 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $q_media_files->get("max_distance_3d");
 					$va_media_md[] = $q_media_files->get("scanner_technicians");
 
-					$va_media_md[] = caGetLocalizedDate($q_media_files->get("created_on"), array('dateFormat' => delimited));
+					$va_media_md[] = caGetLocalizedDate($q_media_files->get("created_on"), array('dateFormat' => delimited, 'timeOmit' => true));
+					$va_media_md[] = caGetLocalizedDate($q_media_files->get("created_on"), array('dateFormat' => delimited, 'timeOnly' => true));
 					$va_media_md[] = $this->formatPublishedText($q_media_files->get("published"));
 					$va_media_md[] = $q_media_files->get("grant_support");
 					$va_media_md[] = $q_media_files->get("copyright_info");
