@@ -32,6 +32,7 @@
 	require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 	require_once(__CA_MODELS_DIR__."/ms_project_users.php");
 	require_once(__CA_MODELS_DIR__."/ms_media.php");
+	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
 	require_once(__CA_MODELS_DIR__."/ca_users.php");
 
 BaseModel::$s_ca_models_definitions['ms_projects'] = array(
@@ -1378,6 +1379,24 @@ class ms_projects extends BaseModel {
 			$t_media->update();
 			if ($t_media->numErrors() == 0) {
 				$vn_pub_count++;
+				# Publish ARKs for any newly published media files
+				$va_media_files = $t_media->getMediaFiles();
+				if (sizeof($va_media_files)) {
+					foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+						if (is_null($t_media_file->get("published")) 
+							|| ($t_media_file->get("published") === ""))
+						{
+							$t_user = new ca_users(
+								($t_media_file->get('user_id') ? 
+								$t_media_file->get('user_id') : 
+								$this->get('user_id')));
+							$va_ark = $t_media_file->publishARK(
+								$vs_user_fname = $t_user->get('fname'),
+								$vs_user_lname = $t_user->get('lname')
+							);
+						}
+					}
+				}
 			}
 		}
 		
@@ -1407,6 +1426,14 @@ class ms_projects extends BaseModel {
 			$t_media_file->update();
 			if ($t_media_file->numErrors() == 0) {
 				$vn_pub_count++;
+				# Publish ARK
+				$t_user = new ca_users(($t_media_file->get('user_id') ? 
+					$t_media_file->get('user_id') : 
+					$this->get('user_id')));
+				$va_ark = $t_media_file->publishARK(
+					$vs_user_fname = $t_user->get('fname'),
+					$vs_user_lname = $t_user->get('lname')
+				);
 			}
 		}
 		

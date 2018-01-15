@@ -111,8 +111,13 @@
 						print "<br/>";
 					}
 					if ($vs_doi = $q_media_files->get('doi')) { 
-						$va_doi = preg_split("![ ]*\|[ ]*!", $vs_doi);
-						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".trim($va_doi[0])."'>{$va_doi[0]}</a>";
+						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".trim($vs_doi)."'>{$vs_doi}</a>";
+					}
+					if (($vs_ark = $q_media_files->get('ark')) 
+						&& (!$q_media_files->get('ark_reserved'))) 
+					{ 
+						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".
+							trim($vs_ark)."'>{$vs_ark}</a>";
 					}
 					print $vs_file_info;
 					$vs_side = $t_media_file->getChoiceListValue("side", $q_media_files->get("side"));
@@ -145,6 +150,11 @@
 			print $q_media_files->get("doi");
 		}else{
 			print "not requested by data author or assigned";
+		}
+		
+		if($q_media_files->get("ark") && !$q_media_files->get("ark_reserved")){
+			print "<br/><b>ARK:</b> ";
+			print $q_media_files->get("ark");
 		}
 ?>
 		<br/><br/><b>Public URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
