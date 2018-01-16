@@ -33,6 +33,7 @@
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_projects.php");
 require_once(__CA_MODELS_DIR__."/ms_media_files_multifiles.php");
+require_once(__CA_LIB_DIR__.'/ms/ARK.php');
 
 BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
@@ -190,6 +191,23 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 				'IS_NULL' => true, 
 				'DEFAULT' => '',
 				'LABEL' => _t('DOI'), 'DESCRIPTION' => _t('DOI for media.')
+		),
+		'ark' => array(
+				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_HIDDEN, 
+				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('ARK'), 'DESCRIPTION' => _t('ARK for media.')
+		),
+		'ark_reserved' => array(
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_OMIT, 
+				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
+				'IS_NULL' => true, 
+				'DEFAULT' => '',
+				'LABEL' => _t('ARK Reserved Status'), 'DESCRIPTION' => _t('Whether ARK is reserved (i.e., non-public)'),
+				"BOUNDS_CHOICE_LIST"=> array(
+					_t('Reserved') => 1
+				)
 		),
 		'published_on' => array(
 				'FIELD_TYPE' => FT_DATETIME, 'DISPLAY_TYPE' => DT_OMIT,
@@ -772,4 +790,271 @@ class ms_media_files extends BaseModel {
  		return $vs_publish_text;
 	}
 	# ------------------------------------------------------
+ 	# Persistent identifier (DOI, ARK) methods
+ 	# ------------------------------------------------------
+ 	/*
+ 	 *
+ 	 */
+ 	public function getARK($va_reserved=true, $vs_user_fname=null, $vs_user_lname=null) {
+ 		$va_ark = array();
+ 		if(!$this->getPrimaryKey()) { 
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file does not have media file id.";
+ 		}
+ 		if($this->get("ark")) {
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file already has an ARK.";
+ 		}
+
+ 		if ($va_reserved) {
+ 			$va_metadata = array("_status" => "reserved", "_export" => "no");
+ 		} else {
+ 			if (!vs_user_fname || !vs_user_lname) {
+ 				$va_ark["success"] = false;
+ 				$va_ark["error"] = "User first and last names not provided.";
+ 			}
+ 			
+ 			$vs_mime_type = strtolower(
+ 				$this->getMediaInfo('media', 'original', 'MIMETYPE'));
+			$va_mime_type = explode('/', $vs_mime_type);
+	
+			switch($va_mime_type[0]) {
+				case 'image':
+					$vs_resource_type = 'Image';
+					break;
+				case 'audio':
+				case 'video':
+					$vs_resource_type = 'Audiovisual';
+					break;
+				case 'application':
+					switch($vs_mime_type) {
+						case 'application/ply':
+						case 'application/stl':
+						case 'application/surf':
+						case 'text/prs.wavefront-obj':
+							$vs_resource_type = 'Model';	
+							break(2);
+						case 'application/zip':
+							$vs_resource_type = 'Dataset';	
+							break(2);
+						case 'application/dicom':
+							$vs_resource_type = 'Image';	
+							break(2);
+					}
+				default:
+					$vs_resource_type = 'Other';
+					break;
+			}
+
+			$va_metadata = array(
+				"datacite.creator" => trim($vs_user_fname.' '.$vs_user_lname),
+				"datacite.title" => 
+					"M".$this->get("media_id")."-".$this->getPrimaryKey(),
+				"datacite.publisher" => "MorphoSource.org",
+				"datacite.publicationyear" => date("Y"),
+				"datacite.resourcetype" => $vs_resource_type,	
+				"_target" => "http://MorphoSource.org/index.php/Detail/".
+					"MediaDetail/Show/media_file_id/".$this->getPrimaryKey(),
+				"_status" => "public",
+				"_export" => "yes",
+				"_profile" => "datacite"
+			);
+ 		}
+
+ 		$o_ark = new ARK();
+		try {
+			if ($vs_ark = $o_ark->createARK("M".$this->getPrimaryKey(), 
+				$va_metadata)) 
+			{
+				# --- record the ARK in the DB
+				$this->set("ark", $vs_ark);
+				if ($va_reserved) { $this->set("ark_reserved", 1); }
+				$this->setMode(ACCESS_WRITE);
+				$this->update();
+				$va_ark["success"] = true;
+			} else { 
+				$va_ark["success"] = false;
+				$va_ark["error"] = "Could not get ARK for media: ".
+					$o_ark->getError();
+			}	
+		} catch (Exception $e) {
+			$va_ark["success"] = false;
+			$va_ark["error"] = "Could not get ARK for media: ".$e->getMessage();
+		}
+		return $va_ark;
+ 	}
+ 	/*
+ 	 *
+ 	 */
+ 	public function publishARK($vs_user_fname=null, $vs_user_lname=null) {
+ 		$va_ark = array();
+ 		if(!$this->getPrimaryKey()) { 
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file does not have media file id.";
+ 		}
+
+ 		$vb_previously_published = false;
+ 		if(!$this->get("ark")) {
+ 			$this->getARK($va_reserved = true);
+ 		} elseif (!$this->get("ark_reserved")) {
+ 			$vb_previously_published = true;
+ 		}
+ 		if (!$vs_user_fname || !$vs_user_lname) {
+			$va_ark["success"] = false;
+			$va_ark["error"] = "User first and last names not provided.";
+ 		}
+
+ 		# Construct metadata
+ 		$vs_mime_type = strtolower(
+ 			$this->getMediaInfo('media', 'original', 'MIMETYPE'));
+		$va_mime_type = explode('/', $vs_mime_type);
+
+		switch($va_mime_type[0]) {
+			case 'image':
+				$vs_resource_type = 'Image';
+				break;
+			case 'audio':
+			case 'video':
+				$vs_resource_type = 'Audiovisual';
+				break;
+			case 'application':
+				switch($vs_mime_type) {
+					case 'application/ply':
+					case 'application/stl':
+					case 'application/surf':
+					case 'text/prs.wavefront-obj':
+						$vs_resource_type = 'Model';	
+						break(2);
+					case 'application/zip':
+						$vs_resource_type = 'Dataset';	
+						break(2);
+					case 'application/dicom':
+						$vs_resource_type = 'Image';	
+						break(2);
+				}
+			default:
+				$vs_resource_type = 'Other';
+				break;
+		}
+
+		if ($vb_previously_published) {
+			$va_metadata = array(
+				"_status" => "public",
+				"_export" => "yes"
+			);
+		} else {
+			$va_metadata = array(
+				"datacite.creator" => trim($vs_user_fname.' '.$vs_user_lname),
+				"datacite.title" => 
+					"M".$this->get("media_id")."-".$this->getPrimaryKey(),
+				"datacite.publisher" => "MorphoSource.org",
+				"datacite.publicationyear" => date("Y"),
+				"datacite.resourcetype" => $vs_resource_type,	
+				"_target" => "http://MorphoSource.org/index.php/Detail/".
+					"MediaDetail/Show/media_file_id/".$this->getPrimaryKey(),
+				"_status" => "public",
+				"_export" => "yes",
+				"_profile" => "datacite"
+			);
+		}
+		
+		$o_ark = new ARK();
+		try {
+			if ($vs_ark = $o_ark->modifyARK("M".$this->getPrimaryKey(), 
+				$va_metadata)) 
+			{
+				# --- record the ARK in the DB
+				$this->set("ark", $vs_ark);
+				$this->set("ark_reserved", null);
+				$this->setMode(ACCESS_WRITE);
+				$this->update();
+				$va_ark["success"] = true;
+			} else { 
+				$va_ark["success"] = false;
+				$va_ark["error"] = "Could not get ARK for media: ".
+					$o_ark->getError();
+			}	
+		} catch (Exception $e) {
+			$va_ark["success"] = false;
+			$va_ark["error"] = "Could not get ARK for media: ".$e->getMessage();
+		}
+		return $va_ark;
+ 	}
+ 	/*
+ 	 *
+ 	 */
+ 	public function unpublishARK() {
+ 		$va_ark = array();
+ 		if(!$this->getPrimaryKey()) { 
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file does not have media file id.";
+ 		}
+ 		if(!$this->get("ark") || $this->get("ark_reserved")) {
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file does not have an ARK or it is reserved.";
+ 		} 
+
+ 		# Construct metadata
+		$va_metadata = array(
+			"_status" => "unavailable",
+			"_export" => "no",
+		);
+
+		$o_ark = new ARK();
+		try {
+			if ($vs_ark = $o_ark->modifyARK("M".$this->getPrimaryKey(), 
+				$va_metadata)) 
+			{
+				# --- record the ARK in the DB
+				$this->set("ark", $vs_ark);
+				$this->set("ark_reserved", null);
+				$this->setMode(ACCESS_WRITE);
+				$this->update();
+				$va_ark["success"] = true;
+			} else { 
+				$va_ark["success"] = false;
+				$va_ark["error"] = "Could not get ARK for media: ".
+					$o_ark->getError();
+			}	
+		} catch (Exception $e) {
+			$va_ark["success"] = false;
+			$va_ark["error"] = "Could not get ARK for media: ".$e->getMessage();
+		}
+		return $va_ark;
+ 	}
+ 	/*
+ 	* Delete ARK (only possible if ARK is reserved)
+ 	*/
+ 	public function deleteARK() {
+ 		$va_ark = array();
+ 		if(!$this->getPrimaryKey()) { 
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file does not have media file id.";
+ 		}
+ 		if(!$this->get("ark") || !$this->get("ark_reserved")) {
+ 			$va_ark["success"] = false;
+ 			$va_ark["error"] = "Media file has no ARK or ARK is not reserved.";
+ 		} 
+
+		$o_ark = new ARK();
+		try {
+			if ($vs_ark = $o_ark->deleteARK("M".$this->getPrimaryKey())) 
+			{
+				# --- record the ARK in the DB
+				$this->set("ark", null);
+				$this->set("ark_reserved", null);
+				$this->setMode(ACCESS_WRITE);
+				$this->update();
+				$va_ark["success"] = true;
+			} else { 
+				$va_ark["success"] = false;
+				$va_ark["error"] = "Could not delete ARK for media: ".
+					$o_ark->getError();
+			}	
+		} catch (Exception $e) {
+			$va_ark["success"] = false;
+			$va_ark["error"] = "Could not delete ARK for media: ".$e->getMessage();
+		}
+		return $va_ark;
+ 	}
 }
