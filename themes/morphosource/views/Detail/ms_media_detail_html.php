@@ -10,7 +10,7 @@
 		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
 	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.ark, m.ark_reserved, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -138,7 +138,7 @@
 				#---- file level citation elements
 ?>
 				<br/><a href="#" onClick="jQuery('#fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-info'></i> Citation Elements</a>
-<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" style="display:none; padding:10px;">
+<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" style="display:none; padding:10px; word-wrap: break-word;">
 	<b>Media number:</b> 
 <?php
 		print "<b class='blueText'>M".$t_media->get("media_id")."-".$q_media_files->get("media_file_id")."</b><br/>";
@@ -147,6 +147,11 @@
 			print $q_media_files->get("doi");
 		}else{
 			print "not requested by data author or assigned";
+		}
+		
+		if($q_media_files->get("ark") && !$q_media_files->get("ark_reserved")){
+			print "<br/><b>ARK:</b> ";
+			print $q_media_files->get("ark");
 		}
 ?>
 		<br/><b>URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>

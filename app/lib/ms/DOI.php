@@ -17,11 +17,14 @@
 		}
 		# -------------------------------------------------------
 		public function createDOI($ps_id, $pa_metadata) {
-			$vs_username = $this->config->get('ezid_username');
-			$vs_password = $this->config->get('ezid_password');
-			$vs_shoulder = $this->config->get('ezid_shoulder');
+			$vs_root = $this->config->get('doi_url');
+			$vs_username = $this->config->get('doi_username');
+			$vs_password = $this->config->get('doi_password');
+			$vs_shoulder = $this->config->get('doi_shoulder');
 	
-			$vs_url = "https://ezid.cdlib.org/id/{$vs_shoulder}/{$ps_id}";
+			if (substr($vs_root, -1) != '/') { $vs_root = $vs_root.'/'; }
+
+			$vs_url = $vs_root.$vs_shoulder.'/'.$ps_id;
 			
 			foreach($pa_metadata as $vs_key => $vs_val) {
 				$vs_metadata .= "{$vs_key}: ".DOI::escapeForANVL($vs_val)."\n";
@@ -38,7 +41,11 @@
 				
 				if (preg_match("!^success:(.*)$!", $vs_response, $va_matches)) {
 					$this->error = null;
-					return $va_matches[1];
+					$vs_doi = $va_matches[1];
+					if (strpos($vs_doi, ' |') !== false) {
+						$vs_doi = substr($vs_doi, 0, strpos($vs_doi, ' |')); 
+					}
+					return $vs_doi;
 				} else {
 					$this->error = $vs_response;
 					return false;
