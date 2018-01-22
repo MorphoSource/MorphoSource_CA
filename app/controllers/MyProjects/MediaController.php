@@ -1199,6 +1199,10 @@
 		public function GetDOI() {
 			if (!$this->request->user->canDoAction('can_create_doi')) { die("Not allowed to allocate DOIs"); }
 			
+			# Temporary hotfix to disable DOI assignment for EZID to CrossRef transition
+			$this->notification->addNotification("1/24/2018: DOI assignment is temporarily disabled as server upgrades are completed. Please check back later today.", __NOTIFICATION_TYPE_ERROR__);
+			$this->mediaInfo();
+
 			$t_media_file = new ms_media_files();
 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
 			$t_media_file->load($pn_media_file_id);
