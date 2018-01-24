@@ -354,8 +354,6 @@
 													case "side":
 													case "use_for_preview":
 													case "file_type":
-													case "distance_units":
-													case "max_distance_x":
 													case "published":
 														$t_media_files->set($vs_field, $t_media_files->getChoiceListInternalValue($vs_field, $vs_value));
 													break;
@@ -615,8 +613,6 @@
 												case "side":
 												case "use_for_preview":
 												case "file_type":
-												case "distance_units":
-												case "max_distance_x":
 												case "published":
 													$va_media_files[$vn_media_file][$vs_field] = $t_media_files->getChoiceListInternalValue($vs_field, $vs_value);
 												break;

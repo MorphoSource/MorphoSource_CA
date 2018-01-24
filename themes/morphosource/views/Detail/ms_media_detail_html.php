@@ -10,7 +10,7 @@
 		$vs_publish_wheres= " and ((m.published > 0) OR ((m.published IS NULL) AND (mg.published > 0)))";
 	}
 	$o_db = new Db();
-	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.ark, m.ark_reserved, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, m.distance_units, m.max_distance_x, m.max_distance_3d, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
+	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.ark, m.ark_reserved, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
 ?>
@@ -119,18 +119,6 @@
 				if($q_media_files->get("derived_from_media_file_id")){
 					$t_media_file->load($q_media_files->get("derived_from_media_file_id"));
 					print " from M".$t_media_file->get("media_id")."-".$q_media_files->get("derived_from_media_file_id");
-				}
-				$vs_distance_units = "";
-				if($vs_distance_units = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"))){
-					print "<br/>Distance units of coordinate system for mesh files: ".$vs_distance_units;
-				}
-				$vs_max_distance_x = "";
-				if($vs_max_distance_x = $q_media_files->get("max_distance_x")){
-					print "<br/>Max X distance between points of mesh coordinates: ".$vs_max_distance_x."mm";
-				}
-				$vs_max_distance_3d = "";
-				if($vs_max_distance_3d = $q_media_files->get("max_distance_3d")){
-					print "<br/>Max 3d distance between points of mesh coordinates: ".$vs_max_distance_3d."mm";
 				}
 				if($vs_notes = $q_media_files->get("notes")){
 					print "<p>".nl2br($vs_notes)."</p>";

@@ -342,7 +342,7 @@
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d, mf.published file_pub, m.*, f.name facility, i.name institution, p.name
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, mf.published file_pub, m.*, f.name facility, i.name institution, p.name
 				FROM ms_media m
 				INNER JOIN ms_media_files as mf ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -383,8 +383,7 @@
 									"downloads for k-12 education",
 									"downloads for 'other' purposes"
 								);
-				#$va_all_md[] = join(",", $va_header);
-				#file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d
+
 				$va_all_md[] = $va_header;
 				$t_download_stats = new ms_media_download_stats();
 				while($q_media_files->nextRow()){
