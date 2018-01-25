@@ -857,14 +857,14 @@ class ms_media_files extends BaseModel {
 
 				if ($vs_doi = $o_doi->createDOI()) {
 					# --- record the DOI in the DB
-					$this->set("doi", $vs_ark);
+					$this->set("doi", $vs_doi);
 					$this->setMode(ACCESS_WRITE);
 					$this->update();
 					$va_doi["success"] = true;
 				} else {
 					$va_doi["success"] = false;
 					$va_doi["error"] = "Could not get DOI for media: ".
-						$o_ark->getError();
+						$o_doi->getError();
 				}
 			} catch (Exception $e) {
 				$va_doi["success"] = false;

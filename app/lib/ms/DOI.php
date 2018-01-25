@@ -11,6 +11,7 @@
 		
 		private $error = null;
 		private $xml = null;
+		private $doi = null;
 		
 		# -------------------------------------------------------
 		public function __construct() {
@@ -22,8 +23,9 @@
 			$vs_url = $this->config->get('doi_url');
 			$vs_username = $this->config->get('doi_username');
 			$vs_password = $this->config->get('doi_password');
+			$vs_shoulder = $this->config->get('doi_shoulder');
 			
-			if (substr($vs_url, -1) != '/') { $vs_url = $vs_url.'/'; }
+			// if (substr($vs_url, -1) != '/') { $vs_url = $vs_url.'/'; }
 
 			if (!$this->xml) {
 				$this->error = "XML Metadata not set before DOI creation.";
@@ -45,16 +47,19 @@
 
 			# Send the request and get the response
 			try {
-				$o_response = $o_request->send();
+				$o_response = $this->client->send($o_request);
 				
-				if (($o_response->getStatusCode() == 200) 
-					|| ($o_response->getStatusCode() == 201)) 
-				{
+				$vs_response_body = $o_response->getBody();
+				$o_d = new DOMDocument;
+				$o_d->loadHTML($vs_response_body);
+				$vs_ok = $o_d->getElementsByTagName('title')->item(0)->nodeValue;
+
+				if ($vs_ok == "SUCCESS") {
 					$this->error = null;
-					$vs_doi = "doi:".$vs_shoulder.$ps_id;
-					return $vs_doi;
+					return $this->doi;
 				} else {
-					$this->error = $o_response->getBody();
+					$this->error = 
+						$o_d->getElementsByTagName('p')->item(0)->nodeValue;
 					return false;
 				}
 			} catch (Exception $e) {
@@ -79,17 +84,13 @@
 			}
 
 			$vs_shoulder = $this->config->get('doi_shoulder');
-			$vs_doi = $vs_shoulder.$ps_id;
+			$vs_doi = $vs_shoulder."/M".$ps_id;
 
 			$xmlTree = new SimpleXMLElement("<doi_batch></doi_batch>");
 			$xmlTree->addAttribute("xmlns", 
 				"http://www.crossref.org/schema/4.4.1");
-			$xmlTree->addAttribute("xmlns:xsi", 
-				"http://www.w3.org/2001/XMLSchema-instance");
 			$xmlTree->addAttribute("version", "4.4.1");
-			$xmlTree->addAttribute("xsi:schemaLocation", 
-				"http://www.crossref.org/schema/4.4.1 ".
-				"http://www.crossref.org/schemas/crossref4.4.1.xsd");
+
 
 			$xmlHead = $xmlTree->addChild("head");
 			$xmlDOIBatchId = $xmlHead->addChild("doi_batch_id", uniqid());
@@ -133,6 +134,7 @@
 			$xmlResource = $xmlDoiData->addChild("resource", $vs_URL);
 
 			$this->xml = $xmlTree->asXML();
+			$this->doi = "doi:".$vs_doi;
 
 			return true;
 		}

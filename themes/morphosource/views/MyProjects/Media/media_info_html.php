@@ -111,7 +111,8 @@
 						print "<br/>";
 					}
 					if ($vs_doi = $q_media_files->get('doi')) { 
-						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".trim($vs_doi)."'>{$vs_doi}</a>";
+						$vs_file_info .= "<br/><a href='https://doi.org/".
+							trim(str_replace('doi:', '', $vs_doi))."'>{$vs_doi}</a>";
 					}
 					if (($vs_ark = $q_media_files->get('ark')) 
 						&& (!$q_media_files->get('ark_reserved'))) 
