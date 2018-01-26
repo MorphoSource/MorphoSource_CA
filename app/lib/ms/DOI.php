@@ -25,6 +25,11 @@
 			$vs_password = $this->config->get('doi_password');
 			$vs_shoulder = $this->config->get('doi_shoulder');
 
+			if (!$vs_url) {
+				$this->error = "No DOI URL.";
+				return false;
+			}
+
 			if (!$this->xml) {
 				$this->error = "XML Metadata not set before DOI creation.";
 				return false;

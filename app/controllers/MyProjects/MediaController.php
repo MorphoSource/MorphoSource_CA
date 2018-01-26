@@ -425,7 +425,7 @@
 										$vs_user_lname = $t_user->get('lname')
 									);
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -445,7 +445,7 @@
 									# Unpublish ARK
 									$va_ark = $t_media_file->unpublishARK();
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -520,7 +520,7 @@
 											);
 										}
 										if (!$va_ark["success"]) {
-											$va_errors["ark"] = $va_ark["error"];
+											$va_errors["general"] .= $va_ark["error"];
 										}
 
 										// Set as preview file if there isn't one already for this media
@@ -604,7 +604,7 @@
 										$vs_user_lname = $t_user->get('lname')
 									);
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -708,7 +708,7 @@
 						);
 					}
 					if (!$va_ark["success"]) {
-						$va_errors["ark"] = $va_ark["error"];
+						$va_errors["general"] .= $va_ark["error"];
 					}
 
 					// Set as preview file if there isn't one already for this media
@@ -791,7 +791,7 @@
 							$vs_user_lname = $t_user->get('lname')
 						);
 						if (!$va_ark["success"]) {
-							$va_error["ark"] = $va_ark["error"];
+							$va_errors["general"] .= $va_ark["error"];
 						}
 					}
 					# Unpublish ARK if previously published, now unpublished
@@ -800,7 +800,7 @@
 					{
 						$va_ark = $t_media_file->unpublishARK();
 						if (!$va_ark["success"]) {
-							$va_error["ark"] = $va_ark["error"];
+							$va_errors["general"] .= $va_ark["error"];
 						}
 					}
 
