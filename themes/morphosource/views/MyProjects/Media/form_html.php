@@ -365,9 +365,10 @@ if (!$this->request->isAjax()) {
 				$vs_derived_from_file_select .= "</select></div>";
 			}
 			print $vs_derived_from_file_select;
-			foreach(array("distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
-				print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'><label for='media_0_'.$vs_f data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][".$vs_f."]", "id" => "media_0_".$vs_f, "data-pattern-name" => "media[++][".$vs_f."]", "data-pattern-id" => "media_++_".$vs_f));
-			}
+			
+			print $t_media_file->htmlFormElement("published","<div class='formLabel'><label for='media_0_'.published data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("name" => "media[0][published]", "id" => "media_0_published", "data-pattern-name" => "media[++][published]", "data-pattern-id" => "media_++_published"));
+
+			print $t_media_file->htmlFormElement("notes","<div class='formLabel'><label for='media_0_'.notes data-pattern-text='^LABEL ++:'>^LABEL</label><br>^ELEMENT</div>", array("width"=> "368px", "name" => "media[0][notes]", "id" => "media_0_published", "data-pattern-name" => "media[++][notes]", "data-pattern-id" => "media_++_published"));
 ?>
 
 		<p>

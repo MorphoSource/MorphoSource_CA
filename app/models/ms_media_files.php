@@ -127,37 +127,6 @@ BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
 					"derivative file" => 2
 				)
 		),
-		'distance_units' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT, 
-				'DISPLAY_WIDTH' => 150, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => true, 
-				'DEFAULT' => 0,
-				'LABEL' => _t('Distance units of coordinate system for mesh files'), 'DESCRIPTION' => _t('Distance units of coordinate system for mesh files'),
-				"BOUNDS_CHOICE_LIST"=> array(
-					"microns" => 6,
-					"millimeters" => 1,
-					"centimeters" => 2,
-					"meters" => 3,
-					"inches" => 4,
-					"other" => 5
-				)
-		),
-		'max_distance_x' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Maximum distance in X direction in millimeters between points of mesh coordinates'), 'DESCRIPTION' => _t('Maximum distance in X direction in millimeters between points of mesh coordinates wedge.'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
-		'max_distance_3d' => array(
-				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
-				'DISPLAY_WIDTH' => 65, 'DISPLAY_HEIGHT' => 1,
-				'IS_NULL' => false, 
-				'DEFAULT' => '',
-				'LABEL' => _t('Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface'), 'DESCRIPTION' => _t('Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface'),
-				'BOUNDS_LENGTH' => array(0,45)
-		),
 		'notes' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 63, 'DISPLAY_HEIGHT' => 2,
@@ -604,7 +573,7 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -648,9 +617,6 @@ class ms_media_files extends BaseModel {
 									"flux normalization",
 									"geometric callibration",
 									"calibration description",
-									"Distance units of coordinate system for mesh files",
-									"Max X distance btw points of mesh coordinates (mm)",
-									"Max 3D distance btw two most distant points on mesh surface (mm)",
 									"technicians",
 									"date uploaded",
 									"time uploaded",
@@ -660,8 +626,7 @@ class ms_media_files extends BaseModel {
 									"copyright license",
 									"citation instruction statement (to be copy-pasted into acknolwedgements)"
 								);
-				#$va_all_md[] = join(",", $va_header);
-				#file_type, mf.distance_units, mf.max_distance_x, mf.max_distance_3d
+
 				$va_all_md[] = $va_header;
 				while($q_media_files->nextRow()){
 					$va_media_md = array();
@@ -734,9 +699,6 @@ class ms_media_files extends BaseModel {
 					}
 					$va_media_md[] = $q_media_files->get("scanner_calibration_geometric_calibration");
 					$va_media_md[] = $q_media_files->get("scanner_calibration_description");
-					$va_media_md[] = $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"));
-					$va_media_md[] = $q_media_files->get("max_distance_x");
-					$va_media_md[] = $q_media_files->get("max_distance_3d");
 					$va_media_md[] = $q_media_files->get("scanner_technicians");
 
 					$va_media_md[] = caGetLocalizedDate($q_media_files->get("created_on"), array('dateFormat' => delimited, 'timeOmit' => true));

@@ -134,7 +134,7 @@
 						$t_parent = new ms_media_files($q_media_files->get("derived_from_media_file_id"));
 						$vs_derived_from = "M".$t_parent->get("media_id")."-".$t_parent->get("media_file_id");
 					}
-					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>File type: </b>".(($t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"))) ? $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type")) : "-").(($vs_derived_from) ? "<br/><b>Derived From: </b>".$vs_derived_from : "")."<br/><b>Distance units of coordinate system for mesh files: </b>".(($t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units"))) ? $t_media_file->getChoiceListValue("distance_units", $q_media_files->get("distance_units")) : "-")."<br/><b>Maximum distance in X direction in millimeters between points of mesh coordinates: </b>".(($q_media_files->get("max_distance_x")) ? $q_media_files->get("max_distance_x") : "-")."<br/><b>Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface: </b>".(($q_media_files->get("max_distance_3d")) ? $q_media_files->get("max_distance_3d") : "-")."<br/><b>Notes: </b>".nl2br(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
+					$vs_more_info = "<b>M".$pn_media_id."-".$q_media_files->get("media_file_id")."</b>".(($q_media_files->get("use_for_preview") == 1) ? ", <b>Used for media preview</b> " : "")."<br/><b>File info: </b>".$vs_file_info."<br/><b>Title: </b>".(($q_media_files->get("title")) ? $q_media_files->get("title") : "-")."<br/><b>Description/Element: </b>".(($q_media_files->get("element")) ? $q_media_files->get("element") : "-")."<br/><b>Side: </b>".(($vs_side) ? $vs_side : "-")."<br/><b>File publication status: </b>".(($vs_published) ? $vs_published : "-")."<br/><b>File type: </b>".(($t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"))) ? $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type")) : "-").(($vs_derived_from) ? "<br/><b>Derived From: </b>".$vs_derived_from : "")."<br/><b>Notes: </b>".nl2br(($q_media_files->get("notes")) ? $q_media_files->get("notes") : "-").$vs_downloads;
 					TooltipManager::add(
 						"#info".$q_media_files->get("media_file_id"), $vs_more_info
 					);
@@ -470,19 +470,14 @@
 					print $vs_derived_from_file_select;
 				}
 				
-				
-				
-				foreach(array("distance_units", "max_distance_x", "max_distance_3d", "published", "notes") as $vs_f){
+				foreach(array("published", "notes") as $vs_f){
 					if($va_mediaFileErrors[$vs_f]){
 						print "<div class='formErrors'  style='clear:left;>".$va_mediaFileErrors[$vs_f]."</div>";
 					}
-					print $t_media_file->htmlFormElement($vs_f,"<div class='formLabel'>^LABEL<br>^ELEMENT</div>");
-				}
-					
-					
-					
-					
-					
+					print $t_media_file->htmlFormElement($vs_f,
+						"<div class='formLabel'>^LABEL<br>^ELEMENT</div>", 
+						array("width" => "368px"));
+				}		
 					print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
 					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $pn_media_id), array("title" => _t("Cancel")));
 					print "</div>";

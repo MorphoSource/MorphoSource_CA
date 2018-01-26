@@ -719,11 +719,6 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>associatedMedia</td>
 				</tr>
 				<tr>
-					<td>distance_units</td>
-					<td>Distance units of coordinate system for mesh files</td>
-					<td>measurement</td>
-				</tr>
-				<tr>
 					<td>element</td>
 					<td>The anatomical element depicted by the media file</td>
 					<td>associatedMedia</td>
@@ -737,16 +732,6 @@ Wildcards may be used only at the end of a text fragment. To find all records of
 					<td>filesize</td>
 					<td>Size of the file in mebibyte (MiB)</td>
 					<td>associatedMedia</td>
-				</tr>
-				<tr>
-					<td>max_distance_x</td>
-					<td>Maximum distance in X direction in millimeters between points of mesh coordinates</td>
-					<td>measurement</td>
-				</tr>
-				<tr>
-					<td>max_distance_3d</td>
-					<td>Maximum distance in 3-dimensional space in millimeters between two most distant points on mesh surface</td>
-					<td>measurement</td>
 				</tr>
 				<tr>
 					<td>notes</td>
