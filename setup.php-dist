@@ -82,7 +82,7 @@ define("__CA_SMTP_PORT__", 25);
 #
 # __CA_DOI_URL__ = URL root for DOI assignment
 #
-define("__CA_DOI_URL__", 'https://doi.crossref.org/servlet/deposit/');
+define("__CA_DOI_URL__", 'https://doi.crossref.org/servlet/deposit');
 
 # __CA_DOI_SHOULDER__ = Shoulder used for DOI assignment
 #
