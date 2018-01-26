@@ -24,15 +24,12 @@
 			$vs_username = $this->config->get('doi_username');
 			$vs_password = $this->config->get('doi_password');
 			$vs_shoulder = $this->config->get('doi_shoulder');
-			
-			// if (substr($vs_url, -1) != '/') { $vs_url = $vs_url.'/'; }
 
 			if (!$this->xml) {
 				$this->error = "XML Metadata not set before DOI creation.";
 				return false;
 			}			
 			
-			// Change this to encode XML here
 			$o_request = $this->client->createRequest('POST', $vs_url, array(
 				'body' => array(
 					'operation' => 'doMDUpload',
