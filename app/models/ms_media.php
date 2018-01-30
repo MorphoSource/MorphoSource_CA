@@ -437,6 +437,13 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('Batch uploaded') => 1
 				)
+		),
+		'scanner_mode_id' => array(
+				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+				"IS_NULL" => true, "DEFAULT" => "",
+				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner (plus modality) at the selected facility used to create this media.",
+				"BOUNDS_CHOICE_LIST"=> array()
 		)
  	)
 );
@@ -617,6 +624,29 @@ class ms_media extends BaseModel {
 				}
 				BaseModel::$s_ca_models_definitions['ms_media']['FIELDS']['scanner_id']['BOUNDS_CHOICE_LIST'] = $va_choice_list; 
 				break;
+			case 'scanner_mode_id':
+				$t_sm = new ms_scanner_modes();
+				$va_choice_list = array();
+
+				if ($vn_facility_id = $this->get('facility_id')) {
+					$va_scanner_ids = 
+						array_keys(ms_facilities::scannerList($vn_facility_id));
+					$va_scanners = 
+						ms_scanner_modes::scannerModeList($va_scanner_ids);
+				} else {
+					$va_scanners = ms_scanner_modes::scannerModeList();
+				}
+
+				foreach($va_scanners as $vn_scanner_mode_id => $va_scanner) {
+						$vs_modality = $t_sm->getChoiceListValue(
+							'modality',
+							$va_scanner['modality']);
+						$vs_name = $va_scanner['name']." [".$vs_modality."]";
+						$va_choice_list[$vs_name] = $vn_scanner_mode_id;
+					}
+				BaseModel::$s_ca_models_definitions['ms_media']['FIELDS']['scanner_mode_id']['BOUNDS_CHOICE_LIST'] = $va_choice_list;
+				break;
+
 		}
 		
 		return parent::htmlFormElement($ps_field, $ps_format, $pa_options);
