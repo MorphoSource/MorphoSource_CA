@@ -759,6 +759,31 @@
 										$t_media_file->insert();
 										if ($t_media_file->numErrors() == 0) {
 											$vn_new_media_files++;
+
+											# Assign ARK
+											# db NULL weirdly returned as empty string
+											if (is_null($t_media_file->get("published")) 
+												|| ($t_media_file->get("published") === ""))
+											{
+												$vs_published = $t_media->get("published");
+											} else {
+												$vs_published = $t_media_file->get("published");
+											}
+											
+											if ($vs_published == 0) { // Reserved ARK
+												$va_ark = $t_media_file->getARK($va_reserved = true);
+											} else { // Published ARK
+												$t_user = new ca_users($t_media_file->get('user_id'));
+												$va_ark = $t_media_file->getARK(
+													$va_reserved = false,
+													$vs_user_fname = $t_user->get('fname'),
+													$vs_user_lname = $t_user->get('lname')
+												);
+											}
+											if (!$va_ark["success"]) {
+												$va_errors[$vs_row] .= $va_ark["error"];
+											}
+
 											# --- check for preview files
 											if (isset($va_media_file_info["media_preview"])) {
 												$t_media_file->set('media', $va_media_file_info["media_preview"], array(

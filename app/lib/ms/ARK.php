@@ -21,6 +21,11 @@
 			$vs_username = $this->config->get('ark_username');
 			$vs_password = $this->config->get('ark_password');
 			$vs_shoulder = $this->config->get('ark_shoulder');
+
+			if (!$vs_root) {
+				$this->error = "No ARK URL.";
+				return false;
+			}
 	
 			if (substr($vs_root, -1) != '/') { $vs_root = $vs_root.'/'; }
 
@@ -57,6 +62,11 @@
 			$vs_username = $this->config->get('ark_username');
 			$vs_password = $this->config->get('ark_password');
 			$vs_shoulder = $this->config->get('ark_shoulder');
+
+			if (!$vs_root) {
+				$this->error = "No ARK URL.";
+				return false;
+			}
 	
 			if (substr($vs_root, -1) != '/') { $vs_root = $vs_root.'/'; }
 
@@ -93,6 +103,11 @@
 			$vs_username = $this->config->get('ark_username');
 			$vs_password = $this->config->get('ark_password');
 			$vs_shoulder = $this->config->get('ark_shoulder');
+
+			if (!$vs_root) {
+				$this->error = "No ARK URL.";
+				return false;
+			}
 	
 			if (substr($vs_root, -1) != '/') { $vs_root = $vs_root.'/'; }
 
