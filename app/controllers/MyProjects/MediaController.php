@@ -425,7 +425,7 @@
 										$vs_user_lname = $t_user->get('lname')
 									);
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -445,7 +445,7 @@
 									# Unpublish ARK
 									$va_ark = $t_media_file->unpublishARK();
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -466,7 +466,7 @@
 								$t_media_file = new ms_media_files();
 								$t_media_file->set("media_id", $this->opo_item->get("media_id"));
 								$t_media_file->set("user_id",$this->request->user->get("user_id"));
-								foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d") as $vs_f){
+								foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id") as $vs_f){
 									$t_media_file->set($vs_f, $va_media_file_info[$vs_f]);
 									if ($t_media_file->numErrors() > 0) {
 										foreach ($t_media_file->getErrors() as $vs_e) {
@@ -520,7 +520,7 @@
 											);
 										}
 										if (!$va_ark["success"]) {
-											$va_errors["ark"] = $va_ark["error"];
+											$va_errors["general"] .= $va_ark["error"];
 										}
 
 										// Set as preview file if there isn't one already for this media
@@ -604,7 +604,7 @@
 										$vs_user_lname = $t_user->get('lname')
 									);
 									if (!$va_ark["success"]) {
-										$va_error["ark"] = $va_ark["error"];
+										$va_errors["general"] .= $va_ark["error"];
 									}
 								}
 							}
@@ -651,7 +651,7 @@
 					$va_errors["media"] = "Please upload a media file";
 				}
 			}
-			foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d") as $vs_f){
+			foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id") as $vs_f){
 				$t_media_file->set($vs_f, $_REQUEST[$vs_f]);
 				if ($t_media_file->numErrors() > 0) {
 					foreach ($t_media_file->getErrors() as $vs_e) {
@@ -708,7 +708,7 @@
 						);
 					}
 					if (!$va_ark["success"]) {
-						$va_errors["ark"] = $va_ark["error"];
+						$va_errors["general"] .= $va_ark["error"];
 					}
 
 					// Set as preview file if there isn't one already for this media
@@ -753,7 +753,7 @@
 			if (is_null($vs_pub_init) || ($vs_pub_init === "")) {
 				$vs_pub_init = $this->opo_item->get("published");
 			}
-			$va_fields = array("published", "title", "element", "side", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d");
+			$va_fields = array("published", "title", "element", "side", "notes", "file_type", "derived_from_media_file_id");
 			foreach($va_fields as $vs_f){
 				$t_media_file->set($vs_f,$_REQUEST[$vs_f]);
 
@@ -791,7 +791,7 @@
 							$vs_user_lname = $t_user->get('lname')
 						);
 						if (!$va_ark["success"]) {
-							$va_error["ark"] = $va_ark["error"];
+							$va_errors["general"] .= $va_ark["error"];
 						}
 					}
 					# Unpublish ARK if previously published, now unpublished
@@ -800,7 +800,7 @@
 					{
 						$va_ark = $t_media_file->unpublishARK();
 						if (!$va_ark["success"]) {
-							$va_error["ark"] = $va_ark["error"];
+							$va_errors["general"] .= $va_ark["error"];
 						}
 					}
 
