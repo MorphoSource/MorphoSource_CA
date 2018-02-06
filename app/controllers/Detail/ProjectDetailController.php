@@ -104,7 +104,7 @@
  			
  		}
  		# -------------------------------------------------------
- 		public function show() {
+ 		public function show_old() {
  			JavascriptLoadManager::register("cycle");
 			if($this->opn_item_id){
  				# --- can user edit record?
@@ -130,6 +130,200 @@
  			$this->render('ms_project_detail_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function show() {
+ 			JavascriptLoadManager::register("cycle");
+			if($this->opn_item_id){
+ 				# --- can user edit record?
+				$vb_show_edit_link = false;
+				$t_project = new ms_projects();
+				if($this->request->isLoggedIn() && $t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
+					$vb_show_edit_link = true;
+				}
+ 			}
+ 			$this->view->setVar("show_edit_link", $vb_show_edit_link);
+ 			
+ 			// 	$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
+			
+			// if($vs_specimens_group_by){
+			// 	$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
+			// }elseif($this->request->session->getVar('specimens_group_by')){
+			// 	$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
+			// }else{
+			// 	$vs_specimens_group_by = "specimen";
+			// }
+			// $this->view->setVar("specimens_group_by", $vs_specimens_group_by);
+
+			$this->view->setVar("media_counts", 
+				$this->opo_item->getProjectMediaCounts());
+			$this->view->setVar("specimen_count", 
+				$this->opo_item->numSpecimens());
+			$this->view->setVar("project_name",
+				$this->opo_item->get("name"));
+			$this->view->setVar("project_members",
+				$this->opo_item->getMembers());
+			$this->view->setVar("project_abstract",
+				$this->opo_item->get("abstract"));
+			$this->view->setVar("project_id",
+				$this->opo_item->getPrimaryKey());
+			$this->view->setVar("project_url",
+				$this->opo_item->get("url"));
+
+			// Sort variable handling
+			if ($this->request->getParameter('s', pString)) {
+				$vs_specimens_group_by = 
+					$this->request->getParameter('s', pString);
+			} elseif ($this->request->session->getVar('specimens_group_by')) {
+				$vs_specimens_group_by = 
+					$this->request->session->getVar('specimens_group_by');
+			} else {
+				$vs_specimens_group_by = 'number';
+			}
+			if (!in_array($vs_specimens_group_by, 
+				['n', 't', 'a', 'm', 'u', 'v'])) {
+				$vs_specimens_group_by = 'n';
+			}
+			$this->view->setVar('specimens_group_by', $vs_specimens_group_by);
+			$this->request->session->setVar('specimens_group_by', 
+				$vs_specimens_group_by);		
+
+			// Entity format variable handling
+			if ($this->request->getParameter('f', pString)) {
+				$vs_entity_format = $this->request->getParameter('f', pString);
+			} elseif ($this->request->session->getVar('entity_format')){
+				$vs_entity_format = 
+					$this->request->session->getVar('entity_format');
+			} else {
+				$vs_entity_format = 't';
+			}
+			if (!in_array($vs_entity_format, ['t', 'l'])) {
+				$vs_entity_format = 't';
+			}
+			$this->view->setVar("entity_format", $vs_entity_format);
+			$this->request->session->setVar('entity_format', $vs_entity_format);
+
+			// Entity type variable handling			
+			if ($this->request->getParameter('t', pString)) {
+				$vs_entity_type = $this->request->getParameter('t', pString);
+			} elseif ($this->request->session->getVar('entity_type')) {
+				$vs_entity_type = $this->request->session->getVar('entity_type');
+			}else{
+				$vs_entity_type = 's';
+			}
+			if (!in_array($vs_entity_type, ['s', 'm'])) {
+				$vs_entity_format = 's';
+			}
+			$this->view->setVar('entity_type', $vs_entity_type);
+			$this->request->session->setVar('entity_type', $vs_entity_type);
+
+			// Get entity data
+			if ($vs_entity_type == 's') {
+				switch ($vs_specimens_group_by) {
+					case 'u':
+						$va_specimens_by_taxonomy = $this->opo_item->
+							getProjectSpecimensNestTaxonomy(null, 0, 
+								array("published_media_only" => true));
+						$va_entity = $va_specimens_by_taxonomy['specimen'];
+						$vn_count = $va_specimens_by_taxonomy['numSpecimen'];
+						$vb_entity_nest = 1;
+						break;
+					case 'v':
+						$va_specimens_by_taxonomy = $this->opo_item->
+							getProjectSpecimensNestTaxonomy(null, 1, 
+								array("published_media_only" => true));
+						$va_entity = $va_specimens_by_taxonomy['specimen'];
+						$vn_count = $va_specimens_by_taxonomy['numSpecimen'];
+						$vb_entity_nest = 1;
+						break;
+					default:
+						switch ($vs_specimens_group_by) {
+							case 'n':
+								$vs_order_by = 'number';
+								break;
+							case 't':
+								$vs_order_by = 'taxon';
+								break;
+							case 'a':
+								$vs_order_by = 'added';
+								break;
+							case 'm':
+								$vs_order_by = 'modified';
+								break;
+							default:
+								$vs_order_by = 'number';
+								break;
+						}
+						$va_entity = $this->opo_item->
+							getProjectSpecimens(null, $vs_order_by, 
+								array("published_media_only" => true));
+						$vn_count = is_array($va_entity) ? 
+							sizeof($va_entity) : 0;
+						$vb_entity_nest = 0;
+						break;
+				}
+			} elseif ($vs_entity_type == 'm') {
+				switch ($vs_specimens_group_by) {
+					case 'u':
+						$va_media_by_taxonomy = $this->opo_item->
+							getProjectMediaNestTaxonomy(null, 0, 
+								array("published_media_only" => true));
+						$va_entity = $va_media_by_taxonomy['media'];
+						$vn_count = $va_media_by_taxonomy['numMedia'];
+						$vb_entity_nest = 1;
+						break;
+					case 'v':
+						$va_media_by_taxonomy = $this->opo_item->
+							getProjectMediaNestTaxonomy(null, 1, 
+								array("published_media_only" => true));
+						$va_entity = $va_media_by_taxonomy['media'];
+						$vn_count = $va_media_by_taxonomy['numMedia'];
+						$vb_entity_nest = 1;
+						break;
+					default:
+						switch ($vs_specimens_group_by) {
+							case 'n':
+								$vs_order_by = 'number';
+								break;
+							case 't':
+								$vs_order_by = 'taxon';
+								break;
+							case 'a':
+								$vs_order_by = 'added';
+								break;
+							case 'm':
+								$vs_order_by = 'modified';
+								break;
+							default:
+								$vs_order_by = 'number';
+								break;
+						}
+						$qr = $this->opo_item->
+							getProjectMedia(null, $vs_order_by, 
+								array("published_media_only" => true));
+						$va_entity = array();
+						$t_media = new ms_media();
+						while ($qr->nextRow()) {
+							$va_media = $qr->getRow();
+							if(!isset($va_entity[$va_media['media_id']])) {
+								$va_media['preview'] = 
+									$t_media->getPreviewMediaFile(
+										$va_media['media_id']); 
+								$va_entity[$va_media['media_id']] = $va_media;
+							}
+						}
+						$vn_count = is_array($va_entity) ? 
+							sizeof($va_entity) : 0;
+						$vb_entity_nest = 0;
+						break;
+				}
+			} 
+			
+			$this->view->setVar('va_entity', $va_entity);
+			$this->view->setVar('vn_count', $vn_count);
+			$this->view->setVar('vb_entity_nest', $vb_entity_nest);		
+			
+ 			$this->render('ms_project_detail_html.php');
+ 		}
+ 		# -------------------------------------------------------
  		function specimenByTaxonomy() {
  			JavascriptLoadManager::register("cycle");
 			$vn_taxon_id = $this->request->getParameter('taxon_id', pInteger);
@@ -138,7 +332,8 @@
 				return;
 			}
 			# --- are we showing by genus or species?
-			$vs_specimens_group_by = $this->request->session->getVar('sBT_taxon_term');
+			$vs_specimens_group_by = 
+				$this->request->getParameter('specimens_group_by', pString);
 			if(!in_array($vs_specimens_group_by, array("genus", "species", "ht_family"))){
 				$vs_specimens_group_by = "genus";
 			}
