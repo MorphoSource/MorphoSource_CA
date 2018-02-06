@@ -30,7 +30,6 @@
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
- 	require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_movement_requests.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_bibliography.php");
  	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");

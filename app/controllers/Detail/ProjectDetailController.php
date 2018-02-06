@@ -104,32 +104,6 @@
  			
  		}
  		# -------------------------------------------------------
- 		public function show_old() {
- 			JavascriptLoadManager::register("cycle");
-			if($this->opn_item_id){
- 				# --- can user edit record?
-				$vb_show_edit_link = false;
-				$t_project = new ms_projects();
-				if($this->request->isLoggedIn() && $t_project->isFullAccessMember($this->request->user->get("user_id"), $this->opo_item->get("project_id"))){
-					$vb_show_edit_link = true;
-				}
- 			}
- 			$this->view->setVar("show_edit_link", $vb_show_edit_link);
- 			
- 			$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
-			
-			if($vs_specimens_group_by){
-				$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
-			}elseif($this->request->session->getVar('specimens_group_by')){
-				$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
-			}else{
-				$vs_specimens_group_by = "specimen";
-			}
-			$this->view->setVar("specimens_group_by", $vs_specimens_group_by);		
-			
- 			$this->render('ms_project_detail_html.php');
- 		}
- 		# -------------------------------------------------------
  		public function show() {
  			JavascriptLoadManager::register("cycle");
 			if($this->opn_item_id){
