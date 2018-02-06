@@ -77,6 +77,39 @@ define("__CA_SMTP_PORT__", 25);
 #define("__CA_SMTP_USER__", 'my_smtp_username');
 #define("__CA_SMTP_PASSWORD__", 'my_smtp_password');
 
+# 
+# The following settings apply to DOI and ARK providers
+#
+# __CA_DOI_URL__ = URL root for DOI assignment
+#
+define("__CA_DOI_URL__", 'https://doi.crossref.org/servlet/deposit');
+
+# __CA_DOI_SHOULDER__ = Shoulder used for DOI assignment
+#
+define("__CA_DOI_SHOULDER", '');
+
+# __CA_DOI_USER__ = DOI assignment user name
+#
+define("__CA_DOI_USER__", 'my_doi_user');
+
+# __CA_DOI_PASSWORD__ = DOI assignment password
+#
+define("__CA_DOI_PASSWORD__", 'my_doi_password');
+
+# __CA_ARK_URL__ = URL root for ARK assignment
+#
+define("__CA_ARK_URL__", 'https://ezid.cdlib.org/id/');
+
+# __CA_ARK_SHOULDER__ = Shoulder used for ARK assignment
+#
+define("CA_ARK_SHOULDER__", '');
+
+# __CA_ARK_USER = ARK assignment user name
+#
+define("__CA_ARK_USER__", 'my_ark_user');
+
+# __CA_ARK_PASSWORD = ARK assignment password
+define("__CA_ARK_PASSWORD__", 'my_ark_password');
 
 #
 # You can set your time zone here. The default is to use US Eastern Standard Time. 

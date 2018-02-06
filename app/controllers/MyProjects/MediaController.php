@@ -41,6 +41,7 @@
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
  	require_once(__CA_LIB_DIR__.'/ms/DOI.php');
+ 	require_once(__CA_LIB_DIR__.'/ms/ARK.php');
  	require_once(__CA_MODELS_DIR__."/ms_media_shares.php");
  	
  	class MediaController extends ActionController {
@@ -146,13 +147,80 @@
 			if(!is_array($va_media_ids) && !is_array($va_media_file_ids)){
 				$this->notification->addNotification("You did not select any media groups or files", __NOTIFICATION_TYPE_ERROR__);
 			}else{
+				$vn_pub = $this->request->getParameter('published', pInteger);
 				$o_db = new Db();
-				if(is_array($va_media_ids) && sizeof($va_media_ids)){
-					$o_db->query("UPDATE ms_media SET published = ? WHERE media_id IN (".join(", ", $va_media_ids).") and project_id = ?", $this->request->getParameter('published', pInteger), $this->opn_project_id);
-				}
 				if(is_array($va_media_file_ids) && sizeof($va_media_file_ids)){
-					$o_db->query("UPDATE ms_media_files SET published = ? WHERE media_file_id IN (".join(", ", $va_media_file_ids).")", $this->request->getParameter('published', pInteger));
+					$o_db->query("UPDATE ms_media_files SET published = ? WHERE media_file_id IN (".join(", ", $va_media_file_ids).")", $vn_pub);
+					if (($vn_pub == 1) || ($vn_pub == 2)) {
+						foreach ($va_media_file_ids as $vn_media_file_id) {
+							$t_media_file = 
+								new ms_media_files($vn_media_file_id);
+							# Publish ARK
+							$t_user = new ca_users(
+								($t_media_file->get('user_id') ? 
+								$t_media_file->get('user_id') : 
+								$this->opo_project->get('user_id')));
+							$va_ark = $t_media_file->publishARK(
+								$vs_user_fname = $t_user->get('fname'),
+								$vs_user_lname = $t_user->get('lname')
+							);
+						}
+					}
+
+					if ($vn_pub == 0) {
+						foreach ($va_media_file_ids as $vn_media_file_id) {
+							$t_media_file = 
+								new ms_media_files($vn_media_file_id);
+							# Unpublish ARK if published
+							$va_ark = $t_media_file->unpublishARK();
+						}
+					}
 				}
+
+				if(is_array($va_media_ids) && sizeof($va_media_ids)){
+					$o_db->query("UPDATE ms_media SET published = ? WHERE media_id IN (".join(", ", $va_media_ids).") and project_id = ?", $vn_pub, $this->opn_project_id);
+					if (($vn_pub == 1) || ($vn_pub == 2)) {
+						foreach ($va_media_ids as $vn_media_id) {
+							$t_media = new ms_media($vn_media_id);
+							$va_media_files = $t_media->getMediaFiles();
+							if (sizeof($va_media_files)) {
+								foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+									if (is_null($t_media_file->get("published")) 
+										|| ($t_media_file->get("published") === ""))
+									{
+										# Publish ARKs
+										$t_user = new ca_users(
+											($t_media_file->get('user_id') ? 
+											$t_media_file->get('user_id') : 
+											$this->opo_project->get('user_id')));
+										$va_ark = $t_media_file->publishARK(
+											$vs_user_fname = $t_user->get('fname'),
+											$vs_user_lname = $t_user->get('lname')
+										);
+									}
+								}
+							}
+						}
+					}
+
+					if ($vn_pub == 0) {
+						foreach ($va_media_ids as $vn_media_id) {
+							$t_media = new ms_media($vn_media_id);
+							$va_media_files = $t_media->getMediaFiles();
+							if (sizeof($va_media_files)) {
+								foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+									if (is_null($t_media_file->get("published")) 
+										|| ($t_media_file->get("published") === ""))
+									{
+										# Unpublish ARKs
+										$va_ark = $t_media_file->unpublishARK();
+									}
+								}
+							}
+						}
+					}
+				}
+				
 				$this->notification->addNotification("Updated publication status", __NOTIFICATION_TYPE_ERROR__);
 			}
 			$this->reviewPublicationSettings();
@@ -198,6 +266,7 @@
 			# get names of form fields
 			$va_fields = $this->opo_item->getFormFields();
 			$va_errors = array();
+			$vs_pub_init = $this->opo_item->get("published");
 			# loop through fields
 #print "<pre>";
 #print sizeof($this->request->getParameter('media', pArray));
@@ -337,6 +406,53 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
+					# was media group published, how about pre-existing files
+					$vs_pub_final = $this->opo_item->get("published");
+					if ( ( ($vs_pub_final == 1) || ($vs_pub_final == 2) ) && 
+						!( ($vs_pub_init == 1) || ($vs_pub_init == 2) ) ) {
+						$va_media_files = $this->opo_item->getMediaFiles();
+						if (sizeof($va_media_files)) {
+							foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+								if (is_null($t_media_file->get("published")) 
+									|| ($t_media_file->get("published") === ""))
+								{
+									# Publish ARK
+									$t_user = new ca_users(($t_media_file->get('user_id') ? 
+										$t_media_file->get('user_id') : 
+										$this->opo_project->get('user_id')));
+									$va_ark = $t_media_file->publishARK(
+										$vs_user_fname = $t_user->get('fname'),
+										$vs_user_lname = $t_user->get('lname')
+									);
+									if (!$va_ark["success"]) {
+										$va_errors["general"] .= $va_ark["error"];
+									}
+								}
+							}
+						}
+					}
+
+					# was media group unpublished, how about pre-existing files
+					if ( ($vs_pub_final == 0 ) 
+						&& ( ($vs_pub_init == 1) || ($vs_pub_init == 2) ) ) 
+					{
+						$va_media_files = $this->opo_item->getMediaFiles();
+						if (sizeof($va_media_files)) {
+							foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+								if (is_null($t_media_file->get("published")) 
+									|| ($t_media_file->get("published") === ""))
+								{
+									# Unpublish ARK
+									$va_ark = $t_media_file->unpublishARK();
+									if (!$va_ark["success"]) {
+										$va_errors["general"] .= $va_ark["error"];
+									}
+								}
+							}
+						}
+						
+					}
+
 					# --- are there media files to add?
 					if(is_array($_FILES) && sizeof($_FILES)){
 						$va_media_files_info = $this->request->getParameter('media', pArray);
@@ -350,7 +466,7 @@
 								$t_media_file = new ms_media_files();
 								$t_media_file->set("media_id", $this->opo_item->get("media_id"));
 								$t_media_file->set("user_id",$this->request->user->get("user_id"));
-								foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d") as $vs_f){
+								foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id") as $vs_f){
 									$t_media_file->set($vs_f, $va_media_file_info[$vs_f]);
 									if ($t_media_file->numErrors() > 0) {
 										foreach ($t_media_file->getErrors() as $vs_e) {
@@ -381,6 +497,32 @@
 									$t_media_file->setMode(ACCESS_WRITE);
 									$t_media_file->insert();
 									if ($t_media_file->numErrors() == 0) {
+										# Assign ARK
+										# db NULL weirdly returned as empty string
+										if (is_null($t_media_file->get("published")) 
+											|| ($t_media_file->get("published") === ""))
+										{
+											$vs_published = $this->opo_item->get("published");
+										} else {
+											$vs_published = $t_media_file->get("published");
+										}
+										
+										if ($vs_published == 0) { // Reserved ARK
+											$va_ark = $t_media_file->getARK($va_reserved = true);
+										} else { // Published ARK
+											$t_user = new ca_users(($t_media_file->get('user_id') ? 
+												$t_media_file->get('user_id') : 
+												$this->opo_project->get('user_id')));
+											$va_ark = $t_media_file->getARK(
+												$va_reserved = false,
+												$vs_user_fname = $t_user->get('fname'),
+												$vs_user_lname = $t_user->get('lname')
+											);
+										}
+										if (!$va_ark["success"]) {
+											$va_errors["general"] .= $va_ark["error"];
+										}
+
 										// Set as preview file if there isn't one already for this media
 										if(!$vb_preview){
 											$t_media_file->set('use_for_preview', 1);
@@ -446,6 +588,28 @@
 							$va_errors["general"] = $vs_e;
 						}
 					}else{
+						# Were any media files published?
+						$va_media_files = $this->opo_item->getMediaFiles();
+						if (sizeof($va_media_files)) {
+							foreach ($va_media_files as $vn_media_file_id => $t_media_file) {
+								if (is_null($t_media_file->get("published")) 
+									|| ($t_media_file->get("published") === ""))
+								{
+									# Publish ARKs
+									$t_user = new ca_users(($t_media_file->get('user_id') ? 
+										$t_media_file->get('user_id') : 
+										$this->opo_project->get('user_id')));
+									$va_ark = $t_media_file->publishARK(
+										$vs_user_fname = $t_user->get('fname'),
+										$vs_user_lname = $t_user->get('lname')
+									);
+									if (!$va_ark["success"]) {
+										$va_errors["general"] .= $va_ark["error"];
+									}
+								}
+							}
+						}
+
 						$this->notification->addNotification("Saved ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
 					}
 				}
@@ -487,7 +651,7 @@
 					$va_errors["media"] = "Please upload a media file";
 				}
 			}
-			foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d") as $vs_f){
+			foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id") as $vs_f){
 				$t_media_file->set($vs_f, $_REQUEST[$vs_f]);
 				if ($t_media_file->numErrors() > 0) {
 					foreach ($t_media_file->getErrors() as $vs_e) {
@@ -495,10 +659,23 @@
 					}
 				}
 			}
+
+			$t_media_file->set("user_id", $this->request->user->get("user_id"));
+			if ($t_media_file->numErrors() > 0) {
+				foreach ($t_media_file->getErrors() as $vs_e) {
+					$va_errors["user_id"] = $vs_e;
+				}
+			}
+
+			$t_media_file->set("media_id", $this->opo_item->get("media_id"));
+			if ($t_media_file->numErrors() > 0) {
+				foreach ($t_media_file->getErrors() as $vs_e) {
+					$va_errors["media_id"] = $vs_e;
+				}
+			}
+
 			if (sizeof($va_errors) == 0) {
 				# do insert
-				$t_media_file->set("user_id", $this->request->user->get("user_id"));
-				$t_media_file->set("media_id", $this->opo_item->get("media_id"));
 				$t_media_file->setMode(ACCESS_WRITE);
 				$t_media_file->insert();
 	
@@ -507,6 +684,33 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
+					# Assign ARK
+					# db NULL weirdly returned as empty string
+					if (is_null($t_media_file->get("published")) 
+						|| ($t_media_file->get("published") === "")) 
+					{
+						$t_media = new ms_media($t_media_file->get("media_id"));
+						$vs_published = $t_media->get("published");
+					} else {
+						$vs_published = $t_media_file->get("published");
+					}
+					
+					if ($vs_published == 0) { // Reserved ARK
+						$va_ark = $t_media_file->getARK($va_reserved = true);
+					} else { // Published ARK
+						$t_user = new ca_users(($t_media_file->get('user_id') ? 
+							$t_media_file->get('user_id') : 
+							$this->opo_project->get('user_id')));
+						$va_ark = $t_media_file->getARK(
+							$va_reserved = false,
+							$vs_user_fname = $t_user->get('fname'),
+							$vs_user_lname = $t_user->get('lname')
+						);
+					}
+					if (!$va_ark["success"]) {
+						$va_errors["general"] .= $va_ark["error"];
+					}
+
 					// Set as preview file if there isn't one already for this media
 					$o_db = new Db();
 					$q_preview = $o_db->query("SELECT media_file_id FROM ms_media_files WHERE use_for_preview = 1 and media_id = ?", $t_media_file->get("media_id"));
@@ -525,6 +729,9 @@
 					
 					$vs_message = "Saved media file";
 				}
+
+				
+
 			}
 			if(sizeof($va_errors) > 0){
 				$vs_message = "There were errors in your form".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
@@ -532,7 +739,7 @@
 				$this->view->setVar("mediaFileErrors", $va_errors);
 			}else{
 				$this->view->setVar("mediaFileMessage", $vs_message);
-			} 			 			
+			}			 			
 			$this->mediaInfo();
  		}
  		# -------------------------------------------------------
@@ -542,7 +749,11 @@
 			$t_media_file = new ms_media_files();
 			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
 			$t_media_file->load($pn_media_file_id);
-			$va_fields = array("published", "title", "element", "side", "notes", "file_type", "derived_from_media_file_id", "distance_units", "max_distance_x", "max_distance_3d");
+			$vs_pub_init = $t_media_file->get("published");
+			if (is_null($vs_pub_init) || ($vs_pub_init === "")) {
+				$vs_pub_init = $this->opo_item->get("published");
+			}
+			$va_fields = array("published", "title", "element", "side", "notes", "file_type", "derived_from_media_file_id");
 			foreach($va_fields as $vs_f){
 				$t_media_file->set($vs_f,$_REQUEST[$vs_f]);
 
@@ -562,7 +773,39 @@
 						$va_errors["general"] = $vs_e;
 					}
 				}else{
-					// Update media previews?
+					# ARK Updates
+					$vs_pub_final = $t_media_file->get("published");
+					if (is_null($vs_pub_final) || ($vs_pub_final === "")) {
+						$vs_pub_final = $this->opo_item->get("published");
+					}
+
+					# Publish ARK if now published, previously unpublished
+					if ( ( ($vs_pub_final == 1) || ($vs_pub_final == 2) ) 
+						&& !( ($vs_pub_init == 1) || ($vs_pub_init == 2) ) ) 
+					{
+						$t_user = new ca_users(($t_media_file->get('user_id') ? 
+							$t_media_file->get('user_id') : 
+							$this->opo_project->get('user_id')));
+						$va_ark = $t_media_file->publishARK(
+							$vs_user_fname = $t_user->get('fname'),
+							$vs_user_lname = $t_user->get('lname')
+						);
+						if (!$va_ark["success"]) {
+							$va_errors["general"] .= $va_ark["error"];
+						}
+					}
+					# Unpublish ARK if previously published, now unpublished
+					if ( ($vs_pub_final == 0 ) 
+						&& ( ($vs_pub_init == 1) || ($vs_pub_init == 2) ) ) 
+					{
+						$va_ark = $t_media_file->unpublishARK();
+						if (!$va_ark["success"]) {
+							$va_errors["general"] .= $va_ark["error"];
+						}
+					}
+
+
+					# Update media previews?
 					if (isset($_FILES['mediaPreviews']['tmp_name']) && $_FILES['mediaPreviews']['tmp_name'] && $_FILES['mediaPreviews']['size']) {
 						$t_media_file->set('media', $_FILES['mediaPreviews']['tmp_name'], array(
 							'original_filename' => $_FILES['mediaPreviews']['name']
@@ -871,6 +1114,16 @@
 					$t_media_file = new ms_media_files();
 					while($q_media_files->nextRow()){
 						$t_media_file->load($q_media_files->get("media_file_id"));
+
+						# Delete ARK or make unavailable
+						if ($t_media_file->get("ark")) {
+							if ($t_media_file->get("ark_reserved")) {
+								$t_media_file->deleteARK();
+							} else {
+								$t_media_file->unpublishARK();
+							}
+						}
+
 						$t_media_file->setMode(ACCESS_WRITE);
 						$t_media_file->delete(true);
 						if ($t_media_file->numErrors()) {
@@ -914,6 +1167,16 @@
 			}
 			
 			$va_errors = array();
+
+			# Delete ARK or make unavailable
+			if ($t_media_file->get("ark")) {
+				if ($t_media_file->get("ark_reserved")) {
+					$t_media_file->deleteARK();
+				} else {
+					$t_media_file->unpublishARK();
+				}
+			}
+
 			$t_media_file->setMode(ACCESS_WRITE);
 			$t_media_file->delete(true);
 			if ($t_media_file->numErrors()) {
@@ -936,88 +1199,18 @@
 		public function GetDOI() {
 			if (!$this->request->user->canDoAction('can_create_doi')) { die("Not allowed to allocate DOIs"); }
 			
-			$t_media_file = new ms_media_files();
-			$pn_media_file_id = $this->request->getParameter('media_file_id', pInteger);
-			$t_media_file->load($pn_media_file_id);
-			if(!$t_media_file->get("media_file_id")){
-				$va_errors["general"] = "media file id not defined";
-				$this->mediaInfo();
-				return;
-			}
-			if ($t_media_file->get('doi')) {
-				$va_errors["general"] = "this media file already has a DOI";
-				$this->mediaInfo();
-				return;
-			}
-			$t_media_file->load($pn_media_file_id);
-			$t_media_group = new ms_media($t_media_file->get('media_id'));
-			//if (((int)$t_media_file->get('published') === 0) || ((int)$t_media_group->get('published') === 0)) {
-			//	$va_errors["general"] = "media must be published to have a DOI";
-			//	$this->mediaInfo();
-			//	return;
-			//}
-			
-			
-			$o_doi = new DOI();
-			
+			$t_media_file = new ms_media_files(
+				$this->request->getParameter('media_file_id', pInteger));			
 			$t_user = new ca_users(($vn_user_id = $t_media_file->get('user_id') ? $t_media_file->get('user_id') : $this->opo_project->get('user_id')));
-			
-			$vs_mime_type = strtolower($t_media_file->getMediaInfo('media', 'original', 'MIMETYPE'));
-			$va_mime_type = explode('/', $vs_mime_type);
-	
-			switch($va_mime_type[0]) {
-				case 'image':
-					$vs_resource_type = 'Image';
-					break;
-				case 'audio':
-				case 'video':
-					$vs_resource_type = 'Audiovisual';
-					break;
-				case 'application':
-					switch($vs_mime_type) {
-						case 'application/ply':
-						case 'application/stl':
-						case 'application/surf':
-						case 'text/prs.wavefront-obj':
-							$vs_resource_type = 'Model';	
-							break(2);
-						case 'application/zip':
-							$vs_resource_type = 'Dataset';	
-							break(2);
-						case 'application/dicom':
-							$vs_resource_type = 'Image';	
-							break(2);
-					}
-				default:
-					$vs_resource_type = 'Other';
-					break;
-			
-			}
-			$pn_media_id = $t_media_file->get("media_id");
-			try {
-				if ($vs_doi = $o_doi->createDOI("M{$pn_media_file_id}", array(
-					"datacite.creator" => trim($t_user->get('fname').' '.$t_user->get('lname')),
-					"datacite.title" => "M{$pn_media_id}-{$pn_media_file_id}",
-					"datacite.publisher" => "MorphoSource.org",
-					"datacite.publicationyear" => date("Y"),
-					"datacite.resourcetype" => $vs_resource_type,	
-					"_target" => "http://MorphoSource.org/index.php/Detail/MediaDetail/Show/media_file_id/{$pn_media_file_id}",
-					"_status" => "public",
-					"_export" => "yes",
-					"_profile" => "datacite"
-				))) {
-					//$o_log->log(array("CODE" => "DEBG", "SOURCE" => "pubForm", "MESSAGE" => $vs_msg = "Created DOI {$vs_doi} FOR project P{$vn_project_id}"));
-					$this->notification->addNotification("Obtained DOI for media", __NOTIFICATION_TYPE_INFO__);
-					# --- record the DOI in the DB
-					$t_media_file->set("doi", $vs_doi);
-					$t_media_file->setMode(ACCESS_WRITE);
-					$t_media_file->update();
-				} else {
-					//$o_log->log(array("CODE" => "DEBG", "SOURCE" => "pubForm", "MESSAGE" => $vs_msg = "Could not create DOI {$vs_doi} FOR project P{$vn_project_id}: ".$o_doi->getError()));
-					$this->notification->addNotification("Could not get DOI for media: ".$o_doi->getError(), __NOTIFICATION_TYPE_ERROR__);
-				}	
-			} catch (Exception $e) {
-					$this->notification->addNotification("Could not get DOI for media: ".$e->getMessage(), __NOTIFICATION_TYPE_ERROR__);
+
+			$va_doi = $t_media_file->getDOI($t_user->get('fname'), 
+				$t_user->get('lname'));
+			if ($va_doi["success"]) {
+				$this->notification->addNotification(
+					"Obtained DOI for media", __NOTIFICATION_TYPE_INFO__);
+			} else {
+				$this->notification->addNotification(
+					$va_doi["error"], __NOTIFICATION_TYPE_ERROR__);
 			}
 			$this->mediaInfo();
 		}

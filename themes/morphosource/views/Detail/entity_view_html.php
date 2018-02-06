@@ -42,7 +42,7 @@
 				style='display: table-cell; width: 120px;'>";
 			print caNavLink($request_class->request, 
 				$t_specimen->formatSpecimenName($va_entity), 
-				'', "MyProjects", "Specimens", "form", 
+				'', "Detail", "SpecimenDetail", "show", 
 				array("specimen_id" => $va_entity['specimen_id']), 
 				array("target" => "_blank"));
 			print "</div>";
@@ -60,18 +60,11 @@
 				style='display: table-cell; width: 105px; 
 				text-align: center;'>";
 			if ($va_entity['media']) {
-				$media_count = count($va_entity['media']);
-				$pub_media_count = count(
-					array_filter($va_entity['media'], function ($a) { 
-						if ($a['published'] == 1 || $a['published'] == 2) { 
-							return true; 
-						} 
-				}));
+				$pub_media_count = count($va_entity['media']);
 			} else {
-				$media_count = 0;
 				$pub_media_count = 0;
 			}
-			print $pub_media_count."/".$media_count;
+			print $pub_media_count;
 			print "</div>";
 
 			print "<div class='entityListCell' 
@@ -87,18 +80,6 @@
 			print "</div>";
 
 			print "<div class='entityListCell' 
-				style='display: table-cell; width: 55px; text-align: center;'>";
-			if (($va_entity['project_id'] == $pn_project_id) || 
-				($t_project->isFullAccessMember(
-					$request_class->request->user->get('user_id'), 
-					$va_entity['project_id']))) {
-				print "<img src='/themes/morphosource/graphics/morphosource/ic_done_black_24px.svg' 
-					onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_done_black_24dp_1x.png\"' 
-					style='vertical-align: text-top;' />";
-			}
-			print "</div>";
-
-			print "<div class='entityListCell' 
 				style='display: table-cell; width: 80px; text-align: center;'>";
 			if ($vs_uuid_id = $va_entity["uuid"]){
 				print "<a href='https://www.idigbio.org/portal/records/".
@@ -111,68 +92,23 @@
 			$t_media = new ms_media();
 			$t_specimen = new ms_specimens();
 			$pn_project_id = $request_class->getVar('project_id');
-
-			// Is media read only? (I.e. neither project nor user own it?)
-			$vb_read_only = 0;
-			if (($va_entity['project_id'] != $pn_project_id) && 
-				(!$t_project->isFullAccessMember(
-					$request_class->request->user->get('user_id'), 
-					$va_entity['project_id']))) {
-				$vb_read_only = 1;
-			}
 			
 			// List item table cells
-
-			if ($vb_read_only) {
-				// Read only access, disabled check and link to detail page
-				print "<div class='entityBatchCheckContainer entityListCell' 
-					style='display: table-cell; width: 30px;'>";
-				print "<input type='checkbox' disabled='disabled' 
-					title='You cannot edit media owned by another project' 
-					class='entityBatchCheck' style='display: none;'>";
-				print "</div>";
-
-				print "<div class='entityListCell' 
-					style='display: table-cell; width: 65px; 
-					padding-right: 10px; text-align: center;'>";
-				print caNavLink($request_class->request, 
-					"M".$va_entity['media_id'], "", "Detail", "MediaDetail", 
-					"Show", array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-				if ($va_entity['published'] == 1) {
-					print "<div>";
-					print addOwnedGroupToCartLink($request_class->request, 
-						$va_entity['media_id'], 
-						$request_class->request->user->get("user_id"), null, 
-						array("class" => "button buttonSmall marginTop10Px"));
-					print "</div>";
-				}
-				print "</div>";		
-			} else {
-				// Editable media, check and link to dashboard page
-				print "<div class='entityBatchCheckContainer entityListCell' 
-					style='display: table-cell; width: 30px;'>";
-				print "<input type='checkbox' name='media_ids[]' 
-					value='".$va_entity['media_id']."' 
-					title='Select for batch editing' class='entityBatchCheck' 
-					style='display: none;'>";
-				print "</div>";
-
-				print "<div class='entityListCell' 
-					style='display: table-cell; width: 65px; 
-					padding-right: 10px; text-align: center;'>";
-				print caNavLink($request_class->request, 
-					"M".$va_entity['media_id'], "", "MyProjects", "Media", 
-					"mediaInfo", array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-				print "<div>";
-				print addOwnedGroupToCartLink($request_class->request, 
-					$va_entity['media_id'], 
-					$request_class->request->user->get("user_id"), null, 
-					array("class" => "button buttonSmall marginTop10Px"));
-				print "</div>";
-				print "</div>";
-			}
+			print "<div class='entityListCell' 
+				style='display: table-cell; width: 65px; 
+				padding-right: 10px; text-align: center;'>";
+			print caNavLink($request_class->request, 
+				"M".$va_entity['media_id'], "", "Detail", "MediaDetail", 
+				"show", array('media_id' => $va_entity['media_id']), 
+				array("target" => "_blank"));
+			print "<div>";
+			print addGroupToCartLink($request_class->request, 
+				$va_entity['media_id'], 
+				$request_class->request->user->get("user_id"), null, 
+				array("class" => "button buttonSmall marginTop10Px"));
+			print "</div>";
+			print "</div>";
+			
 			
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 155px;'>";
@@ -213,20 +149,6 @@
 			print caGetLocalizedDate($va_entity['last_modified_on'], 
 				array('dateFormat' => delimited, 'timeOmitSeconds' => true));
 			print "</div>";
-
-			print "<div class='entityListItemFooter'>";
-			if ($va_entity['project_id'] != $pn_project_id) {
-				$t_own_project = new ms_projects();
-				$t_own_project->load($va_entity['project_id']);
-				print "<br/>Owned by project ".
-					((strlen($t_own_project->get("name")) > 200) ? 
-					mb_substr($t_own_project->get("name"), 0, 200)."..." : 
-					$t_own_project->get("name"));
-			}
-			if ($vb_read_only) {
-				print " - <b>READ ONLY ACCESS</b>";
-			}
-			print "</div>";
 		}
 		print "</div><!-- end entityListItem -->";
 	}
@@ -253,7 +175,7 @@
 					}
 					print "<div class='projectMediaSlide'>".
 					caNavLink($request_class->request, $vs_media_tag, "", 
-						"MyProjects", "Specimens", "form", 
+						"Detail", "SpecimenDetail", "show", 
 						array("specimen_id" => $va_entity['specimen_id']), 
 						array("target" => "_blank"))."</div>";	
 				}
@@ -267,8 +189,8 @@
 				$t_specimen->getSpecimenTaxonomy($va_entity['specimen_id']);
 			print "<div class='projectMediaSlideCaption'>";
 			print caNavLink($request_class->request, 
-				$t_specimen->formatSpecimenName($va_entity), '', "MyProjects", 
-				"Specimens", "form", 
+				$t_specimen->formatSpecimenName($va_entity), '', "Detail", 
+				"SpecimenDetail", "show", 
 				array("specimen_id" => $va_entity['specimen_id']), 
 				array("target" => "_blank"));
 			if ($vs_specimen_taxonomy) { 
@@ -298,60 +220,24 @@
 			print "<div class='projectMediaContainer entityTileContainer'>";
 			print "<div class='projectMedia'>";
 
-			// Is media read only? (I.e. neither project nor user own it?)
-			$vb_read_only = 0;
-			if (($va_entity['project_id'] != $pn_project_id) && 
-				(!$t_project->isFullAccessMember(
-					$request_class->request->user->get('user_id'), 
-					$va_entity['project_id']))) {
-				$vb_read_only = 1;
-			}
-
-			if ($vb_read_only) {
-				// Read only access, disabled check and link to detail page
-				print caNavLink($request_class->request, 
-					$va_entity['preview']['media']['preview190'], "", "Detail", 
-					"MediaDetail", "Show", 
-					array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-				print "<div class='entityBatchCheckContainer'>";
-				print "<input type='checkbox' disabled='disabled' 
-					title='You cannot edit media owned by another project' 
-					class='entityBatchCheck' style='display: none;'>";
-				print "</div>";
-			} else {
-				// Editable media group, check and link to dashboard page
-				print caNavLink($request_class->request, 
-					$va_entity['preview']['media']['preview190'], "", 
-					"MyProjects", "Media", "mediaInfo", 
-					array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-				print "<div class='entityBatchCheckContainer'>";
-				print "<input type='checkbox' name='media_ids[]' 
-					value='".$va_entity['media_id']."' 
-					title='Select for batch editing' class='entityBatchCheck' 
-					style='display: none;'>";
-				print "</div>";
-			}
-
+			print caNavLink($request_class->request, 
+				$va_entity['preview']['media']['preview190'], "", 
+				"Detail", "MediaDetail", "show", 
+				array('media_id' => $va_entity['media_id']), 
+				array("target" => "_blank"));
+			
 			print "</div><!-- end projectMedia -->";
 
 			// Entity caption
 			print "<div class='projectMediaSlideCaption'>";
 
-			if ($vb_read_only) {
-				print caNavLink($request_class->request, 
-					"M".$va_entity['media_id'], 
-					"", "Detail", "MediaDetail", "Show", 
-					array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-			} else {
-				print caNavLink($request_class->request, 
-					"M".$va_entity['media_id'], 
-					"", "MyProjects", "Media", "mediaInfo", 
-					array('media_id' => $va_entity['media_id']), 
-					array("target" => "_blank"));
-			}
+
+			print caNavLink($request_class->request, 
+				"M".$va_entity['media_id'], 
+				"", "Detail", "MediaDetail", "show", 
+				array('media_id' => $va_entity['media_id']), 
+				array("target" => "_blank"));
+
 			
 			print ", ".ucfirst($va_entity['element'])." (".
 				$va_entity['preview']['numFiles']." file".
@@ -383,19 +269,6 @@
 			print "Modified ".caGetLocalizedDate($va_entity['last_modified_on'], 
 				array('dateFormat' => delimited, 'timeOmitSeconds' => true));
 	
-			if ($va_entity['project_id'] != $pn_project_id) {
-				$t_own_project = new ms_projects();
-				$t_own_project->load($va_entity['project_id']);
-				print "<br/><br/><b>Owned by</b> ".
-					((strlen($t_own_project->get("name")) > 22) ? 
-					mb_substr($t_own_project->get("name"), 0, 22)."..." : 
-					$t_own_project->get("name"))."<br/>";
-			}
-
-			if ($vb_read_only) {
-				print "<b>READ ONLY ACCESS</b>";
-			}
-
 			print "</div> <!-- end projectMediaSlideCaption -->\n";
 
 			print "</div><!-- end projectMediaContainer -->";
@@ -421,7 +294,7 @@
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 105px; 
 				text-align: center;'>";
-			print "<b>Media groups (published/total)</b>";
+			print "<b>Published media groups</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 90px;'>";
@@ -432,20 +305,10 @@
 			print "<b>Date modified</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
-				style='display: table-cell; width: 55px; text-align: center;'>";
-			print "<b>Editable</b>";
-			print "</div>";
-			print "<div class='entityListCell' 
 				style='display: table-cell; width: 80px; text-align: center;'>";
 			print "<b>iDigBio Link</b>";
 			print "</div>";
 		} elseif ($vs_entity_type == 'm') {
-			print "<div class='entityListCell' 
-				style='display: table-cell; width: 30px;'>";
-			print "<div id='entityListHeaderEditText' style='display: none;'>
-				<b>Edit</b></div>";
-			print "</div>";
-
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 65px; padding-right: 10px; 
 				text-align: center;'>";
@@ -486,6 +349,8 @@
 	}
 
 	function formatNestGroupLabel($vs_taxon_level, $vs_taxon_term, $vs_entity_type, $va_entity, $request_class, $left_padding=null, $right_padding=null) {
+		$pn_project_id = $request_class->getVar('project_id');
+		
 		// Format label for taxon collection of entities (specimens/media groups)
 		$va_taxon_levels = 
 			['ht_class', 'ht_order', 'ht_family', 'genus', 'species'];
@@ -572,18 +437,20 @@
 					"/graphics/morphosource/ic_open_in_new_black_18px.svg' 
 					onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_open_in_new_orange_18px_1x.png\"' 
 					/>", 
-					'', 'MyProjects', 'Dashboard', 'specimenWithoutTaxonomy', 
-					array('specimens_group_by' => $vs_taxon_level) 
-				);
+					'', 'Detail', 'ProjectDetail', 'specimenWithoutTaxonomy', 
+					array('specimens_group_by' => $vs_taxon_level, 
+						'project_id' => $pn_project_id) 
+					);
 			}else{
 				print caNavLink($request_class->request, "<img src='".$request_class->request->getThemeUrlPath().
 					"/graphics/morphosource/ic_open_in_new_black_18px.svg' 
 					onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_open_in_new_orange_18px_1x.png\"'
 					 />", 
-					'', 'MyProjects', 'Dashboard', 'specimenByTaxonomy', 
+					'', 'Detail', 'ProjectDetail', 'specimenByTaxonomy', 
 					array('specimens_group_by' => $vs_taxon_level,
-						'taxon_id' => $vn_taxon_id) 
-				);
+						'taxon_id' => $vn_taxon_id, 
+						'project_id' => $pn_project_id) 
+					);
 			}
 
 			print "</div>";

@@ -197,10 +197,12 @@
 	<div id='dashboardMediaHeader'>
 <?php
 		print "<div class='dashboardMediaHeaderItem' style='width: 65%;'>";
-		$va_type_opts = array('Specimens' => 'specimen', 
-			'Media groups' => 'media');
+		$va_type_opts = array('Specimens' => 's', 
+			'Media groups' => 'm');
 		$vs_entity_type = $this->getVar('entity_type');
-		if (!$vs_entity_type) { $vs_entity_type = 'specimen'; }
+		if (!in_array($vs_entity_type, ['s', 'm'])) {
+			$vs_entity_type = 's';
+		}
 		print "<select class='dashboardMediaHeaderSelect' 
 			id='entityTypeSelect'>";
 		foreach ($va_type_opts as $label => $type) {
@@ -210,31 +212,37 @@
 		}
 		print "</select>";
 
-		if ($vs_entity_type == 'specimen') {
+		if ($vs_entity_type == 's') {
 			print caNavLink($this->request, "New Specimen", 
 				"button buttonMedium buttonWhiteBorder", "MyProjects", 
 				"Specimens", "lookupSpecimen");
-		} else if ($vs_entity_type == 'media') {
+		} else if ($vs_entity_type == 'm') {
 			print caNavLink($this->request, "New Media Group", 
 				"button buttonMedium buttonWhiteBorder", "MyProjects", 
 				"Media", "form");
 			print "<a href='#' name='mediaBatchButton' ". 
 				"class='button buttonMedium buttonWhiteBorder' id='mediaBatchButton' ".
 				"title='Batch edit media groups' >Batch Edit</a>";
+			print caNavLink($this->request, _t("Add All Media to Cart"), 
+				"button buttonMedium buttonWhiteBorder", "", "MediaCart", 
+				"addProjectMediaToCart", 
+				array("project_id" => $t_project->get("project_id")));
 		}
 
 		$sort_opt_selected = $this->getVar("specimens_group_by");
-		if (!$sort_opt_selected) { $sort_opt_selected = 'number'; }
+		if (!in_array($sort_opt_selected, ['n', 't', 'a', 'm', 'u', 'v'])) {
+			$sort_opt_selected = 'n';
+		}
 
 		print "</div>";
 
 		print "<div class='dashboardMediaHeaderItem' style='width: 26%;'>";
 		$sort_options = array(
-			'Flat list' => array('Specimen number' => 'number', 
-				'Taxon name' => 'taxon', 'Date added' => 'added', 
-				'Date modified' => 'modified'), 
-			'Taxonomy tree' => array('User-entered data' => 'ut', 
-				"VertNet data" => 'vt'));
+			'Flat list' => array('Specimen number' => 'n', 
+				'Taxon name' => 't', 'Date added' => 'a', 
+				'Date modified' => 'm'), 
+			'Taxonomy tree' => array('User-entered data' => 'u', 
+				"VertNet data" => 'v'));
 		print "<span class='entityViewHeaderText'>sort by</span>";
 		print "<select class='dashboardMediaHeaderSelect' id='mediaSortSelect'>";
 		foreach ($sort_options as $group => $opts) {
@@ -250,16 +258,18 @@
 		print "</div>";	
 
 		$vs_entity_format = $this->getVar('entity_format');
-		if (!$vs_entity_format) { $vs_entity_format = 'tile'; }
+		if (!in_array($vs_entity_format, ['t', 'l'])) {
+			$vs_entity_format = 't';
+		}
 		print "<div class='dashboardMediaHeaderItem' style='width: 8%;'>";
 		print "<a href='#' id='entityFormatIconTile' style='float: right;' class='".
-			($vs_entity_format != 'tile' ? "entityFormatIconInactive" : "").
+			($vs_entity_format != 't' ? "entityFormatIconInactive" : "").
 			"' style='display: inline-block;'>
 			<img src='/themes/morphosource/graphics/morphosource/ic_view_module_white_24px.svg' 
 			onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_view_module_white_24dp_1x.png\"' 
 			style='display: inline-block;' /></a>";
 		print "<a href='#' id='entityFormatIconList' style='float: right;' class='".
-			($vs_entity_format != 'list' ? "entityFormatIconInactive" : "").
+			($vs_entity_format != 'l' ? "entityFormatIconInactive" : "").
 			"'  style='display: inline-block;'>
 			<img src='/themes/morphosource/graphics/morphosource/ic_view_headline_white_24px.svg' 
 			onerror='this.src=\"/themes/morphosource/graphics/morphosource/ic_view_headline_white_24dp_1x.png\"' 
@@ -301,7 +311,7 @@
 	</div> <!-- end entityMediaBatchEditContainer -->
 	<!-- end batch media edit pane -->
 <?php
-	if ($sort_opt_selected == 'ut' || $sort_opt_selected == 'vt') {
+	if ($sort_opt_selected == 'u' || $sort_opt_selected == 'v') {
 		print "<div class='treeSortButtons'>";
 		print "<a href='#' name='expandNestButton' ". 
 			"class='button buttonMedium' id='expandNestButton' ".
@@ -326,15 +336,15 @@
 
 		var entityFormat = '<?php print($vs_entity_format); ?>';
 		if (!entityFormat || entityFormat == 'undefined') { 
-			entityFormat = 'tile'; 
+			entityFormat = 't'; 
 		};
-		if (entityFormat == 'list') {
+		if (entityFormat == 'l') {
 			jQuery('#entityContainerTile').hide();
 			jQuery('#entityContainerList').show();
 			jQuery('#entityFormatIconTile').addClass('entityFormatIconInactive');
 			jQuery('#entityFormatIconList').removeClass('entityFormatIconInactive');
 			jQuery('.entityBatchCheck').prop('checked', false);
-		} else if (entityFormat == 'tile') {
+		} else if (entityFormat == 't') {
 			jQuery('#entityContainerTile').show();
 			jQuery('#entityContainerList').hide();
 			jQuery('#entityFormatIconTile').removeClass('entityFormatIconInactive');
@@ -348,12 +358,12 @@
 	// When sort select value changes, reload page with new value
 	jQuery('#mediaSortSelect').change(function() {
 		if (jQuery('#entityContainerTile').is(':visible')) {
-			var entityFormat = 'tile';
+			var entityFormat = 't';
 		} else if (jQuery('#entityContainerList').is(':visible')) {
-			var entityFormat = 'list';
+			var entityFormat = 'l';
 		}
 		window.location.href = 
-			'/index.php/MyProjects/Dashboard/dashboard/s/'+ 
+			'/MyProjects/Dashboard/dashboard/s/'+ 
 			jQuery('#mediaSortSelect').val() + '/t/' + 
 			jQuery('#entityTypeSelect').val() + '/f/' + 
 			entityFormat;
@@ -362,14 +372,14 @@
 	// When type select value changes, reload page with new value
 	jQuery('#entityTypeSelect').change(function() {
 		if (jQuery('#entityContainerTile').is(':visible')) {
-			var entityFormat = 'tile';
+			var entityFormat = 't';
 		} else if (jQuery('#entityContainerList').is(':visible')) {
-			var entityFormat = 'list';
+			var entityFormat = 'l';
 		} else {
-			var entityFormat = 'tile';
+			var entityFormat = 't';
 		}
 		window.location.href = 
-			'/index.php/MyProjects/Dashboard/dashboard/s/'+ 
+			'/MyProjects/Dashboard/dashboard/s/'+ 
 			jQuery('#mediaSortSelect').val() + '/t/' + 
 			jQuery('#entityTypeSelect').val() + '/f/' + 
 			entityFormat;
