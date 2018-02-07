@@ -547,12 +547,15 @@ class ms_projects extends BaseModel {
 	}
 	# ----------------------------------------
 	# --- $pn_owned_by true returns only media owned directly by the project - this excludes read only media
-	function getProjectMedia($pn_owned_by = null, $ps_order_by = null) {
+	function getProjectMedia($pn_owned_by = null, $ps_order_by = null, $pa_options=null) {
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
 
 		if(!$ps_order_by){
 			$ps_order_by = "media_id";
+		}
+		if(!$pa_options){
+			$pa_options = array();
 		}
 
 		$vs_order_by = "";
@@ -578,6 +581,11 @@ class ms_projects extends BaseModel {
 				$vs_order_by = " m.media_id";
 			break;
 		}
+
+		$vs_published_where = "";
+		if($pa_options["published_media_only"]){
+			$vs_published_where = " AND m.published != 0 ";
+		}
 		
 		$vs_select_join = "
 			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
@@ -592,21 +600,21 @@ class ms_projects extends BaseModel {
 
 		$o_db = $this->getDb();
 		if($pn_owned_by){
-			$qr = $o_db->query($vs_select_join."
-				WHERE m.project_id = ?
-				ORDER BY".$vs_order_by, $vn_project_id);
+			$qr = $o_db->query($vs_select_join.
+				"WHERE m.project_id = ?".$vs_published_where.
+				"ORDER BY".$vs_order_by, $vn_project_id);
 		}else{
 			$qr = $o_db->query($vs_select_join."
 				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
-				WHERE (m.project_id = ? OR mxp.project_id = ?)
-				ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
+				WHERE (m.project_id = ? OR mxp.project_id = ?)".$vs_published_where.
+				"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
 		}
 
 		return $qr;
 	}
 	# ----------------------------------------
 	# --- $pn_owned_by true returns only media owned directly by the project - this excludes read only media
-	function getProjectMediaNestTaxonomy($pn_owned_by = null, $pb_vertnet = false) {
+	function getProjectMediaNestTaxonomy($pn_owned_by = null, $pb_vertnet = false, $pa_options=null) {
 		// Return media groups in a series of nested taxonomic (family, order, etc.) arrays
 		$vn_project_id = $this->getPrimaryKey();
 		if (!$vn_project_id) { return null; }
@@ -614,6 +622,9 @@ class ms_projects extends BaseModel {
 		// Constructing db query
 		if(!$ps_order_by){
 			$ps_order_by = "media_id";
+		}
+		if(!$pa_options){
+			$pa_options = array();
 		}
 
 		$vs_order_by = "";
@@ -638,6 +649,11 @@ class ms_projects extends BaseModel {
 			default:
 				$vs_order_by = " m.media_id";
 			break;
+		}
+
+		$vs_published_where = "";
+		if($pa_options["published_media_only"]){
+			$vs_published_where = " AND m.published != 0 ";
 		}
 		
 		if($pb_vertnet){
@@ -672,13 +688,14 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 		if($pn_owned_by){
-			$qr = $o_db->query($vs_select_join."WHERE m.project_id = ? ORDER BY".
-				$vs_order_by, $vn_project_id);
+			$qr = $o_db->query($vs_select_join."WHERE m.project_id = ?".
+				$vs_published_where." ORDER BY".$vs_order_by, $vn_project_id);
 		}else{
 			$qr = $o_db->query($vs_select_join."
 				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id 
-				WHERE (m.project_id = ? OR mxp.project_id = ?) 
-				ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
+				WHERE (m.project_id = ? OR mxp.project_id = ?)".
+				$vs_published_where." ORDER BY".$vs_order_by, $vn_project_id, 
+				$vn_project_id);
 		}
 		
 		// Constructing taxonomically nested arrays 
