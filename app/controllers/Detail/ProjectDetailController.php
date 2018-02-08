@@ -150,7 +150,7 @@
 				$vs_specimens_group_by = 
 					$this->request->session->getVar('specimens_group_by');
 			} else {
-				$vs_specimens_group_by = 'number';
+				$vs_specimens_group_by = 'n';
 			}
 			if (!in_array($vs_specimens_group_by, 
 				['n', 't', 'a', 'm', 'u', 'v'])) {
@@ -184,7 +184,7 @@
 				$vs_entity_type = 's';
 			}
 			if (!in_array($vs_entity_type, ['s', 'm'])) {
-				$vs_entity_format = 's';
+				$vs_entity_type = 's';
 			}
 			$this->view->setVar('entity_type', $vs_entity_type);
 			$this->request->session->setVar('entity_type', $vs_entity_type);
@@ -290,7 +290,7 @@
 						break;
 				}
 			} 
-			
+
 			$this->view->setVar('va_entity', $va_entity);
 			$this->view->setVar('vn_count', $vn_count);
 			$this->view->setVar('vb_entity_nest', $vb_entity_nest);		

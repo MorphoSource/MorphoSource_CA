@@ -105,7 +105,13 @@
 	<div class="tealRule"><!-- empty --></div>
 
 	<!-- ADD THIS PROJECT HAS NO PUBLISHED MEDIA GROUPS SPECIMEN FLAG -->
-
+<?php 
+	if ((((int)$va_media_counts[1] + (int)$va_media_counts[2]) == 0) 
+		&& ($vn_specimen_count == 0)) 
+	{
+		print "<H2>"._t("This project has no published specimen/media")."</H2>";
+	} else {
+?>
 	<!-- entity view header -->
 	<div id='dashboardMediaHeader'>
 <?php
@@ -182,7 +188,11 @@
 ?>
 	</div>
 	<!-- end entityView -->
+<?php
+	} // Ends else statement before dashboardMediaHeader div
+?>
 </div><!-- end dashboardMedia -->
+
 <script type="text/javascript">
 	jQuery(document).ready(function() {
 		jQuery('.projectMediaSlideCycle').cycle();
