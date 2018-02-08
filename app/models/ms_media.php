@@ -911,6 +911,7 @@ class ms_media extends BaseModel {
 		}
  		$t_author = new ca_users($t_media->get('user_id'));
  		$t_user = new ca_users($pn_user_id);
+ 		$t_project_owner = new ca_users($t_project->get('user_id'));
  		
  		// ONLY SEND TO AUTHOR IF NO ONE ELSE IS GETTING AN EMAIL
  		if (!sizeof($va_send_to) && ($vs_email = $t_author->get('email'))) {
@@ -922,6 +923,7 @@ class ms_media extends BaseModel {
  				'author' => $t_author,
  				'media' => $t_media,
  				'project' => $t_project,
+ 				'project_owner' => $t_project_owner,
  				'specimen' => $t_specimen,
  				'downloadRequest' => $t_req
  			));
