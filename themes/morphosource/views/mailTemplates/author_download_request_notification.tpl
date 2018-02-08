@@ -3,6 +3,7 @@
 	$t_user = $this->getVar('user');
 	$t_media = $this->getVar('media');
 	$t_project = $this->getVar('project');
+	$t_project_owner = $this->getVar('project_owner');
 	$t_specimen = $this->getVar('specimen');
 	$t_download_request = $this->getVar('downloadRequest');
 ?>
@@ -25,6 +26,11 @@ Description:
 	}
 ?>
 <br/>
+Media Creator: 
+<?php
+	print $t_author->get('fname').' '.$t_author->get('lname').', '.$t_author->get('email');
+?>
+<br/>
 Specimen: 
 <?php 
 	if ($t_specimen->getPrimaryKey()) {
@@ -36,11 +42,17 @@ Specimen:
 	} 
 ?>
 <br/>
+<br/>
 Project: 
 <?php
 	print "<strong><a href='http://www.morphosource.org/MyProjects/Dashboard/dashboard/select_project_id/".$t_project->getPrimaryKey()."' target='_blank'>";
 	print $t_project->get('name');
 	print "</a></strong>";
+?>
+<br/>
+Project Owner:
+<?php
+	print $t_project_owner->get('fname').' '.$t_project_owner->get('lname').', '.$t_project_owner->get('email'); 
 ?>
 </p>
 
