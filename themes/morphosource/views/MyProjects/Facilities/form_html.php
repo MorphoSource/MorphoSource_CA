@@ -1,8 +1,10 @@
 <?php
 	require_once(__CA_MODELS_DIR__."/ms_scanners.php");
+	require_once(__CA_MODELS_DIR__."/ms_scanner_modes.php");
 	
 	$t_item = $this->getVar("item");
 	$t_scanner = new ms_scanners();
+	$t_scanner_modes = new ms_scanner_modes();
 	
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
@@ -91,6 +93,12 @@ if (!$this->request->isAjax()) {
 						</td><td>
 							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{description}'))); ?>		
 						</td>
+					</tr>
+					<tr>
+						<td>
+							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{description}'))); ?>	
+						</td>
+						<td class='labelInfo caAddItemButton'><a href='#'><?php print caNavIcon($this->request, __CA_NAV_BUTTON_ADD__); ?> <?php print _t('Add modality'); ?></a></td>
 					</tr>
 				</table>
 			</div>

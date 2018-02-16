@@ -38,6 +38,7 @@ require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_view_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_files.php");
 require_once(__CA_MODELS_DIR__."/ms_media_shares.php");
+require_once(__CA_MODELS_DIR__."/ms_scanner_modes.php");
 
 BaseModel::$s_ca_models_definitions['ms_media'] = array(
  	'NAME_SINGULAR' 	=> _t('media group'),
@@ -267,14 +268,22 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				"IS_NULL" => true, "DEFAULT" => "",
 				"LABEL" => "Find the facility this media file was created at", "DESCRIPTION" => "Enter the name of the facility<br /> and select the facility from the resulting list of possible matches."
 		),
-		'scanner_id' => array(
+		'scanner_mode_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
-				"DISPLAY_FIELD" => array('ms_scanners.name'), 
-				"DISPLAY_ORDERBY" => array('ms_scanners.name'),
+				// "DISPLAY_ORDERBY" => array('ms_scanners.name'),
 				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => true, "DEFAULT" => "",
-				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner at the selected facility used to create this media."
+				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner (plus modality) at the selected facility used to create this media.",
+				"BOUNDS_CHOICE_LIST"=> array()
 		),
+		// 'scanner_id' => array(
+		// 		"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
+		// 		"DISPLAY_FIELD" => array('ms_scanners.name'), 
+		// 		"DISPLAY_ORDERBY" => array('ms_scanners.name'),
+		// 		"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
+		// 		"IS_NULL" => true, "DEFAULT" => "",
+		// 		"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner at the selected facility used to create this media."
+		// ),
 		'scanner_x_resolution' => array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 13, 'DISPLAY_HEIGHT' => 1,
@@ -438,13 +447,6 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 					_t('Batch uploaded') => 1
 				)
 		),
-		'scanner_mode_id' => array(
-				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
-				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
-				"IS_NULL" => true, "DEFAULT" => "",
-				"LABEL" => "Choose scanner used", "DESCRIPTION" => "Choose the scanner (plus modality) at the selected facility used to create this media.",
-				"BOUNDS_CHOICE_LIST"=> array()
-		)
  	)
 );
 

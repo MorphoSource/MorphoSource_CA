@@ -161,7 +161,7 @@ if (!$this->request->isAjax()) {
 				//print "</div>";
 			break;
 			# -----------------------------------------------
-			case "scanner_id":
+			case "scanner_mode_id":
 				print $t_item->htmlFormElement($vs_f,"<div class='formLabel".((in_array($vs_f, $va_float_fields)) ? "Float" : "")."'>^LABEL<br>^ELEMENT</div>", array('id' => 'msScannerID', 'nullOption' => '-'));
 			break;
 			# -----------------------------------------------
