@@ -520,7 +520,7 @@ class ms_specimens extends BaseModel {
 		$vs_num =  join("-", $va_specimen_parts);
 		
 		if (!caGetOption('omitTaxonomy', $pa_options, false)) {
-			if(is_array($pa_specimen["taxa"])){
+			if(is_array($pa_specimen["taxa"]) && (sizeof($pa_specimen["taxa"]) > 0)) {
 				$vs_num .= ", <em>".join("; ", $pa_specimen["taxa"])."</em>";
 			}
 		}

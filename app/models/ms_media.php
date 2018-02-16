@@ -32,6 +32,7 @@
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_projects.php");
+require_once(__CA_MODELS_DIR__."/ms_specimens.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_requests.php");
 require_once(__CA_MODELS_DIR__."/ms_media_multifiles.php");
 require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
@@ -887,10 +888,13 @@ class ms_media extends BaseModel {
  		} else {
  			$t_media = $this;
  		}
+
+ 		$t_project = new ms_projects($t_media->get("project_id"));
+ 		$t_specimen = new ms_specimens($t_media->get("specimen_id"));
+
  		# --- Who should be notified of the download request?
  		# --- check if the media group has an individual assigned to review downloads
  		$va_send_to = array();
-		$t_project = new ms_projects($t_media->get("project_id"));
 		if($t_media->get("reviewer_id")){
  			$t_reviewer = new ca_users($t_media->get("reviewer_id"));
  			$va_send_to[$t_reviewer->get("email")] = $t_reviewer->get("fname")." ".$t_reviewer->get("lname");
@@ -907,6 +911,7 @@ class ms_media extends BaseModel {
 		}
  		$t_author = new ca_users($t_media->get('user_id'));
  		$t_user = new ca_users($pn_user_id);
+ 		$t_project_owner = new ca_users($t_project->get('user_id'));
  		
  		// ONLY SEND TO AUTHOR IF NO ONE ELSE IS GETTING AN EMAIL
  		if (!sizeof($va_send_to) && ($vs_email = $t_author->get('email'))) {
@@ -918,6 +923,8 @@ class ms_media extends BaseModel {
  				'author' => $t_author,
  				'media' => $t_media,
  				'project' => $t_project,
+ 				'project_owner' => $t_project_owner,
+ 				'specimen' => $t_specimen,
  				'downloadRequest' => $t_req
  			));
  		}

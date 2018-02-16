@@ -99,8 +99,8 @@
 				$vs_specimens_group_by = 'number';
 			}
 			if (!in_array($vs_specimens_group_by, 
-				['number', 'taxon', 'added', 'modified', 'ut', 'vt'])) {
-				$vs_specimens_group_by = 'number';
+				['n', 't', 'a', 'm', 'u', 'v'])) {
+				$vs_specimens_group_by = 'n';
 			}
 			$this->view->setVar('specimens_group_by', $vs_specimens_group_by);
 			$this->request->session->setVar('specimens_group_by', 
@@ -113,10 +113,10 @@
 				$vs_entity_format = 
 					$this->request->session->getVar('entity_format');
 			} else {
-				$vs_entity_format = 'tile';
+				$vs_entity_format = 't';
 			}
-			if (!in_array($vs_entity_format, ['tile', 'list'])) {
-				$vs_entity_format = 'tile';
+			if (!in_array($vs_entity_format, ['t', 'l'])) {
+				$vs_entity_format = 't';
 			}
 			$this->view->setVar("entity_format", $vs_entity_format);
 			$this->request->session->setVar('entity_format', $vs_entity_format);
@@ -127,10 +127,10 @@
 			} elseif ($this->request->session->getVar('entity_type')) {
 				$vs_entity_type = $this->request->session->getVar('entity_type');
 			}else{
-				$vs_entity_type = 'specimen';
+				$vs_entity_type = 's';
 			}
-			if (!in_array($vs_entity_type, ['specimen', 'media'])) {
-				$vs_entity_format = 'specimen';
+			if (!in_array($vs_entity_type, ['s', 'm'])) {
+				$vs_entity_type = 's';
 			}
 			$this->view->setVar('entity_type', $vs_entity_type);
 			$this->request->session->setVar('entity_type', $vs_entity_type);
@@ -152,16 +152,16 @@
 				$this->opo_project->getProjectMediaFileCounts());
 
 			// Get entity data
-			if ($vs_entity_type == 'specimen') {
+			if ($vs_entity_type == 's') {
 				switch ($vs_specimens_group_by) {
-					case 'ut':
+					case 'u':
 						$va_specimens_by_taxonomy = $this->opo_project->
 							getProjectSpecimensNestTaxonomy(null, 0);
 						$va_entity = $va_specimens_by_taxonomy['specimen'];
 						$vn_count = $va_specimens_by_taxonomy['numSpecimen'];
 						$vb_entity_nest = 1;
 						break;
-					case 'vt':
+					case 'v':
 						$va_specimens_by_taxonomy = $this->opo_project->
 							getProjectSpecimensNestTaxonomy(null, 1);
 						$va_entity = $va_specimens_by_taxonomy['specimen'];
@@ -169,23 +169,40 @@
 						$vb_entity_nest = 1;
 						break;
 					default:
+						switch ($vs_specimens_group_by) {
+							case 'n':
+								$vs_order_by = 'number';
+								break;
+							case 't':
+								$vs_order_by = 'taxon';
+								break;
+							case 'a':
+								$vs_order_by = 'added';
+								break;
+							case 'm':
+								$vs_order_by = 'modified';
+								break;
+							default:
+								$vs_order_by = 'number';
+								break;
+						}
 						$va_entity = $this->opo_project->
-							getProjectSpecimens(null, $vs_specimens_group_by);
+							getProjectSpecimens(null, $vs_order_by);
 						$vn_count = is_array($va_entity) ? 
 							sizeof($va_entity) : 0;
 						$vb_entity_nest = 0;
 						break;
 				}
-			} elseif ($vs_entity_type == 'media') {
+			} elseif ($vs_entity_type == 'm') {
 				switch ($vs_specimens_group_by) {
-					case 'ut':
+					case 'u':
 						$va_media_by_taxonomy = $this->opo_project->
 							getProjectMediaNestTaxonomy(null, 0);
 						$va_entity = $va_media_by_taxonomy['media'];
 						$vn_count = $va_media_by_taxonomy['numMedia'];
 						$vb_entity_nest = 1;
 						break;
-					case 'vt':
+					case 'v':
 						$va_media_by_taxonomy = $this->opo_project->
 							getProjectMediaNestTaxonomy(null, 1);
 						$va_entity = $va_media_by_taxonomy['media'];
@@ -193,8 +210,25 @@
 						$vb_entity_nest = 1;
 						break;
 					default:
+						switch ($vs_specimens_group_by) {
+							case 'n':
+								$vs_order_by = 'number';
+								break;
+							case 't':
+								$vs_order_by = 'taxon';
+								break;
+							case 'a':
+								$vs_order_by = 'added';
+								break;
+							case 'm':
+								$vs_order_by = 'modified';
+								break;
+							default:
+								$vs_order_by = 'number';
+								break;
+						}
 						$qr = $this->opo_project->
-							getProjectMedia(null, $vs_specimens_group_by);
+							getProjectMedia(null, $vs_order_by);
 						$va_entity = array();
 						$t_media = new ms_media();
 						while ($qr->nextRow()) {
@@ -212,7 +246,7 @@
 						break;
 				}
 			} 
-			
+
 			$this->view->setVar('va_entity', $va_entity);
 			$this->view->setVar('vn_count', $vn_count);
 			$this->view->setVar('vb_entity_nest', $vb_entity_nest);
@@ -854,9 +888,6 @@
 			$this->view->setVar("taxomony_term_display", $vs_specimens_group_by_display);
 			
 			$this->render('Dashboard/specimen_without_taxonomy_html.php');
-		}
-  		# -------------------------------------------------------
-			
-
+		}		
  	}
  ?>
