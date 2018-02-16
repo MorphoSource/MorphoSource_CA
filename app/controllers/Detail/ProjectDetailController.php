@@ -116,17 +116,6 @@
  			}
  			$this->view->setVar("show_edit_link", $vb_show_edit_link);
  			
- 			// 	$vs_specimens_group_by = $this->request->getParameter('specimens_group_by', pString);
-			
-			// if($vs_specimens_group_by){
-			// 	$this->request->session->setVar('specimens_group_by', $vs_specimens_group_by);
-			// }elseif($this->request->session->getVar('specimens_group_by')){
-			// 	$vs_specimens_group_by = $this->request->session->getVar('specimens_group_by');
-			// }else{
-			// 	$vs_specimens_group_by = "specimen";
-			// }
-			// $this->view->setVar("specimens_group_by", $vs_specimens_group_by);
-
 			$this->view->setVar("media_counts", 
 				$this->opo_item->getProjectMediaCounts());
 			$this->view->setVar("specimen_count", 
@@ -142,7 +131,7 @@
 			$this->view->setVar("project_url",
 				$this->opo_item->get("url"));
 
-			// Sort variable handling
+			// Sort variable (number, taxon, etc.) handling
 			if ($this->request->getParameter('s', pString)) {
 				$vs_specimens_group_by = 
 					$this->request->getParameter('s', pString);
@@ -160,7 +149,7 @@
 			$this->request->session->setVar('specimens_group_by', 
 				$vs_specimens_group_by);		
 
-			// Entity format variable handling
+			// Entity format (tile, list) variable handling
 			if ($this->request->getParameter('f', pString)) {
 				$vs_entity_format = $this->request->getParameter('f', pString);
 			} elseif ($this->request->session->getVar('entity_format')){
@@ -175,7 +164,7 @@
 			$this->view->setVar("entity_format", $vs_entity_format);
 			$this->request->session->setVar('entity_format', $vs_entity_format);
 
-			// Entity type variable handling			
+			// Entity type (specimen, media) variable handling			
 			if ($this->request->getParameter('t', pString)) {
 				$vs_entity_type = $this->request->getParameter('t', pString);
 			} elseif ($this->request->session->getVar('entity_type')) {

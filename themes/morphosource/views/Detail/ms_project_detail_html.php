@@ -5,8 +5,8 @@
 	$vs_project_name     = $this->getVar("project_name");
 	$va_project_members  = $this->getVar("project_members");
 	$vs_project_abstract = $this->getVar("project_abstract");
-	$vn_project_id		 = $this->getVar("project_id");
-	$vs_project_url		 = $this->getVar("project_url");
+	$vn_project_id	     = $this->getVar("project_id");
+	$vs_project_url	     = $this->getVar("project_url");
 
 	$vs_entity_type = $this->getVar('entity_type');
 	if (!in_array($vs_entity_type, ['s', 'm'])) {
@@ -20,33 +20,6 @@
 	if (!in_array($vs_entity_format, ['t', 'l'])) {
 		$vs_entity_format = 't';
 	}
-
-	// $t_project = $this->getVar("item");
-	// $vn_specimen_with_family = $t_project->getProjectSpecimensCountWithFamily(array("published_media_only" => true));
-	// $vs_specimens_group_by = $this->getVar("specimens_group_by");
-	// switch($vs_specimens_group_by){
-	// 	case "genus":
-	// 	case "species":
-	// 	case "ht_family":
-	// 		$va_specimens_by_taxomony = $t_project->getProjectSpecimensByTaxonomy(null, $vs_specimens_group_by, array("published_media_only" => true, "taxonomy_term" => $vs_taxon, "taxonomy_type" => $vs_specimens_group_by));
-	// 		$vn_count = $va_specimens_by_taxomony["numSpecimen"];
-	// 		$va_specimens = $va_specimens_by_taxomony["specimen"];
-	// 	break;
-	// 	# --------------------------------------------------------------------
-	// 	default:
-
-	// 		$vs_order_by = $this->request->getParameter('specimens_order_by', pString);
-	// 		if(!$vs_order_by){
-	// 			$vs_order_by = "number";
-	// 		}
-	// 		$va_specimens = $t_project->getProjectSpecimens(null, $vs_order_by, array("published_media_only" => true));
-	// 		$vn_count = sizeof($va_specimens);
-	// 	break;
-	// 	# --------------------------------------------------------------------
-	// }	
-	// # --- get all media files linked to this media record
-	// $o_db = new Db();
-	
 ?>
 <div class="blueRule"><!-- empty --></div>
 <?php
@@ -76,8 +49,7 @@
 	}
 	print "<div class='InfoContainerLeft'>";
 	print "<H2>"._t("Members")."</H2><div class='unit'>";
-	// $va_members = array();
-	// $va_members = $t_project->getMembers();
+
 	if(sizeof($va_project_members) > 0){
 		$vni = 0;
 		foreach($va_project_members as $va_member){
@@ -90,7 +62,7 @@
 	}
 	print "</div><!-- end unit -->\n";
 	print "<H2>"._t("Data")."</H2><div class='unit'>";
-	// $va_media_counts = $t_project->getProjectMediaCounts();
+
 	print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media<br/>";
 	print $vn_specimen_count." specimen with published media";
 	print "</div><!-- end unit -->\n";
@@ -104,7 +76,6 @@
 	<div id="dashboardMedia">
 	<div class="tealRule"><!-- empty --></div>
 
-	<!-- ADD THIS PROJECT HAS NO PUBLISHED MEDIA GROUPS SPECIMEN FLAG -->
 <?php 
 	if ((((int)$va_media_counts[1] + (int)$va_media_counts[2]) == 0) 
 		&& ($vn_specimen_count == 0)) 
