@@ -202,6 +202,16 @@
 							if ($t_scanner->numErrors()) {
 								$va_errors['new_'.$va_matches[1]][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
 							}
+							else
+								$vs_modality = $this->request->getParameter('scanner_modality'.$va_matches[1], pString);
+								$t_scanner_mode = new ms_scanner_modes();
+								$t_scanner_mode->setMode(ACCESS_WRITE);
+								print_r($vs_name);
+								$t_scanner_mode->set('scanner_id', $vs_name);
+								print_r($vs_modality);
+								$t_scanner_mode->set('modality', $vs_modality);
+								$t_scanner_mode->set('user_id', $this->request->getUserID());
+								$t_scanner_mode->insert();
 						}
 						
 						// look for scanners to edit
