@@ -31,6 +31,7 @@
  */
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+require_once(__CA_MODELS_DIR__."/ms_scanner_modes.php");
 
 BaseModel::$s_ca_models_definitions['ms_facilities'] = array(
  	'NAME_SINGULAR' 	=> _t('facility'),
@@ -261,8 +262,14 @@ class ms_facilities extends BaseModel {
 	 */
 	public function getScanners() {
 		if (!($vn_facility_id = $this->getPrimaryKey())) { return null; }
-		
-		return ms_facilities::scannerList($vn_facility_id);
+
+		$va_scanner_rows = ms_facilities::scannerList($vn_facility_id);
+
+		//die(print_r(array_values($va_scanner_rows)));
+		$va_scanner_id = array_keys($va_scanner_rows);
+		$va_scanner_modes = ms_scanner_modes::scannerModeList($va_scanner_id);
+
+		return array('va_scanner_rows' => $va_scanner_rows, 'va_scanner_modes' => $va_scanner_modes);
 	}
 	# ----------------------------------------
 	/**

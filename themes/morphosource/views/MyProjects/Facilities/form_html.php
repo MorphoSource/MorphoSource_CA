@@ -95,27 +95,21 @@ if (!$this->request->isAjax()) {
 						</td>
 					</tr>
 					<tr>
-							<div id="msScannerModalityList">
-								<textarea class='caItemTemplate' style='display: none;'>
-									<div id="msScannerModalityListItem_{n}{m}" class="labelInfo">	
-										<span class="formLabelError">{error}</span>
-
-										<div style="float: right;">
-											<a href="#" class="caDeleteItemButton"><?php print caNavIcon($this->request, __CA_NAV_BUTTON_DEL_BUNDLE__); ?></a>
-										</div>
-										
-										<table>
-											<tr>
-												<td>
-													<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '{modality}'))); ?>	
-												</td>
-												
-												<td class='labelInfo caAddItemButton'><a href='#'><?php print caNavIcon($this->request, __CA_NAV_BUTTON_ADD__); ?> <?php print _t('Add modality'); ?></a></td>
-											</tr>
-										</table>
-									</div>
-								</textarea>
-							</div>
+						<td>
+							<?php
+								$a = '{mode_1}'; 
+								print_r($a); 
+							?>
+							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '7'))); ?>
+						</td>
+						<td>
+							<?php print_r('{mode_2}'); ?>
+							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '{mode_2}'))); ?>
+						</td>
+						<td>
+							<?php print_r('{mode_3}'); ?>
+							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '{mode_3}'))); ?>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -146,7 +140,7 @@ if (!$this->request->isAjax()) {
 <script type="text/javascript">
 	caUI.initBundle('#msFacilityScannerList', {
 		fieldNamePrefix: 'msFacilityScannerList_',
-		templateValues: ['name', 'description', 'scanner_id'],
+		templateValues: ['name', 'description', 'scanner_id', 'mode_array'],
 		initialValues: <?php print (is_array($va_scanner_list = $this->getVar('scannerList'))) ? json_encode($va_scanner_list) : "null"; ?>,
 		forceNewValues: {},
 		errors: <?php print json_encode($this->getVar('scannerErrors')); ?>,
@@ -161,27 +155,6 @@ if (!$this->request->isAjax()) {
 		readonly: 0,
 		disableUnsavedChangesWarning: true
 	});
-</script>
-
-<script type="text/javascript">
-	caUI.initBundle('#msScannerModalityList', {
-		fieldNamePrefix: 'msScannerModalityList_',
-		templateValues: ['modality_id'],
-		initialValues: <?php print (is_array($va_scanner_modality_list = $this->getVar('scannerModalityList'))) ? json_encode($va_scanner_modality_list) : "null"; ?>,
-		forceNewValues: {},
-		errors: <?php print json_encode($this->getVar('scannerModalityErrors')); ?>,
-		itemID: 'msScannerModalityListItem_',
-		templateClassName: 'caItemTemplate',
-		itemListClassName: 'caItemList',
-		addButtonClassName: 'caAddItemButton',
-		deleteButtonClassName: 'caDeleteItemButton',
-		minRepeats: 0,
-		maxRepeats: 3,
-		showEmptyFormsOnLoad: 1,
-		readonly: 0,
-		disableUnsavedChangesWarning: true
-	});
-
 </script>
 
 <?php

@@ -194,8 +194,8 @@ class ms_scanner_modes extends BaseModel {
 			FROM ms_scanner_modes AS sm 
 			INNER JOIN ms_scanners AS s ON s.scanner_id = sm.scanner_id";
 		if ($va_where_scanner_id) {
-			$qr_res = $o_db->query($db_statement." WHERE sm.scanner_id IN (?)", 
-				$va_where_scanner_id);
+			$qr_res = $o_db->query($db_statement." WHERE sm.scanner_id IN (?)" 
+				, [$va_where_scanner_id]);
 		} else {
 			$qr_res = $o_db->query($db_statement);
 		}
