@@ -91,24 +91,30 @@ if (!$this->request->isAjax()) {
 						<td>
 							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('name', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_name_{n}', 'value' => '{name}'))); ?>		
 						</td><td>
-							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{description}'))); ?>		
+							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{mode_1}'))); ?>	
 						</td>
 					</tr>
+				</table>
+				<table>
 					<tr>
 						<td>
-							<?php
-								$a = '{mode_1}'; 
-								print_r($a); 
-							?>
-							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '7'))); ?>
+							<div class="mode_invis" style='display:none;'>{mode_1}</div>
+							<div class="name_invis" style='display:none;'>scanner_modality_{n}_1</div>
+							<?php 
+								print_r('{mode_1}');
+								print $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_1', 'value' => '{mode_1}')); ?>
 						</td>
 						<td>
-							<?php print_r('{mode_2}'); ?>
-							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '{mode_2}'))); ?>
+							<div class="mode_invis" style='display:none;'>{mode_2}</div>
+							<div class="name_invis" style='display:none;'>scanner_modality_{n}_2</div>
+							<?php print_r('{mode_2}');
+							 	  print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_2', 'value' => '{mode_2}'))); ?>
 						</td>
 						<td>
-							<?php print_r('{mode_3}'); ?>
-							<?php print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}', 'value' => '{mode_3}'))); ?>
+							<div class="mode_invis" style='display:none;'>{mode_3}</div>
+							<div class="name_invis" style='display:none;'>scanner_modality_{n}_3</div>
+							<?php print_r('{mode_3}');
+							      print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_3', 'value' => '{mode_3}'))); ?>
 						</td>
 					</tr>
 				</table>
@@ -140,7 +146,7 @@ if (!$this->request->isAjax()) {
 <script type="text/javascript">
 	caUI.initBundle('#msFacilityScannerList', {
 		fieldNamePrefix: 'msFacilityScannerList_',
-		templateValues: ['name', 'description', 'scanner_id', 'mode_array'],
+		templateValues: ['name', 'description', 'scanner_id', 'mode_1'],
 		initialValues: <?php print (is_array($va_scanner_list = $this->getVar('scannerList'))) ? json_encode($va_scanner_list) : "null"; ?>,
 		forceNewValues: {},
 		errors: <?php print json_encode($this->getVar('scannerErrors')); ?>,
@@ -155,6 +161,14 @@ if (!$this->request->isAjax()) {
 		readonly: 0,
 		disableUnsavedChangesWarning: true
 	});
+
+	var modeOne = $('.mode_invis');
+	var selectOne = $('.name_invis');
+	for (var i = 0; i < selectOne.length; i++) {
+		var select = $('select[name=' + selectOne.eq(i).text() + ']');
+		select.val(modeOne.eq(i).text());
+	}
+
 </script>
 
 <?php
