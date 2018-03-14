@@ -331,24 +331,21 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 					$vb_del = false;
 
 					# Is file ASCII STL?
-					if ($this->properties['mimetype'] == 'application/stl') {
-						if ($r_fp = @fopen($this->filepath, "r")) {
-							$vs_sig = fgets($r_fp, 20); 
-							if (preg_match('!^solid!', $vs_sig)) {
-								# Temporary binary STL file
-								if (file_exists("/usr/local/bin/meshlabserver")) {
-									chdir('/usr/local/bin');
-									$vs_env_saved = getenv("LD_LIBRARY_PATH"); 
-									$vs_env_new = "/lib/"; 
-									if ($vs_env_saved) { $vs_env_new .= ":$vs_env_saved"; } 
-									putenv("LD_LIBRARY_PATH=$vs_env_new"); 
-									exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}_temp_bin.stl 2>&1", $va_output);
-									putenv("LD_LIBRARY_PATH=$vs_env_saved");
-									$vs_convfilepath = $ps_filepath.'_temp_bin.stl';
-									$vb_del = true;	
-								}
-							}
-						}
+					if (($this->properties['mimetype'] == 'application/stl')
+						&& ($r_fp = @fopen($this->filepath, "r"))
+						&& (preg_match('!^solid!', fgets($r_fp, 20)))
+						&& (file_exists("/usr/local/bin/meshlabserver"))
+					) {
+						# Temporary binary STL file	
+						chdir('/usr/local/bin');
+						$vs_env_saved = getenv("LD_LIBRARY_PATH"); 
+						$vs_env_new = "/lib/"; 
+						if ($vs_env_saved) { $vs_env_new .= ":$vs_env_saved"; } 
+						putenv("LD_LIBRARY_PATH=$vs_env_new"); 
+						exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}_temp_bin.stl 2>&1", $va_output);
+						putenv("LD_LIBRARY_PATH=$vs_env_saved");
+						$vs_convfilepath = $ps_filepath.'_temp_bin.stl';
+						$vb_del = true;	
 					} else {
 						$vs_convfilepath = $this->filepath;
 					}
