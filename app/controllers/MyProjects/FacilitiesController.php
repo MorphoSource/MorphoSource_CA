@@ -86,11 +86,7 @@
 				
 				// load related scanners
 				$va_scanners = $this->opo_item->getScanners();
-				// die(print_r($va_scanners['va_scanner_modes']));
 
-				// die(print_r($va_scanners['va_scanner_modes']));
-				 // $va_scanner = array_values($va_scanners['va_scanner_rows']);
-				// die(print_r($va_scanner));
 				foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
 					// print_r('MODALITY '.$va_mode_list['modality']);
 					$scanner_id = $va_mode_list['scanner_id'];
@@ -151,6 +147,30 @@
 			$this->render('Facilities/list_html.php');
  		}
  		# -------------------------------------------------------
+ 		private function loadModality() {
+ 			// load related scanners
+			$va_scanners = $this->opo_item->getScanners();
+			// die(print_r($va_scanners['va_scanner_rows']['va_scanner_modes']));
+			foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
+				// print_r('MODALITY '.$va_mode_list['modality']);
+				$scanner_id = $va_mode_list['scanner_id'];
+				$va_scanner_array = $va_scanners['va_scanner_rows'][$scanner_id];
+
+				if(array_key_exists(mode_3, $va_scanner_array)){
+					$this->notification->addNotification("The Scanner you are trying to add a modality to already has the max number of modalities.", __NOTIFICATION_TYPE_ERROR__);
+				}
+				elseif (array_key_exists(mode_2, $va_scanner_array)) {
+					$va_scanners['va_scanner_rows'][$scanner_id]['mode_3'] = $va_mode_list['modality'];
+				}
+				elseif(array_key_exists(mode_1, $va_scanner_array)){
+					$va_scanners['va_scanner_rows'][$scanner_id]['mode_2'] = $va_mode_list['modality'];
+				}
+				else{
+					$va_scanners['va_scanner_rows'][$scanner_id]['mode_1'] = $va_mode_list['modality'];
+				}
+			} 
+ 		}
+ 		# -------------------------------------------------------
  		public function save() {
 			# get names of form fields
 			$va_fields = $this->opo_item->getFormFields();
@@ -158,7 +178,7 @@
 			$va_scanner_modes = $va_scanners['va_scanner_modes'];
 			$va_errors = array();
 
-			// die(print_r($va_fields));
+			// die(print_r($va_scanner_modes));
 			# loop through fields
 			while(list($vs_f,$va_attr) = each($va_fields)) {
 				
@@ -212,57 +232,52 @@
 				$this->form();
 			}else{
 				
-					print_r($_REQUEST);
-					print_r('-----');
+					// print_r($_REQUEST);
+					// print_r('-----');
 					$va_errors = array();
 				// Save scanners
 					foreach($_REQUEST as $vs_key => $vm_val) {
-
-						// print_r($vs_key);
-						// print_r('----');
-							// print_r('VS_KEY:'.$vs_key.'---');
-							// print_r('VA_MATCHES:'.$va_matches.'***');
 					
 						// look for new scanners
 						if (preg_match("!^scanner_name_new_([\d]+)$!", $vs_key, $va_matches)) {
 							$vs_name = $this->request->getParameter($vs_key, pString);
-							// print_r('VS_KEY:'.$vs_key.'---');
-							// print_r('VA_MATCHES:'.$va_matches.'***');
-							// print_r('VS_NAME----');
-							// print_r($vs_name);
+
 							if (!strlen(trim($vs_name))) { continue; } 
 							$vs_desc = $this->request->getParameter('scanner_description_new_'.$va_matches[1], pString);
 							
 							$t_scanner = new ms_scanners();
 							$t_scanner->setMode(ACCESS_WRITE);
-							// $t_scanner_mode->setMode(ACCESS_WRITE);
 							$t_scanner->set('facility_id', $this->opo_item->getPrimaryKey());
 							$t_scanner->set('name', $vs_name);
 							$t_scanner->set('description', $vs_desc);
 							$t_scanner->set('user_id', $this->request->getUserID());
-							// $t_scanner_mode->set('scanner_id', $vs_name);
-							// $t_scanner_mode->set('modality', $va_mode_list['modality']);
 							$t_scanner->insert();
-							// $t_scanner_mode->insert();
-
-							//add new modalities
-							print_r('USER ID: '. $this->request->getUserID());
-							for($m=1; $m<=3; $m++){
-								$m=(string)$m;
-								$vs_mode = $this->request->getParameter('scanner_modality_new_'.$va_matches[1].'_'.$m, pInteger);
-								print_r('scanner_modality_new_'.$va_matches[1].'_'.$m);
-								// print_r($vs_mode.'&&&&');
-								$t_scanner_mode = new ms_scanner_modes();
-								$t_scanner_mode->setMode(ACCESS_WRITE);
-								$t_scanner_mode->set('user_id', $this->request->getUserID());
-								$t_scanner_mode->set('scanner_id', $t_scanner->get('scanner_id'));
-								$t_scanner_mode->set('modality', $vs_mode);
-								$t_scanner_mode->insert();
-							}
-							
 
 							if ($t_scanner->numErrors()) {
 								$va_errors['new_'.$va_matches[1]][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
+							}
+							else{
+
+								//add new modalities
+								for($m=1; $m<=3; $m++){
+									// print_r($m.'---');
+									// print_r($t_scanner->get('scanner_id').'***');
+									$m=(string)$m;
+									$vs_mode = $this->request->getParameter('scanner_modality_new_'.$va_matches[1].'_'.$m, pInteger);
+									// print_r('scanner_modality_new_'.$va_matches[1].'_'.$m.': '.$vs_mode);
+									if ($vs_mode) {
+										$t_scanner_mode = new ms_scanner_modes();
+										$t_scanner_mode->setMode(ACCESS_WRITE);
+										$t_scanner_mode->set('user_id', $this->request->getUserID());
+										$t_scanner_mode->set('scanner_id', $t_scanner->get('scanner_id'));
+										$t_scanner_mode->set('modality', $vs_mode);
+										$t_scanner_mode->insert();
+									}
+									// if ($t_scanner_mode->numErrors()) {
+									// 	$va_errors[$t_scanner_mode->getPrimaryKey()][] = array('errorDescription' => join("; ", $t_scanner_mode->getErrors()));
+									// }
+								}
+
 							}
 						}
 						
@@ -282,23 +297,134 @@
 								$va_errors[$t_scanner->getPrimaryKey()][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
 							}
 						}
+
+						//look for modalities to edit
+						for($m=1; $m<=3; $m++){
+							$m=(string)$m;
+							print_r('VA_MATCHES: '.$va_matches[1].'---');
+							$vs_mode = $this->request->getParameter('scanner_modality_'.$va_matches[1].'_'.$m, pInteger);
+							print_r('WE SHALL SEE'.$va_scanners['va_scanner_rows'][$va_scanner_array[1]]['mode_3'].'***');
+				
+							if($vs_mode){
+								// print('---in vs_mode if section---');
+								// print_r('scanner_modality_'.$va_matches[1].'_'.$m.': '.$vs_mode);
+								// print('---LOOK FOR MODALITIES TO EDIT---');
+								$num_matches=0;
+								$num_modalities=0;
+								foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
+									$num_modalities++;
+									if($va_mode_list['scanner_id'] == $va_matches[1]){
+										print('***scanner_id has match***');
+										$mode_id = $va_mode_list['scanner_mode_id'];
+
+										print('^^^^^^^^^^^^^^^^^');
+										print_r($va_mode_list['modality']);
+										print('^^^^^^^^^^^^^^^^^');
+										if($va_mode_list['modality'] == $vs_mode){
+											print('DO NOTHING');
+										}
+										elseif ($num_matches < 3) {
+											print('HELLO THERE');
+											// $t_scanner_mode = new ms_scanner_modes($mode_id);
+											// $t_scanner_mode->setMode(ACCESS_WRITE);
+											// $t_scanner_mode->delete();
+											// $t_scanner_mode->set('user_id', $this->request->getUserID());
+											// $t_scanner_mode->set('scanner_id', $t_scanner->get('scanner_id'));
+											// $t_scanner_mode->set('modality', $vs_mode);
+											// $t_scanner_mode->insert();
+										}
+										$num_matches++;
+									}
+								}
+								// print_r('   NUMBER OF MODALITIES: '.$num_modalities);
+								if($num_matches == 0){
+									print('xxxthere were 0 entries in modes for scannerxxx');
+									$t_scanner_mode = new ms_scanner_modes();
+									$t_scanner_mode->setMode(ACCESS_WRITE);
+									$t_scanner_mode->set('user_id', $this->request->getUserID());
+									$t_scanner_mode->set('scanner_id', $t_scanner->get('scanner_id'));
+									$t_scanner_mode->set('modality', $vs_mode);
+									$t_scanner_mode->insert();
+								}
+							}
+							$num_matches=0;
+						}
+						// foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
+						// 	if($va_mode_list['scanner_id']== $va_matches[1]){
+						// 		print_r($va_mode_list['scanner_mode_id'].'---');
+						// 		$mode_id = $va_mode_list['scanner_mode_id'];
+						// 		for($m=1; $m<=3; $m++){
+						// 			$m=(string)$m;
+						// 			$vs_mode = $this->request->getParameter('scanner_modality_'.$va_matches[1].'_'.$m, pInteger);
+						// 			print_r('scanner_modality_'.$va_matches[1].'_'.$m.': '.$vs_mode);
+						// 			if ($vs_mode) {
+						// 				print('---in vs_mode if section---');
+						// 				// $t_scanner_mode = new ms_scanner_modes();
+						// 				// $t_scanner_mode->setMode(ACCESS_WRITE);
+						// 				// $t_scanner_mode->set('user_id', $this->request->getUserID());
+						// 				// $t_scanner_mode->set('scanner_id', $t_scanner->get('scanner_id'));
+						// 				// $t_scanner_mode->set('modality', $vs_mode);
+						// 				// $t_scanner_mode->insert();
+						// 			}
+						// 		}
+						// 		// $t_scanner_mode = new ms_scanner_modes($mode_id);
+						// 		// $t_scanner_mode->setMode(ACCESS_WRITE);
+						// 		// $t_scanner_mode->delete();
+						// 	}
+						// }
 						
 						// look for scanners to delete
 						if (preg_match("!^msFacilityScannerList_([\d]+)_delete$!", $vs_key, $va_matches)) {
+							// print('VA_MATCHES----');
+							// die(print_r($va_matches[1]));
 							$t_scanner = new ms_scanners($va_matches[1]);
 							if (!$t_scanner->getPrimaryKey() || ($t_scanner->get('facility_id') != $this->opo_item->getPrimaryKey())) { $t_scanner->dump();  continue; }
+							// print('IN DELETE');
+							// die(print_r($va_scanner_modes));
+							foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
+								if($va_mode_list['scanner_id']== $va_matches[1]){
+									print_r($va_mode_list['scanner_mode_id'].'_');
+									$mode_id = $va_mode_list['scanner_mode_id'];
+									$t_scanner_mode = new ms_scanner_modes($mode_id);
+									$t_scanner_mode->setMode(ACCESS_WRITE);
+									$t_scanner_mode->delete();
+								}
+							}
+
 							$t_scanner->setMode(ACCESS_WRITE);
 							$t_scanner->delete();
 							
 							if ($t_scanner->numErrors()) {
 								$va_errors[$t_scanner->getPrimaryKey()][] = array('errorDescription' => join("; ", $t_scanner->getErrors()));
+								print('in errors');
 							}
 						}
 					}
 					$this->view->setVar('scannerErrors', $va_errors);
 					
 					// load related scanners
-					$this->view->setVar('scannerList', $this->opo_item->getScanners());
+					$va_scanners = $this->opo_item->getScanners();
+					// die(print_r($va_scanners['va_scanner_rows']['va_scanner_modes']));
+					foreach($va_scanners['va_scanner_modes'] as $va_mode_list){
+						// print_r('MODALITY '.$va_mode_list['modality']);
+						$scanner_id = $va_mode_list['scanner_id'];
+						$va_scanner_array = $va_scanners['va_scanner_rows'][$scanner_id];
+
+						if(array_key_exists(mode_3, $va_scanner_array)){
+							$this->notification->addNotification("The Scanner you are trying to add a modality to already has the max number of modalities.", __NOTIFICATION_TYPE_ERROR__);
+						}
+						elseif (array_key_exists(mode_2, $va_scanner_array)) {
+							$va_scanners['va_scanner_rows'][$scanner_id]['mode_3'] = $va_mode_list['modality'];
+						}
+						elseif(array_key_exists(mode_1, $va_scanner_array)){
+							$va_scanners['va_scanner_rows'][$scanner_id]['mode_2'] = $va_mode_list['modality'];
+						}
+						else{
+							$va_scanners['va_scanner_rows'][$scanner_id]['mode_1'] = $va_mode_list['modality'];
+						}
+
+					} 
+					$this->view->setVar('scannerList', $va_scanners['va_scanner_rows']);
 				
 				$this->opn_item_id = $this->opo_item->get($this->ops_primary_key);
 				$this->view->setVar("item_id", $this->opn_item_id);

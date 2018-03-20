@@ -270,7 +270,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 		),
 		'scanner_mode_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_SELECT,
-				// "DISPLAY_ORDERBY" => array('ms_scanners.name'),
+				"DISPLAY_ORDERBY" => array('ms_scanner_modes.scanner_id'),
 				"DISPLAY_WIDTH" => 100, "DISPLAY_HEIGHT" => 1,
 				"IS_NULL" => true, "DEFAULT" => "",
 				"LABEL" => "Choose scanner and modality used", "DESCRIPTION" => "Choose the scanner (plus modality) at the selected facility used to create this media.",

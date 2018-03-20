@@ -293,12 +293,14 @@ class ms_facilities extends BaseModel {
 	static public function scannerListByFacilityID() {
 		
 		$o_db = new Db();
+		// $qr_res = $o_db->query("SELECT * FROM morphosource.ms_scanners scan, morphosource.ms_scanner_modes modes where scan.scanner_id = modes.scanner_id ORDER BY name");
 		$qr_res = $o_db->query("SELECT * FROM ms_scanners ORDER BY name");
 		
 		$va_rows = array();
 		while($qr_res->nextRow()) {
-			$va_rows[(int)$qr_res->get('facility_id')][(int)$qr_res->get('scanner_id')] = $qr_res->getRow();
+			$va_rows[(int)$qr_res->get('facility_id')][(int)$qr_res->get('scanner_id')][(int)$qr_res->get('scanner_mode_id')] = $qr_res->getRow();
 		}
+		print_r($va_rows);
 		return $va_rows;
 	}
 	# ----------------------------------------

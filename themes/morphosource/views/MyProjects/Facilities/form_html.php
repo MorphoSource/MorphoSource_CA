@@ -91,7 +91,7 @@ if (!$this->request->isAjax()) {
 						<td>
 							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('name', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_name_{n}', 'value' => '{name}'))); ?>		
 						</td><td>
-							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{mode_1}'))); ?>	
+							<?php print str_replace("textarea", "textentry", $t_scanner->htmlFormElement('description', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_description_{n}', 'value' => '{description}'))); ?>	
 						</td>
 					</tr>
 				</table>
@@ -101,20 +101,22 @@ if (!$this->request->isAjax()) {
 							<div class="mode_invis" style='display:none;'>{mode_1}</div>
 							<div class="name_invis" style='display:none;'>scanner_modality_{n}_1</div>
 							<?php 
-								print_r('{mode_1}');
+								// print_r('{mode_1}');
 								print $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_1', 'value' => '{mode_1}')); ?>
 						</td>
 						<td>
 							<div class="mode_invis" style='display:none;'>{mode_2}</div>
 							<div class="name_invis" style='display:none;'>scanner_modality_{n}_2</div>
-							<?php print_r('{mode_2}');
-							 	  print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_2', 'value' => '{mode_2}'))); ?>
+							<?php 
+								// print_r('{mode_2}');
+							 	print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_2', 'value' => '{mode_2}'))); ?>
 						</td>
 						<td>
 							<div class="mode_invis" style='display:none;'>{mode_3}</div>
 							<div class="name_invis" style='display:none;'>scanner_modality_{n}_3</div>
-							<?php print_r('{mode_3}');
-							      print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_3', 'value' => '{mode_3}'))); ?>
+							<?php 
+								// print_r('{mode_3}');
+							    print str_replace("textarea", "textentry", $t_scanner_modes->htmlFormElement('modality', "<div class='formLabel'>^LABEL<br/>^ELEMENT</div>", array('name' => 'scanner_modality_{n}_3', 'value' => '{mode_3}'))); ?>
 						</td>
 					</tr>
 				</table>
