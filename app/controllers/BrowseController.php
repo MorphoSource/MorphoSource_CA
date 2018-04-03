@@ -121,32 +121,29 @@
 				
 				$va_specimens = [];
 				
-				// Don't generate specimen lists at the highest levels
-				if (!in_array($ps_rank, ['kingdom'])) {
-					// grab all specimens attached to at least one child taxon
-					$va_specimen_query_params = [$va_child_ids];
-					
-					$vs_published_sql = '';
-					if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
-						$va_specimen_query_params[] =  $this->opa_project_ids;
-						$vs_published_sql = ' AND ((m.published >= 1) OR (m.published = 0 AND m.project_id IN (?)))';
-					} else {
-						$vs_published_sql = ' AND (m.published >= 1)';
-					}
-					$q_specimens = $o_db->query("
-						SELECT DISTINCT sxrt.specimen_id
-						FROM ms_resolved_taxonomy rt
-						INNER JOIN ms_specimens_x_resolved_taxonomy AS sxrt ON sxrt.taxon_id = rt.taxon_id
-						INNER JOIN ms_specimens AS s ON s.specimen_id = sxrt.specimen_id
-						INNER JOIN ms_media AS m ON s.specimen_id = m.specimen_id
-						WHERE
-							rt.taxon_id IN (?) {$vs_published_sql}
-						
-						ORDER BY s.institution_code, s.collection_code, s.catalog_number
-					", $va_specimen_query_params);
-					
-					$va_specimens = $q_specimens->getAllFieldValues('specimen_id');
+				// grab all specimens attached to at least one child taxon
+				$va_specimen_query_params = [$va_child_ids];
+				
+				$vs_published_sql = '';
+				if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
+					$va_specimen_query_params[] =  $this->opa_project_ids;
+					$vs_published_sql = ' AND ((m.published >= 1) OR (m.published = 0 AND m.project_id IN (?)))';
+				} else {
+					$vs_published_sql = ' AND (m.published >= 1)';
 				}
+				$q_specimens = $o_db->query("
+					SELECT DISTINCT sxrt.specimen_id
+					FROM ms_resolved_taxonomy rt
+					INNER JOIN ms_specimens_x_resolved_taxonomy AS sxrt ON sxrt.taxon_id = rt.taxon_id
+					INNER JOIN ms_specimens AS s ON s.specimen_id = sxrt.specimen_id
+					INNER JOIN ms_media AS m ON s.specimen_id = m.specimen_id
+					WHERE
+						rt.taxon_id IN (?) {$vs_published_sql}
+					
+					ORDER BY s.institution_code, s.collection_code, s.catalog_number
+				", $va_specimen_query_params);
+				
+				$va_specimens = $q_specimens->getAllFieldValues('specimen_id');
 			} else {
 				//
 				// Start at specified rank

@@ -45,7 +45,7 @@
 	}
 	if ($q_taxa->numRows() > 0) {
 ?>
-	<br/><H5 class='ltBlueBottomRule'><?php print ($pn_taxon_id) ? _t("Refine") : _t("Start Browsing by %1", ucfirst($ps_next_rank)); ?></H5><br/>
+	<br/><H5 class='ltBlueBottomRule'><?php print ($pn_taxon_id) ? _t("Refine") : _t("Start Browsing by %1", ucfirst($ps_rank)); ?></H5><br/>
 <?php
 		if($q_taxa->numRows() > 0){
 			print "<div class='browseListScrollContainer'>";
