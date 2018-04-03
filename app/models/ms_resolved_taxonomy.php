@@ -199,7 +199,7 @@ class ms_resolved_taxonomy extends BaseModel {
 	protected $FIELDS;
 	
 	
-	static $s_ranks = ["kingdom", "subkingdom", "phylum", "subphylum",  "superclass", "class",  "subclass", "infraclass","superorder", "order", "suborder","infraorder", "superfamily", "family",  "subfamily","infrafamily", "genus", "subgenus", "species", "variety"];
+	static $s_ranks = ["domain", "kingdom", "subkingdom", "phylum", "subphylum",  "superclass", "class",  "subclass", "infraclass","superorder", "order", "suborder","infraorder", "superfamily", "family",  "subfamily","infrafamily", "genus", "subgenus", "species", "variety"];
 	
 	# ----------------------------------------
 	public function __construct($pn_id=null) {
