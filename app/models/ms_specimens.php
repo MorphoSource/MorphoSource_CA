@@ -336,6 +336,14 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('Batch Uploaded') => 1
 				)
+		),
+		'recordset' => array(
+				"FIELD_TYPE" => FT_TEXT, "DISPLAY_TYPE" => DT_HIDDEN, 
+				"DISPLAY_WIDTH" => 40, "DISPLAY_HEIGHT" =>1,
+				"IS_NULL" => true, 
+				"DEFAULT" => '',
+				"LABEL" => "Recordset", "DESCRIPTION" => "iDigBio recordset ID",
+				"BOUNDS_LENGTH" => array(0,255)
 		)
  	)
 );
