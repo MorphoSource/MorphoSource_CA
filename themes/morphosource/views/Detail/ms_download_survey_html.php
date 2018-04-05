@@ -8,12 +8,20 @@
 	}else{
 		$vs_url = caNavUrl($this->request, "Detail", "MediaDetail", $ps_action);
 	}
+	$agreement_url = $this->request->getThemeUrlPath().
+		'/static/MorphoSource_download_use_agreement.pdf';
+	$x_img_url = $this->request->getThemeUrlPath().
+		'/graphics/morphosource/ic_clear_black_24dp_1x.png';
 ?>
 <div id="surveyFormOverlay">
-	<div class="button buttonSmall" style="float:right;" onclick="msMediaPanel.hidePanel(); return false;">X</div>
+	<a href="#" style="float:right;" onclick="msMediaPanel.hidePanel(); return false;">
+		<img src="<?php print $x_img_url; ?>"></img>
+	</a>
+	<div style='text-align: center;'>
 	<H1>
 		Download Media
 	</H1>
+	</div>
 	<div class="blueRule"><!-- empty --></div>
 	<div id="formArea">
 	<p>Please provide the following information before download.</p>
@@ -38,9 +46,31 @@
 		
 		
 ?>
-			<div class="formButtons tealTopBottomRule">
-				<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#downloadForm').submit(); msMediaPanel.hidePanel(); return false;"><?php print _t("Download"); ?></a>
+			<div id='download_agreement' style='margin-top: 20px; margin-bottom: 20px; padding: 4px;'>
+				<input type='checkbox' id='agreement_check'>
+				<label for='agreement_check'>
+					I agree to the conditions of this download as outlined in the 
+					<a href="<?php print $agreement_url; ?>" target='_blank'>MorphoSource download use agreement</a>.
+					<span id='required' style='color: red; font-weight: bold; display: none;'>You must agree to the conditions to download.</span>
+				</label>
+			</div>
+			<div class="formButtons" style='text-align: center;'>
+				<a href="#" name="save" class="button buttonLarge" onclick="submitDownloadForm(); return false;"><?php print _t("Download"); ?></a>
 			</div>
 		</form>
 	</div>
 </div>
+<script>
+	function submitDownloadForm() {
+		if (!jQuery('#agreement_check').prop('checked')) {
+			jQuery('#required').show();
+			jQuery('#download_agreement').addClass('redShadow');
+		} else {
+			jQuery('#required').hide();
+			jQuery('#download_agreement').removeClass('redShadow');
+			jQuery('#downloadForm').submit(); 
+			msMediaPanel.hidePanel(); 
+		}
+		return false;
+	}
+</script>
