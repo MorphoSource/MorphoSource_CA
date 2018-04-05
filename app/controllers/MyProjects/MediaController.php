@@ -1276,6 +1276,12 @@
 				fclose($vo_file);
 				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name);
 			}
+
+			# --- include download agreement form and add it to zip ---
+			$vs_pdf_file_name = 'MorphoSource_download_use_agreement.pdf';
+			$vs_pdf_file_location = $this->request->getThemeDirectoryPath().
+				'/static/'.$vs_pdf_file_name;
+			$o_zip->addFile($vs_pdf_file_location, $vs_pdf_file_name);
 			
 			$this->view->setVar('zip_stream', $o_zip);
 		
@@ -1351,6 +1357,12 @@
 					fclose($vo_file);
 					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name);
 				}
+				
+				# --- include download agreement form and add it to zip ---
+				$vs_pdf_file_name = 'MorphoSource_download_use_agreement.pdf';
+				$vs_pdf_file_location = $this->request->getThemeDirectoryPath().
+					'/static/'.$vs_pdf_file_name;
+				$o_zip->addFile($vs_pdf_file_location, $vs_pdf_file_name);
 				
 				$this->view->setVar('zip_stream', $o_zip);
 				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.zip');
