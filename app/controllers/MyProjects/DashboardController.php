@@ -556,7 +556,16 @@
  				$this->projectList();
  				return;
  			}
- 			$this->MarkDownloadRequest(1);
+
+ 			$pn_user_id = $this->request->user->get('user_id');
+ 			$pn_request_id = $this->request->getParameter('request_id', pInteger);
+ 			$t_req = new ms_media_download_requests($pn_request_id);
+ 			$t_media = new ms_media($t_req->get('media_id'));
+
+ 			// Is user reviewer for media? Else is user project member?
+ 			if ($t_media->userCanApproveDownloadRequest($pn_user_id)){
+ 				$this->MarkDownloadRequest(1);
+ 			}	
  		}
  		# -------------------------------------------------------
  		public function DenyDownloadRequest() {
@@ -564,7 +573,16 @@
  				$this->projectList();
  				return;
  			}
- 			$this->MarkDownloadRequest(2);
+ 			
+ 			$pn_user_id = $this->request->user->get('user_id');
+ 			$pn_request_id = $this->request->getParameter('request_id', pInteger);
+ 			$t_req = new ms_media_download_requests($pn_request_id);
+ 			$t_media = new ms_media($t_req->get('media_id'));
+
+ 			// Is user reviewer for media? Else is user project member?
+ 			if ($t_media->userCanApproveDownloadRequest($pn_user_id)){
+ 				$this->MarkDownloadRequest(2);
+ 			}
  		}
  		# -------------------------------------------------------
  		public function MarkDownloadRequest($pn_value, $pn_request_id = null, $vb_dont_load_view = false) {
@@ -805,12 +823,32 @@
  		}
  		# -------------------------------------------------------
  		public function approveAllDownloadRequests(){
- 			$va_all_requests = $this->opo_project->getDownloadRequestsForUser($this->request->user->get("user_id"), array('status' => __MS_DOWNLOAD_REQUEST_NEW__));
+ 			$pn_user_id = $this->request->user->get("user_id");
+ 			$va_all_requests = $this->opo_project->getDownloadRequestsForUser(
+ 				$pn_user_id, array('status' => __MS_DOWNLOAD_REQUEST_NEW__));
 
+ 			$t_req = new ms_media_download_requests();
+ 			$t_media = new ms_media();
+
+ 			$vb_failure = 0;
  			foreach($va_all_requests as $va_request){
- 				$this->MarkDownloadRequest(1, $va_request["request_id"], true);
+ 				$t_req->load($va_request['request_id']);
+ 				$t_media->load($t_req->get('media_id'));
+ 				if ($t_media->userCanApproveDownloadRequest($pn_user_id)) {
+ 					$this->MarkDownloadRequest(1, $va_request["request_id"], true);
+ 				} else {
+ 					$vb_failure = 1;
+ 				}
  			}
- 			$this->view->setVar("approval_success", 1);
+
+			if ($vb_failure) {
+				$this->notification->addNotification(
+					_t('Not authorized to approve one or more download requests'),
+					__NOTIFICATION_TYPE_ERROR__);
+			} else {
+				$this->view->setVar("approval_success", 1);
+			}
+
  			$this->render('Dashboard/manage_all_download_requests_html.php');
  		}
   		# -------------------------------------------------------
