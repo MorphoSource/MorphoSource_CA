@@ -1543,8 +1543,10 @@ class ms_projects extends BaseModel {
  			INNER JOIN ms_media AS m ON m.media_id = r.media_id 
  			INNER JOIN ca_users AS u ON u.user_id = r.user_id
  			INNER JOIN ms_projects AS p ON m.project_id = p.project_id 
- 			WHERE 
- 				m.project_id IN (".join(", ", $va_project_ids).") {$vs_status_sql}
+ 			WHERE
+ 				((m.reviewer_id IS NULL) OR 
+ 				(m.reviewer_id = {$pn_user_id})) AND 
+ 				(m.project_id IN (".join(", ", $va_project_ids).")) {$vs_status_sql}
  			ORDER BY m.project_id, r.requested_on DESC
  		");
  		return $qr_res->getAllRows();

@@ -1140,6 +1140,35 @@ class ms_media extends BaseModel {
 	/** 
 	 *
 	 */
+	public function userCanApproveDownloadRequest($pn_user_id, $pn_media_id=null){
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+
+ 		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+
+		$vn_reviewer_id = $t_media->get('reviewer_id');
+		$t_project = new ms_projects($t_media->get('project_id'));
+
+		// Is user reviewer for media? Else is user project member?
+		if ((($vn_reviewer_id) && ($pn_user_id == $vn_reviewer_id)) 
+			|| ((!$vn_reviewer_id) && ($t_project->isMember($pn_user_id)))) 
+		{
+			return true;
+		} else {
+			return false;
+		}
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
 	public function recordDownload($pn_user_id, $pn_media_id=null, $pn_media_file_id=null, $pa_intended_use=null, $ps_intended_use_other=null, $pn_3d_print=null){
 		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
