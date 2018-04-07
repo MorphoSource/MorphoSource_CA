@@ -23,7 +23,6 @@
 
 			print "<div class='listItemLtBlue'>";
  			if ($vb_disabled){
- 				// $t_reviewer = new ca_user($t_media->get('reviewer_id'));
  				print "<div class='listItemRightCol'><a title='Not authorized to manage this request' href='#' class='button buttonSmall buttonGray' onclick='return false;'>"._t('Approve')."</a>&nbsp;&nbsp;&nbsp;<a title='Not authorized to manage this request' href='#' class='button buttonSmall buttonGray' onclick='return false;'>"._t('Deny')."</a></div>";
  			} else {
  				print "<div class='listItemRightCol'><a href='#' class='button buttonSmall' onclick='msMediaDownloadRequestDashboardApprove({$va_pending_download_request['request_id']}); return false;'>"._t('Approve')."</a>&nbsp;&nbsp;&nbsp;<a href='#' class='button buttonSmall' onclick='msMediaDownloadRequestDashboardDeny({$va_pending_download_request['request_id']}); return false;'>"._t('Deny')."</a></div>";
