@@ -219,9 +219,9 @@
 			}
 		}
 		print "</div>Downloads<div style='clear:both;'><!-- empty --></div></div>";
-		$va_media_display_fields = array("derived_from_media_id", "title", "side", "element", "published", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_exposure_time", "scanner_filter", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
+		$va_media_display_fields = array("derived_from_media_id", "title", "side", "element", "published", "reviewer_id", "notes", "facility_id", "scanner_id", "is_copyrighted", "copyright_info", "copyright_permission", "copyright_license", "scanner_type", "scanner_x_resolution", "scanner_y_resolution", "scanner_z_resolution", "scanner_voltage", "scanner_amperage", "scanner_watts", "scanner_exposure_time", "scanner_filter", "scanner_projections", "scanner_frame_averaging", "scanner_wedge", "scanner_calibration_shading_correction", "scanner_calibration_description", "scanner_technicians", "created_on", "created_on", "last_modified_on", "grant_support", "media_citation_instruction1");
 		foreach($va_fields as $vs_field => $va_field_attr){
-			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction", "scanner_wedge")) || $t_media->get($vs_field))){
+			if(in_array($vs_field, $va_media_display_fields) && (in_array($vs_field, array("published", "scanner_calibration_shading_correction", "scanner_wedge", "reviewer_id")) || $t_media->get($vs_field))){
 				print "<div class='listItemLtBlue blueText'>";
 				print "<div class='listItemRightCol ltBlueText'>";
 				switch($vs_field){
@@ -294,6 +294,21 @@
 					# ------------------------------
 					case "media_citation_instruction1":
 						print $t_media->getMediaCitationInstructions();
+					break;
+					# ------------------------------
+					case "reviewer_id":
+						if ($t_media->get('published') == 2) {
+							if ($vn_reviewer_id = $t_media->get($vs_field)){
+								$t_reviewer = new ca_users($vn_reviewer_id);
+								print $t_reviewer->get('fname')." ".
+									$t_reviewer->get('lname');
+							} else {
+								print "Use project default";
+							}
+						} else {
+							print "Not applicable due to publication status";
+						}
+						
 					break;
 					# ------------------------------
 					default:

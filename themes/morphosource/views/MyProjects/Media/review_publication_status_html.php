@@ -5,7 +5,7 @@
 	$pa_list_fields = $this->getVar("list_fields");
 	$q_listings = $this->getVar("listings");
 	$t_specimen = new ms_specimens();
-	$t_project = new ms_projects();
+	$t_project = new ms_projects($pn_project_id);
 	$o_db = new Db();
 ?>
 	<div class="blueRule"><!-- empty --></div>
@@ -17,14 +17,52 @@
 	if($q_listings->numRows()){
 		print caFormTag($this->request, 'batchPublicationSave', 'batchPublicationForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 		print "<p>Use the checkboxes to select media groups and/or files.  Choose a publication option from the drop down and hit save to update the publication setting of the selected media groups and/or files.</p>";
-		print "<p><b>Please note: </b>Media files will inherit the publication setting of the group.  Only assign a publication setting to individual media files if you want to override the group level setting.</p>";
-		print "<div class='formLabel'>".$t_item->htmlFormElement("published","Choose a publication status to apply to the selected files below: ^ELEMENT");
-		print "<a href='#' name='save' class='button buttonSmall' style='margin-top:5px;' onclick='jQuery(\"#batchPublicationForm\").submit(); return false;'>"._t("Save")."</a></div>";
+		print "<p><b>Please note: </b>Media files will inherit the publication setting of the group.  Only assign a publication setting to individual media files if you want to override the group level setting. Selecting a user to review download requests ONLY applies to published media groups, not separately published media files.</p>";
+		print "<div class='formLabel'>";
+		print $t_item->htmlFormElement("published","Choose a publication status to apply to the selected files below:</br> ^ELEMENT");
+
+		$va_members = $t_project->getMembers();
+		if(sizeof($va_members)){
+			print "<div id='downloadRequestReviewer'></br>"._t("If users must request download permission, requests reviewed by:</br> ");
+			print "<select name='reviewer_id' id='reviewer_id' style='width: 450px;'".(($t_item->get("published") == 2) ? "" : "disabled").">\n";
+			print "<option value=''>"._t("Use project default")."</option>\n";
+			foreach($va_members as $va_member){
+				if($va_member["membership_type"] == 1){
+					print "<option value='".$va_member["user_id"]."' ".(($t_item->get("reviewer_id") == $va_member["user_id"]) ? "selected" : "").">".$va_member["fname"]." ".$va_member["lname"].", ".$va_member["email"]."</option>\n";
+				}
+			}
+			print "</select>\n";
+			print "</div>\n";
+		}
+?>
+		<script>
+			$('#published').on('change', function() {
+			  if($(this).val() == 2){
+			  	$('#reviewer_id').prop("disabled", false);
+			  }else{
+			  	$('#reviewer_id').val('');
+			  	$('#reviewer_id').prop("disabled", true);
+			  }
+			});
+		</script>
+<?php
+
+		print "</br><a href='#' name='save' class='button buttonSmall' style='margin-top:5px;' onclick='jQuery(\"#batchPublicationForm\").submit(); return false;'>"._t("Save")."</a>";
+		print "</div>";
 		print "<div class='tealRule'></div>";
 		print '<div id="mediaListings">';
 		while($q_listings->nextRow()){
 			print "<div class='projectMediaListItem'>";
-			print "<input type='checkbox' name='media_ids[]' value='".$q_listings->get("media_id")."'> <b>".caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>"; 
+			print "<input type='checkbox' name='media_ids[]' value='".$q_listings->get("media_id")."'> <b>".caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>";
+			if ($q_listings->get("published") == 2){
+				print "<b>;</b> Download requests reviewed by ";
+				if($vn_reviewer_id = $q_listings->get('reviewer_id')){
+					$t_reviewer = new ca_users($vn_reviewer_id);
+					print $t_reviewer->get('fname')." ".$t_reviewer->get('lname');
+				} else {
+					print "all project members";
+				}
+			} 
 			$q_media_files = $o_db->query("SELECT media, media_file_id, use_for_preview, published, side, element, title, notes FROM ms_media_files where media_id = ?", $q_listings->get("media_id"));
 			if($q_media_files->numRows()){
 				while($q_media_files->nextRow()){
