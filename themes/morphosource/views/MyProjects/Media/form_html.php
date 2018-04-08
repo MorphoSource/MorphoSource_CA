@@ -257,8 +257,8 @@ if (!$this->request->isAjax()) {
 				# --- when publish is set to download needs aproval, show drop down of project users to set optional override to project default for who should approve downloads
 				$va_members = $t_project->getMembers();
 				if(sizeof($va_members)){
-					print "<div class='formLabel' id='downloadRequestReviewer' ".(($t_item->get("published") == 2) ? "" : "style='display:none;'").">"._t("Download requests reviewed by")."<br/>";
-					print "<select name='reviewer_id' id='reviewer_id'>\n";
+					print "<div class='formLabel' id='downloadRequestReviewer'>"._t("Download requests reviewed by")."<br/>";
+					print "<select name='reviewer_id' id='reviewer_id' ".(($t_item->get("published") == 2) ? "" : "disabled").">\n";
 					print "<option value=''>"._t("Use project default")."</option>\n";
 					foreach($va_members as $va_member){
 						if($va_member["membership_type"] == 1){
@@ -272,10 +272,10 @@ if (!$this->request->isAjax()) {
 				<script>
 					$('#published').on('change', function() {
 					  if($(this).val() == 2){
-					  	$('#downloadRequestReviewer').show();
+					  	$('#reviewer_id').prop("disabled", false);
 					  }else{
 					  	$('#reviewer_id').val('');
-					  	$('#downloadRequestReviewer').hide();
+					  	$('#reviewer_id').prop("disabled", true);
 					  }
 					});
 				</script>

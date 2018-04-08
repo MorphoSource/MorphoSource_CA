@@ -148,6 +148,10 @@
 				$this->notification->addNotification("You did not select any media groups or files", __NOTIFICATION_TYPE_ERROR__);
 			}else{
 				$vn_pub = $this->request->getParameter('published', pInteger);
+				$vn_reviewer = null;
+				if (($vn_pub) == 2 && ($this->request->getParameter('reviewer_id', pInteger))) {
+					$vn_reviewer = $this->request->getParameter('reviewer_id', pInteger);
+				}
 				$o_db = new Db();
 				if(is_array($va_media_file_ids) && sizeof($va_media_file_ids)){
 					$o_db->query("UPDATE ms_media_files SET published = ? WHERE media_file_id IN (".join(", ", $va_media_file_ids).")", $vn_pub);
@@ -178,7 +182,12 @@
 				}
 
 				if(is_array($va_media_ids) && sizeof($va_media_ids)){
-					$o_db->query("UPDATE ms_media SET published = ? WHERE media_id IN (".join(", ", $va_media_ids).") and project_id = ?", $vn_pub, $this->opn_project_id);
+					$o_db->query("UPDATE ms_media 
+						SET published = ?,
+						reviewer_id = ? 
+						WHERE media_id IN (".join(", ", $va_media_ids).") 
+						and project_id = ?", $vn_pub, $vn_reviewer, $this->opn_project_id);
+				
 					if (($vn_pub == 1) || ($vn_pub == 2)) {
 						foreach ($va_media_ids as $vn_media_id) {
 							$t_media = new ms_media($vn_media_id);

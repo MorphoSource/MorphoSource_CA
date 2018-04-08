@@ -589,7 +589,7 @@ class ms_projects extends BaseModel {
 		
 		$vs_select_join = "
 			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
-				m.title, m.project_id, m.element, m.created_on, 
+				m.reviewer_id, m.title, m.project_id, m.element, m.created_on, 
 				m.last_modified_on, s.institution_code, s.collection_code, 
 				s.catalog_number, t.taxon_id, t.species, t.genus, t.ht_family, 
 				t.ht_order, t.ht_class 

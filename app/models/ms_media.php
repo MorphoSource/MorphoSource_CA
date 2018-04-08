@@ -111,11 +111,11 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => _t('Media published on'), 'DESCRIPTION' => _t('Date/time the Media was published.'),
 		),
 		'reviewer_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => true, 
 				'DEFAULT' => '',
-				'LABEL' => 'User id of individual who should approve download requests', 'DESCRIPTION' => 'User id of individual who should approve download requests'
+				'LABEL' => _t('Download requests reviewed by'), 'DESCRIPTION' => 'Project member who approves download requests. By default, all project members can approve download requests.'
 		),
 		'specimen_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
