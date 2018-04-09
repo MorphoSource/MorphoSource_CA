@@ -242,7 +242,7 @@
 				'Taxon name' => 't', 'Date added' => 'a', 
 				'Date modified' => 'm'), 
 			'Taxonomy tree' => array('User-entered data' => 'u', 
-				"VertNet data" => 'v'));
+				"External taxonomy" => 'v'));
 		print "<span class='entityViewHeaderText'>sort by</span>";
 		print "<select class='dashboardMediaHeaderSelect' id='mediaSortSelect'>";
 		foreach ($sort_options as $group => $opts) {

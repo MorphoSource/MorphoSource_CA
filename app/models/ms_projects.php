@@ -589,7 +589,7 @@ class ms_projects extends BaseModel {
 		
 		$vs_select_join = "
 			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
-				m.title, m.project_id, m.element, m.created_on, 
+				m.reviewer_id, m.title, m.project_id, m.element, m.created_on, 
 				m.last_modified_on, s.institution_code, s.collection_code, 
 				s.catalog_number, t.taxon_id, t.species, t.genus, t.ht_family, 
 				t.ht_order, t.ht_class 
@@ -662,18 +662,18 @@ class ms_projects extends BaseModel {
 				m.title, m.project_id, m.element, m.created_on, 
 				m.last_modified_on, s.institution_code, s.collection_code, 
 				s.catalog_number, t.taxon_id, t.species, t.genus, 
-				g.name AS 'vn_genus', f.name AS 'ht_family', 
-				o.name AS 'ht_order', c.name AS 'ht_class', 
-				g.taxon_id AS 'vn_taxon_id' 
+				g.name AS 'vn_genus', p1.name AS 'p1_name', p1.rank AS 'p1_rank', 
+				p2.name AS 'p2_name', p2.rank AS 'p2_rank', p3.name AS 'p3_name', 
+				p3.rank AS 'p3_rank', g.taxon_id AS 'vn_taxon_id' 
 			FROM ms_media m
 			LEFT JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
 			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = m.specimen_id
 			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
 			LEFT JOIN ms_specimens_x_resolved_taxonomy AS xrt ON m.specimen_id = xrt.specimen_id
 			LEFT JOIN ms_resolved_taxonomy AS g ON xrt.taxon_id = g.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS f ON g.parent_id = f.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS o ON f.parent_id = o.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS  c ON o.parent_id = c.taxon_id ";
+			LEFT JOIN ms_resolved_taxonomy AS p1 ON g.parent_id = p1.taxon_id
+			LEFT JOIN ms_resolved_taxonomy AS p2 ON p1.parent_id = p2.taxon_id
+			LEFT JOIN ms_resolved_taxonomy AS p3 ON p2.parent_id = p3.taxon_id ";
 		}else{
 			$vs_select_join = "
 			SELECT DISTINCT m.media_id, m.media, m.specimen_id, m.published, 
@@ -710,6 +710,17 @@ class ms_projects extends BaseModel {
 			$va_media = $qr->getRow();
 			$va_media['preview'] = 
 				$t_media->getPreviewMediaFile($va_media['media_id']);
+
+			if ($pb_vertnet) {
+				$va_parent_array = [
+					$va_media['p1_rank'] => $va_media['p1_name'], 
+					$va_media['p2_rank'] => $va_media['p2_name'], 
+					$va_media['p3_rank'] => $va_media['p3_name']
+				];
+				foreach ($va_parent_array as $rank => $name) {
+					$va_media['ht_'.$rank] = $name;
+				}
+			}
 
 			$va_st = array();
 			$va_no_link = array();
@@ -864,8 +875,9 @@ class ms_projects extends BaseModel {
 			SELECT s.*, m.media_id, m.published, p.name AS 'project_name', 
 				u.fname, u.lname, u.email, sp.link_id AS 'linked_specimen', 
 				t.species, t.genus AS 'genus', g.name AS 'vn_genus', 
-				f.name AS 'ht_family', o.name AS 'ht_order', 
-				c.name AS 'ht_class', t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
+				p1.name AS 'p1_name', p1.rank AS 'p1_rank', p2.name AS 'p2_name', 
+				p2.rank AS 'p2_rank', p3.name AS 'p3_name', p3.rank AS 'p3_rank',
+				t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
@@ -877,9 +889,9 @@ class ms_projects extends BaseModel {
 			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
 			LEFT JOIN ms_specimens_x_resolved_taxonomy AS xrt ON s.specimen_id = xrt.specimen_id
 			LEFT JOIN ms_resolved_taxonomy AS g ON xrt.taxon_id = g.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS f ON g.parent_id = f.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS o ON f.parent_id = o.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS  c ON o.parent_id = c.taxon_id ";
+			LEFT JOIN ms_resolved_taxonomy AS p1 ON g.parent_id = p1.taxon_id
+			LEFT JOIN ms_resolved_taxonomy AS p2 ON p1.parent_id = p2.taxon_id
+			LEFT JOIN ms_resolved_taxonomy AS p3 ON p2.parent_id = p3.taxon_id ";
 		}else{
 			$vs_select_from = "
 			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, 
@@ -934,6 +946,18 @@ class ms_projects extends BaseModel {
 
 		while ($qr->nextRow()) {
 			$va_specimen = $qr->getRow();
+
+			if ($pb_vertnet) {
+				$va_parent_array = [
+					$va_specimen['p1_rank'] => $va_specimen['p1_name'], 
+					$va_specimen['p2_rank'] => $va_specimen['p2_name'], 
+					$va_specimen['p3_rank'] => $va_specimen['p3_name']
+				];
+				foreach ($va_parent_array as $rank => $name) {
+					$va_specimen['ht_'.$rank] = $name;
+				}
+			}
+
 			$va_st = array();
 			$va_no_link = array();
 			foreach ($va_taxon_levels as $vs_taxon_display => $vs_taxon_name) {
@@ -1543,8 +1567,10 @@ class ms_projects extends BaseModel {
  			INNER JOIN ms_media AS m ON m.media_id = r.media_id 
  			INNER JOIN ca_users AS u ON u.user_id = r.user_id
  			INNER JOIN ms_projects AS p ON m.project_id = p.project_id 
- 			WHERE 
- 				m.project_id IN (".join(", ", $va_project_ids).") {$vs_status_sql}
+ 			WHERE
+ 				((m.reviewer_id IS NULL) OR 
+ 				(m.reviewer_id = {$pn_user_id})) AND 
+ 				(m.project_id IN (".join(", ", $va_project_ids).")) {$vs_status_sql}
  			ORDER BY m.project_id, r.requested_on DESC
  		");
  		return $qr_res->getAllRows();

@@ -111,11 +111,11 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'LABEL' => _t('Media published on'), 'DESCRIPTION' => _t('Date/time the Media was published.'),
 		),
 		'reviewer_id' => array(
-				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_HIDDEN,
+				'FIELD_TYPE' => FT_NUMBER, 'DISPLAY_TYPE' => DT_SELECT,
 				'DISPLAY_WIDTH' => 10, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => true, 
 				'DEFAULT' => '',
-				'LABEL' => 'User id of individual who should approve download requests', 'DESCRIPTION' => 'User id of individual who should approve download requests'
+				'LABEL' => _t('Download requests reviewed by'), 'DESCRIPTION' => 'Project member who approves download requests. By default, all project members can approve download requests.'
 		),
 		'specimen_id' => array(
 				"FIELD_TYPE" => FT_NUMBER, "DISPLAY_TYPE" => DT_HIDDEN,
@@ -1135,6 +1135,35 @@ class ms_media extends BaseModel {
  		}
  		
  		return false;
+	}
+	# ------------------------------------------------------
+	/** 
+	 *
+	 */
+	public function userCanApproveDownloadRequest($pn_user_id, $pn_media_id=null){
+		if(!($vn_media_id = $pn_media_id)) { 
+ 			if (!($vn_media_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+
+ 		if ($vn_media_id == $this->getPrimaryKey()) {
+			$t_media = $this;
+		} else {
+			$t_media = new ms_media($vn_media_id);
+		}
+
+		$vn_reviewer_id = $t_media->get('reviewer_id');
+		$t_project = new ms_projects($t_media->get('project_id'));
+
+		// Is user reviewer for media? Else is user project member?
+		if ((($vn_reviewer_id) && ($pn_user_id == $vn_reviewer_id)) 
+			|| ((!$vn_reviewer_id) && ($t_project->isMember($pn_user_id)))) 
+		{
+			return true;
+		} else {
+			return false;
+		}
 	}
 	# ------------------------------------------------------
 	/** 
