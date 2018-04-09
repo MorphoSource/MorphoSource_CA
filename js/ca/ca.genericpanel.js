@@ -60,16 +60,16 @@ var caUI = caUI || {};
 		// --------------------------------------------------------------------------------
 		// Define methods
 		// --------------------------------------------------------------------------------
-		that.showPanel = function(url, onCloseCallback) {
+		that.showPanel = function(url, onCloseCallback='', position='fixed') {
 			that.setZoom(that.allowMobileSafariZooming);
 			that.isChanging = true;
-			
 			
 			if (that.center) {
 				jQuery('#' + that.panelID).css("top", ((jQuery(window).height() - jQuery('#' + that.panelID).height())/2) + "px");
 				jQuery('#' + that.panelID).css("left", ((jQuery(window).width() - jQuery('#' + that.panelID).width())/2) + "px");
 			}
 			
+			jQuery('#' + that.panelID).css('position', position);
 			jQuery('#' + that.panelID).fadeIn(that.panelTransitionSpeed, function() { that.isChanging = false; });
 			
 			if (that.useExpose) { 
