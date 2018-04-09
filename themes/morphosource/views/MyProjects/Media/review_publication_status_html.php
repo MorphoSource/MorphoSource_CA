@@ -18,7 +18,7 @@
 		print caFormTag($this->request, 'batchPublicationSave', 'batchPublicationForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 		print "<p>Use the checkboxes to select media groups and/or files.  Choose a publication option from the drop down and hit save to update the publication setting of the selected media groups and/or files.</p>";
 		print "<p><b>Please note: </b>Media files will inherit the publication setting of the group.  Only assign a publication setting to individual media files if you want to override the group level setting. Selecting a user to review download requests ONLY applies to published media groups, not separately published media files.</p>";
-		print "<div class='formLabel'>";
+		print "<div class='formLabel' style='text-align: center;'>";
 		print $t_item->htmlFormElement("published","Choose a publication status to apply to the selected files below:</br> ^ELEMENT");
 
 		$va_members = $t_project->getMembers();
@@ -47,8 +47,13 @@
 		</script>
 <?php
 
-		print "</br><a href='#' name='save' class='button buttonSmall' style='margin-top:5px;' onclick='jQuery(\"#batchPublicationForm\").submit(); return false;'>"._t("Save")."</a>";
+		print "</br><a href='#' name='save' class='button buttonLarge' style='margin-top:5px;' onclick='jQuery(\"#batchPublicationForm\").submit(); return false;'>"._t("Save")."</a>";
 		print "</div>";
+		print "<div style=''>";
+		print "<a href='#' name='selectAll' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", true); return false;'>"._t("Select All")."</a>";
+		print "<a href='#' name='selectNone' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", false); return false;'>"._t("Select None")."</a>";
+		print "</div>";
+		
 		print "<div class='tealRule'></div>";
 		print '<div id="mediaListings">';
 		while($q_listings->nextRow()){
