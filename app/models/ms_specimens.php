@@ -819,6 +819,7 @@ class ms_specimens extends BaseModel {
 						$t_specimen->set('url', $va_specimen_info["data"]["dcterms:references"]);
 						$t_specimen->set('collector', $va_specimen_info["indexTerms"]["collector"]);
 						$t_specimen->set('collected_on', $va_specimen_info["indexTerms"]["datecollected"]);
+						$t_specimen->set('recordset', $va_specimen_info["indexTerms"]["recordset"]);
 						if($va_specimen_info["data"]["dwc:sex"]){
 							if(strpos(strtolower($va_specimen_info["data"]["dwc:sex"]), "female") !== false){
 								$t_specimen->set('sex', 'F');
