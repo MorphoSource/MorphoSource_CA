@@ -52,13 +52,18 @@
 		print "<div style=''>";
 		print "<a href='#' name='selectAll' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", true); return false;'>"._t("Select All")."</a>";
 		print "<a href='#' name='selectNone' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", false); return false;'>"._t("Select None")."</a>";
+		print "<a href='#' name='selectAllPub' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", false); jQuery(\".pub\").prop(\"checked\", true); return false;'>"._t("Select Media Groups Currently Published")."</a>";
+		print "<a href='#' name='selectUnPub' class='button buttonSmall' style='margin:5px 10px 10px 0px;' onclick='jQuery(\"input:checkbox\").prop(\"checked\", false); jQuery(\".unpub\").prop(\"checked\", true); return false;'>"._t("Select Media Groups Currently Unpublished")."</a>";
 		print "</div>";
 		
 		print "<div class='tealRule'></div>";
 		print '<div id="mediaListings">';
 		while($q_listings->nextRow()){
 			print "<div class='projectMediaListItem'>";
-			print "<input type='checkbox' name='media_ids[]' value='".$q_listings->get("media_id")."'> <b>".caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>";
+			print "<input type='checkbox' name='media_ids[]' class='".
+				((($q_listings->get("published") == 1) || ($q_listings->get("published") == 2)) ? "pub" : "unpub").
+				"' value='".$q_listings->get("media_id")."'> <b>".
+				caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>";
 			if ($q_listings->get("published") == 2){
 				print "<b>;</b> Download requests reviewed by ";
 				if($vn_reviewer_id = $q_listings->get('reviewer_id')){
