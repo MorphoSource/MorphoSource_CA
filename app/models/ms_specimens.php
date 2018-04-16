@@ -336,6 +336,14 @@ BaseModel::$s_ca_models_definitions['ms_specimens'] = array(
 				"BOUNDS_CHOICE_LIST"=> array(
 					_t('Batch Uploaded') => 1
 				)
+		),
+		'recordset' => array(
+				"FIELD_TYPE" => FT_TEXT, "DISPLAY_TYPE" => DT_HIDDEN, 
+				"DISPLAY_WIDTH" => 40, "DISPLAY_HEIGHT" =>1,
+				"IS_NULL" => true, 
+				"DEFAULT" => '',
+				"LABEL" => "Recordset", "DESCRIPTION" => "iDigBio recordset ID",
+				"BOUNDS_LENGTH" => array(0,255)
 		)
  	)
 );
@@ -811,6 +819,7 @@ class ms_specimens extends BaseModel {
 						$t_specimen->set('url', $va_specimen_info["data"]["dcterms:references"]);
 						$t_specimen->set('collector', $va_specimen_info["indexTerms"]["collector"]);
 						$t_specimen->set('collected_on', $va_specimen_info["indexTerms"]["datecollected"]);
+						$t_specimen->set('recordset', $va_specimen_info["indexTerms"]["recordset"]);
 						if($va_specimen_info["data"]["dwc:sex"]){
 							if(strpos(strtolower($va_specimen_info["data"]["dwc:sex"]), "female") !== false){
 								$t_specimen->set('sex', 'F');

@@ -473,11 +473,13 @@
 													$vn_specimen_id = $t_specimen_lookup->get("specimen_id");
 												}else{
 													$t_specimen->set($vs_field, $vs_value);
-													# --- see if we can get the idigbio uuid by searching on the occurrence id
+													# --- see if we can get the idigbio uuid & recordset by searching on the occurrence id
 													$va_idigbio_results = $t_specimen->getIDBSpecimenInfo(array("occurrenceid" => $vs_value));
 													if($va_idigbio_results["success"]){
 														$vs_uuid = $va_idigbio_results["data"]["items"][0]["uuid"];
+														$vs_recordset = $va_idigbio_results["data"]["items"][0]["indexTerms"]["recordset"];
 														$t_specimen->set("uuid", $vs_uuid);
+														$t_specimen->set("recordset", $vs_recordset);
 													}
 												}
 											}elseif($vs_field == "catalog_number"){
