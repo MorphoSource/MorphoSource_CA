@@ -69,6 +69,7 @@
 						<div><?php print caNavLink($this->request, 'Terms', 'blueText', '', 'About', 'terms'); ?></div>
 						<div><?php print caNavLink($this->request, 'User Guide', 'blueText', '', 'About', 'userGuide'); ?></div>
 						<div><?php print caNavLink($this->request, 'API', 'blueText', '', 'About', 'API'); ?></div>
+						<div><?php print caNavLink($this->request, 'Data Reporting', 'blueText', '', 'About', 'report'); ?></div>
 					</div>
 				</li>
 				<li><?php print caNavLink($this->request, _t("Browse"), "", "", "Browse", "Index"); ?></li>
