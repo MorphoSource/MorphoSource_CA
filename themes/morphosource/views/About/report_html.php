@@ -13,9 +13,9 @@
 	<div style='margin-top: 30px;'>
 <?php
 		// print "<h1>Data publishers</h1>";
-		foreach ($va_item_array as $vs_pub_id => $va_pub) {
+		foreach ($va_item_array as $va_pub) {
 			print "<div>";
-				print "<h2>".($va_pub["name"] ? $va_pub["name"] : "No publisher name available")." (".$vs_pub_id.")</h2>";
+				print "<h2>".($va_pub["name"] ? $va_pub["name"] : "No publisher name available")." (".$va_pub['id'].")</h2>";
 			print "</div>";
 			print "<div>";
 				print "<table class='listtable'>";
@@ -28,9 +28,9 @@
 				print "<th class='list-header-unsorted' style='width: 15%;'>Pub Date</td>";
 				print "</tr>";
 				print "</thead>";
-				foreach ($va_pub['recordsets'] as $vs_r_id => $va_recordset) {
+				foreach ($va_pub['recordsets'] as $va_recordset) {
 					print "<tr>";
-					print "<td><a href='https://www.idigbio.org/portal/recordsets/".$va_recordset['id']."' target='_blank'>".($va_recordset['name'] ? $va_recordset['name']: 'No recordset name available')." (".$vs_r_id.")</a></td>";
+					print "<td><a href='https://www.idigbio.org/portal/recordsets/".$va_recordset['id']."' target='_blank'>".($va_recordset['name'] ? $va_recordset['name']: 'No recordset name available')." (".$va_recordset['id'].")</a></td>";
 					print "<td><a href='".$va_recordset['ms.csv']."'>CSV</a></br><a href='".$va_recordset['ms.xml']."'>EML</a></td>";
 					print "<td><a href='".$va_recordset['dl.csv']."'>CSV</a></br><a href='".$va_recordset['dl.xml']."'>EML</a></td>";
 					print "<td><a href='".$va_recordset['dl_request.csv']."'>CSV</a></br><a href='".$va_recordset['dl_request.xml']."'>EML</a></td>";

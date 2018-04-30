@@ -82,10 +82,19 @@
  									$va_item_array[$p]['name'] = $vs_p_name;
  								}
  							}
+
+ 							usort($va_item_array[$p]['recordsets'], function ($a, $b) {
+    							return strcmp(strtolower($a['name']), strtolower($b['name']));
+							});
  						}
  					}
  				}
  			}
+
+ 			usort($va_item_array, function ($a, $b) {
+    			return strcmp(strtolower($a['name']), strtolower($b['name']));
+			});
+
  			$this->view->setVar('item_array', $va_item_array);
 
  			$this->render('About/report_html.php');
