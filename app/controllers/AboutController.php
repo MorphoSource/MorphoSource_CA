@@ -44,5 +44,51 @@
  			return $this->render('About/'.$ps_name.'.php');
  		}
  		# -------------------------------------------------------
+ 		public function report() {
+ 			$vs_sep = DIRECTORY_SEPARATOR;
+ 			$va_item_array = [];
+ 			$vs_rootpath = 'rss';
+ 			$va_blacklist = ['.', '..', 'ms.rss']; 			
+ 			foreach (scandir('rss') as $p) {
+ 				$vs_pub_dir = $vs_rootpath . DIRECTORY_SEPARATOR . $p;
+ 				if (!in_array($p, $va_blacklist) && is_dir($vs_pub_dir)) {
+ 					$va_item_array[$p] = [
+ 						'id' => $p,
+ 						'name' => '',
+ 						'recordsets' => []
+ 					];
+
+ 					foreach (scandir($vs_pub_dir) as $r) {
+ 						$vs_eml_dir = $vs_pub_dir . $vs_sep . $r . $vs_sep . 'eml';
+ 						if (!in_array($r, $va_blacklist) && is_dir($vs_eml_dir)) {
+ 							$va_item_array[$p]['recordsets'][$r] = [
+ 								'id' => $r,
+ 								'name' => '',
+ 								'pubTime' => null,
+ 							];
+
+ 							foreach (scandir($vs_eml_dir) as $e) {
+ 								if (!in_array($e, $va_blacklist) && strpos($e, '.xml')) {
+ 									$vo_xml = simplexml_load_file($vs_eml_dir . $vs_sep . $e);
+ 									$vs_csv_link = (string)$vo_xml->dataset->online;
+ 									$vs_eml_link = (string)$vo_xml->dataset->alternateIdentifier;
+ 									$vs_pub_time = (string)$vo_xml->additionalMetadata->metadata->morphosource->pubTime;
+ 									$vs_r_name = (string)$vo_xml->additionalMetadata->metadata->idigbio->recordset->name;
+ 									$vs_p_name = (string)$vo_xml->additionalMetadata->metadata->idigbio->publisher->name;
+ 									$va_item_array[$p]['recordsets'][$r][basename($vs_csv_link)] = $vs_csv_link;
+ 									$va_item_array[$p]['recordsets'][$r][basename($vs_eml_link)] = $vs_eml_link;
+ 									$va_item_array[$p]['recordsets'][$r]['pubTime'] = $vs_pub_time;
+ 									$va_item_array[$p]['recordsets'][$r]['name'] = $vs_r_name;
+ 									$va_item_array[$p]['name'] = $vs_p_name;
+ 								}
+ 							}
+ 						}
+ 					}
+ 				}
+ 			}
+ 			$this->view->setVar('item_array', $va_item_array);
+
+ 			$this->render('About/report_html.php');
+ 		}
  	}
  ?>
