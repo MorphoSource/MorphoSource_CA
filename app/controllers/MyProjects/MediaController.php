@@ -1385,8 +1385,27 @@
 				
 			return $vn_rc;
 		}
+		# -------------------------------------------------------
+ 		public function confirmMove() {
+ 			$vn_media_id = $this->request->getParameter("media_id", pInteger);
+ 			$vn_proj_from = $this->request->getParameter("proj_from", pInteger);
+ 			$vn_proj_to = $this->request->getParameter("proj_to", pInteger);
+
+ 			$this->view->setVar("media_id", $vn_media_id);
+ 			$this->view->setVar("proj_from", $vn_proj_from);
+ 			$this->view->setVar("proj_to", $vn_proj_to);
+
+ 			$this->render("confirm_move_html.php");
+ 		}
  		# -------------------------------------------------------
  		public function moveMedia() {
+ 			# Verify user can move this media
+ 			$t_from_project = new ms_projects($this->opo_item->get("project_id"));
+ 			if(!$t_from_project->isFullAccessMember($this->request->user->get("user_id"))){
+ 				$this->notification->addNotification("Not authorized to access this resource", __NOTIFICATION_TYPE_ERROR__);
+ 				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));
+
+ 			}
 			if($this->opo_item->get("media_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
 				# --- change user_id in media record to the project admin of the project you're moving the media to
 				$t_move_project = new ms_projects($pn_move_project_id);
@@ -1429,8 +1448,7 @@
 						print "Could not move media".(($va_errors["general"]) ? ": ".$va_errors["general"] : "");
 						exit;
 					}else{
-						$this->view->setVar("redirect_url", caNavUrl($this->request, "MyProjects", "Media", "ListItems"));
-						$this->render('Media/redirect_html.php');
+						$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 					}
 				}else{
 					# --- user wants to transfer media to a project they are not a member
