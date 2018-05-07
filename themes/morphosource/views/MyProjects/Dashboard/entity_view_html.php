@@ -362,6 +362,8 @@
 				$t_specimen->getSpecimenTaxonomy($va_entity['specimen_id']);
 			if ($vs_specimen_taxonomy) { 
 				$vs_specimen_taxonomy = join(" ", $vs_specimen_taxonomy); 
+			} else {
+				$vs_specimen_taxonomy = "";
 			}
 			
 			if ($vs_specimen_name && $vs_specimen_taxonomy) {

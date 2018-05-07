@@ -2028,7 +2028,7 @@ div.jGrowl div.jGrowl-closer {
 	padding: 5px;
 }
 
-#surveyFormOverlay{
+.panelDialog{
 	background-color:#FFF;
 	margin-top:10%;
 	width:500px;

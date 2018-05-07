@@ -122,6 +122,8 @@
  		}
  		# -------------------------------------------------------
  		public function form() {
+ 			JavascriptLoadManager::register("panel");
+ 			
  			$this->view->setVar("media_id", $this->request->getParameter('media_id', pInteger));
 			if($this->ops_read_only){
 				$this->render('Specimens/summary_html.php');
@@ -561,7 +563,26 @@
  			$this->bibliographyLookup();
  		}
  		# -------------------------------------------------------
+ 		public function confirmMove() {
+ 			$vn_specimen_id = $this->request->getParameter("specimen_id", pInteger);
+ 			$vn_proj_from = $this->request->getParameter("proj_from", pInteger);
+ 			$vn_proj_to = $this->request->getParameter("proj_to", pInteger);
+
+ 			$this->view->setVar("specimen_id", $vn_specimen_id);
+ 			$this->view->setVar("proj_from", $vn_proj_from);
+ 			$this->view->setVar("proj_to", $vn_proj_to);
+
+ 			$this->render("confirm_move_html.php");
+ 		}	
+ 		# -------------------------------------------------------
  		public function moveSpecimen() {
+ 			# Verify user can move this specimen
+ 			$t_from_project = new ms_projects($this->opo_item->get("project_id"));
+ 			if(!$t_from_project->isFullAccessMember($this->request->user->get("user_id"))){
+ 				$this->notification->addNotification("Not authorized to access this resource", __NOTIFICATION_TYPE_ERROR__);
+ 				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "projectList"));
+
+ 			}
 			if($this->opo_item->get("specimen_id") && ($pn_move_project_id = $this->request->getParameter('move_project_id', pInteger))){
 				# --- change user_id in specimen record to the project admin of the project you're moving the media to
 				$t_move_project = new ms_projects($pn_move_project_id);
@@ -583,11 +604,11 @@
 						$this->opn_item_id = "";
 						$this->view->setVar("item_id", "");
 						$this->view->setVar("item", new ms_specimens());
-						$this->listItems();
+						$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 					}
 				}
 			}else{
-				$this->listItems();
+				$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard"));
 			}
  		}
  		# -------------------------------------------------------

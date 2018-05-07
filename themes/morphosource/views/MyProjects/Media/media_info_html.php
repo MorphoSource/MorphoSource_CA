@@ -520,6 +520,7 @@
 		<div id="mediaMove">
 <?php
 			$t_projects = new ms_projects();
+			$t_projects->load($t_media->get("project_id"));
 			$q_projects = $o_db->query("SELECT project_id, name from ms_projects WHERE project_id != ? AND deleted = 0 ORDER BY name", $t_media->get("project_id"));
 			# --- find any existing requests that have not been processed
 			$q_requests = $o_db->query("SELECT m.to_project_id, p.name, u.fname, u.lname, u.email FROM ms_media_movement_requests m INNER JOIN ms_projects as p ON m.to_project_id = p.project_id INNER JOIN ca_users as u ON p.user_id = u.user_id WHERE m.media_id = ? AND m.status = 0 AND m.type = 1", $t_media->get("media_id"));
@@ -527,32 +528,19 @@
 				$q_requests->nextRow();
 				print "<div style='padding-bottom:20px;'><span class='formErrors'>A move request has been sent to P".$q_requests->get("to_project_id").", ".$q_requests->get("name").".</span><br/><br/>You will be notified via email when the request is accepted or denied by the project administrator, ".trim($q_requests->get("fname")." ".$q_requests->get("lname")).", ".$q_requests->get("email").".</div>";
 			}else{
-				if($q_projects->numRows()){
-					print caFormTag($this->request, 'moveMedia', 'mediaMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
-					$t_projects->load($t_media->get("project_id"));
+				if($q_projects->numRows()){					
 ?>
-					This media file is part of <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move file to <select name="move_project_id" style="width:250px;">
+					This media file is part of <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move file to 
+					<select id="move_project_id" style="width:250px;">
+					<option></option>
 <?php
 					while($q_projects->nextRow()){
 						print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
 					}
 ?>
-					</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#mediaMoveForm").submit(); return false;'>Move</a>
-					<input type="hidden" name="media_id" value="<?php print $pn_media_id; ?>">
-					<div style="font-size:10px; font-style:italic; padding:10px 0px 10px 0px;">If you transfer your media to a project you are not a member of, the administrator of that project will have to approve the move for it to take effect.  Upon approval, you will no longer be able to edit the media.  It will still appear in your project as "Read Only Media".</div>
-					</form>
-					<script type="text/javascript">
-						jQuery(document).ready(function() {
-							jQuery('#mediaMoveForm').submit(function(e){		
-								jQuery('#mediaMove').load(
-									'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'moveMedia'); ?>',
-									jQuery('#mediaMoveForm').serialize()
-								);
-								e.preventDefault();
-								return false;
-							});
-						});
-					</script>				
+					</select>&nbsp;&nbsp;
+					<a href='#' id='moveMediaButton' class='button buttonSmall'>Move</a>
+					<div style="font-size:10px; font-style:italic; padding:10px 0px 10px 0px;">If you transfer your media to a project you are not a member of, the administrator of that project will have to approve the move for it to take effect.  Upon approval, you will no longer be able to edit the media.  It will still appear in your project as "Read Only Media".</div>				
 <?php
 				}
 			}
@@ -616,6 +604,23 @@
 		
 		return false;
 	});
+
+	jQuery('#moveMediaButton').click(function () {
+		var url = "<?php
+			print caNavUrl($this->request, 'MyProjects', 'Media', 'confirmMove', 
+				array(
+					"media_id" => $t_media->getPrimaryKey(), 
+					"proj_from" => $t_projects->get("project_id"), 
+					"proj_to" => "placeholdertext"));
+			?>";
+		var proj_to = jQuery('#move_project_id').val();
+		if (proj_to) {
+			url = url.replace("placeholdertext", proj_to);
+			msMediaPanel.showPanel(url);
+		}
+		return false;
+	});
+
 </script>
 
 <div id="doiConfirm" style="display: none;" title="Assign DOI">
