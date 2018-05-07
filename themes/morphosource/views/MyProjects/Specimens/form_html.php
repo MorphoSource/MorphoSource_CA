@@ -153,6 +153,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 		
 <?php
 			$t_projects = new ms_projects();
+			$t_projects->load($t_item->get("project_id"));
 			$o_db = new Db();
 			$q_projects = $o_db->query("SELECT project_id, name from ms_projects WHERE project_id != ? ORDER BY name", $t_item->get("project_id"));
 			if($q_projects->numRows()){
@@ -160,21 +161,20 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 				<div class="tealRule"><!-- empty --></div>
 				<H2>Move Specimen</H2>
 				<div id="specimenMove">
-<?php
-				print caFormTag($this->request, 'moveSpecimen', 'specimenMoveForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
-				$t_projects->load($t_item->get("project_id"));
-?>
-					This specimen is owned by <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move specimen to <select name="move_project_id" style="width:250px;">
+					This specimen is owned by <i><b><?php print $t_projects->get("name"); ?></b></i>.<br/>Move specimen to 
+					<select id="move_project_id" name="move_project_id" style="width:250px;">
+					<option></option>
 <?php
 				while($q_projects->nextRow()){
 					print "<option value='".$q_projects->get("project_id")."'>".$q_projects->get("name").", P".$q_projects->get("project_id")."</option>";
 				}
+
+				print "</select>&nbsp;&nbsp;";
+				print "<a href='#' id='moveSpecimenButton' class='button buttonSmall'>Move</a>";
 ?>
-				</select>&nbsp;&nbsp;<a href='#' name='save' class='button buttonSmall' onclick='jQuery("#specimenMoveForm").submit(); return false;'>Move</a>
-				<input type="hidden" name="specimen_id" value="<?php print $t_item->get("specimen_id"); ?>">
+						
 				</div><!-- end specimenMove -->
 				<div style="font-size:10px; font-style:italic;">If you transfer your specimen to a project you are not a member of, you will no longer be able to edit the specimen.</div>
-				</form>
 				<br/><br/>
 <?php
 			}	
@@ -407,4 +407,21 @@ if (!$this->request->isAjax()) {
 <?php
 	}
 ?>
+
+	jQuery('#moveSpecimenButton').click(function () {
+		var url = "<?php
+			print caNavUrl($this->request, 'MyProjects', 'Specimens', 'confirmMove', 
+				array(
+					"specimen_id" => $t_item->getPrimaryKey(), 
+					"proj_from" => $t_projects->get("project_id"), 
+					"proj_to" => "placeholdertext"));
+			?>";
+		var proj_to = jQuery('#move_project_id').val();
+		if (proj_to) {
+			url = url.replace("placeholdertext", proj_to);
+			msMediaPanel.showPanel(url);
+		}
+		return false;
+	});
+
 </script>

@@ -10,10 +10,9 @@
 	}
 	$agreement_url = $this->request->getThemeUrlPath().
 		'/static/MorphoSource_download_use_agreement.pdf';
-	$x_img_url = $this->request->getThemeUrlPath().
-		'/graphics/morphosource/ic_clear_black_24dp_1x.png';
+	
 ?>
-<div id="surveyFormOverlay">
+<div class="panelDialog">
 	<a href="#" style="float:right;" onclick="msMediaPanel.hidePanel(); return false;">
 		<img src="<?php print $x_img_url; ?>"></img>
 	</a>
