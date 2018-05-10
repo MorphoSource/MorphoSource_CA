@@ -413,7 +413,7 @@ if (!$this->request->isAjax()) {
 			print caNavUrl($this->request, 'MyProjects', 'Specimens', 'confirmMove', 
 				array(
 					"specimen_id" => $t_item->getPrimaryKey(), 
-					"proj_from" => $t_projects->get("project_id"), 
+					"proj_from" => (isset($t_project) ? $t_projects->get("project_id") : null ), 
 					"proj_to" => "placeholdertext"));
 			?>";
 		var proj_to = jQuery('#move_project_id').val();
