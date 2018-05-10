@@ -395,10 +395,8 @@
 			</p>
 		
 		</div>
-        
 		<div id="mediaFileForm" style='<?php print ($pn_media_file_id || (is_array($va_mediaFileErrors) && sizeof($va_mediaFileErrors))) ? "" : "display:none;"; ?>'>
 			<H2><?php print ($pn_media_file_id) ? "Edit media file" : "Upload Media Files To This Group"; ?></H2>
-            
 			<div id="mediaFilesInfo">
 	<?php
 				#$vs_mediaFileMessage = $this->getVar("mediaFileMessage");
@@ -701,7 +699,6 @@
     }
     
 	jQuery(document).ready(function() {			
-        
 		jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
 		);	
@@ -748,6 +745,7 @@
 
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
 		return false;
 	});
 
@@ -780,20 +778,34 @@ $('select[name="mediaServerPath"]').on('change', function() {
         setTimeout(function(){ 
             $('button.delete').trigger('click');
         }, 500);
+=======
+		return false;
+	});
+>>>>>>> merged with media move changes
 
-        /*
-        $('#jfu-file-select').prop('disabled', true);
-        $('.fileinput-button').addClass('disabled');
-        $('#btn-save').prop('disabled', false);
-        $('#btn-save').removeClass('disabled');
-        */
-/*
-} else {
+	jQuery('#moveMediaButton').click(function () {
+		var url = "<?php
+			print caNavUrl($this->request, 'MyProjects', 'Media', 'confirmMove', 
+				array(
+					"media_id" => $t_media->getPrimaryKey(), 
+					"proj_from" => $t_projects->get("project_id"), 
+					"proj_to" => "placeholdertext"));
+			?>";
+		var proj_to = jQuery('#move_project_id').val();
+		if (proj_to) {
+			url = url.replace("placeholdertext", proj_to);
+			msMediaPanel.showPanel(url);
+		}
+		return false;
+	});
 
+<<<<<<< HEAD
     }
 })
 */    
 >>>>>>> initial commit
+=======
+>>>>>>> merged with media move changes
 </script>
 
 <div id="doiConfirm" style="display: none;" title="Assign DOI">
