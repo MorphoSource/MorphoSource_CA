@@ -395,7 +395,7 @@
 			</p>
 		
 		</div>
-		<div id="mediaFileForm" style='<?php print ($pn_media_file_id || (is_array($va_mediaFileErrors) && sizeof($va_mediaFileErrors))) ? "" : "display:none;"; ?>'>
+		<div id="mediaFileForm" style="display:none" class='<?php print ($pn_media_file_id || (is_array($va_mediaFileErrors) && sizeof($va_mediaFileErrors))) ? "showThis" : "hideThis"; ?>'>
 			<H2><?php print ($pn_media_file_id) ? "Edit media file" : "Upload Media Files To This Group"; ?></H2>
 			<div id="mediaFilesInfo">
 	<?php
@@ -740,13 +740,13 @@
 				jQuery('#derivedFromFile').val("");
 				jQuery('#derivedFromFile').hide();
 			}
-		}
-	);
+		});
 
-		
-<<<<<<< HEAD
-<<<<<<< HEAD
-		return false;
+		if (jQuery('#mediaFileForm').hasClass('showThis')) {
+            //console.log('show the media form (e.g. if there is an error)');
+            continueUpload();
+        }
+		//return false;
 	});
 
 	jQuery('#moveMediaButton').click(function () {
@@ -765,47 +765,6 @@
 		return false;
 	});
 
-=======
-    return false;
-});
-    
-/* if file is selected from the server, delete any file uploaded from the client,
-and cancel any upload in progress */
-/*
-$('select[name="mediaServerPath"]').on('change', function() {
-    if (this.value != '') {
-        $('button.cancel').trigger('click');
-        setTimeout(function(){ 
-            $('button.delete').trigger('click');
-        }, 500);
-=======
-		return false;
-	});
->>>>>>> merged with media move changes
-
-	jQuery('#moveMediaButton').click(function () {
-		var url = "<?php
-			print caNavUrl($this->request, 'MyProjects', 'Media', 'confirmMove', 
-				array(
-					"media_id" => $t_media->getPrimaryKey(), 
-					"proj_from" => $t_projects->get("project_id"), 
-					"proj_to" => "placeholdertext"));
-			?>";
-		var proj_to = jQuery('#move_project_id').val();
-		if (proj_to) {
-			url = url.replace("placeholdertext", proj_to);
-			msMediaPanel.showPanel(url);
-		}
-		return false;
-	});
-
-<<<<<<< HEAD
-    }
-})
-*/    
->>>>>>> initial commit
-=======
->>>>>>> merged with media move changes
 </script>
 
 <div id="doiConfirm" style="display: none;" title="Assign DOI">
@@ -815,16 +774,3 @@ $('select[name="mediaServerPath"]').on('change', function() {
   		removed so please ensure that your data is ready <strong>before</strong> you assign it!  You will not be able to delete the media file once a DOI is assigned.
   </p>
 </div>
-
-<?php
-if ($isFormSaved) {
-    // when form is saved, the first media form is shown, but jquery file upload widget still needed to be initialized
-?>
-    <script>
-	jQuery(document).ready(function(){
-        continueUpload();
-	});
-    </script>
-<?php
-}// end if not a form post
-?>
