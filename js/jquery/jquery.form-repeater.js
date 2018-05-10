@@ -244,6 +244,26 @@
             numRepeaters = $repeaters.length,
             $match;
 
+        // Storing the button id temporarily.  the id tells which media form is being deleted, 
+        // and is needed for clean up.  e.g removing the file from the server
+        // smctodo: move this to an option?
+        var a = $btn.attr('id').split('_');
+        if (a[0] == 'r-btnRemove') {
+            var idx = a[1];
+            // get the input file name (for cleanup if needed)
+            var partialFileName = $('input#jfu_media_file_partial_'+idx).val();
+            var completedFileName = $('input#jfu_media_file_name_'+idx).val();
+            if (completedFileName != '')
+                $('input#jfu_temp').val(completedFileName); 
+            else if (partialFileName != '')
+                $('input#jfu_temp').val(partialFileName);
+            else
+                $('input#jfu_temp').val('');
+
+            console.log('smc in removeRepeater, setting jfu_temp: ' + $('input#jfu_temp').val());
+            
+        }
+        
         if (numRepeaters > container.opts.minItems) {
 
             // check if removing a specific repeater instance
@@ -330,15 +350,30 @@
      * Remove a match and reindex.
      */
     function _remove($match, container) {
-        $match.remove();
-        if (container.repeatCount) {
-            container.repeatCount--;
+        // confirmed is variable to return to determine if it is ok to delete
+        var confirmed = true;
+        if ($.isFunction(container.opts.beforeDelete)) {
+            confirmed = container.opts.beforeDelete.call(this, $match);
         }
+        if (confirmed === undefined) {
+            confirmed = true;
+        }
+        console.log("confirmed: "+ confirmed);
         
-        reindex(container);
-        
-        if ($.isFunction(container.opts.afterDelete)) {
-            container.opts.afterDelete.call(this, $match);
+        if (confirmed == true) {
+            $match.remove();
+
+            if (typeof container.repeatCount === "number") {
+                container.repeatCount--;
+            }
+
+            if (container.opts.reindexOnDelete) {
+                reindex(container);
+            }
+
+            if ($.isFunction(container.opts.afterDelete)) {
+                container.opts.afterDelete.call(this, $match);
+            }
         }
     }
 
@@ -412,6 +447,6 @@ $.fn.repeater.defaults = {
     clearValues: true,
     beforeAdd: function($doppleganger) { return $doppleganger; },
     afterAdd: function($doppleganger) { },
-    beforeDelete: function() { },
+    beforeDelete: function($elem) {},
     afterDelete: function() { }
 };
