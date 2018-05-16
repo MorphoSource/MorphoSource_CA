@@ -114,8 +114,7 @@
 						$vs_file_info .= "<br/><a href='https://doi.org/".
 							trim(str_replace('doi:', '', $vs_doi))."'>{$vs_doi}</a>";
 					}
-					if (($vs_ark = $q_media_files->get('ark')) 
-						&& (!$q_media_files->get('ark_reserved'))) 
+					if ($vs_ark = $q_media_files->get('ark')) 
 					{ 
 						$vs_file_info .= "<br/><a href='http://ezid.cdlib.org/id/".
 							trim($vs_ark)."'>{$vs_ark}</a>";
@@ -141,7 +140,7 @@
 					# --- media citation info
 ?>
 					<br/><a href="#" onClick="jQuery('#fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>').toggle(); return false;" style="text-decoration:none; position:relative;"><i class='fa fa-info'></i> Citation Elements</a>
-<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" class="fileCitationOverlay" style="display:none;">
+<div id="fileCitationElements<?php print $q_media_files->get("media_file_id"); ?>" class="fileCitationOverlay" style="word-wrap: break-word; display:none;">
 	<H2 style="padding-left:0px;">File Citation Elements</H2>
 	<b>Media number:</b> 
 <?php
@@ -153,7 +152,7 @@
 			print "not requested by data author or assigned";
 		}
 		
-		if($q_media_files->get("ark") && !$q_media_files->get("ark_reserved")){
+		if($q_media_files->get("ark")){
 			print "<br/><b>ARK:</b> ";
 			print $q_media_files->get("ark");
 		}
