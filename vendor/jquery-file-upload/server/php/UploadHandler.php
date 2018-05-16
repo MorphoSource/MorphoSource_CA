@@ -45,7 +45,7 @@ class UploadHandler
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             //'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/smc/',
-            'upload_dir' => '/nfs/images/tmp/jfu/', //smctodo: need to move this out to config file
+            'upload_dir' => '/nfs/images/tmp/jfu/', //todo: need to move this out to config file
             'upload_url' => $this->get_full_url().'/jfu_upload_url/',
             'input_stream' => 'php://input',
             'user_dirs' => false,

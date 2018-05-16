@@ -246,7 +246,7 @@
 
         // Storing the button id temporarily.  the id tells which media form is being deleted, 
         // and is needed for clean up.  e.g removing the file from the server
-        // smctodo: move this to an option?
+        // todo: move this to an option?
         var a = $btn.attr('id').split('_');
         if (a[0] == 'r-btnRemove') {
             var idx = a[1];
@@ -260,7 +260,7 @@
             else
                 $('input#jfu_temp').val('');
 
-            console.log('smc in removeRepeater, setting jfu_temp: ' + $('input#jfu_temp').val());
+            //console.log('smc in removeRepeater, setting jfu_temp: ' + $('input#jfu_temp').val());
             
         }
         

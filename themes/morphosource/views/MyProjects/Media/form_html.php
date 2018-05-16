@@ -141,7 +141,6 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
             <p class="size">Processing...</p>
             <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
         </td>
-        <!--smctodo: need to hide or remove cancel button -->
         <td>
             {% if (!i && !o.options.autoUpload) { %}
                 <button class="btn btn-primary start" disabled>
@@ -176,7 +175,6 @@ for (var i=0, file; file=o.files[i]; i++) {
         <td>
             <span class="size">({%=o.formatFileSize(file.size)%})</span>
         </td>
-        <!-- smctodo: need to hide the delete button -->
         <td>
             {% if (file.deleteUrl) { %}
                 <button id="jfu_delete_file_{%=file.name.replace(/\.[^/.]+$/, '')%}" class="btn btn-danger delete jfu-hide" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
@@ -413,6 +411,11 @@ if (!$this->request->isAjax()) {
 	
 ?>
 </div><!-- end float -->
+<script>
+    // setting jfu variables
+    var handlerUrl = '<?php print $t_media_file->getAppConfig()->get('jfu_handlerUrl') ?>';
+    var jfu_temp_dir = '<?php print $t_media_file->getAppConfig()->get('jfu_tempDir') ?>';
+</script>
 <div style='float:left; width:420px;'>
 	<div class="mediaFilesContainer">
 		<H2 class='ltBlueBottomRule' style='width:390px; margin:20px 0px 10px 0px;'>Media File(s)</H2>
@@ -437,14 +440,8 @@ if (!$this->request->isAjax()) {
 				//print "<br/>".$t_media_file->htmlFormElement("media", "^ELEMENT", array("name" => "media[0]", "id" => "media_0", "data-pattern-name" => "media[++]", "data-pattern-id" => "media_++"));
 				//print "</div>\n";
 
-    //Hidden fields for storing jquery file upload file name and temp path
-    //print $t_media_file->htmlFormElement("jfu_media_file_name", "^ELEMENT", array("name" => "jfu_media_file_name[0]", "id" => "jfu_media_file_name_0", "data-pattern-name" => "jfu_media_file_name[++]", "data-pattern-id" => "jfu_media_file_name_++"));
-    //print $t_media_file->htmlFormElement("jfu_media_file_path", "^ELEMENT", array("name" => "jfu_media_file_path[0]", "id" => "jfu_media_file_path_0", "data-pattern-name" => "jfu_media_file_path[++]", "data-pattern-id" => "jfu_media_file_path_++"));
-    
-    print(' <input readonly class="jfu-hide jfu_media_file_name" type="text" id="jfu_media_file_name_0" name="jfu_media_file_name[0]" value="" data-pattern-id="jfu_media_file_name_++" data-pattern-name="jfu_media_file_name[++]"> ');					
-    print(' <input type="hidden" id="jfu_media_file_path_0" name="jfu_media_file_path[0]" value="" data-pattern-id="jfu_media_file_path_++" data-pattern-name="jfu_media_file_path[++]"> ');					
-
-
+                print(' <input readonly class="jfu-hide jfu_media_file_name" type="text" id="jfu_media_file_name_0" name="jfu_media_file_name[0]" value="" data-pattern-id="jfu_media_file_name_++" data-pattern-name="jfu_media_file_name[++]"> ');					
+                print(' <input type="hidden" id="jfu_media_file_path_0" name="jfu_media_file_path[0]" value="" data-pattern-id="jfu_media_file_path_++" data-pattern-name="jfu_media_file_path[++]"> ');					
 				if ($vb_show_server_dir) {
 					//print "<div class='formLabelFloat'><br/>OR from the server<br/>";
                     print "<div class='server-upload-option'> OR ";
@@ -457,9 +454,9 @@ if (!$this->request->isAjax()) {
 					print "</div>\n";
 				}
     
-    print(' <input type="hidden" id="jfu_media_file_partial_0" name="jfu_media_file_partial[0]" value="" data-pattern-id="jfu_media_file_partial_++" data-pattern-name="jfu_media_file_partial[++]"> ');					
-    // important: must keep the jfu_file_status next to jfu_media_file_partial_++ for main.js to populate
-    print(' <div class="jfu_file_status"><span class="status_file_name"></span>&nbsp;<!--no file uploaded--></div> ');
+                print(' <input type="hidden" id="jfu_media_file_partial_0" name="jfu_media_file_partial[0]" value="" data-pattern-id="jfu_media_file_partial_++" data-pattern-name="jfu_media_file_partial[++]"> ');					
+                // important: must keep the jfu_file_status next to jfu_media_file_partial_++ for main.js to populate
+                print(' <div class="jfu_file_status"><span class="status_file_name"></span>&nbsp;<!--no file uploaded--></div> ');
     
 				print "<div class='formLabel imgPreview'>";
 				print "<label for='mediaPreviews_0' data-pattern-text='Image to use as preview ++:'>Image to use as preview:</label><br/><input type='file' name='mediaPreviews[0]' id='mediaPreviews_0' data-pattern-name='mediaPreviews[++]' data-pattern-id='mediaPreviews_++'/>";
@@ -562,34 +559,13 @@ if (!$this->request->isAjax()) {
             animationSpeed: 400,
             animationEasing: 'swing',
             clearValues: false
-            /* smc 04/07: below should not be needed any more since deletion problem 
-            is resolved.  Remove below later after further testing.
-            ,
-            afterDelete: function() {
-                //console.log('after jfu container deleted');
-                rePopulateFromServer();
-            } */
         });
         
 
         jfu_maxFiles = 4; // max uploads for new media group form
         jQuery('.fileinput-button').hide();
 
-        /*
-        jQuery('#mediaForm').submit(function(e){	
-            
-            alert(jQuery('#mediaForm').attr('action'));
-			if(!jQuery('#msFacilityID').val() || !jQuery('#title').val()){
-				alert("Please enter the title and facility");
-				e.preventDefault();
-				return false;
-			}else{
-				return true;
-			}
-		});
-        */
-        
-//continueMediaGroup();
+        //continueMediaGroup();
         
     });
     
@@ -597,7 +573,6 @@ if (!$this->request->isAjax()) {
         // add a jquery file upload widget and initialize the widget
         // click button to add widget unless it is the first one (already there)
         if (jfu_widgetCount !== 0) {
-            //smctodo: which add button to click?
             $('button.jr-btnAdd').trigger('click');
         }
         $('.fileinput-button').show();
@@ -616,21 +591,8 @@ if (!$this->request->isAjax()) {
             collision: "none"
         })        
         
-        /*
-        var top = posElem.offset().top  + 'px'; 
-        var left = $('.mediaFilesContainer').offset().left +  'px';
-        console.log('posElem:' + posElem.attr('id') +' top:'+ top + 'left:'+left);
-        contObj.css( {
-            'position': 'absolute',
-            'top': top,
-            'left': left,
-            'z-index': 1
-        });
-        */
         jfu_widgetCount++;
-        console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
-        //refreshDownload(jfu_widgetCount);
-        //$('.template-download').remove();
+        //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
 
     }
 
@@ -676,7 +638,7 @@ if (!$this->request->isAjax()) {
             //console.log('in settimeout waiting..., about to remove widget ');
             $('button#jr-btnRemove_'+jfu_widgetCount).trigger('click');
         }, 500);
-        console.log('widget removed, jfu_widgetCount='+jfu_widgetCount);
+        //console.log('widget removed, jfu_widgetCount='+jfu_widgetCount);
     }
 
     var continueMediaGroup = function() {
@@ -687,14 +649,6 @@ if (!$this->request->isAjax()) {
         
         return false;
     }
-
-    /* smc 04/07: below should not be needed any more since deletion problem 
-    is resolved.  Remove below later after further testing.
-    var rePopulateFromServer = function() {
-        // the form fields that stored the file info get lost after deleting a widget
-        // therefore check the server files again and populate the fields again
-        populateFromServer();
-    } */
     
 </script>
 <?php
@@ -740,14 +694,14 @@ if (!$this->request->isAjax()) {
 	
 	jQuery('#msFacilityID').bind('change', function(event) {
 				var facility_id = jQuery('#msFacilityID').val();
-				console.log("facilityID", facility_id);
+				//console.log("facilityID", facility_id);
 				if (facility_id < 1) {
 					return;
 				} else {
 					// Load scanner list into drop-down
 					var optionsAsString = "<option value=''>-</option>";
 					var scannerList = scannerListByFacilityID[facility_id];
-					console.log(scannerList);
+					//console.log(scannerList);
 					if (scannerList) {
 						for(var scanner_id in scannerList) {
 							optionsAsString += "<option value='" + scanner_id + "'>" + scannerList[scanner_id].name + "</option>";

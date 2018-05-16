@@ -26,8 +26,12 @@
 	if($vs_mediaFileMessage || $vs_new_mediaFileMessage || $vs_general_error){
 		print "<div class='formErrors' style='font-size:24px;'><br/>".$vs_mediaFileMessage.$vs_new_mediaFileMessage.$vs_general_error."<br/><br/></div>";
 	}
-					
 ?>
+<script>
+    // setting jfu variables
+    var handlerUrl = '<?php print $t_media_file->getAppConfig()->get('jfu_handlerUrl') ?>';
+    var jfu_temp_dir = '<?php print $t_media_file->getAppConfig()->get('jfu_tempDir') ?>';
+</script>
 <div id="mediaInfo">
 		<div id="newMediaButton"><?php print caNavLink($this->request, _t("New Media Group"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div><!-- end newMediaButton -->
 		<div class="blueRule"><!-- empty --></div>
@@ -484,7 +488,6 @@
         <td>
             <span class="size">({%=o.formatFileSize(file.size)%})</span>
         </td>
-        <!-- smctodo: need to hide the delete button -->
         <td>
             {% if (file.deleteUrl) { %}
                 <button id="jfu_delete_file_{%=file.name.replace(/\.[^/.]+$/, '')%}" class="btn btn-danger delete jfu-hide" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
@@ -694,7 +697,7 @@
         })        
           
         jfu_widgetCount = 1;
-        console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
+        //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
         return false;
     }
     

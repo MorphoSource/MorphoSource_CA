@@ -471,22 +471,19 @@
 						foreach($va_media_files_info as $vn_key => $va_media_file_info){
 							$va_errors_file = array();
 
-//smctodo: overriding temp file and path
-//foreach(array("jfu_media_file_name", "jfu_media_file_path") as $vs_f){
-//}
-                       
-$jfu_media_file_name = 'notset';
-$jfu_media_file_path = 'notset';
-if (isset($_REQUEST['jfu_media_file_name'][$vn_key])) 
-    $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][$vn_key];
-if (isset($_REQUEST['jfu_media_file_path'][$vn_key]))
-    $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][$vn_key];
+                            //jquery-file-upload changes: overriding temp file and path                       
+                            $jfu_media_file_name = 'notset';
+                            $jfu_media_file_path = 'notset';
+                            if (isset($_REQUEST['jfu_media_file_name'][$vn_key])) 
+                                $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][$vn_key];
+                            if (isset($_REQUEST['jfu_media_file_path'][$vn_key]))
+                                $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][$vn_key];
 
-$_FILES['media']['tmp_name'][$vn_key] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
-$_FILES['media']['name'][$vn_key] = $jfu_media_file_name;
+                            $_FILES['media']['tmp_name'][$vn_key] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
+                            $_FILES['media']['name'][$vn_key] = $jfu_media_file_name;
 
-error_log( print_r( 'smc in mediaController vn_key='.$vn_key.', name='.$_FILES['media']['name'][$vn_key], true ) ); 
-error_log( print_r( 'smc in mediaController vn_key='.$vn_key.',tmp_name='.$_FILES['media']['tmp_name'][$vn_key], true ) ); 
+                            //error_log( print_r( 'smc in mediaController vn_key='.$vn_key.', name='.$_FILES['media']['name'][$vn_key], true ) ); 
+                            //error_log( print_r( 'smc in mediaController vn_key='.$vn_key.',tmp_name='.$_FILES['media']['tmp_name'][$vn_key], true ) ); 
 
                             $vs_tmp = "";
 							$vs_tmp = $_FILES["media"]["tmp_name"][$vn_key];
@@ -673,20 +670,20 @@ error_log( print_r( 'smc in mediaController vn_key='.$vn_key.',tmp_name='.$_FILE
 					$t_media_file->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
 				}
 			} else {
-//smctodo: overriding temp file and path
-$jfu_media_file_name = 'notset';
-$jfu_media_file_path = 'notset';
-if (isset($_REQUEST['jfu_media_file_name'][0]))
-    $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][0];
-if (isset($_REQUEST['jfu_media_file_path'][0]))
-    $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][0];
-    
-error_log( print_r( 'smc in MediaController jfu_media_file_name='.$jfu_media_file_name, true ) ); 
+                //jquery-file-upload changes: overriding temp file and path
+                $jfu_media_file_name = 'notset';
+                $jfu_media_file_path = 'notset';
+                if (isset($_REQUEST['jfu_media_file_name'][0]))
+                    $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][0];
+                if (isset($_REQUEST['jfu_media_file_path'][0]))
+                    $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][0];
 
-$_FILES['media']['tmp_name'] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
-$_FILES['media']['name'] = $jfu_media_file_name;
-                
-error_log( print_r( 'smc media tmp_name='.$_FILES['media']['tmp_name'], true ) ); 
+                //error_log( print_r( 'smc in MediaController jfu_media_file_name='.$jfu_media_file_name, true ) ); 
+
+                $_FILES['media']['tmp_name'] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
+                $_FILES['media']['name'] = $jfu_media_file_name;
+
+                //error_log( print_r( 'smc media tmp_name='.$_FILES['media']['tmp_name'], true ) ); 
                 
 				if($_FILES['media']['tmp_name']){
 					$t_media_file->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));

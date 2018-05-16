@@ -65,11 +65,11 @@
 }
 .fileinput-button:hover {
     cursor:pointer;
-    background-color: #606f82; /* smctodo: move this morphosource.css later */
+    background-color: #606f82; 
 }
 .fileinput-button.disabled:hover {
     cursor:default;
-    background-color: transparent; /* smctodo: move this morphosource.css later */
+    background-color: transparent; 
 }
 .disabled {
     color:#aaa !important;
@@ -96,7 +96,6 @@
 }
 .jr-btnAdd,
 .jr-btnRemove {
-    /* smctodo: hide and move the button away later */
     float:right;
     /* visibility: hidden; */
     z-index: -999;
