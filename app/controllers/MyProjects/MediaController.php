@@ -62,6 +62,7 @@
  			JavascriptLoadManager::register("panel");
  			JavascriptLoadManager::register("3dmodels");
  			JavascriptLoadManager::register("formrepeater");
+ 			JavascriptLoadManager::register("jfu");
  			
  			
  			parent::__construct($po_request, $po_response, $pa_view_paths);

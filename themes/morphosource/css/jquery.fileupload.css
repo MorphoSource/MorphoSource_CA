@@ -1,0 +1,143 @@
+@charset "UTF-8";
+/*
+ * jQuery File Upload Plugin CSS
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ */
+
+.fileinput-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+.fileinput-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  -ms-filter: 'alpha(opacity=0)';
+  font-size: 200px !important;
+  direction: ltr;
+  cursor: pointer;
+}
+
+/* Fixes for IE < 8 */
+@media screen\9 {
+  .fileinput-button input {
+    filter: alpha(opacity=0);
+    font-size: 100%;
+    height: 100%;
+  }
+}
+
+/* custom css for morphosource */
+.template-upload p,
+.template-upload span,
+.template-download p,
+.template-download span,
+.progress-extended {
+    font-size:11px;
+}
+.jfu-label {
+    height:20px;
+
+}
+.jfu-container {
+    float:left;
+    /*
+    margin:15px 0;
+    position: relative;
+    top: +160px;
+    height:90px;
+    */
+}
+.fileinput-button {
+    padding:auto 8px;
+    margin-top:18px;
+    font-size:11px;
+    /*margin-left:222px;*/
+}
+.fileinput-button:hover {
+    cursor:pointer;
+    background-color: #606f82; /* smctodo: move this morphosource.css later */
+}
+.fileinput-button.disabled:hover {
+    cursor:default;
+    background-color: transparent; /* smctodo: move this morphosource.css later */
+}
+.disabled {
+    color:#aaa !important;
+    background-color: transparent;
+}
+.jfu-presentation {
+    position: absolute;
+    right: -400px;
+}
+.server-upload-option {
+    float:right;
+    margin-top:4px;
+    width:50%;
+}
+.server-upload-option select {
+    padding: 8px 0;
+    margin-left: 4px;
+    width:auto !important;
+    font-size:11px;
+}
+.imgPreview {
+    clear:both;
+    margin-top:40px !important;
+}
+.jr-btnAdd,
+.jr-btnRemove {
+    /* smctodo: hide and move the button away later */
+    float:right;
+    /* visibility: hidden; */
+    z-index: -999;
+}
+.jr-group {
+    position:absolute;
+    z-index:1;
+    height:20px;
+}
+/*
+#formArea input[type="text"].jfu_media_file_name ,
+#formArea input.jfu_media_file_name {
+    margin: 36px 0 0 10px !important;
+    border: none;
+    background-color: transparent;
+    font-size:11px;
+}*/
+.jfu_file_status {
+    clear:both;
+    margin: 26px 0 0 10px;
+    height:0px;
+    font-size: 11px;
+    line-height: 12px;
+    overflow: visible;
+    z-index: 2;
+}
+.jfu_file_status .warning {
+    color:red;
+}
+.jfu_file_status .check {
+    color:green;
+    font-size:15px;
+}
+.jfu-hide {
+    visibility:hidden; /* set to visible for debugging */
+}
+/* easier to see when debugging */
+/*
+.jfu_media_file_name,
+.jfu_media_file_status {
+    clear: both;
+    margin-left:-20px !important; 
+} 
+*/
