@@ -767,75 +767,67 @@ class ms_media_files extends BaseModel {
  			$va_doi["success"] = false;
  			$va_doi["error"] = "Media file already has a DOI.";
  		}
- 		$vs_pub = $this->get("published");
-		if (is_null($vs_pub) || ($vs_pub === "")) {
-			$vs_pub = (new ms_media($this->get("media_id")))->get("published");
-		}
-		if (($vs_pub == 1) || ($vs_pub == 2)) {
-			# Assign DOI
-			$o_doi = new DOI();
+ 		
+		# Assign DOI
+		$o_doi = new DOI();
 
-			$vs_mime_type = strtolower(
-				$this->getMediaInfo('media', 'original', 'MIMETYPE'));
-			$va_mime_type = explode('/', $vs_mime_type);			
+		$vs_mime_type = strtolower(
+			$this->getMediaInfo('media', 'original', 'MIMETYPE'));
+		$va_mime_type = explode('/', $vs_mime_type);			
 
-			switch($va_mime_type[0]) {
-				case 'image':
-					$vs_resource_type = 'Image';
-					break;
-				case 'audio':
-				case 'video':
-					$vs_resource_type = 'Audiovisual';
-					break;
-				case 'application':
-					switch($vs_mime_type) {
-						case 'application/ply':
-						case 'application/stl':
-						case 'application/surf':
-						case 'text/prs.wavefront-obj':
-							$vs_resource_type = 'Model';	
-							break(2);
-						case 'application/zip':
-							$vs_resource_type = 'Dataset';	
-							break(2);
-						case 'application/dicom':
-							$vs_resource_type = 'Image';	
-							break(2);
-					}
-				default:
-					$vs_resource_type = 'Other';
-					break;
-			}
-
-			try {
-				$o_doi->XMLMetadata(
-					$this->getPrimaryKey(), 
-					"M".$this->get("media_id")."-".$this->getPrimaryKey(),
-					$vs_resource_type,
-					"http://www.MorphoSource.org/index.php/Detail/MediaDetail/Show/media_file_id/".$this->getPrimaryKey(),
-					$vs_user_fname,
-					$vs_user_lname
-				);
-
-				if ($vs_doi = $o_doi->createDOI()) {
-					# --- record the DOI in the DB
-					$this->set("doi", $vs_doi);
-					$this->setMode(ACCESS_WRITE);
-					$this->update();
-					$va_doi["success"] = true;
-				} else {
-					$va_doi["success"] = false;
-					$va_doi["error"] = "Could not get DOI for media: ".
-						$o_doi->getError();
+		switch($va_mime_type[0]) {
+			case 'image':
+				$vs_resource_type = 'Image';
+				break;
+			case 'audio':
+			case 'video':
+				$vs_resource_type = 'Audiovisual';
+				break;
+			case 'application':
+				switch($vs_mime_type) {
+					case 'application/ply':
+					case 'application/stl':
+					case 'application/surf':
+					case 'text/prs.wavefront-obj':
+						$vs_resource_type = 'Model';	
+						break(2);
+					case 'application/zip':
+						$vs_resource_type = 'Dataset';	
+						break(2);
+					case 'application/dicom':
+						$vs_resource_type = 'Image';	
+						break(2);
 				}
-			} catch (Exception $e) {
+			default:
+				$vs_resource_type = 'Other';
+				break;
+		}
+
+		try {
+			$o_doi->XMLMetadata(
+				$this->getPrimaryKey(), 
+				"M".$this->get("media_id")."-".$this->getPrimaryKey(),
+				$vs_resource_type,
+				"http://www.MorphoSource.org/index.php/Detail/MediaDetail/Show/media_file_id/".$this->getPrimaryKey(),
+				$vs_user_fname,
+				$vs_user_lname
+			);
+
+			if ($vs_doi = $o_doi->createDOI()) {
+				# --- record the DOI in the DB
+				$this->set("doi", $vs_doi);
+				$this->setMode(ACCESS_WRITE);
+				$this->update();
+				$va_doi["success"] = true;
+			} else {
 				$va_doi["success"] = false;
 				$va_doi["error"] = "Could not get DOI for media: ".
-					$e->getMessage();
+					$o_doi->getError();
 			}
-		} else {
+		} catch (Exception $e) {
 			$va_doi["success"] = false;
-			$va_doi["error"] = "Media file not published, cannot assign DOI.";
+			$va_doi["error"] = "Could not get DOI for media: ".
+				$e->getMessage();
 		}
 
 		return $va_doi;
