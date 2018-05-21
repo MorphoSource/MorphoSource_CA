@@ -10,6 +10,10 @@
 	<div>
 		<b>RSS Feed: </b><a href='https://www.morphosource.org/rss/ms.rss'>https://www.morphosource.org/rss/ms.rss</a>
 	</div>
+	<div class='dataReportDisclaimer'>
+		<p><b>IMPORTANT</b></p> 
+		<p>Museum curators and others who intend to use these resources to integrate MorphoSource media information into specimen collection record systems should be aware that occasional changes may be made to the data schema used in these RSS and CSV files. Data managers should also understand that potential negative repercussions on collections data could occur if care is not taken to be aware of data schema changes. Interested individuals can send an e-mail to <a href="mailto:info@morphosource.org">info@morphosource.org</a> to be added to a mailing list that will inform users in advance of upcoming changes to these resources. Changes to data resources are also described at the bottom of this page.</p>
+	</div>
 	<div style='margin-top: 30px;'>
 <?php
 		// print "<h1>Data publishers</h1>";
@@ -41,5 +45,18 @@
 			print "</div>";
 		}
 ?>
+	</div>
+	<div>
+		<h1>Recent changes to data reports</h1>
+		<div>
+			<p><b>To to be implemented soon</b></p>
+			<ul>
+				<li>RSS Feed: File name has been changed from ms.rss to ms_rss.xml.</li>
+				<li>RSS Feed: Feed formatting errors have been fixed. Item elements now nest properly in channel elements.</li>
+				<li>Audubon Core Media CSV: Column names have been changed to exclude the "ac:" namespace and other namespaces that should be automatically recognized by IPT software. Automapping of columns should be easier now. </li>
+				<li>Audubon Core Media CSV: An Audubon Core field "IDofContainingCollection" has been added to record media group number per media file.</li>
+				<li>RSS, Audubon Core Media EML: Recordset names have been added to title tags.</li>
+			</ul>
+		</div>
 	</div>
 </div>
