@@ -101,7 +101,7 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
                         <!-- The fileinput-button span is used to style the file input field as button -->
                         <span class="btn btn-success fileinput-button fileinput-button-on-multiple button buttonMedium">
                             <i class="glyphicon glyphicon-plus"></i>
-                            <span>Upload from F computer</span>
+                            <span>Upload from computer</span>
                             <input id="jfu-file-select_0" class="jfu-file-select" type="file" name="files[]" data-pattern-id="jfu-file-select_++">
                         </span>
                         <!-- The global file processing state -->

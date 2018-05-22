@@ -419,7 +419,7 @@
                     <!-- The fileinput-button span is used to style the file input field as button -->
                     <span class="btn btn-success fileinput-button button buttonMedium">
                         <i class="glyphicon glyphicon-plus"></i>
-                        <span>Upload from M computer</span>
+                        <span>Upload from computer</span>
                         <input id="fileupload" type="file" name="files[]" multiple>
                     </span>
                     <!-- The global file processing state -->
