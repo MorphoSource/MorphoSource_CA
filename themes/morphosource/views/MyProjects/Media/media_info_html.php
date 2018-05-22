@@ -419,7 +419,7 @@
                     <!-- The fileinput-button span is used to style the file input field as button -->
                     <span class="btn btn-success fileinput-button button buttonMedium">
                         <i class="glyphicon glyphicon-plus"></i>
-                        <span>Upload from computer</span>
+                        <span>Upload from M computer</span>
                         <input id="fileupload" type="file" name="files[]" multiple>
                     </span>
                     <!-- The global file processing state -->
@@ -687,7 +687,7 @@
         var contObj = $('div[class=jr-group]');
         //console.log('contObj '+contObj.length);
         jfuInit(contObj, '0');
-        var posElem = $('input#title');
+        var posElem = $('#mediaFilesForm input#title');
         //console.log('postElem '+posElem.length);
         contObj.position({
             my:        "left top",
@@ -700,7 +700,34 @@
         //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
         return false;
     }
-    
+
+    var jfuAddWidget = function(){
+        // add a jquery file upload widget and initialize the widget
+        // click button to add widget unless it is the first one (already there)
+        if (jfu_widgetCount !== 0) {
+            $('button.jr-btnAdd').trigger('click');
+        }
+        $('.fileinput-button').show();
+        var contObj = $('#jfu-file-select_'+jfu_widgetCount).closest('div[class=jr-group]');
+        //var fileInputObj = $('#fileinput-button_'+jfu_widgetCount);
+        //console.log('contObj:' + contObj.attr('class'));                
+        jfuInit(contObj, jfu_widgetCount);
+
+        // position the widget
+        //var posElem = $('#jfu_media_file_name_'+jfu_widgetCount);
+        var posElem = $('#media_'+jfu_widgetCount+'_title');
+        contObj.position({
+            my:        "left top",
+            at:        "left bottom",
+            of:        posElem, // or $("#otherdiv")
+            collision: "none"
+        })        
+        
+        jfu_widgetCount++;
+        //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
+
+    }
+
 	jQuery(document).ready(function() {			
 		jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'

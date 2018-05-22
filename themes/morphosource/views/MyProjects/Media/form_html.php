@@ -99,9 +99,9 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
                 <div class="row fileupload-buttonbar">
                     <div class="col-sm-5">
                         <!-- The fileinput-button span is used to style the file input field as button -->
-                        <span class="btn btn-success fileinput-button button buttonMedium">
+                        <span class="btn btn-success fileinput-button fileinput-button-on-multiple button buttonMedium">
                             <i class="glyphicon glyphicon-plus"></i>
-                            <span>Upload from computer</span>
+                            <span>Upload from F computer</span>
                             <input id="jfu-file-select_0" class="jfu-file-select" type="file" name="files[]" data-pattern-id="jfu-file-select_++">
                         </span>
                         <!-- The global file processing state -->
@@ -719,7 +719,20 @@ if ($isFormSaved) {
 ?>
     <script>
 	jQuery(document).ready(function(){
-        jfuAddWidget();
+        /* handling file upload button on either single or multiple form
+        Url from multiple form saved: 
+        /MyProjects/Media/form
+        Url from single (when edit button is clicked):
+        /MyProjects/Media/MediaInfo/media_id/20828
+        */
+        if (document.location.href.indexOf('MediaInfo') != -1) {
+            //console.log('edit button clicked on single media form');
+            jQuery('.fileinput-button-on-multiple').hide();
+        } else {
+            //console.log('isFormSaved is true.. calling jfuAddwidget..');
+            jfuAddWidget();
+            
+        }
 	});
     </script>
 <?php
