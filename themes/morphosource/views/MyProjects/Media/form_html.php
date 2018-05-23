@@ -725,7 +725,7 @@ if ($isFormSaved) {
         Url from single (when edit button is clicked):
         /MyProjects/Media/MediaInfo/media_id/20828
         */
-        if (document.location.href.indexOf('MediaInfo') != -1) {
+        if (document.location.href.toLowerCase().indexOf('media_id') != -1) {
             //console.log('edit button clicked on single media form');
             jQuery('.fileinput-button-on-multiple').hide();
         } else {
