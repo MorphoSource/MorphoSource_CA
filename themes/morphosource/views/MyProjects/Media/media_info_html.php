@@ -441,7 +441,9 @@
     </div>
 
 </div>
-<!-- The template to display files available for upload -->
+<!-- The template to display files available for upload 
+Note: for the delete and cancel button id string regex, see jfu_customDelete function in main.js
+-->
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-upload fade jfu-hide">
@@ -464,7 +466,7 @@
                 </button>
             {% } %}
             {% if (!i) { %}
-                <button id="jfu_cancel_file_{%=file.name.replace(/\.[^/.]+$/, '')%}" class="btn btn-warning cancel">
+                <button id="jfu_cancel_file_{%=file.name.replace(/[\W]+/g,'')%}" class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
                     <span>_Cancel</span>
                 </button>
@@ -490,7 +492,7 @@
         </td>
         <td>
             {% if (file.deleteUrl) { %}
-                <button id="jfu_delete_file_{%=file.name.replace(/\.[^/.]+$/, '')%}" class="btn btn-danger delete jfu-hide" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                <button id="jfu_delete_file_{%=file.name.replace(/[\W]+/g,'')%}" class="btn btn-danger delete jfu-hide" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
                     <i class="glyphicon glyphicon-trash"></i>
                     <span>Delete</span>
                 </button>

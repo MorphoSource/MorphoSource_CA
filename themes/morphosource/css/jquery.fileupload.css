@@ -77,7 +77,7 @@
 }
 .jfu-presentation {
     position: absolute;
-    right: -400px;
+    right: 200px;
 }
 .server-upload-option {
     float:right;
@@ -132,11 +132,15 @@
 .jfu-hide {
     visibility:hidden; /* set to visible for debugging */
 }
-/* easier to see when debugging */
+/* use styles below for easier debugging */
 /*
 .jfu_media_file_name,
 .jfu_media_file_status {
     clear: both;
     margin-left:-20px !important; 
 } 
+.jfu-presentation {
+    position: absolute;
+    right: -800px;
+}
 */

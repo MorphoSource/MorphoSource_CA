@@ -429,7 +429,8 @@ $(function(){
 
 var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
     if (cleanupFile != '') {
-        cleanupFile = cleanupFile.replace(/\.[^/.]+$/, ""); // remove file extension
+        //cleanupFile = cleanupFile.replace(/\.[^/.]+$/, ""); // remove file extension
+        cleanupFile = cleanupFile.replace(/[\W]+/g,''); // remove all non-alphanumeric chars, except underscore
         var cancelFileId = '#jfu_cancel_file_' + cleanupFile;
         //console.log('in jfu_customDelete, cancelFileId='+cancelFileId);
         var deleteFileId = '#jfu_delete_file_' + cleanupFile;
@@ -443,8 +444,8 @@ var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
         }
         if (isCancelFirst === undefined) {
             isCancelFirst = false;
-            //console.log(isCancelFirst);
         } 
+        //console.log('isCancelFirst = '+isCancelFirst);
         if (!isCancelFirst && $('button'+deleteFileId).length) {
             // about to delete...
             //console.log('clearing file status for widget '+id);
@@ -480,7 +481,7 @@ var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
                     }
                 }, 500);
             } else {
-                console.log('cancel button not found');
+                console.log('cancel button not found: id= '+cancelFileId);
             }
         }
     } else {
