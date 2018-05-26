@@ -348,18 +348,27 @@
 							// All non-bibliographic citation cases
 							$section_f_val = array_intersect_key($f_val, 
 								array_flip($f));
-							if (!array_search("", $section_f_val)) {
-								$media_set = TRUE;
-								$va_nonbib_attempt[] = $section;
-								foreach ($section_f_val as $key => $value) {
+							$section_attempt = FALSE;	
+							foreach ($section_f_val as $key => $value) {
+								if (($key == 'media_citation_instruction2' && $value == 'originally appearing in') 
+									|| ($key == 'media_citation_instruction3' && $value == ', the collection of which was funded by ')) {
+									continue;
+								}
+								if ($value) {
+									$media_set = TRUE;
+									$section_attempt = TRUE;
 									$t_media->set($key, $value);
-								}
-								if ($t_media->numErrors() > 0) {
-									foreach ($t_media->getErrors() as $vs_e) {
-										$va_item_errors[$section][] = $vs_e;
+
+									if ($t_media->numErrors() > 0) {
+										foreach ($t_media->getErrors() as $vs_e) {
+											$va_item_errors[$section][] = $vs_e;
+										}
+										$t_media->clearErrors();
 									}
-									$t_media->clearErrors();
 								}
+							}
+							if ($section_attempt) {
+								$va_nonbib_attempt[] = $section;
 							}
 						}
 					}
@@ -398,13 +407,15 @@
 					}
 					$this->notification->addNotification($vs_message, 
 						__NOTIFICATION_TYPE_ERROR__);
-				}else{
-					if (sizeof($va_success) > 0) {
-						$vs_message = "General details successfully updated for 
-							selected media groups.";
-						$this->notification->addNotification($vs_message, 
-							__NOTIFICATION_TYPE_INFO__);
-					}
+				}elseif (sizeof($va_success) > 0) {
+					$vs_message = "General details successfully updated for 
+						selected media groups.";
+					$this->notification->addNotification($vs_message, 
+						__NOTIFICATION_TYPE_INFO__);
+				}else {
+					$vs_message = "No changes were made.";
+					$this->notification->addNotification($vs_message, 
+						__NOTIFICATION_TYPE_INFO__);
 				}
 			}
 			$this->dashboard();
