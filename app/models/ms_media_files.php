@@ -706,7 +706,7 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $this->formatPublishedText($q_media_files->get("published"));
 					$va_media_md[] = $q_media_files->get("grant_support");
 					$va_media_md[] = $q_media_files->get("copyright_info");
-					$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->getChoiceListValue("copyright_license"));
+					$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->get("copyright_license"));
 					if($q_media_files->get("media_citation_instruction1")){
 						$va_media_md[] = "Citation: ".$t_media->getMediaCitationInstructionsFromFields(array("media_citation_instruction1" => $q_media_files->get("media_citation_instruction1"), "media_citation_instruction2" => $q_media_files->get("media_citation_instruction2"), "media_citation_instruction3" => $q_media_files->get("media_citation_instruction3")));
 					}else{
