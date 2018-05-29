@@ -9,6 +9,7 @@
 	
 	<link href="<?php print $this->request->getThemeUrlPath(true); ?>/css/global.css" rel="stylesheet" type="text/css" />
 	<link href="<?php print $this->request->getThemeUrlPath(true); ?>/css/morphosource.css" rel="stylesheet" type="text/css" />
+	<link href="<?php print $this->request->getThemeUrlPath(true); ?>/css/jquery.fileupload.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" href="<?php print $this->request->getBaseUrlPath(); ?>/js/videojs/video-js.css" type="text/css" media="screen" />
  	<!--[if IE]>
     <link rel="stylesheet" type="text/css" href="<?php print $this->request->getThemeUrlPath(true); ?>/css/iestyles.css" />
@@ -39,6 +40,7 @@
 		// initialize CA Utils
 			var caUIUtils = caUI.initUtils();
 	</script>
+    
 </head>
 <body>
 <div id="contentArea">
