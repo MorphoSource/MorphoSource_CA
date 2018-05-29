@@ -43,8 +43,9 @@ var jfuInit = function (j, fileId) {
         var mPath = data.result.files[0].url;
         // get the jfu generated temp path from the url
         // e.g. https://.../vendor/jquery-file-upload/server/php/jfu_upload_url/5i5m1svqusapag5ma0tb1tsm15/foobar.png
+        // use decodeURIComponent to decode e.g. %20 to space
         var re = new RegExp("^http.*\/"+jfu_temp_dir+"\/"); 
-        mPath = mPath.replace(re, "");  
+        mPath = decodeURIComponent(mPath.replace(re, ""));  
         //console.log(mName, mPath);
         $('#jfu_media_file_name'+fileIdStr).val(mName);
         $('#jfu_media_file_path'+fileIdStr).val(mPath);
@@ -318,7 +319,7 @@ var populateForms = function(result) {
     // e.g. https://.../vendor/jquery-file-upload/server/php/jfu_upload_url/5i5m1svqusapag5ma0tb1tsm15/foobar.png
     //mPath = mPath.replace(/^http.*\/jfu_upload_url\//, "");  
     var re = new RegExp("^http.*\/"+jfu_temp_dir+"\/"); 
-    mPath = mPath.replace(re, "");  
+    mPath = decodeURIComponent(mPath.replace(re, ""));  
     //console.log(mName, mPath);
     
     var originalSize = localStorage.getItem(mName);
@@ -361,7 +362,7 @@ var populateForms = function(result) {
         // get the jfu generated temp path from the url
         // e.g. https://.../vendor/jquery-file-upload/server/php/jfu_upload_url/5i5m1svqusapag5ma0tb1tsm15/foobar.png
         var re = new RegExp("^http.*\/"+jfu_temp_dir+"\/"); 
-        mPath = mPath.replace(re, "");  
+        mPath = decodeURIComponent(mPath.replace(re, ""));  
         //console.log(mName, mPath);
        
         var originalSize = localStorage.getItem(mName);
