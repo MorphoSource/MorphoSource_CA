@@ -1,6 +1,7 @@
 <?php
 	$vb_show_edit_link   = $this->getVar("show_edit_link");
 	$va_media_counts     = $this->getVar("media_counts");
+	$vn_all_linked_media = $this->getVar("all_linked_media");
 	$vn_specimen_count   = $this->getVar("specimen_count");
 	$vs_project_name     = $this->getVar("project_name");
 	$va_project_members  = $this->getVar("project_members");
@@ -63,8 +64,9 @@
 	print "</div><!-- end unit -->\n";
 	print "<H2>"._t("Data")."</H2><div class='unit'>";
 
-	print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media<br/>";
-	print $vn_specimen_count." specimen with published media";
+	print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media groups owned by this project<br/>";
+	print (int)$vn_all_linked_media." published media groups associated with project specimens<br/>";
+	print $vn_specimen_count." project specimens";
 	print "</div><!-- end unit -->\n";
 	if($vs_project_url){
 		print "<H2>"._t("More Information")."</H2><div class='unit'>";

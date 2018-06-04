@@ -118,6 +118,8 @@
  			
 			$this->view->setVar("media_counts", 
 				$this->opo_item->getProjectMediaCounts());
+			$this->view->setVar("all_linked_media",
+				$this->opo_item->numAllMedia());
 			$this->view->setVar("specimen_count", 
 				$this->opo_item->numSpecimens());
 			$this->view->setVar("project_name",
@@ -228,7 +230,10 @@
 					case 'u':
 						$va_media_by_taxonomy = $this->opo_item->
 							getProjectMediaNestTaxonomy(null, 0, 
-								array("published_media_only" => true));
+								array(
+									"published_media_only" => true,
+									"all_specimen_media" => true
+							));
 						$va_entity = $va_media_by_taxonomy['media'];
 						$vn_count = $va_media_by_taxonomy['numMedia'];
 						$vb_entity_nest = 1;
@@ -236,7 +241,10 @@
 					case 'v':
 						$va_media_by_taxonomy = $this->opo_item->
 							getProjectMediaNestTaxonomy(null, 1, 
-								array("published_media_only" => true));
+								array(
+									"published_media_only" => true,
+									"all_specimen_media" => true
+							));
 						$va_entity = $va_media_by_taxonomy['media'];
 						$vn_count = $va_media_by_taxonomy['numMedia'];
 						$vb_entity_nest = 1;
@@ -261,7 +269,10 @@
 						}
 						$qr = $this->opo_item->
 							getProjectMedia(null, $vs_order_by, 
-								array("published_media_only" => true));
+								array(
+									"published_media_only" => true,
+									"all_specimen_media" => true
+							));
 						$va_entity = array();
 						$t_media = new ms_media();
 						while ($qr->nextRow()) {
