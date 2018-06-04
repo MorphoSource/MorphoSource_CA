@@ -448,6 +448,31 @@ class ms_projects extends BaseModel {
 		return $vn_num_media;
 	}
 	# ----------------------------------------
+	# --- returns count of ALL media associated with project (created by project, read-only, associated with specimen linked to project)
+	function numAllMedia($pn_project_id=null) {
+		if(!$pn_project_id){
+			$pn_project_id = $this->getPrimaryKey();
+		}
+		if (!$pn_project_id) { return null; }
+		
+		$o_db = $this->getDb();
+		$qr = $o_db->query("
+			SELECT count(*) c
+			FROM ms_media AS m
+			LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+			LEFT JOIN ms_specimens AS s ON m.specimen_id = s.specimen_id
+			LEFT JOIN ms_specimens_x_projects AS sxp ON s.specimen_id = sxp.specimen_id 
+			WHERE m.project_id = ? OR mxp.project_id = ? OR s.project_id = ? OR sxp.project_id = ?
+		", $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
+		
+		$vn_num_media = 0;
+		if($qr->numRows()){
+			$qr->nextRow();
+			$vn_num_media = $qr->get("c");
+		}
+		return $vn_num_media;
+	}
+	# ----------------------------------------
 	function numMediaFiles($pn_project_id=null) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
@@ -484,9 +509,11 @@ class ms_projects extends BaseModel {
 			SELECT DISTINCT s.specimen_id
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+			LEFT JOIN ms_specimens_x_projects AS sxp ON sxp.specimen_id = s.specimen_id
 			WHERE s.project_id = ?
 			OR m.project_id = ?
-		", $pn_project_id, $pn_project_id);
+			OR sxp.project_id = ?
+		", $pn_project_id, $pn_project_id, $pn_project_id);
 		
 		$vn_num_specimens = $qr->numRows();
 		return $vn_num_specimens;
@@ -604,10 +631,19 @@ class ms_projects extends BaseModel {
 				"WHERE m.project_id = ?".$vs_published_where.
 				"ORDER BY".$vs_order_by, $vn_project_id);
 		}else{
-			$qr = $o_db->query($vs_select_join."
-				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
-				WHERE (m.project_id = ? OR mxp.project_id = ?)".$vs_published_where.
-				"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
+			if (array_key_exists('all_specimen_media', $pa_options) && $pa_options['all_specimen_media']) {
+				$qr = $o_db->query($vs_select_join."
+					LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+					LEFT JOIN ms_specimens_x_projects AS sxp ON s.specimen_id = sxp.specimen_id
+					WHERE (m.project_id = ? OR mxp.project_id = ? OR sxp.project_id = ?)".$vs_published_where.
+					"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id, $vn_project_id); 
+			} else {
+				$qr = $o_db->query($vs_select_join."
+					LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+					WHERE (m.project_id = ? OR mxp.project_id = ?)".$vs_published_where.
+					"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
+			}
+			
 		}
 
 		return $qr;
@@ -691,11 +727,18 @@ class ms_projects extends BaseModel {
 			$qr = $o_db->query($vs_select_join."WHERE m.project_id = ?".
 				$vs_published_where." ORDER BY".$vs_order_by, $vn_project_id);
 		}else{
-			$qr = $o_db->query($vs_select_join."
-				LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id 
-				WHERE (m.project_id = ? OR mxp.project_id = ?)".
-				$vs_published_where." ORDER BY".$vs_order_by, $vn_project_id, 
-				$vn_project_id);
+			if (array_key_exists('all_specimen_media', $pa_options) && $pa_options['all_specimen_media']) {
+				$qr = $o_db->query($vs_select_join."
+					LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+					LEFT JOIN ms_specimens_x_projects AS sxp ON s.specimen_id = sxp.specimen_id
+					WHERE (m.project_id = ? OR mxp.project_id = ? OR sxp.project_id = ?)".$vs_published_where.
+					"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id, $vn_project_id); 
+			} else {
+				$qr = $o_db->query($vs_select_join."
+					LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
+					WHERE (m.project_id = ? OR mxp.project_id = ?)".$vs_published_where.
+					"ORDER BY".$vs_order_by, $vn_project_id, $vn_project_id);
+			}
 		}
 		
 		// Constructing taxonomically nested arrays 

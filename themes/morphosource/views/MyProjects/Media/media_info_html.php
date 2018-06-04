@@ -1,4 +1,5 @@
 <?php
+	error_log('Beginning media info p')
 	$pn_media_id = $this->getVar("item_id");
 	$t_media = $this->getVar("item");
 	$va_fields = $t_media->getFormFields();
@@ -555,7 +556,8 @@
 </div><!-- end mediaInfo -->
 
 <script type="text/javascript">
-	jQuery(document).ready(function() {			
+	jQuery(document).ready(function() {
+		console.log('starting javascript');		
 		jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
 		);	
