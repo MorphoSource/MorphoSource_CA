@@ -60,10 +60,8 @@
 			<div id="searchBox"><div id="searchBoxBg"><form name="header_search" action="<?php print caNavUrl($this->request, '', 'Search', 'Index'); ?>" method="get"><input type="text" name="search" value="<?php print ($vs_search) ? $vs_search : ''; ?>" onclick='jQuery("#quickSearch").select();' id="quickSearch"  autocomplete="off"/><a href="#" name="searchButtonSubmit" onclick="document.forms.header_search.submit(); return false;"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/magGlass.png"></a></form></div><!-- end searchBoxBg --></div><!-- end searchBox -->
 			<div id="navHeaderBar"><!-- empty --></div>
 			<ul class="mainNav">
-				<li style='position:relative;'><?php print caNavLink($this->request, _t("About"), "", "", "", ""); ?>
+				<li style='position:relative;'><?php print caNavLink($this->request, _t("About"), "", "", "About", "home"); ?>
 					<div class='jumpMenu' id='aboutJumpMenu'>
-						<div><?php print caNavLink($this->request, 'Home', 'blueText', '', '', ''); ?></div>
-						<div><?php print caNavLink($this->request, 'News', 'blueText', '', 'About', 'news'); ?></div>
 						<div><?php print caNavLink($this->request, 'Information for Users', 'blueText', '', 'About', 'userInfo'); ?></div>
 						<div><?php print caNavLink($this->request, 'Information for Contributors', 'blueText', '', 'About', 'contributorInfo'); ?></div>
 						<div><?php print caNavLink($this->request, 'Terms', 'blueText', '', 'About', 'terms'); ?></div>
