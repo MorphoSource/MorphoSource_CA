@@ -22,6 +22,7 @@
 	</div>
 	<ul>
 <?php
+		print "<li>".caNavLink($this->request, _t("About"), "", "", "About", "home")."</li>";
 		print "<li>".caNavLink($this->request, _t("Contact"), "", "", "About", "contact")."</li>";
 		if($this->request->isLoggedIn()){
 			print "<li>".caNavLink($this->request, _t("Logout"), "", "", "LoginReg", "logout")."</li>";
