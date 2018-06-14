@@ -244,10 +244,12 @@
 				(($va_entity['preview']['numFiles'] == 1) ? "" : "s").")<br/>";
 
 			$vs_specimen_name = $t_specimen->formatSpecimenName($va_entity);
-			$vs_specimen_taxonomy = 
+			$va_specimen_taxonomy = 
 				$t_specimen->getSpecimenTaxonomy($va_entity['specimen_id']);
-			if ($vs_specimen_taxonomy) { 
-				$vs_specimen_taxonomy = join(" ", $vs_specimen_taxonomy); 
+			if ($va_specimen_taxonomy && sizeof($va_specimen_taxonomy)) { 
+				$vs_specimen_taxonomy = join(" ", $va_specimen_taxonomy); 
+			} else {
+				$vs_specimen_taxonomy = "";
 			}
 			
 			if ($vs_specimen_name && $vs_specimen_taxonomy) {

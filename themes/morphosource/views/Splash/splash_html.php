@@ -50,7 +50,8 @@
 				<H2 class="tealBottomRule">Useful Info</H2>
 				<p>
 <?php 
-				print "<ul style='padding-left:20px;'><li>".caNavLink($this->request, 'Information for Users', 'blueText', '', 'About', 'userInfo')."</li>";
+				print "<ul style='padding-left:20px;'><li>".caNavLink($this->request, 'About MorphoSource', 'blueText', '', 'About', 'home')."</li>";
+				print "<li>".caNavLink($this->request, 'Information for Users', 'blueText', '', 'About', 'userInfo')."</li>";
 				print "<li>".caNavLink($this->request, 'Information for Contributors', 'blueText', '', 'About', 'contributorInfo')."</li>";
 				print "<li>".caNavLink($this->request, 'Terms', 'blueText', '', 'About', 'terms')."</li>";
 				print "<li>".caNavLink($this->request, 'User Guide', 'blueText', '', 'About', 'userGuide')."</li></ul>";

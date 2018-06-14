@@ -730,7 +730,8 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
     }
 
 	jQuery(document).ready(function() {			
-		jQuery('#mediaSpecimenInfo').load(
+
+        jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
 		);	
 		jQuery('#mediaBibliographyInfo').load(
@@ -778,7 +779,7 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
             continueUpload();
         }
 		//return false;
-	});
+	}); // end document.ready
 
 	jQuery('#moveMediaButton').click(function () {
 		var url = "<?php
