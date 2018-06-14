@@ -3725,11 +3725,25 @@ class BaseModel extends BaseObject {
 					}
 				}
 
+//smc: overriding temp file and path
+/*
+if (isset($_REQUEST['jfu_media_file_name']))
+    $jfu_media_file_name = $_REQUEST['jfu_media_file_name'];
+else
+    $jfu_media_file_name = 'nothing';
+    
+error_log( print_r( 'smc jfu_media_file_name='.$jfu_media_file_name, true ) ); 
+                
+$this->_SET_FILES[$ps_field]['tmp_name'] = "/nfs/images/tmp/jfu/".$jfu_media_file_name; 
+$this->_SET_FILES[$ps_field]['original_filename'] = $jfu_media_file_name;                
+*/                
 				// allow adding zip and (gzipped) tape archives
 				$vb_is_archive = false;
 				$vs_archive = null;
 				$vs_original_filename = $this->_SET_FILES[$ps_field]['original_filename'];
 				$vs_original_tmpname = $this->_SET_FILES[$ps_field]['tmp_name'];
+error_log(print_r('smc in BaseModel $vs_original_filename='.$vs_original_filename.'------', true));
+error_log(print_r('smc in BaseModel $vs_original_tmpname='.$vs_original_tmpname.'------', true));
 				if (!$vs_original_filename) { $vs_original_filename = $vs_original_tmpname; }
 				$va_matches = array();
 				
@@ -4454,6 +4468,21 @@ class BaseModel extends BaseObject {
 				if($vb_renamed_tmpfile){
 					@unlink($this->_SET_FILES[$ps_field]['tmp_name']);
 				}
+				$jfu_tmpFile = $this->_SET_FILES[$ps_field]['tmp_name'];
+				$jfu_original_filename = $this->_SET_FILES[$ps_field]['original_filename'];
+                
+                if (is_file($jfu_tmpFile)) {
+    error_log(print_r('smc about to delete ='.$jfu_tmpFile.'------', true));
+                    unlink($jfu_tmpFile);
+                    // delete preview file if any
+                    // e.g. /nfs/images/tmp/jfu/5i5m1svqusapag5ma0tb1tsm15/1turkey.png
+                    $jfu_tmpFile = str_replace($jfu_original_filename, "thumbnail/".$jfu_original_filename, $jfu_tmpFile);
+                    if (is_file($jfu_tmpFile)) {
+        error_log(print_r('smc about to delete ='.$jfu_tmpFile.'------', true));
+                        unlink($jfu_tmpFile);
+                    }
+
+                }
 			} else {
 				 if(is_array($this->_FIELD_VALUES[$ps_field])) {
 					$this->_FILES[$ps_field] = $this->_FIELD_VALUES[$ps_field];
