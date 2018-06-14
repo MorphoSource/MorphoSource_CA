@@ -26,5 +26,5 @@
  * ----------------------------------------------------------------------
  */
 
-	print "[".$this->request->config->get("app_display_name")."] "._t("Thank you for registering!");
+	print "[".$this->request->config->get("app_display_name")."] "._t("Welcome to MorphoSource!");
 ?>

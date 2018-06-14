@@ -320,7 +320,7 @@
 						
 					$vs_mail_message_html = ob_get_contents(); 
 					ob_end_clean();
-					caSendmail($t_user->get('email'), $this->request->config->get("ca_admin_email"), $vs_subject_line, $vs_mail_message_text, $vs_mail_message_html);
+					caSendmail($t_user->get('email'), [$this->request->config->get("ca_admin_email") => 'MorphoSource Team'], $vs_subject_line, $vs_mail_message_text, $vs_mail_message_html);
 
 					$t_user = new ca_users();
 					# log in the new user
