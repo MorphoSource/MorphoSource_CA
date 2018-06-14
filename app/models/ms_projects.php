@@ -510,10 +510,12 @@ class ms_projects extends BaseModel {
 			FROM ms_specimens s
 			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
 			LEFT JOIN ms_specimens_x_projects AS sxp ON sxp.specimen_id = s.specimen_id
+			LEFT JOIN ms_media_x_projects AS mxp ON mxp.media_id = m.media_id
 			WHERE s.project_id = ?
 			OR m.project_id = ?
 			OR sxp.project_id = ?
-		", $pn_project_id, $pn_project_id, $pn_project_id);
+			OR mxp.project_id = ?
+		", $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
 		
 		$vn_num_specimens = $qr->numRows();
 		return $vn_num_specimens;
