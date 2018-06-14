@@ -63,52 +63,92 @@
 			
  			# --- featured projects
  			$va_featured_projects = array(
- 				"249" => array("media" => array(),
- 								"title" => "A new species of Brachycephalus from Santa Catarina, southern Brazil",
- 								"links" => array(
- 													"<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("More about Brachycephalus albolineatus"), '', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => 4217))."</b>",
- 													"<i class='fa fa-arrow-right'></i> <b><a href='https://peerj.com/articles/2629/' target='_blank'>Read the published article</a></b>"
- 												)
- 								),
- 				"189" => array("media" => array(),
- 								"title" => "First North American Fossil Monkey and Early Miocene Tropical Biotic Interchange",
- 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 189))."</b>",
- 													"<i class='fa fa-arrow-right'></i> <b><a href='http://www.nature.com/nature/journal/vaop/ncurrent/full/nature17415.html' target='_blank'>Read the published article</a></b>"
- 												)
- 								),
- 				"207" => array("media" => array(),
- 								"title" => "Australopithecus sediba from the site of Malapa, South Africa",
- 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all project specimen"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 207))."</b>"
- 												)
- 								),
- 				"124" => array("media" => array(),
- 								"title" => "Four bones of a new species of Homo from South Africa.",
- 								"links" => array("<i class='fa fa-arrow-right'></i> <b>".caNavLink($this->request, _t("See all the bones of the newly described Homo naledi"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 124))."</b>",
- 													"<i class='fa fa-arrow-right'></i> <b><a href='http://elifesciences.org/content/4/e09560' target='_blank'>Read the published article</a></b>"
- 												)
- 								
- 								)
+ 				"394" => array(
+ 					"media" => array(
+ 						15845 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								15845, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						15847 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								15847, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						15848 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								15848, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						15849 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								15849, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 					),
+ 					"title" => "Frogs in amber from the Cretaceous of Myanmar</br>​</br>",
+ 					"links" => array(
+ 						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 394))."</b>",
+ 						"<b><a href='https://www.nature.com/articles/s41598-018-26848-w'>Read the published article</a></b>"
+ 					)
+ 				),
+ 				"206" => array(
+ 					"media" => array(
+ 						8412 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								8412, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						8539 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								8539, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						8470 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								8470, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						8388 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								8388, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 					),
+ 					"title" => "<b>The Arene Candide 3D database - Upper Paleolithic funerary behavior in Liguria (Italy)</b></br>",
+ 					"links" => array(
+ 						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 206))."</b>",
+ 						"<b><a href='http://www.isita-org.com/jass/Contents/ContentsVol96.htm'>Read the published article</a></b>"
+ 					)
+ 				)
  			);
- 			
+
+ 			foreach ($va_featured_projects as $vn_proj_id => $vn_proj) {
+ 				$va_featured_projects[$vn_proj_id]['media'] = 
+ 					array_filter($va_featured_projects[$vn_proj_id]['media']);
+ 			}
+
  			# --- get media for featured projects
-			foreach($va_featured_projects as $vn_project_id => $va_info){
-				$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.project_id = ? ORDER BY RAND() LIMIT 10", $vn_project_id);
-				$va_recent_media = array();
-				if($q_recent_media->numRows()){
-					$i = 0;
-					while($q_recent_media->nextRow()){
-						$va_preview_media = $t_media->getPreviewMediaFile($q_recent_media->get("media_id"), array("preview190"), true);
-						if($va_preview_media["media"]["preview190"]){
-							$va_recent_media[$q_recent_media->get("media_id")] = $va_preview_media["media"]["preview190"];
-							$i++;
-						}
-						if($i == 4){
-							break;
-						}
-					}
-				}
-				$va_featured_projects[$vn_project_id]["media"] = $va_recent_media;
-			}
+ 			// COMMENTED OUT BUT THIS CODE WORKS FOR GETTING RANDOM MEDIA FROM FEATURED PROJECTS
+			// foreach($va_featured_projects as $vn_project_id => $va_info){
+			// 	$q_recent_media = $o_db->query("SELECT m.media_id, m.project_id, m.published_on from ms_media m INNER JOIN ms_projects AS p ON m.project_id = p.project_id WHERE m.published > 0 AND p.project_id = ? ORDER BY RAND() LIMIT 10", $vn_project_id);
+			// 	$va_recent_media = array();
+			// 	if($q_recent_media->numRows()){
+			// 		$i = 0;
+			// 		while($q_recent_media->nextRow()){
+			// 			$va_preview_media = $t_media->getPreviewMediaFile($q_recent_media->get("media_id"), array("preview190"), true);
+			// 			if($va_preview_media["media"]["preview190"]){
+			// 				$va_recent_media[$q_recent_media->get("media_id")] = $va_preview_media["media"]["preview190"];
+			// 				$i++;
+			// 			}
+			// 			if($i == 4){
+			// 				break;
+			// 			}
+			// 		}
+			// 	}
+			// 	$va_featured_projects[$vn_project_id]["media"] = $va_recent_media;
+			// }
+
 			$this->view->setVar("featured_projects", $va_featured_projects);
  			
 //  			if($vn_recent = $this->request->config->get("recently_published_media_id")){
