@@ -66,10 +66,10 @@
 					}
 					print "<br/>";
 				}
-				$va_media_counts = $t_project->getProjectMediaCounts();
+
 				print "<b>Data:</b> ";
-				print ((int)$va_media_counts[1] + (int)$va_media_counts[2])." published media";
-				print ", ".$t_project->numSpecimens()." specimens";
+				print (int)$t_project->numAllMedia(null, true)." published media";
+				print ", ".(int)$t_project->numSpecimens()." specimens";
 				print "<br/>".caNavLink($this->request, _t("Project Info"), 'button buttonSmall', 'Detail', 'ProjectDetail', 'Show', array('project_id' => $q_project->get("project_id")));
 				print "</div>";
 			}
