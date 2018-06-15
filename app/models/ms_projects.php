@@ -449,7 +449,7 @@ class ms_projects extends BaseModel {
 	}
 	# ----------------------------------------
 	# --- returns count of ALL media associated with project (created by project, read-only, associated with specimen linked to project)
-	function numAllMedia($pn_project_id=null) {
+	function numAllMedia($pn_project_id=null, $pn_published=false) {
 		if(!$pn_project_id){
 			$pn_project_id = $this->getPrimaryKey();
 		}
@@ -458,12 +458,24 @@ class ms_projects extends BaseModel {
 		$o_db = $this->getDb();
 		$qr = $o_db->query("
 			SELECT count(*) c
-			FROM ms_media AS m
-			LEFT JOIN ms_media_x_projects AS mxp ON m.media_id = mxp.media_id
-			LEFT JOIN ms_specimens AS s ON m.specimen_id = s.specimen_id
-			LEFT JOIN ms_specimens_x_projects AS sxp ON s.specimen_id = sxp.specimen_id 
-			WHERE m.project_id = ? OR mxp.project_id = ? OR s.project_id = ? OR sxp.project_id = ?
-		", $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
+			FROM (
+				SELECT DISTINCT media_id, published FROM ms_media WHERE project_id = ?
+				UNION
+				SELECT DISTINCT m1.media_id, m1.published FROM ms_media_x_projects AS mxp LEFT JOIN ms_media AS m1 ON m1.media_id = mxp.media_id WHERE mxp.project_id = ?
+				UNION
+				SELECT DISTINCT m2.media_id, m2.published
+				FROM ms_specimens AS s1 
+				LEFT JOIN ms_media AS m2 ON m2.specimen_id = s1.specimen_id
+				WHERE s1.project_id = ?
+				UNION
+				SELECT DISTINCT m3.media_id, m3.published
+				FROM ms_specimens_x_projects AS sxp
+				LEFT JOIN ms_specimens AS s2 ON s2.specimen_id = sxp.specimen_id
+				LEFT JOIN ms_media AS m3 ON m3.specimen_id = s2.specimen_id
+				WHERE sxp.project_id = ?
+			) AS allmedia
+			".($pn_published ? " WHERE allmedia.published = 1 OR allmedia.published = 2" : "")
+			, $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
 		
 		$vn_num_media = 0;
 		if($qr->numRows()){
@@ -504,19 +516,27 @@ class ms_projects extends BaseModel {
 		
 		$o_db = $this->getDb();
 
-		
 		$qr = $o_db->query("
-			SELECT DISTINCT s.specimen_id
-			FROM ms_specimens s
-			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
-			LEFT JOIN ms_specimens_x_projects AS sxp ON sxp.specimen_id = s.specimen_id
-			LEFT JOIN ms_media_x_projects AS mxp ON mxp.media_id = m.media_id
-			WHERE s.project_id = ?
-			OR m.project_id = ?
-			OR sxp.project_id = ?
-			OR mxp.project_id = ?
-		", $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
-		
+			SELECT DISTINCT specimen_id 
+			FROM ms_specimens 
+			WHERE project_id = ?
+			UNION
+			SELECT DISTINCT specimen_id 
+			FROM ms_specimens_x_projects 
+			WHERE project_id = ?
+			UNION
+			SELECT DISTINCT specimen_id 
+			FROM ms_media WHERE 
+			project_id = ?
+			AND specimen_id IS NOT NULL
+			UNION
+			SELECT DISTINCT m.specimen_id 
+			FROM ms_media_x_projects AS mxp 
+			LEFT JOIN ms_media AS m ON m.media_id = mxp.media_id 
+			WHERE mxp.project_id = ?
+			AND m.specimen_id IS NOT NULL
+			", $pn_project_id, $pn_project_id, $pn_project_id, $pn_project_id);
+				
 		$vn_num_specimens = $qr->numRows();
 		return $vn_num_specimens;
 	}
