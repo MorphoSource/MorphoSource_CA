@@ -39,6 +39,6 @@
 		}
 		print '</div>';
 	}else{
-		print "<div class='browseItem'>"._t("There are no specimens available")."</div>";
+		print "<div class='browseItem'>"._t("There are no specimens directly owned by this project. See project page for specimens indirectly linked to this project.")."</div>";
 	}
 ?>

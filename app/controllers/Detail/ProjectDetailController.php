@@ -119,7 +119,7 @@
 			$this->view->setVar("media_counts", 
 				$this->opo_item->getProjectMediaCounts());
 			$this->view->setVar("all_linked_media",
-				$this->opo_item->numAllMedia());
+				$this->opo_item->numAllMedia(null, true));
 			$this->view->setVar("specimen_count", 
 				$this->opo_item->numSpecimens());
 			$this->view->setVar("project_name",
