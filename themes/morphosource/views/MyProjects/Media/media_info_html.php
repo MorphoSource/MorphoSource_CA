@@ -26,8 +26,12 @@
 	if($vs_mediaFileMessage || $vs_new_mediaFileMessage || $vs_general_error){
 		print "<div class='formErrors' style='font-size:24px;'><br/>".$vs_mediaFileMessage.$vs_new_mediaFileMessage.$vs_general_error."<br/><br/></div>";
 	}
-					
 ?>
+<script>
+    // setting jfu variables
+    var handlerUrl = '<?php print $t_media_file->getAppConfig()->get('jfu_handlerUrl') ?>';
+    var jfu_temp_dir = '<?php print $t_media_file->getAppConfig()->get('jfu_tempDir') ?>';
+</script>
 <div id="mediaInfo">
 		<div id="newMediaButton"><?php print caNavLink($this->request, _t("New Media Group"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div><!-- end newMediaButton -->
 		<div class="blueRule"><!-- empty --></div>
@@ -51,7 +55,13 @@
 		}
 		$vb_files_published = false;
 		$vb_files_DOI = false;
+        
+        // smc: check if form is just submitted (and add a jquery file upload widget)
+        $isFormSaved = false;
+
 		if($q_media_files->numRows()){
+            $isFormSaved = true;
+            
 ?>
 			<div class='mediaImageScrollArea'>
 <?php
@@ -383,12 +393,12 @@
 			
 			<br/><br/>For detailed definitions of 'raw' and 'derivative' data visit the FAQ page.
 			<p style="text-align:center">
-				<a href="#" onClick="jQuery('#uploadWarning').hide(); jQuery('#mediaFileForm').show(); return false;" class="button buttonLarge">Continue Uploading Files</a>
+				<a href="#" onClick="continueUpload();" class="button buttonLarge">Continue Uploading Files</a>
 				&nbsp;&nbsp;<a href="#" onClick="jQuery('#uploadWarning').hide(); jQuery('#uploadbuttonContainer').show(); return false;" class="button buttonLarge">Cancel</a>
 			</p>
 		
 		</div>
-		<div id="mediaFileForm" style='<?php print ($pn_media_file_id || (is_array($va_mediaFileErrors) && sizeof($va_mediaFileErrors))) ? "" : "display:none;"; ?>'>
+		<div id="mediaFileForm" style="display:none" class='<?php print ($pn_media_file_id || (is_array($va_mediaFileErrors) && sizeof($va_mediaFileErrors))) ? "showThis" : "hideThis"; ?>'>
 			<H2><?php print ($pn_media_file_id) ? "Edit media file" : "Upload Media Files To This Group"; ?></H2>
 			<div id="mediaFilesInfo">
 	<?php
@@ -397,13 +407,117 @@
 				#$va_mediaFileErrors = $this->getVar("mediaFileErrors");
 	?>
 				<div id="formArea" class="mediaFilesForm"><div class="ltBlueTopRule"><br/>
+
+<div class="jr-group">
+
+    <div class="jfu-container">
+        <!-- The file upload form used as target for the file upload widget -->
+            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+            <div class="row fileupload-buttonbar">
+                <div class="col-sm-5">
+                    <!-- The fileinput-button span is used to style the file input field as button -->
+                    <span class="btn btn-success fileinput-button button buttonMedium">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Upload from computer</span>
+                        <input id="fileupload" type="file" name="files[]" multiple>
+                    </span>
+                    <!-- The global file processing state -->
+                    <!--span class="fileupload-process"></span-->
+                    <!-- The table listing the files available for upload/download -->
+                    <table role="presentation" class="jfu-presentation table table-striped"><tbody class="files"><input type="hidden" id="presentation_0" class="presentation"></tbody></table>
+                </div>
+                <!-- The global progress state -->
+                <div class="col-sm-5 fileupload-progress fade">
+                    <!-- The global progress bar -->
+                    <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                    </div>
+                    <!-- The extended global progress state -->
+                    <div class="progress-extended">&nbsp;</div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+<!-- The template to display files available for upload 
+Note: for the delete and cancel button id string regex, see jfu_customDelete function in main.js
+-->
+<script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-upload fade jfu-hide">
+        <td>
+            <span class="preview"></span>
+        </td>
+        <td>
+            <p class="name">{%=file.name%}</p>
+            <strong class="error text-danger"></strong>
+        </td>
+        <td>
+            <p class="size">Processing...</p>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+        </td>
+        <td>
+            {% if (!i && !o.options.autoUpload) { %}
+                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start</span>
+                </button>
+            {% } %}
+            {% if (!i) { %}
+                <button id="jfu_cancel_file_{%=file.name.replace(/[\W]+/g,'')%}" class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>_Cancel</span>
+                </button>
+            {% } %}
+        </td>
+    </tr>
+{% } %}
+</script>
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr id="download_tr_{%=i%}" class="template-download fade jfu-hide">
+        <td>
+            <p class="name">
+                    <span>{%=file.name%}</span>
+            </p>
+            {% if (file.error) { %}
+                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+            {% } %}
+        </td>
+        <td>
+            <span class="size">({%=o.formatFileSize(file.size)%})</span>
+        </td>
+        <td>
+            {% if (file.deleteUrl) { %}
+                <button id="jfu_delete_file_{%=file.name.replace(/[\W]+/g,'')%}" class="btn btn-danger delete jfu-hide" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+            {% } else { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
+        </td>
+    </tr>
+{% } %}
+</script>
+                    
 				<?php
 					print caFormTag($this->request, ($pn_media_file_id) ? 'updateMediaFile' : 'linkMediaFile', 'mediaFilesForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
-					
-					if($va_mediaFileErrors["title"]){
+                    
+                    if($va_mediaFileErrors["title"]){
 						print "<div class='formErrors' style='clear:left;>".$va_mediaFileErrors["title"]."</div>";
 					}
 					print $t_media_file->htmlFormElement("title","<div class='formLabelFloat'>^LABEL<br>^ELEMENT</div>");
+
+                    //Hidden fields for storing jquery file upload file name and temp path
+                    print(' <input readonly class="jfu-hide jfu_media_file_name" id="jfu_media_file_name_0" name="jfu_media_file_name[0]" value="">');					
+                    print(' <input type="hidden" id="jfu_media_file_path_0" name="jfu_media_file_path[0]" value="">');					
+                    
 					if($pn_media_file_id){
 						print "<div class='formLabel' style='clear:left;'>".$t_media_file->getMediaTag("media", "thumbnail")."</div>";
 					}else{
@@ -417,22 +531,30 @@
 							($vs_upload_base_directory = $t_media_file->getAppConfig()->get('upload_base_directory'))
 							&&
 							(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
+                            &&
+                            (file_exists($vs_user_upload_directory))   // Make sure the user upload dir exists                         
 						) {
 							$vb_show_server_dir = true;
 						}
-		
-						print "<div class='formLabelFloat'>Select a file for upload".(($vb_show_server_dir) ? "<br/>" : " ")."from your computer<br/>";
-						print $t_media_file->htmlFormElement("media", "^ELEMENT")."</div>";					
+                        //print "<div class='formLabel jfu-label'><!--Select a file for upload from your computer<br/-->";
+						//print $t_media_file->htmlFormElement("media", "^ELEMENT")."</div>";
+                        //print "</div>";
 						if($vb_show_server_dir){
 							$va_files = caGetDirectoryContentsAsList($vs_user_upload_directory);
-							$va_files_proc = array('[SELECT A FILE]' => '');
+							$va_files_proc = array('- Select from the server -' => '');
 							foreach($va_files as $vs_path) {
 								$va_files_proc[$vs_path_proc = preg_replace('!^'.$vs_user_upload_directory.'!', '', $vs_path)] = $vs_path_proc;
 							}
-							print "<div class='formLabelFloat'><br/>OR from the server<br/>".caHTMLSelect('mediaServerPath', $va_files_proc, array(), array())."</div>";				
+							print "<div class='server-upload-option'> OR ".caHTMLSelect('mediaServerPath', $va_files_proc, array("onChange" => "serverSelectChange(this);", "class" => "mediaServerSelect", "id" => "media_0_mediaServerPath"), array())."</div>";				
 						}
 					}				
-					print "<div class='formLabel' style='clear:both;'>Image to use as preview:<br/><input type='file' name='mediaPreviews'/></div>";
+
+        print(' <input type="hidden" id="jfu_media_file_partial_0" name="jfu_media_file_partial[0]" value=""> ');					
+        // important: must keep the jfu_file_status next to jfu_media_file_partial_++ for main.js to populate
+        print(' <div class="jfu_file_status"><!--no file uploaded--></div> ');
+                    
+					print "<div class='formLabel imgPreview' style='clear:both;'>Image to use as preview:<br/><input type='file' name='mediaPreviews'/></div>";
+
 				
 				foreach(array("side", "element") as $vs_f){
 					if($va_mediaFileErrors[$vs_f]){
@@ -492,7 +614,8 @@
 						"<div class='formLabel'>^LABEL<br>^ELEMENT</div>", 
 						array("width" => "368px"));
 				}		
-					print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
+					//print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
+					print "<div class='formLabel' style='clear:left;'><button id='btn-save' name='save' class='button buttonSmall' onclick='return btnSaveClick();'>"._t("Save")."</button>";
 					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $pn_media_id), array("title" => _t("Cancel")));
 					print "</div>";
 					
@@ -555,8 +678,60 @@
 </div><!-- end mediaInfo -->
 
 <script type="text/javascript">
-	jQuery(document).ready(function() {	
-		jQuery('#mediaSpecimenInfo').load(
+        
+    var continueUpload = function() {
+        
+        jQuery('#uploadWarning').hide(); 
+        jQuery('#mediaFileForm').show(); 
+
+        // position the widget
+        var contObj = $('div[class=jr-group]');
+        //console.log('contObj '+contObj.length);
+        jfuInit(contObj, '0');
+        var posElem = $('#mediaFilesForm input#title');
+        //console.log('postElem '+posElem.length);
+        contObj.position({
+            my:        "left top",
+            at:        "left bottom",
+            of:        posElem, // or $("#otherdiv")
+            collision: "none"
+        })        
+          
+        jfu_widgetCount = 1;
+        //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
+        return false;
+    }
+
+    var jfuAddWidget = function(){
+        // add a jquery file upload widget and initialize the widget
+        // click button to add widget unless it is the first one (already there)
+        if (jfu_widgetCount !== 0) {
+            $('button.jr-btnAdd').trigger('click');
+        }
+        $('.fileinput-button').show();
+        var contObj = $('#jfu-file-select_'+jfu_widgetCount).closest('div[class=jr-group]');
+        //var fileInputObj = $('#fileinput-button_'+jfu_widgetCount);
+        //console.log('contObj:' + contObj.attr('class'));                
+        jfuInit(contObj, jfu_widgetCount);
+
+        // position the widget
+        //var posElem = $('#jfu_media_file_name_'+jfu_widgetCount);
+        var posElem = $('#media_'+jfu_widgetCount+'_title');
+        contObj.position({
+            my:        "left top",
+            at:        "left bottom",
+            of:        posElem, // or $("#otherdiv")
+            collision: "none"
+        })        
+        
+        jfu_widgetCount++;
+        //console.log('Widget added, jfu_widgetCount ='+jfu_widgetCount);
+
+    }
+
+	jQuery(document).ready(function() {			
+
+        jQuery('#mediaSpecimenInfo').load(
 			'<?php print caNavUrl($this->request, 'MyProjects', 'Media', 'specimenLookup', array('media_id' => $pn_media_id)); ?>'
 		);	
 		jQuery('#mediaBibliographyInfo').load(
@@ -597,12 +772,14 @@
 				jQuery('#derivedFromFile').val("");
 				jQuery('#derivedFromFile').hide();
 			}
-		}
-	);
+		});
 
-		
-		return false;
-	});
+		if (jQuery('#mediaFileForm').hasClass('showThis')) {
+            //console.log('show the media form (e.g. if there is an error)');
+            continueUpload();
+        }
+		//return false;
+	}); // end document.ready
 
 	jQuery('#moveMediaButton').click(function () {
 		var url = "<?php
