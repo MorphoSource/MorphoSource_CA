@@ -90,7 +90,8 @@ var jfuInit = function (j, fileId) {
     
     j.fileupload('option', {
         url: handlerUrl,
-        acceptFileTypes: /(\.|\/)(gif|jpe?g|png|zip|csv)$/i,
+        // flle type validation has been moved to add function
+        // acceptFileTypes: /(\.|\/)(gif|jpe?g|png|zip|ply|bmp|tif?f|stl|obj|rm|asf|wmv|mov|avi|flv|swf|mpeg|m4v|ogg|webm)$/i,
         //maxFileSize: 9,
         maxChunkSize: 1000000, // 1 MB
         autoUpload: true,
@@ -101,6 +102,14 @@ var jfuInit = function (j, fileId) {
         filesContainer:fContainer,
         // resuming file uploads: https://github.com/blueimp/jQuery-File-Upload/wiki/Chunked-file-uploads
         add: function (e, data) {
+            // For the record: these extension have been tested and working
+            // gif|jpe?g|png|zip|ply|bmp|tif?f|stl|obj
+            var fileType = data.files[0].name.split('.').pop(), allowdtypes = 'gif,jpg,jpeg,png,zip,ply,bmp,tif,tiff,stl,obj,rm,asf,wmv,mov,avi,flv,swf,mpeg,m4v,ogg,webm';
+            if (allowdtypes.indexOf(fileType) < 0) {
+                alert('Sorry, the file type is not accepted.');
+                return false;
+            }
+
             //console.log('smc: in add function for ' +this.id  + ' -- jfu_fileCount:'+ jfu_fileCount);
             //console.log('selected file : ' + data.files[0].name);
             var partialFile = $('#jfu_media_file_partial'+fileIdStr).val();
@@ -114,7 +123,7 @@ var jfuInit = function (j, fileId) {
                     return false;
                 } else if (data.files[0].size === data.uploadedBytes) {
                     // user tries to upload the same file, but the file is completely uploaded already
-                    alert('The file is already uploaded.  Please fill out the rest of the information and click Save');
+                    alert('The file is already uploaded.  Please fill out the rest of the information and click Save.');
                     return false;
                 } else {
                     // user is resuming the upload of the same file
@@ -167,7 +176,7 @@ var jfuInit = function (j, fileId) {
                 
                 
         },
-        // smc testing auto resume
+        // auto resume
         maxRetries: 100,
         retryTimeout: 500,
         fail: function (e, data) {
