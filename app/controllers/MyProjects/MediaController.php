@@ -1511,9 +1511,9 @@
 								ob_end_clean();
 												
 								if(caSendmail($vs_move_project_admin_email, array($vs_user_email => $vs_user_name), _t("Message from MorphoSource P".$this->opn_project_id), $vs_mail_message_text, $vs_mail_message_html, null, null)){
-									$vs_message = $vs_move_project_admin_name." has been notified of your move request.  You will be notified via email when they accept or reject the request.";
+									$vs_message = $vs_move_project_admin_name." has been notified of your move request.<br/><br/>You will be notified via email when they accept or reject the request.";
 								}else{
-									$vs_message = "Could not send email notification";
+									$vs_message = "Warning: Could not send email notification.<br/><br/>".$vs_move_project_admin_name." has been notified of your move request.<br/><br/>You will be notified via email when they accept or reject the request.";
 								}
 								$this->view->setVar("message", $vs_message);
 								$this->render('Media/move_media_sent_html.php');
