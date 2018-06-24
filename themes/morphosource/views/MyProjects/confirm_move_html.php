@@ -45,9 +45,11 @@
 	<H1>
 		Move <?php print ($vb_type ? "Specimen" : "Media Group"); ?>
 	</H1>
+	</div>
 	<div class="blueRule"><!-- empty --></div>
+	<div id="panelCentral">
 <?php
-	print "<p>Are you sure you want to move the selected ".
+	print "<p style='text-align: center;'>Are you sure you want to move the selected ".
 		($vb_type ? "specimen" : "media group")." record from project <b>".
 		$t_from_project->get("name")."</b> to project <b>".
 		$t_to_project->get("name")."</b>?</p>";
@@ -56,11 +58,27 @@
 		", you will lose editing access to the ".
 		($vb_type ? "specimen" : "media group")." record. ".$vs_addt_text."</p>";
 ?>
-	</div>
+	
 	<div style='text-align: center;'>
 <?php
 
-	print "<a href='".$vs_move_url."' class='button buttonLarge'>"._t("Confirm Move")."</a>";
+	if ($vn_media_id 
+		&& !$vn_specimen_id 
+		&& !$t_to_project->isMember($this->request->user->get("user_id"))) 
+	{
+		print "<a href='#' name='save' class='button buttonSmall' id='moveRequestButton'>"._t("Confirm Move")."</a>";
+	} else {
+		print "<a href='".$vs_move_url."' class='button buttonLarge'>"._t("Confirm Move")."</a>";
+	}
+	
 ?>
 	</div>
+	<script>
+	jQuery('#moveRequestButton').click(function () {
+		jQuery('#panelCentral').load('<?php print $vs_move_url ?>');
+		return false;
+	});
+	</script>
+	</div> <!-- End panelCentral -->
 </div>	
+
