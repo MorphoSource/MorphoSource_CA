@@ -208,7 +208,6 @@ if (!$this->request->isAjax()) {
 ?>
         <!-- a Submit button is needed for Firefox.  Otherwise the main form does not get submitted after a media form is removed -->
         <input value="Save" type="submit" class="btn-save button buttonSmall" onclick="return btnSaveClick('mediaForm');">
-        
 <?php
 if (!$this->request->isAjax()) {
 	if($vn_media_id){
@@ -216,6 +215,7 @@ if (!$this->request->isAjax()) {
 	}
 }
 ?>
+        
 	</div><!-- end formButtons -->
 
 <?php
