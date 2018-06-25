@@ -603,8 +603,8 @@ if (!$this->request->isAjax()) {
         jfu_widgetCount--;
         // Cancel or delete file from server before removing widget
         var cleanupFile = $('#jfu_temp').val();
-        if (cleanupFile != '') {
-            cleanupFile = cleanupFile.replace(/\.[^/.]+$/, ""); // remove file extension
+        if (cleanupFile != '') { 
+            cleanupFile = cleanupFile.replace(/[\W]+/g, ""); // remove file extension
             var cancelFileId = '#jfu_cancel_file_' + cleanupFile;
             //console.log('in jfuRemoveWidget, cancelFileId='+cancelFileId);
             var deleteFileId = '#jfu_delete_file_' + cleanupFile;
@@ -613,6 +613,8 @@ if (!$this->request->isAjax()) {
 
             if ($('button'+deleteFileId).length) {
                 $('button'+deleteFileId).trigger('click');
+                if (jfu_successCount > 0)
+                    jfu_successCount--;
             } else {
                 console.log('delete button not found');
                 if ($('button'+cancelFileId).length) {
@@ -623,6 +625,8 @@ if (!$this->request->isAjax()) {
                         //console.log('in settimeout waiting..., about to click on delete button ');
                         if ($('button'+deleteFileId).length) {
                             $('button'+deleteFileId).trigger('click');
+                            if (jfu_successCount > 0)
+                                jfu_successCount--;
                         }
                     }, 500);
                 } else {

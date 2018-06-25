@@ -15,10 +15,10 @@
     handlerUrl, jfu_temp_dir
     
 */
-var jfu_maxFiles = 1;
 jfu_fileCount = 0;
+jfu_successCount = 0;
+var jfu_maxFiles = 1;
 var jfu_widgetCount = 0;
-var jfu_successCount = 0;
 var clientFileCount = 0; // count completed or partial client files
 var serverFileCount = 0; // count selected server upload files
 var isAutoSave = false;
@@ -635,14 +635,15 @@ var btnSaveClick = function(formName) {
             // Check one last time if the files are all uploaded: remove below later if not needed
             if ((jfu_successCount === clientFileCount) &&
                 (clientFileCount + serverFileCount === jfu_widgetCount)) {
+                    /*
                     console.log('after confirm, jfu_widgetCount '+jfu_widgetCount);
                     console.log('jfu_successCount '+jfu_successCount);
                     console.log('clientFileCount '+clientFileCount);    
                     console.log('serverFileCount '+serverFileCount);    
                     console.log('jfu_widgetCount '+jfu_widgetCount);
-
+                    */
                     console.log('after confirm ... try auto saving ...');
-                    //    $('.btn-save').trigger('click');
+                    $('.btn-save').trigger('click');
             } else {
 
                 toggleForm(formName, true);
