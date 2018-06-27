@@ -543,7 +543,7 @@ var toggleForm = function(formName, disabledState) {
     $(".r-btnAdd").prop("disabled", disabledState);
     */
     if (disabledState) {
-        var msg = 'Please wait for the file upload process to be completed.  The form will be saved automatically when done.  Please do not close the browser tab or window.  <a href="javascript:void(0)" onclick="toggleForm(\'' + formName + '\',false)">Cancel and go back</a>'
+        var msg = 'Please wait for the file upload process to be completed.  The form will be saved automatically when done.  Please do not close the browser tab or window.  Click <a href="javascript:void(0)" onclick="toggleForm(\'' + formName + '\',false)">here</a> if you want to cancel and go back.';
         // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
         $data = {
             size: 22,
