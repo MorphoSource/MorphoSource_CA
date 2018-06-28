@@ -15,9 +15,13 @@
     handlerUrl, jfu_temp_dir
     
 */
-var jfu_maxFiles = 1;
 jfu_fileCount = 0;
+jfu_successCount = 0;
+var jfu_maxFiles = 1;
 var jfu_widgetCount = 0;
+var clientFileCount = 0; // count completed or partial client files
+var serverFileCount = 0; // count selected server upload files
+var isAutoSave = false;
 var existFileName = '';
 var isResumingSameFile = false;
 
@@ -59,6 +63,34 @@ var jfuInit = function (j, fileId) {
         //$('#btn-save').removeClass('disabled');
         jfu_fileCount = 1;
         existFileName = mName;
+        jfu_successCount++;
+        if (isAutoSave) {
+            // auto-save if all files are uploaded
+            /*
+            console.log('fileuploaddone: jfu_widgetCount '+jfu_widgetCount);
+            console.log('jfu_successCount '+jfu_successCount);
+            console.log('clientFileCount '+clientFileCount);    
+            console.log('serverFileCount '+serverFileCount);    
+            console.log('jfu_widgetCount '+jfu_widgetCount);
+            */
+            if ((jfu_successCount === clientFileCount) &&
+                (clientFileCount + serverFileCount === jfu_widgetCount)) {
+                    console.log('auto saving ...');
+                    //update loader message before saving.
+                    var msg = 'Saving the form now...  Please do not close the browser tab or window.';
+                    // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
+                    $data = {
+                        size: 22,
+                        bgOpacity: 0.85, 
+                        imgUrl: '/themes/morphosource/graphics/loading[size].gif',
+                        title: msg,
+                        fontColor: true
+                    };
+                    $.loader.open($data);
+                    $('.btn-save').trigger('click');
+            }
+
+        }
     });
     j.bind('fileuploaddestroyed', function (e, data) {
         //console.log('in fileuploaddestroyed');
@@ -314,8 +346,7 @@ var populateForms = function(result) {
     //console.log('in popuplateforms, jfu_filecount = ' +jfu_fileCount);
     // first form is already added.  Populate first form, then loop and populate the rest
 
-    /* this is taken from main.js.  Might need to share the code later
-    get the upload file name and temp upload path from the response. Basemodel will
+    /* get the upload file name and temp upload path from the response. Basemodel will
     use the paths for copying the file over to the destination dir */
     var i = fileId = 0;
     var fileIdStr = '_' + i.toString();
@@ -333,7 +364,6 @@ var populateForms = function(result) {
     
     var originalSize = localStorage.getItem(mName);
     if (originalSize != null) {
-        
             if (originalSize == mSize) {
                 // completely uploaded
                 $('#jfu_media_file_name'+fileIdStr).val(mName);
@@ -342,12 +372,15 @@ var populateForms = function(result) {
                 percent = 100;
                 $('#jfu-file-select'+fileIdStr).prop('disabled', true);
                 $('#jfu-file-select'+fileIdStr).closest('.fileinput-button').addClass('disabled');
+                jfu_successCount++;
+                clientFileCount++;
             } else {
                 // partially uploaded
                 $('#jfu_media_file_name'+fileIdStr).val('');
                 $('#jfu_media_file_path'+fileIdStr).val('');
                 $('#jfu_media_file_partial'+fileIdStr).val(mName);
                 percent = parseInt(mSize/originalSize * 100, 10);
+                clientFileCount++;
             }
             //console.log('file found '+mName+ ', ' + mSize + ' uploaded, original size ' + originalSize + ', % = ' + percent );
             setFileStatus(fileId, mName, percent, false);
@@ -385,6 +418,8 @@ var populateForms = function(result) {
                 msg = '';
                 $('#jfu-file-select'+fileIdStr).prop('disabled', true);
                 $('#jfu-file-select'+fileIdStr).closest('.fileinput-button').addClass('disabled');
+                jfu_successCount++;
+                clientFileCount++;
             } else {
                 // partially uploaded
                 $('#jfu_media_file_name'+fileIdStr).val('');
@@ -392,6 +427,7 @@ var populateForms = function(result) {
                 $('#jfu_media_file_partial'+fileIdStr).val(mName);
                 percent = parseInt(mSize/originalSize * 100, 10);
                 msg = 'Please select the same file again to resume upload';   
+                clientFileCount++;
             }
             //console.log('file found '+mName+ ', ' + mSize + ' uploaded, original size ' + originalSize + ', % = ' + percent );
             setFileStatus(fileId, mName, percent, false);
@@ -465,6 +501,8 @@ var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
             $('#jfu_media_file_partial'+IdStr).val('');
             setFileStatus(id, '');
             $('button'+deleteFileId).trigger('click');
+            if (jfu_successCount > 0)
+                jfu_successCount--;
             //console.log('-Clicked button deleteFileId='+deleteFileId);
         } else {
             //console.log('delete button not found.  Look for cancel button to click, then delete again.');
@@ -487,6 +525,8 @@ var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
                         $('#jfu_media_file_partial'+IdStr).val('');
                         setFileStatus(id, '');
                         $('button'+deleteFileId).trigger('click');
+                        if (jfu_successCount > 0)
+                            jfu_successCount--;
                         //console.log('--Clicked button deleteFileId='+deleteFileId);
                     }
                 }, 500);
@@ -495,7 +535,7 @@ var jfu_customDelete = function(cleanupFile, targetId, isCancelFirst) {
             }
         }
     } else {
-        console.log('cleanupFile arg is empty');
+        //console.log('cleanupFile arg is empty');
     }
     
 }
@@ -505,58 +545,134 @@ var jfu_customCancel = function(cleanupFile, targetId) {
         // cancel upload, then delete the file
         jfu_customDelete(cleanupFile, targetId, true);
     } else {
-        console.log('cleanupFile arg is empty');
+        //console.log('cleanupFile arg is empty');
+    }
+}
+
+var toggleForm = function(formName, disabledState) {
+    /*
+    console.log('toggling... '+formName);
+    $('#'+formName+" :input").prop("disabled", disabledState);
+    $(".jfu-file-select").prop("disabled", disabledState);
+    $(".r-btnAdd").prop("disabled", disabledState);
+    */
+    if (disabledState) {
+        var msg = 'Please wait for the file upload process to be completed.  The form will be saved automatically when done.  Please do not close the browser tab or window.  Click <a href="javascript:void(0)" onclick="toggleForm(\'' + formName + '\',false)">here</a> if you want to cancel and go back.';
+        // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
+        $data = {
+            size: 22,
+            bgOpacity: 0.85, 
+            imgUrl: '/themes/morphosource/graphics/loading[size].gif',
+            title: msg,
+            fontColor: true
+        };
+        $.loader.open($data);
+        
+    } else {
+        $.loader.close();
+        isAutoSave = false;
     }
 }
 
 var btnSaveClick = function(formName) {
     // For each form, either the client files must be uploaded completely, 
-    // or a file must be selected for server upload.  If either case fails, do not allow the form to be saved.
+    // or a file must be selected for server upload.  If either case fails, do not allow the form to be saved, but prompt the user for auto-save option
     var msg = '';
-    if ($('select#media_0_mediaServerPath').length === 0) { 
-        // no drop down : meaning server upload is not available
-        var isServerUploadAvailable = false;
-    } else {
-        var isServerUploadAvailable = true;
+    if ($('.warning').length > 0) {
+        // at this point, the warning is mainly for files that are partially uploaded, but the user has not selected the same file to resume
+        msg = "Please see the warning message(s), resolve any issue before saving.";
+        alert(msg);
+        return false;
     }
-    //console.log('in btnSaveClick, jfu_widgetCount=' + jfu_widgetCount);
-    var clientUploadReady = true;
-    var serverUploadReady = true;
-    for (var i=0; i<jfu_widgetCount; i++) {
-        // Check each widget, if the file name or temp path not set, client upload is not ready
-        if ($('#jfu_media_file_name_'+i).val() === '' ||
-            $('#jfu_media_file_path_'+i).val() === '' ) {
-            clientUploadReady = false;    
+    if (formName === 'mediaForm') {
+        if($('#msFacilityID').val() === '' || $('#title').val() === ''){
+            msg = "Please enter the description and select a facility";
+            alert(msg);
+            return false;
         }
-        if (isServerUploadAvailable) {
-            // if no file selected in the drop down, server upload is not ready
-            if ($('select#media_'+i+'_mediaServerPath').val() === '') {
-                serverUploadReady = false;    
-            }
-            
-        } else {
-            serverUploadReady = false;    
-
-        }
-        if (!clientUploadReady && !serverUploadReady) {
-            msg = 'Please select the file to be uploaded for each media, and make sure the file is uploaded completely. ';
-            if (isServerUploadAvailable)
-                msg += 'For uploading from the server, please make sure the file is selected from the drop-down menu.';
-        }
-        
     }
     
-    if (formName === 'mediaForm') {
-        if(!jQuery('#msFacilityID').val() || !jQuery('#title').val()){
-            msg = "Please enter the description and select a facility";
+    if (msg  === '' && !isAutoSave) {
+
+        if ($('select#media_0_mediaServerPath').length === 0) { 
+            // no drop down : meaning server upload is not available
+            var isServerUploadAvailable = false;
+        } else {
+            var isServerUploadAvailable = true;
+        }
+        //console.log('in btnSaveClick, jfu_widgetCount=' + jfu_widgetCount);
+        var clientUploadReady = true;
+        var serverUploadReady = true;
+        clientFileCount = 0;
+        serverFileCount = 0;
+        for (var i=0; i<jfu_widgetCount; i++) {
+            // Check each widget, if the file name or temp path not set, client upload is not ready
+            if ($('#jfu_media_file_name_'+i).val() === '' ||
+                $('#jfu_media_file_path_'+i).val() === '' ) {
+                clientUploadReady = false;    
+            } else {
+                clientFileCount++;
+            }
+            if ($('#jfu_media_file_partial_'+i).val() !== '' ) {
+                clientFileCount++;
+            }
+
+            if (isServerUploadAvailable) {
+                // if no file selected in the drop down, server upload is not ready
+                if ($('select#media_'+i+'_mediaServerPath').val() === '') {
+                    serverUploadReady = false;    
+                } else {
+                    serverFileCount++;
+                }
+
+            } else {
+                serverUploadReady = false;    
+            }
+            if (!clientUploadReady && !serverUploadReady) {
+                msg = 'Please select the file to be uploaded for each media, and make sure the file is uploaded completely. ';
+                if (isServerUploadAvailable)
+                    msg += 'For uploading from the server, please make sure the file is selected from the drop-down menu.';
+            }
+
         }
     }
-    if (msg  === '') {
+
+    /*
+    console.log('jfu_successCount '+jfu_successCount);
+    console.log('clientFileCount '+clientFileCount);    
+    console.log('serverFileCount '+serverFileCount);    
+    console.log('jfu_widgetCount '+jfu_widgetCount);
+    */
+    if (msg  === '' || isAutoSave) {
         $('.btn-save').prop('disabled', true);
         $('.btn-save').addClass('disabled');
         //alert('ok to submit ' + formName);
         $('#'+formName).submit();
         //return true;
+    } else if (clientFileCount + serverFileCount === jfu_widgetCount) {
+        // not ready to save, auto-save is available if all files are selected
+        isAutoSave = confirm('Files are currently being uploaded. If you select OK, this media group will be saved when files are completely uploaded.');
+        // check one time to see if the form is ready for auto save 
+        if (isAutoSave) {
+            // Check one last time if the files are all uploaded: remove below later if not needed
+            if ((jfu_successCount === clientFileCount) &&
+                (clientFileCount + serverFileCount === jfu_widgetCount)) {
+                    /*
+                    console.log('after confirm, jfu_widgetCount '+jfu_widgetCount);
+                    console.log('jfu_successCount '+jfu_successCount);
+                    console.log('clientFileCount '+clientFileCount);    
+                    console.log('serverFileCount '+serverFileCount);    
+                    console.log('jfu_widgetCount '+jfu_widgetCount);
+                    */
+                    console.log('after confirm ... try auto saving ...');
+                    $('.btn-save').trigger('click');
+            } else {
+
+                toggleForm(formName, true);
+
+            }
+        }
+        return false;
     } else {
         alert(msg);
         return false;        

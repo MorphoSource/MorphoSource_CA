@@ -77,8 +77,21 @@
 }
 .jfu-presentation {
     position: absolute;
-    right: 200px;
+    right: -280px;
+    /* border:1px solid red; */
 }
+
+/* make the jfu progress div small to avoid 
+overlapping with other form elements */
+.jfu-presentation p.name,
+.jfu-presentation span.size {
+    display: none;
+}
+.jfu-presentation button span {
+    font-size:8px;
+}
+
+
 .server-upload-option {
     float:right;
     margin-top:4px;
@@ -87,7 +100,7 @@
 .server-upload-option select {
     padding: 8px 0;
     margin-left: 4px;
-    width:auto !important;
+    width:154px !important;
     font-size:11px;
 }
 .imgPreview {
@@ -132,6 +145,7 @@
 .jfu-hide {
     visibility:hidden; /* set to visible for debugging */
 }
+
 /* use styles below for easier debugging */
 /*
 .jfu_media_file_name,
@@ -143,4 +157,69 @@
     position: absolute;
     right: -800px;
 }
+.jfu-presentation p.name,
+.jfu-presentation span.size {
+    display: block;
+}
+
 */
+
+#formArea input.btn-save {
+    display: inline-block;
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0 0px 3px #828282;
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    position: relative;
+    cursor: pointer;
+    font-family: 'neuzeitrmn', Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-weight: normal;
+    background-color: #003880;
+    padding: 3px 5px 3px;
+    font-size: 11px;
+    line-height: 15px;
+}
+
+/* styles for the loading div waiting for auto save */
+.loading { 
+    margin: auto;
+    width:600px;
+}
+
+.loading span {
+  line-height: 32px;
+  margin-left: 12px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.loading img { vertical-align: middle; }
+
+.loading_wrp {
+  background-color: #FFF;
+  display: block;
+  height: 100%;
+  left: 0;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1020;
+}
+
+.loading_wrp .x16 span {
+  line-height: 16px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.loading_wrp .x32 img {
+  width: 32px;
+  height: 32px;
+}

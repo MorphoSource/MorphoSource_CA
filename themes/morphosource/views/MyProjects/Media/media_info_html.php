@@ -419,7 +419,7 @@
                     <span class="btn btn-success fileinput-button button buttonMedium">
                         <i class="glyphicon glyphicon-plus"></i>
                         <span>Upload from computer</span>
-                        <input id="fileupload" type="file" name="files[]" multiple>
+                        <input id="fileupload" class="jfu-file-select" type="file" name="files[]" multiple>
                     </span>
                     <!-- The global file processing state -->
                     <!--span class="fileupload-process"></span-->
@@ -615,7 +615,8 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
 						array("width" => "368px"));
 				}		
 					//print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
-					print "<div class='formLabel' style='clear:left;'><button id='btn-save' name='save' class='button buttonSmall' onclick='return btnSaveClick();'>"._t("Save")."</button>";
+					print "<div class='formLabel' style='clear:left;'><button id='btn-save' name='save' class='btn-save button buttonSmall' onclick='return btnSaveClick(\"mediaFilesForm\");'>"._t("Save")."</button>";
+                    
 					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $pn_media_id), array("title" => _t("Cancel")));
 					print "</div>";
 					
