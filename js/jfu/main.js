@@ -76,7 +76,17 @@ var jfuInit = function (j, fileId) {
             if ((jfu_successCount === clientFileCount) &&
                 (clientFileCount + serverFileCount === jfu_widgetCount)) {
                     console.log('auto saving ...');
-                    //$.loader.close();
+                    //update loader message before saving.
+                    var msg = 'Saving the form now...  Please do not close the browser tab or window.';
+                    // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
+                    $data = {
+                        size: 22,
+                        bgOpacity: 0.85, 
+                        imgUrl: '/themes/morphosource/graphics/loading[size].gif',
+                        title: msg,
+                        fontColor: true
+                    };
+                    $.loader.open($data);
                     $('.btn-save').trigger('click');
             }
 
@@ -336,8 +346,7 @@ var populateForms = function(result) {
     //console.log('in popuplateforms, jfu_filecount = ' +jfu_fileCount);
     // first form is already added.  Populate first form, then loop and populate the rest
 
-    /* this is taken from main.js.  Might need to share the code later
-    get the upload file name and temp upload path from the response. Basemodel will
+    /* get the upload file name and temp upload path from the response. Basemodel will
     use the paths for copying the file over to the destination dir */
     var i = fileId = 0;
     var fileIdStr = '_' + i.toString();
@@ -355,7 +364,6 @@ var populateForms = function(result) {
     
     var originalSize = localStorage.getItem(mName);
     if (originalSize != null) {
-        
             if (originalSize == mSize) {
                 // completely uploaded
                 $('#jfu_media_file_name'+fileIdStr).val(mName);
@@ -364,12 +372,15 @@ var populateForms = function(result) {
                 percent = 100;
                 $('#jfu-file-select'+fileIdStr).prop('disabled', true);
                 $('#jfu-file-select'+fileIdStr).closest('.fileinput-button').addClass('disabled');
+                jfu_successCount++;
+                clientFileCount++;
             } else {
                 // partially uploaded
                 $('#jfu_media_file_name'+fileIdStr).val('');
                 $('#jfu_media_file_path'+fileIdStr).val('');
                 $('#jfu_media_file_partial'+fileIdStr).val(mName);
                 percent = parseInt(mSize/originalSize * 100, 10);
+                clientFileCount++;
             }
             //console.log('file found '+mName+ ', ' + mSize + ' uploaded, original size ' + originalSize + ', % = ' + percent );
             setFileStatus(fileId, mName, percent, false);
@@ -407,6 +418,8 @@ var populateForms = function(result) {
                 msg = '';
                 $('#jfu-file-select'+fileIdStr).prop('disabled', true);
                 $('#jfu-file-select'+fileIdStr).closest('.fileinput-button').addClass('disabled');
+                jfu_successCount++;
+                clientFileCount++;
             } else {
                 // partially uploaded
                 $('#jfu_media_file_name'+fileIdStr).val('');
@@ -414,6 +427,7 @@ var populateForms = function(result) {
                 $('#jfu_media_file_partial'+fileIdStr).val(mName);
                 percent = parseInt(mSize/originalSize * 100, 10);
                 msg = 'Please select the same file again to resume upload';   
+                clientFileCount++;
             }
             //console.log('file found '+mName+ ', ' + mSize + ' uploaded, original size ' + originalSize + ', % = ' + percent );
             setFileStatus(fileId, mName, percent, false);
@@ -564,13 +578,20 @@ var btnSaveClick = function(formName) {
     // For each form, either the client files must be uploaded completely, 
     // or a file must be selected for server upload.  If either case fails, do not allow the form to be saved, but prompt the user for auto-save option
     var msg = '';
-    
+    if ($('.warning').length > 0) {
+        // at this point, the warning is mainly for files that are partially uploaded, but the user has not selected the same file to resume
+        msg = "Please see the warning message(s), resolve any issue before saving.";
+        alert(msg);
+        return false;
+    }
     if (formName === 'mediaForm') {
-        if(!jQuery('#msFacilityID').val() || !jQuery('#title').val()){
+        if($('#msFacilityID').val() === '' || $('#title').val() === ''){
             msg = "Please enter the description and select a facility";
+            alert(msg);
+            return false;
         }
     }
-
+    
     if (msg  === '' && !isAutoSave) {
 
         if ($('select#media_0_mediaServerPath').length === 0) { 
@@ -617,6 +638,7 @@ var btnSaveClick = function(formName) {
     }
 
     /*
+    console.log('jfu_successCount '+jfu_successCount);
     console.log('clientFileCount '+clientFileCount);    
     console.log('serverFileCount '+serverFileCount);    
     console.log('jfu_widgetCount '+jfu_widgetCount);
@@ -628,7 +650,7 @@ var btnSaveClick = function(formName) {
         $('#'+formName).submit();
         //return true;
     } else if (clientFileCount + serverFileCount === jfu_widgetCount) {
-        // not ready to save, but auto-save is available since all files are selected
+        // not ready to save, auto-save is available if all files are selected
         isAutoSave = confirm('Files are currently being uploaded. If you select OK, this media group will be saved when files are completely uploaded.');
         // check one time to see if the form is ready for auto save 
         if (isAutoSave) {
