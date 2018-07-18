@@ -301,16 +301,26 @@
 												# --- need to handle dropdown values
 												switch($vs_field){
 													# -------------------------------------
-													# --- selects
+													# --- dropdown fields
 													case "published":
 													case "side":
+													case "copyright_permission":
+													case "copyright_license":
+														if (is_numeric($vs_value)) {
+															$t_media->set($vs_field, $vs_value);
+														} elseif (is_string($vs_value)) {
+															$t_media->set($vs_field, $t_media->getChoiceListInternalValue($vs_field, $vs_value));
+														}
+													break;
+													# -------------------------------------
+													# --- checkbox fields
 													case "is_copyrighted":
 													case "scanner_calibration_shading_correction":
 													case "scanner_calibration_flux_normalization":
 													case "scanner_calibration_geometric_calibration":
-													case "copyright_permission":
-													case "copyright_license":
-														$t_media->set($vs_field, $t_media->getChoiceListInternalValue($vs_field, $vs_value));
+														if (filter_var($vs_value, FILTER_VALIDATE_BOOLEAN)) {
+    														$t_media->set($vs_field, true);
+														}
 													break;
 													# -------------------------------------
 													default:
@@ -350,12 +360,22 @@
 														}
 													break;
 													# -------------------------------------
-													# --- selects
+													# --- selects / dropdown fields
 													case "side":
-													case "use_for_preview":
 													case "file_type":
 													case "published":
-														$t_media_files->set($vs_field, $t_media_files->getChoiceListInternalValue($vs_field, $vs_value));
+														if (is_numeric($vs_value)) {
+															$t_media_files->set($vs_field, $vs_value);
+														} elseif (is_string($vs_value)) {
+															$t_media_files->set($vs_field, $t_media_files->getChoiceListInternalValue($vs_field, $vs_value));
+														}
+													break;
+													# -------------------------------------
+													# --- checkbox field
+													case "use_for_preview":
+														if (filter_var($vs_value, FILTER_VALIDATE_BOOLEAN)) {
+    														$t_media_files->set($vs_field, true);
+														}
 													break;
 													# -------------------------------------
 													default:
@@ -564,16 +584,26 @@
 										# --- need to handle dropdown values
 										switch($vs_field){
 											# -------------------------------------
-											# --- selects
+											# --- dropdown fields
 											case "published":
 											case "side":
+											case "copyright_permission":
+											case "copyright_license":
+												if (is_numeric($vs_value)) {
+													$t_media->set($vs_field, $vs_value);
+												} elseif (is_string($vs_value)) {
+													$t_media->set($vs_field, $t_media->getChoiceListInternalValue($vs_field, $vs_value));
+												}
+											break;
+											# -------------------------------------
+											# --- checkbox fields
 											case "is_copyrighted":
 											case "scanner_calibration_shading_correction":
 											case "scanner_calibration_flux_normalization":
 											case "scanner_calibration_geometric_calibration":
-											case "copyright_permission":
-											case "copyright_license":
-												$t_media->set($vs_field, $t_media->getChoiceListInternalValue($vs_field, $vs_value));
+												if (filter_var($vs_value, FILTER_VALIDATE_BOOLEAN)) {
+													$t_media->set($vs_field, true);
+												}
 											break;
 											# -------------------------------------
 											default:
@@ -611,12 +641,22 @@
 													}
 												break;
 												# -------------------------------------
-												# --- selects
+												# --- selects / dropdown fields
 												case "side":
-												case "use_for_preview":
 												case "file_type":
 												case "published":
-													$va_media_files[$vn_media_file][$vs_field] = $t_media_files->getChoiceListInternalValue($vs_field, $vs_value);
+													if (is_numeric($vs_value)) {
+														$t_media_files->set($vs_field, $vs_value);
+													} elseif (is_string($vs_value)) {
+														$t_media_files->set($vs_field, $t_media_files->getChoiceListInternalValue($vs_field, $vs_value));
+													}
+												break;
+												# -------------------------------------
+												# --- checkbox field
+												case "use_for_preview":
+													if (filter_var($vs_value, FILTER_VALIDATE_BOOLEAN)) {
+														$t_media_files->set($vs_field, true);
+													}
 												break;
 												# -------------------------------------
 												default:
