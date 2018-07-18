@@ -48,7 +48,7 @@
  			$vs_sep = DIRECTORY_SEPARATOR;
  			$va_item_array = [];
  			$vs_rootpath = 'rss';
- 			$va_blacklist = ['.', '..', 'ms.rss']; 			
+ 			$va_blacklist = ['.', '..', 'tmp', 'ms.rss']; 			
  			foreach (scandir('rss') as $p) {
  				$vs_pub_dir = $vs_rootpath . DIRECTORY_SEPARATOR . $p;
  				if (!in_array($p, $va_blacklist) && is_dir($vs_pub_dir)) {
