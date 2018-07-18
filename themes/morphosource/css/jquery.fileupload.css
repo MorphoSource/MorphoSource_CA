@@ -57,7 +57,8 @@
     height:90px;
     */
 }
-.fileinput-button {
+.fileinput-button,
+.fileinput-button.disabled {
     padding:auto 8px;
     margin-top:18px;
     font-size:11px;
@@ -129,7 +130,7 @@ overlapping with other form elements */
 .jfu_file_status {
     clear:both;
     margin: 26px 0 0 10px;
-    height:0px;
+    /* height:0px; setting height to zero will break cancel button on IE11 or Edge */
     font-size: 11px;
     line-height: 12px;
     overflow: visible;
