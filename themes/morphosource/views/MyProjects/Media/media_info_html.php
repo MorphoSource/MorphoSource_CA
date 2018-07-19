@@ -227,10 +227,10 @@
 					case "derived_from_media_id":
 						if($t_media->get("derived_from_media_id")){
 							$t_parent = new ms_media($t_media->get("derived_from_media_id"));
-                            if ($t_specimen == null) {
-                                print "<b>M".$t_parent->get("media_id")."</b>";                                
-                            } else {
+                            if (isset($t_specimen) && $t_parent->get("specimen_id")) {
                                 print "<b>M".$t_parent->get("media_id")."</b>, ".$t_specimen->getSpecimenName($t_parent->get("specimen_id"));
+                            } else {
+                                print "<b>M".$t_parent->get("media_id")."</b>";                                
                             }
 						}
 					break;
