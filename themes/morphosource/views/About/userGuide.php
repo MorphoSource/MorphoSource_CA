@@ -18,6 +18,9 @@
 		Morphosource is an image-sharing resource designed to allow users to upload, search, and browse high quality 3d images. This guide will provide instructions for registering, creating projects, uploading and publishing media, searching and browsing, and downloading media from other projects.
 	</div>
 	<div>
+		If you would prefer instructions in video format, there is a <a href="https://www.youtube.com/watch?v=bVNpm_vArmE&list=PLP5eOaQsoxJGGa8wx6PgFBgBUXMgx5unW">YouTube playlist</a> of tutorial videos available.
+	</div>
+	<div>
 		<h2><a name="login"></a>Logging in/Registering</h2>
 		To begin working with Morphosource, you must first register and create a login:
 	</div>
