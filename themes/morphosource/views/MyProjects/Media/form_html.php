@@ -81,11 +81,12 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
 	).click(function() { this.select(); });
 	jQuery(document).ready(function(){
 		jQuery('#mediaForm').hide();
+        console.log('hidden');
 		jQuery('.fileinput-button').hide(); 
 	});
 </script>
 <?php
-}// end if not a form post
+} // end if not a form post
 ?>
 
 <!-- 1st form --->
@@ -721,7 +722,7 @@ if (!$this->request->isAjax()) {
 
 <?php
 if ($isFormSaved) {
-    // when form is saved, the first media form is shown, but jquery file upload widget still needed to be initialized
+    // when form is saved, or the page is showing Derived from media form, the first media form is shown, but jquery file upload widget still needed to be initialized
 ?>
     <script>
 	jQuery(document).ready(function(){
@@ -729,13 +730,16 @@ if ($isFormSaved) {
         Url from multiple form saved: 
         /MyProjects/Media/form
         Url from single (when edit button is clicked):
-        /MyProjects/Media/MediaInfo/media_id/20828
+        /MyProjects/Media/MediaInfo/media_id/<media_id>
+        Derived from media form:
+        /MyProjects/Media/form/lookup_derived_from_media_id/<media_id>
         */
-        if (document.location.href.toLowerCase().indexOf('media_id') != -1) {
+        if (document.location.href.toLowerCase().indexOf('mediainfo/media_id') != -1) {
             //console.log('edit button clicked on single media form');
             jQuery('.fileinput-button-on-multiple').hide();
         } else {
-            //console.log('isFormSaved is true.. calling jfuAddwidget..');
+            // form is saved, or in Derived from media form -> iniit jfu widget
+            // console.log('.. calling jfuAddwidget..');
             jfuAddWidget();
             
         }
