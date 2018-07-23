@@ -60,7 +60,8 @@
  			$this->view->setvar("last_browse", $this->request->session->getVar("last_browse"));
  		}
  		# -------------------------------------------------------
- 		function Index() { 			
+ 		function Index() {
+ 			JavascriptLoadManager::register('tableList'); 			
 			$this->render('Browse/browse_main_html.php');
  		}
  		# -------------------------------------------------------
@@ -243,6 +244,7 @@
  		}
  		# -------------------------------------------------------
  		function projectList(){
+			JavascriptLoadManager::register('tableList');
  			$this->request->session->setVar("last_browse", "projects");
  			$va_params = array();
 			if ($this->request->isLoggedIn() && sizeof($this->opa_project_ids)) {
