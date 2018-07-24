@@ -50,6 +50,7 @@
 				print "<div class='browseItem' style='margin-top: 25px; padding-top: 20px; border-top: 1px solid #578686;'>";
 
 				print "<h2 style='padding: 0px'>".$q_project->get("name")."</h2>";
+				print "<div style='display: none;'>".$q_project->get("project_id")."</div>";				
 
 				if($q_project->get("abstract")){
 					print "<div style='margin: 15px 0px 0px 0px;'>";
