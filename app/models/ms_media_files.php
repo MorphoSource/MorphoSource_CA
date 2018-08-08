@@ -34,6 +34,7 @@ require_once(__CA_LIB_DIR__."/core/BaseModel.php");
 require_once(__CA_MODELS_DIR__."/ms_projects.php");
 require_once(__CA_MODELS_DIR__."/ms_media_files_multifiles.php");
 require_once(__CA_LIB_DIR__.'/ms/ARK.php');
+require_once(__CA_LIB_DIR__.'/ms/DOI.php');
 
 BaseModel::$s_ca_models_definitions['ms_media_files'] = array(
  	'NAME_SINGULAR' 	=> _t('media file'),
