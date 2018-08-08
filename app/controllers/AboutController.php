@@ -99,5 +99,9 @@
 
  			$this->render('About/report_html.php');
  		}
+ 		# -------------------------------------------------------
+ 		public function fileUpload() {
+ 			$this->render('About/upload_upgrade_html.php');
+ 		}
  	}
  ?>
