@@ -62,6 +62,7 @@
  			JavascriptLoadManager::register("panel");
  			JavascriptLoadManager::register("3dmodels");
  			JavascriptLoadManager::register("formrepeater");
+ 			JavascriptLoadManager::register("jfu");
  			
  			
  			parent::__construct($po_request, $po_response, $pa_view_paths);
@@ -469,9 +470,30 @@
 						$vs_upload_base_directory = $this->opo_item->getAppConfig()->get('upload_base_directory');
 						foreach($va_media_files_info as $vn_key => $va_media_file_info){
 							$va_errors_file = array();
-							$vs_tmp = "";
+
+                            //jquery-file-upload changes: overriding temp file and path                       
+                            $jfu_media_file_name = 'notset';
+                            $jfu_media_file_path = 'notset';
+                            if (isset($_REQUEST['jfu_media_file_name'][$vn_key])) 
+                                $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][$vn_key];
+                            if (isset($_REQUEST['jfu_media_file_path'][$vn_key]))
+                                $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][$vn_key];
+
+                            if ($jfu_media_file_name !== '' && $jfu_media_file_path !== '') {
+                                // override only for jfu files (not server upload files)
+                                $_FILES['media']['tmp_name'][$vn_key] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
+                                $_FILES['media']['name'][$vn_key] = $jfu_media_file_name;
+                            }
+
+                            //error_log( print_r( 'smc in mediaController vn_key='.$vn_key.', name='.$_FILES['media']['name'][$vn_key], true ) ); 
+                            //error_log( print_r( 'smc in mediaController vn_key='.$vn_key.',tmp_name='.$_FILES['media']['tmp_name'][$vn_key], true ) ); 
+
+                            $vs_tmp = "";
 							$vs_tmp = $_FILES["media"]["tmp_name"][$vn_key];
-							if($vs_tmp || ($va_media_file_info["mediaServerPath"] && $vs_user_upload_directory && $vs_upload_base_directory && (preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory)))){
+                            
+							if($vs_tmp || ($va_media_file_info["mediaServerPath"] && $vs_user_upload_directory && $vs_upload_base_directory && (preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory)))){  
+                                //error_log( print_r( 'smc in MediaController if blah, ', true ) ); 
+                                
 								$t_media_file = new ms_media_files();
 								$t_media_file->set("media_id", $this->opo_item->get("media_id"));
 								$t_media_file->set("user_id",$this->request->user->get("user_id"));
@@ -488,6 +510,7 @@
 								}
 								# upload media
 								if($vs_tmp){
+                                    //error_log( print_r( 'smc in MediaController vs_tmp, ', true ) ); 
 									$t_media_file->set('media', $vs_tmp, array('original_filename' => $_FILES['media']['name'][$vn_key]));
 									if ($t_media_file->numErrors() > 0) {
 										foreach ($t_media_file->getErrors() as $vs_e) {
@@ -495,7 +518,9 @@
 										}
 									}
 								}elseif($va_media_file_info["mediaServerPath"]){
-									$vs_media_path = str_replace("/..", "", escapeshellcmd($va_media_file_info["mediaServerPath"]));
+                                    //error_log( print_r( 'smc in MediaController mediaServerPath, ', true ) ); 
+
+                                    $vs_media_path = str_replace("/..", "", escapeshellcmd($va_media_file_info["mediaServerPath"]));
 									if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
 										$t_media_file->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
 									}
@@ -649,15 +674,34 @@
 				&&
 				(preg_match('!^'.$vs_upload_base_directory.'!', $vs_user_upload_directory))
 			) {
+                //error_log( print_r( 'smc in MediaController linkMediaFile, in server upload', true ) ); 
+                
 				$vs_media_path = str_replace("/..", "", escapeshellcmd($vs_media_server_path));
 				if ($vs_media_path && file_exists($vs_user_upload_directory.$vs_media_path)) {
+                    //error_log( print_r( 'smc in MediaController linkMediaFile, in server upload , file exists', true ) ); 
 					$t_media_file->set('media', $vs_user_upload_directory.$vs_media_path, array('original_filename' => $vs_media_path));
 				}
 			} else {
+                //jquery-file-upload changes: overriding temp file and path
+                $jfu_media_file_name = 'notset';
+                $jfu_media_file_path = 'notset';
+                if (isset($_REQUEST['jfu_media_file_name'][0]))
+                    $jfu_media_file_name = $_REQUEST['jfu_media_file_name'][0];
+                if (isset($_REQUEST['jfu_media_file_path'][0]))
+                    $jfu_media_file_path = $_REQUEST['jfu_media_file_path'][0];
+
+                //error_log( print_r( 'smc in MediaController linkMediaFile, jfu_media_file_name='.$jfu_media_file_name, true ) ); 
+
+                $_FILES['media']['tmp_name'] = "/nfs/images/tmp/jfu/".$jfu_media_file_path; 
+                $_FILES['media']['name'] = $jfu_media_file_name;
+
+                //error_log( print_r( 'smc media tmp_name='.$_FILES['media']['tmp_name'], true ) ); 
+                
 				if($_FILES['media']['tmp_name']){
 					$t_media_file->set('media', $_FILES['media']['tmp_name'], array('original_filename' => $_FILES['media']['name']));
 				}elseif(!$t_media_file->get('media')){
-					$va_errors["media"] = "Please upload a media file";
+					// smc old media field not needed any more
+                    // $va_errors["media"] = "Please upload a media file";
 				}
 			}
 			foreach(array("title", "element", "side", "published", "notes", "file_type", "derived_from_media_file_id") as $vs_f){

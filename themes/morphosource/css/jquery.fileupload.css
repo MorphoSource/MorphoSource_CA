@@ -1,0 +1,225 @@
+@charset "UTF-8";
+/*
+ * jQuery File Upload Plugin CSS
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ */
+
+.fileinput-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+.fileinput-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  -ms-filter: 'alpha(opacity=0)';
+  font-size: 200px !important;
+  direction: ltr;
+  cursor: pointer;
+}
+
+/* Fixes for IE < 8 */
+@media screen\9 {
+  .fileinput-button input {
+    filter: alpha(opacity=0);
+    font-size: 100%;
+    height: 100%;
+  }
+}
+
+/* custom css for morphosource */
+.template-upload p,
+.template-upload span,
+.template-download p,
+.template-download span,
+.progress-extended {
+    font-size:11px;
+}
+.jfu-label {
+    height:20px;
+
+}
+.jfu-container {
+    float:left;
+    /*
+    margin:15px 0;
+    position: relative;
+    top: +160px;
+    height:90px;
+    */
+}
+.fileinput-button,
+.fileinput-button.disabled {
+    padding:auto 8px;
+    margin-top:18px;
+    font-size:11px;
+    /*margin-left:222px;*/
+}
+@media all and (-ms-high-contrast:none){ /* IE11 */
+    .fileinput-button span,
+    .fileinput-button.disabled span {
+        display:inline-block;
+        margin-top:5px;
+    }
+}
+.fileinput-button:hover {
+    cursor:pointer;
+    background-color: #606f82; 
+}
+.fileinput-button.disabled:hover {
+    cursor:default;
+    background-color: transparent; 
+}
+.disabled {
+    color:#aaa !important;
+    background-color: transparent;
+}
+.jfu-presentation {
+    position: absolute;
+    right: -280px;
+    /* border:1px solid red; */
+}
+
+/* make the jfu progress div small to avoid 
+overlapping with other form elements */
+.jfu-presentation p.name,
+.jfu-presentation span.size {
+    display: none;
+}
+.jfu-presentation button span {
+    font-size:8px;
+}
+
+
+.server-upload-option {
+    float:right;
+    margin-top:4px;
+    width:50%;
+}
+.server-upload-option select {
+    padding: 8px 0;
+    margin-left: 2px;
+    width:164px !important;
+    font-size:10px;
+    height: auto;
+}
+.imgPreview {
+    clear:both;
+    margin-top:40px !important;
+}
+.jr-btnAdd,
+.jr-btnRemove {
+    float:right;
+    /* visibility: hidden; */
+    z-index: -999;
+}
+.jr-group {
+    position:absolute;
+    z-index:1;
+    height:20px;
+}
+.jfu_file_status {
+    height: 15px;
+    margin: 26px 0 0 10px;
+    font-size: 11px;
+    line-height: 12px;
+    overflow: visible;
+    z-index: 2;
+}
+.jfu_file_status .warning {
+    color:red;
+}
+.jfu_file_status .check {
+    color:green;
+    font-size:15px;
+}
+.jfu-hide {
+    visibility:hidden; /* set to visible for debugging */
+}
+
+/* use styles below for easier debugging */
+/*
+.jfu_media_file_name,
+.jfu_media_file_status {
+    clear: both;
+    margin-left:-20px !important; 
+} 
+.jfu-presentation {
+    position: absolute;
+    right: -800px;
+}
+.jfu-presentation p.name,
+.jfu-presentation span.size {
+    display: block;
+}
+
+*/
+
+#formArea input.btn-save {
+    display: inline-block;
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0 0px 3px #828282;
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    position: relative;
+    cursor: pointer;
+    font-family: 'neuzeitrmn', Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-weight: normal;
+    background-color: #003880;
+    padding: 3px 5px 3px;
+    font-size: 11px;
+    line-height: 15px;
+}
+
+/* styles for the loading div waiting for auto save */
+.loading { 
+    margin: auto;
+    width:600px;
+}
+
+.loading span {
+  line-height: 32px;
+  margin-left: 12px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.loading img { vertical-align: middle; }
+
+.loading_wrp {
+  background-color: #FFF;
+  display: block;
+  height: 100%;
+  left: 0;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1020;
+}
+
+.loading_wrp .x16 span {
+  line-height: 16px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.loading_wrp .x32 img {
+  width: 32px;
+  height: 32px;
+}

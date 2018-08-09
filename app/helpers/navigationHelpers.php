@@ -199,7 +199,7 @@
 			$vs_url = '/';
 		}
 		
-		$vs_tag = "<a href='{$vs_url}'";
+		$vs_tag = "<a href='{$vs_url}' ";
 		
 		if ($ps_classname) { $pa_attributes['class'] = $ps_classname; }
 		if (is_array($pa_attributes)) {
