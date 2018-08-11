@@ -80,8 +80,7 @@ if (!$this->request->isAjax() && !$t_item->get("media_id") && !$t_item->get("der
 		}
 	).click(function() { this.select(); });
 	jQuery(document).ready(function(){
-		jQuery('#mediaForm').hide();
-        console.log('hidden');
+		//jQuery('#mediaForm').hide();
 		jQuery('.fileinput-button').hide(); 
 	});
 </script>
@@ -579,6 +578,7 @@ if (!$this->request->isAjax()) {
             $('button.jr-btnAdd').trigger('click');
         }
         $('.fileinput-button').show();
+        $('.fileinput-button').css('display','inline-block');
         var contObj = $('#jfu-file-select_'+jfu_widgetCount).closest('div[class=jr-group]');
         //var fileInputObj = $('#fileinput-button_'+jfu_widgetCount);
         //console.log('contObj:' + contObj.attr('class'));                
@@ -739,7 +739,8 @@ if ($isFormSaved) {
             jQuery('.fileinput-button-on-multiple').hide();
         } else {
             // form is saved, or in Derived from media form -> iniit jfu widget
-            // console.log('.. calling jfuAddwidget..');
+            //console.log('.. calling jfuAddwidget..');
+            $('#mediaForm').show();
             jfuAddWidget();
             
         }

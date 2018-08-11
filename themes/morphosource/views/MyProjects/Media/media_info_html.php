@@ -688,6 +688,8 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
         
         jQuery('#uploadWarning').hide(); 
         jQuery('#mediaFileForm').show(); 
+        $('.fileinput-button').show();
+        $('.fileinput-button').css('display','inline-block');
 
         // position the widget
         var contObj = $('div[class=jr-group]');
@@ -714,6 +716,7 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
             $('button.jr-btnAdd').trigger('click');
         }
         $('.fileinput-button').show();
+        $('.fileinput-button').css('display','inline-block');
         var contObj = $('#jfu-file-select_'+jfu_widgetCount).closest('div[class=jr-group]');
         //var fileInputObj = $('#fileinput-button_'+jfu_widgetCount);
         //console.log('contObj:' + contObj.attr('class'));                
