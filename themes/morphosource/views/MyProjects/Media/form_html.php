@@ -736,13 +736,16 @@ if ($isFormSaved) {
         */
         if (document.location.href.toLowerCase().indexOf('mediainfo/media_id') != -1) {
             //console.log('edit button clicked on single media form');
+            $('#mediaForm').show(); 
             jQuery('.fileinput-button-on-multiple').hide();
-        } else {
-            // form is saved, or in Derived from media form -> iniit jfu widget
-            //console.log('.. calling jfuAddwidget..');
+        } else if (document.location.href.toLowerCase().indexOf('lookup_derived_from_media_id') != -1) {
+            //console.log('in Derived from media form');
             $('#mediaForm').show();
             jfuAddWidget();
-            
+        } else {
+            // form is saved, or in Derived from media form -> iniit jfu widget
+            //console.log('form is saved');
+            $('#mediaForm').show();
         }
 	});
     </script>
