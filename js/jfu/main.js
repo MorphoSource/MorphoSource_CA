@@ -76,17 +76,6 @@ var jfuInit = function (j, fileId) {
             if ((jfu_successCount === clientFileCount) &&
                 (clientFileCount + serverFileCount === jfu_widgetCount)) {
                     console.log('auto saving ...');
-                    //update loader message before saving.
-                    var msg = 'Saving the form now...  Please do not close the browser tab or window.';
-                    // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
-                    $data = {
-                        size: 22,
-                        bgOpacity: 0.85, 
-                        imgUrl: '/themes/morphosource/graphics/loading[size].gif',
-                        title: msg,
-                        fontColor: true
-                    };
-                    $.loader.open($data);
                     $('.btn-save').trigger('click');
             }
 
@@ -364,7 +353,7 @@ var populateForms = function(result) {
     
     var originalSize = localStorage.getItem(mName);
     if (originalSize != null) {
-            if (originalSize == mSize) {
+            if (originalSize <= mSize) {
                 // completely uploaded
                 $('#jfu_media_file_name'+fileIdStr).val(mName);
                 $('#jfu_media_file_path'+fileIdStr).val(mPath);
@@ -409,7 +398,7 @@ var populateForms = function(result) {
        
         var originalSize = localStorage.getItem(mName);
         if (originalSize != null) {
-            if (originalSize == mSize) {
+            if (originalSize <= mSize) {
                 // completely uploaded
                 $('#jfu_media_file_name'+fileIdStr).val(mName);
                 $('#jfu_media_file_path'+fileIdStr).val(mPath);
@@ -647,6 +636,18 @@ var btnSaveClick = function(formName) {
         $('.btn-save').prop('disabled', true);
         $('.btn-save').addClass('disabled');
         //alert('ok to submit ' + formName);
+        // display or update loader message before saving.
+        var msg = 'Saving the form and processing the files now...  Please do not close the browser tab or window.';
+        // see loader options: https://www.jqueryscript.net/loading/Simple-jQuery-Loading-Spinner-Overlay-Plugin-Loader.html
+        $data = {
+            size: 22,
+            bgOpacity: 0.85, 
+            imgUrl: '/themes/morphosource/graphics/loading[size].gif',
+            title: msg,
+            fontColor: true
+        };
+        $.loader.open($data);
+
         $('#'+formName).submit();
         //return true;
     } else if (clientFileCount + serverFileCount === jfu_widgetCount) {
