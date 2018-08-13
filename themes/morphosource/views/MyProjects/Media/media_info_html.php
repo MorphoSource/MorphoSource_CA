@@ -412,6 +412,10 @@
 	?>
 				<div id="formArea" class="mediaFilesForm"><div class="ltBlueTopRule"><br/>
 
+<?php if (strpos($_SERVER['REQUEST_URI'], "editMediaFile") !== false) {
+    // editMediaFile
+} else { // not editMediaFile
+?> 
 <div class="jr-group">
 
     <div class="jfu-container">
@@ -510,7 +514,9 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
 {% } %}
 </script>
                     
-				<?php
+<?php
+} // else not editMediaFile
+                    
 					print caFormTag($this->request, ($pn_media_file_id) ? 'updateMediaFile' : 'linkMediaFile', 'mediaFilesForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
                     
                     if($va_mediaFileErrors["title"]){

@@ -564,6 +564,14 @@ var toggleForm = function(formName, disabledState) {
 }
 
 var btnSaveClick = function(formName) {
+    if (document.location.href.toLowerCase().indexOf('editmediafile') != -1) {
+        // if user is editing a media file, there is no need to check for facility, title, 
+        // and file upload status
+        var isEditMediaFile = true;
+    } else {
+        var isEditMediaFile = false;
+    }
+    
     // For each form, either the client files must be uploaded completely, 
     // or a file must be selected for server upload.  If either case fails, do not allow the form to be saved, but prompt the user for auto-save option
     var msg = '';
@@ -573,7 +581,7 @@ var btnSaveClick = function(formName) {
         alert(msg);
         return false;
     }
-    if (formName === 'mediaForm') {
+    if (formName === 'mediaForm' && !isEditMediaFile) {
         if($('#msFacilityID').val() === '' || $('#title').val() === ''){
             msg = "Please enter the description and select a facility";
             alert(msg);
@@ -581,7 +589,7 @@ var btnSaveClick = function(formName) {
         }
     }
     
-    if (msg  === '' && !isAutoSave) {
+    if (msg  === '' && !isAutoSave && !isEditMediaFile) {
 
         if ($('select#media_0_mediaServerPath').length === 0) { 
             // no drop down : meaning server upload is not available
