@@ -213,7 +213,7 @@
             if ($vs_specimen_number == '') {
                 $vs_specimen_name = '';
                 // for constructing file names, set the temp variables to NS if no specimen 
-                $vs_specimen_number_temp = 'NS';
+                $vs_specimen_number_temp = 'no_specimen';
             } else {
                 $vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
                 $vs_specimen_number_temp = $vs_specimen_number;
@@ -282,8 +282,8 @@
                 if ($vs_specimen_number == '') {
                     $vs_specimen_name = '';
                     // for constructing file names, set the temp variables to NS if no specimen 
-                    $vs_specimen_name_temp = 'NS';
-                    $vs_specimen_number_temp = 'NS'; 
+                    $vs_specimen_name_temp = 'no_specimen';
+                    $vs_specimen_number_temp = 'no_specimen'; 
                 } else {
                     $vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
                     $vs_specimen_name_temp = $vs_specimen_name;
