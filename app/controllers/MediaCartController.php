@@ -359,7 +359,16 @@
 				while($q_set_items->nextRow()){
 					if($t_media->userCanDownloadMediaFile($this->request->getUserID(), $q_set_items->get("media_id"), $q_set_items->get("media_file_id"))){
 						$vs_specimen_number = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
-						$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($q_set_items->get("specimen_id")))));
+                        if ($vs_specimen_number == '') {
+                            $vs_specimen_name = '';
+                            // for constructing file names, set the temp variables to NS if no specimen 
+                            $vs_specimen_name_temp = 'no_specimen';
+                            $vs_specimen_number_temp = 'no_specimen';
+                        } else {
+                            $vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($q_set_items->get("specimen_id")))));
+                            $vs_specimen_name_temp = $vs_specimen_name;
+                            $vs_specimen_number_temp = $vs_specimen_number;
+                        }
 						$vs_element = "";
 						if($q_set_items->get("element")){
 							$vs_element = "_".$q_set_items->get("element");
@@ -378,7 +387,7 @@
 						if (!in_array($ps_version, $va_versions)) { $ps_version = $va_versions[0]; }
 						$vs_idno_proc = $q_set_items->get("media_id");
 						$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
-						$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_set_items->get("media_file_id").'_'.$vs_specimen_name.$vs_element.'.'.$va_version_info['EXTENSION'];
+						$vs_file_name = $vs_specimen_number_temp.'_M'.$vs_idno_proc.'-'.$q_set_items->get("media_file_id").'_'.$vs_specimen_name_temp.$vs_element.'.'.$va_version_info['EXTENSION'];
 						$vs_file_path = $q_set_items->getMediaPath('media', $ps_version);
 						$va_file_paths[$vs_file_path] = $vs_file_name;					
 						$va_media_file_ids[] = $q_set_items->get("media_file_id");
