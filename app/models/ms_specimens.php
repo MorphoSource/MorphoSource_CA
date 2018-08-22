@@ -802,6 +802,7 @@ class ms_specimens extends BaseModel {
 				if($va_results["success"]){
 					if(is_array($va_results["data"]["items"][0]) && sizeof($va_results["data"]["items"][0])){
 						$va_specimen_info = $va_results["data"]["items"][0];
+
 						#print "<pre>";
 						#print_r($va_specimen_info);
 						#print "</pre>";
@@ -848,9 +849,9 @@ class ms_specimens extends BaseModel {
 					
 						if($q_taxon_hits->numHits() > 0){
 							while($q_taxon_hits->nextHit()){
-								if(($q_taxon_hits->get("genus") == $va_specimen_info["indexTerms"]["genus"]) 
-									&& ($q_taxon_hits->get("species") == $va_specimen_info["indexTerms"]["specificepithet"]) 
-									&& ($q_taxon_hits->get("subspecies") == $va_specimen_info["indexTerms"]["infraspecificepithet"])
+								if((strtolower($q_taxon_hits->get("genus")) == strtolower($va_specimen_info["indexTerms"]["genus"])) 
+									&& (strtolower($q_taxon_hits->get("species")) == strtolower($va_specimen_info["indexTerms"]["specificepithet"])) 
+									&& (strtolower($q_taxon_hits->get("subspecies")) == strtolower($va_specimen_info["indexTerms"]["infraspecificepithet"]))
 								){
 									$vn_taxon_id = $q_taxon_hits->get("taxon_id");
 									$vn_alt_id = $q_taxon_hits->get("alt_id");
