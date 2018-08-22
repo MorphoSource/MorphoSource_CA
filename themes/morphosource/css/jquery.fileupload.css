@@ -59,6 +59,7 @@
 }
 .fileinput-button,
 .fileinput-button.disabled {
+    display:inline-block;
     padding:auto 8px;
     margin-top:18px;
     font-size:11px;
@@ -222,4 +223,9 @@ overlapping with other form elements */
 .loading_wrp .x32 img {
   width: 32px;
   height: 32px;
+}
+
+#mediaForm,
+.fileinput-button {
+    display:none;
 }

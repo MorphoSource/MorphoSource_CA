@@ -937,6 +937,39 @@
 			$this->view->setVar("taxomony_term_display", $vs_specimens_group_by_display);
 			
 			$this->render('Dashboard/specimen_without_taxonomy_html.php');
+		}
+		# -------------------------------------------------------
+		function assignAllMediaFileDOIs() {
+			if (!$this->request->user->canDoAction("is_administrator")) {
+				$this->dashboard();
+				return;
+			}
+
+			$va_project_media = $this->opo_project->getProjectMedia(true);
+			
+
+			while ($va_project_media->nextRow()) {
+				$va_media = $va_project_media->getRow();
+				$t_media = new ms_media($va_media['media_id']);
+				$va_media_files = $t_media->getMediaFiles();
+				foreach ($va_media_files as $t_media_file) {
+					$t_user = new ca_users((
+						$vn_user_id = $t_media_file->get('user_id') ? 
+						$t_media_file->get('user_id') : 
+						$this->opo_project->get('user_id')));
+					
+					$va_doi = $t_media_file->getDOI(
+						$t_user->get('fname'), 
+						$t_user->get('lname'));
+
+					if (!$va_doi["success"]) {
+						$this->notification->addNotification(
+							$va_doi["error"], __NOTIFICATION_TYPE_ERROR__);
+					}
+				}
+			}
+
+			$this->dashboard();
 		}		
  	}
  ?>
