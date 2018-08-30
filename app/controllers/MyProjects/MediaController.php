@@ -1302,9 +1302,16 @@
 			$vs_idno_proc = $this->opo_item->get('media_id');
 			$t_specimens = new ms_specimens();
 			$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
-			$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
-			
-			# --- record download
+            if ($vs_specimen_number == '') {
+                $vs_specimen_name = '';
+                // for constructing file names, set the temp variables to no_specimen if no specimen 
+                $vs_specimen_number_temp = 'no_specimen';
+            } else {
+                $vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
+                $vs_specimen_number_temp = $vs_specimen_number;
+            }
+
+            # --- record download
 			$this->opo_item->recordDownload($this->request->getUserID(), $this->opo_item->get("media_id"), $pn_media_file_id);
 			
 			if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
@@ -1313,12 +1320,12 @@
 			$o_zip = new ZipStream();
 			$vs_path = $t_media_file->getMediaPath('media', $ps_version);
 			if(file_exists($vs_path)){
-				$o_zip->addFile($vs_path, $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION']);
+				$o_zip->addFile($vs_path, $vs_specimen_number_temp.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.'.$va_version_info['EXTENSION']);
 			}
 			
 			# --- generate text file for media downloaded and add it to zip
 			$vs_tmp_file_name = '';
-			$vs_text_file_name = 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.csv';
+			$vs_text_file_name = 'Morphosource_'.$vs_specimen_number_temp.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.csv';
 			$va_text_file_text = $t_media_file->mediaMdText(array($pn_media_file_id), $t_specimens);
 			if(sizeof($va_text_file_text)){
 				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
@@ -1339,7 +1346,7 @@
 			$this->view->setVar('zip_stream', $o_zip);
 		
 			$this->view->setVar('version_path',$vs_path = $t_media_file->getMediaPath('media', $ps_version));
-			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
+			$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_number_temp.'_M'.$vs_idno_proc.'-'.$pn_media_file_id.'.zip');
 				
 			$this->response->sendHeaders();
 			$vn_rc = $this->render('Media/media_download_binary.php');
@@ -1360,7 +1367,16 @@
 				$t_specimens = new ms_specimens();
 				$t_media_file = new ms_media_files();
 				$vs_specimen_number = $t_specimens->getSpecimenNumber($this->opo_item->get("specimen_id"));
-				$vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
+                if ($vs_specimen_number == '') {
+                    $vs_specimen_name = '';
+                    // for constructing file names, set the temp variables to no_specimen if no specimen 
+                    $vs_specimen_name_temp = 'no_specimen';
+                    $vs_specimen_number_temp = 'no_specimen';
+                } else {
+                    $vs_specimen_name = str_replace(" ", "_", strip_tags(array_shift($t_specimens->getSpecimenTaxonomy($this->opo_item->get("specimen_id")))));
+                    $vs_specimen_name_temp = $vs_specimen_name;
+                    $vs_specimen_number_temp = $vs_specimen_number;
+                }
 				$va_media_file_ids = array();
 				while($q_media_files->nextRow()){
 					$t_media_file->load($q_media_files->get("media_file_id"));
@@ -1378,7 +1394,7 @@
 					$vs_idno_proc = $this->opo_item->get('media_id');
 					$va_version_info = $t_media_file->getMediaInfo('media', $ps_version);
 				
-					$vs_file_name = $vs_specimen_number.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'_'.$vs_specimen_name.$vs_element.'.'.$va_version_info['EXTENSION'];
+					$vs_file_name = $vs_specimen_number_temp.'_M'.$vs_idno_proc.'-'.$q_media_files->get("media_file_id").'_'.$vs_specimen_name_temp.$vs_element.'.'.$va_version_info['EXTENSION'];
 					$vs_file_path = $q_media_files->getMediaPath('media', $ps_version);
 					$va_file_names[$vs_file_name] = true;
 					$va_file_paths[$vs_file_path] = $vs_file_name;
@@ -1399,7 +1415,7 @@
 				}
 				# --- generate text file for media downloaded and add it to zip
 				$vs_tmp_file_name = '';
-				$vs_text_file_name = 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.csv';
+				$vs_text_file_name = 'Morphosource_'.$vs_specimen_name_temp.'_M'.$vs_idno_proc.'.csv';
 				$va_text_file_text = $t_media_file->mediaMdText($va_media_file_ids, $t_specimens);
 				if(sizeof($va_text_file_text)){
 					$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
@@ -1418,7 +1434,7 @@
 				$o_zip->addFile($vs_pdf_file_location, $vs_pdf_file_name);
 				
 				$this->view->setVar('zip_stream', $o_zip);
-				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name.'_M'.$vs_idno_proc.'.zip');
+				$this->view->setVar('version_download_name', 'Morphosource_'.$vs_specimen_name_temp.'_M'.$vs_idno_proc.'.zip');
 				
 				$this->response->sendHeaders();
 				$vn_rc = $this->render('Media/media_download_binary.php');
