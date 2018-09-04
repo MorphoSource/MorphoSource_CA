@@ -361,7 +361,7 @@
 						$vs_specimen_number = $t_specimens->getSpecimenNumber($q_set_items->get("specimen_id"));
                         if ($vs_specimen_number == '') {
                             $vs_specimen_name = '';
-                            // for constructing file names, set the temp variables to NS if no specimen 
+                            // for constructing file names, set the temp variables to no_specimen if no specimen 
                             $vs_specimen_name_temp = 'no_specimen';
                             $vs_specimen_number_temp = 'no_specimen';
                         } else {
