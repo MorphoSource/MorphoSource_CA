@@ -94,7 +94,7 @@
 		
 		$vn_c = 0;
 		foreach($va_species as $vs_name => $va_specimens){
-			print "<div class='browseItem'><a href='#' onclick='jQuery(this).parent().find(\".specimenList\").slideToggle(100); return false;'>{$vs_name}</a>";
+			print "<div class='browseItem'><a href='#' onclick='jQuery(this).parent().find(\".specimenList\").slideToggle(100); return false;'>{$vs_name}</a> (".sizeof($va_specimens).")";
 			
 			print "<div class='specimenList' style='display: ".($vn_c ? 'none' : 'block').";'>";
 			
