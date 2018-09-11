@@ -198,7 +198,7 @@
 			
 						$vn_col++;
 			
-						if ($vn_col > 255) { break; }	// max 255 columns; some Excel files have *thousands* of "phantom" columns
+						if ($vn_col > 1023) { break; }	// max 1023 columns; some Excel files have *thousands* of "phantom" columns
 					}
 					return $this->opa_current_row;
 				}
