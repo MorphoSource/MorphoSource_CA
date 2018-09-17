@@ -4,8 +4,8 @@
 	function formatEntityGroup($va_entity_list, $vs_entity_format, $vs_entity_type, $request_class, $hide_group=false)
 	{
 		// Formats array of specimen/media group entities as tile or list items
-		print "<div class='entityGroup'". 
-			(($hide_group) ? "style='display: none;' " : "") .">";
+		print "<div class='entityGroup' style='margin-top: 10px; ". 
+			(($hide_group) ? "display: none;' " : "' ") .">";
 		if ($vs_entity_format == 't') {
 			foreach ($va_entity_list as $va_entity) {
 				formatEntityTile($va_entity, $vs_entity_type, $request_class);
@@ -514,15 +514,24 @@
 		print "</div>";
 
 		if ($vs_taxon_level == 'species') {
-			$vs_taxon_name = "<em>".ucfirst($va_entity['genus'])." ".
-				$vs_taxon_term."</em>";
+			if (strtolower($vs_taxon_term) != 'species not defined') {
+				$vs_taxon_name = "<em>".ucfirst($va_entity['genus'])." ".
+					$vs_taxon_term."</em>";
+			} else {
+				$vs_taxon_name = ucfirst($vs_taxon_term);
+			}
+			
 			if ($vs_entity_type == 's') {
 				$vn_count = sizeof($va_entity['specimens']);
 			} else if ($vs_entity_type == 'm') {
 				$vn_count = sizeof($va_entity['media']);
 			}
 		} else if ($vs_taxon_level == 'genus') {
-			$vs_taxon_name = "<em>".ucfirst($vs_taxon_term)."</em>";
+			if (strtolower($vs_taxon_term) != 'genus not defined') {
+				$vs_taxon_name = "<em>".ucfirst($vs_taxon_term)."</em>";
+			} else {
+				$vs_taxon_name = ucfirst($vs_taxon_term);
+			}
 			$vn_count = sizeof($va_entity);
 			if (array_key_exists('no_link', $va_entity)) { 
 				$vn_count = $vn_count - 1; 
@@ -599,20 +608,24 @@
 	{
 		// Format taxonomically nested (family, order, etc.) specimen/media group entities
 		print "<div class='entityNestContainer'>";
+		ksort($va_entity);
 		foreach ($va_entity as $vs_class_name => $va_class_entity) {
 			if ($vs_class_name == 'no_link') { continue; }
+			ksort($va_class_entity);
 			print "<div class='entityNestGroupContainer' 
 				style='background-color: #FFFFFF; margin-bottom: 10px'>";
 			formatNestGroupLabel("ht_class", $vs_class_name, $vs_entity_type, 
 				$va_class_entity, $request_class, 0, 0);
 			foreach ($va_class_entity as $vs_order_name => $va_order_entity) {
 				if ($vs_order_name == 'no_link') { continue; }
+				ksort($va_order_entity);
 				print "<div class='entityNestGroupContainer' 
 					style='background-color: #C7D3E3; margin-bottom: 5px'>";
 				formatNestGroupLabel("ht_order", $vs_order_name, 
 					$vs_entity_type, $va_order_entity, $request_class, 30, 0);
 				foreach ($va_order_entity as $vs_family_name => $va_family_entity) {
 					if ($vs_family_name == 'no_link') { continue; }
+					ksort($va_family_entity);
 					print "<div class='entityNestGroupContainer' 
 						style='display: none; background-color: #FFFFFF; 
 						margin: 3px;'>";
@@ -621,6 +634,7 @@
 						50, 16);
 					foreach ($va_family_entity as $vs_genus_name => $va_genus_entity) {
 						if ($vs_genus_name == 'no_link') { continue; }
+						ksort($va_genus_entity);
 						print "<div class='entityNestGroupContainer' 
 							style='display: none; background-color: #C7D3E3; 
 							margin: 3px;'>";
@@ -629,6 +643,7 @@
 							70, 13);
 						foreach ($va_genus_entity as $vs_species_name => $va_species_entity) {
 							if ($vs_species_name == 'no_link') { continue; }
+							ksort($va_species_entity);
 							print "<div class='entityNestGroupContainer' 
 								style='display: none; background-color: #FFFFFF; 
 								margin: 3px;'>";
