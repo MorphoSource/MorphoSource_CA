@@ -262,6 +262,8 @@
 								while($qr_files->nextHit()) {
 									if (($qr_files->get('ms_media_files.published') != null) && ($qr_files->get('ms_media_files.published') == 0)) { continue; }
 									$va_info = $qr_files->getMediaInfo('media', 'original');
+					                // for uploaded zip (e.g. tiff image stack), the checksum is stored in the _archive_ sub-array, not 'original' sub-array
+                                    $va_archive_info = $qr_files->getMediaInfo('media', '_archive_');
 									$vn_published = ($qr_files->get('ms_media_files.published')) ? $qr_files->get('ms_media_files.published') : $qr_res->get('ms_media.published');
 									$va_info = [
 										'media_file_id' => $qr_files->get('ms_media_files.media_file_id'),
@@ -275,7 +277,11 @@
 										'notes' => $qr_files->get('ms_media_files.notes'),
 										'published' => $t_media_files->getChoiceListValue("published", $vn_published),
 										'published_on' => ($qr_files->get('ms_media_files.published_on') > 0) ? $qr_files->getDate('ms_media_files.published_on') : "",
-										'download' => ($vn_published==1) ? "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id') : "Permission must be granted to download"
+										'download' => ($vn_published==1) ? "http://www.morphosource.org/index.php/Detail/MediaDetail/DownloadMedia/media_id/".$qr_files->get('ms_media.media_id')."/media_file_id/".$qr_files->get('ms_media_files.media_file_id') : "Permission must be granted to download",
+                                        /* if the file extension is zip, get the md5 from _archive_ subarray,
+                                        otherwise get md5 from 'original' sub-array
+										*/
+                                        'md5' => ($va_archive_info['EXTENSION'] == 'zip') ? $va_archive_info['MD5'] : $va_info['MD5'] 
 									];
 									
 									if ($ps_naming == 'darwincore') {
