@@ -120,6 +120,35 @@
  						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 206))."</b>",
  						"<b><a href='http://www.isita-org.com/jass/Contents/ContentsVol96.htm'>Read the published article</a></b>"
  					)
+ 				),
+ 				"220" => array(
+ 					"media" => array(
+ 						29389 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								29389, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						16538 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								16538, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						29382 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								29382, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						16514 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								16514, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 					),
+ 					"title" => "<b>A new genus and species of clingfish from New Zealand</b></br></br>",
+ 					"links" => array(
+ 						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 220))."</b>",
+ 						"<b><a href='https://zookeys.pensoft.net/articles.php?id=28539'>Read the published article</a></b>"
+ 					)
  				)
  			);
 
