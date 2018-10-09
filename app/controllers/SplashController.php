@@ -144,10 +144,39 @@
  								true)["media"]["preview190"]
  							) ? $vs_pre : null,
  					),
- 					"title" => "<b>A new genus and species of clingfish from New Zealand</b></br></br>",
+ 					"title" => "<b>A new genus and species of clingfish from the Rangitahua Kermadec Islands of New Zealand</b></br>",
  					"links" => array(
  						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 220))."</b>",
  						"<b><a href='https://zookeys.pensoft.net/articles.php?id=28539'>Read the published article</a></b>"
+ 					)
+ 				),
+ 				"386" => array(
+ 					"media" => array(
+ 						19253 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								19253, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						18377 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								18377, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						18824 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								18824, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 						18869 => ($vs_pre = $t_media->getPreviewMediaFile(
+ 								18869, 
+ 								array("preview190"), 
+ 								true)["media"]["preview190"]
+ 							) ? $vs_pre : null,
+ 					),
+ 					"title" => "<b>Digitizing extant bat diversity: An open-access repository of 3D microCT-scanned skulls for research and education</b></br>",
+ 					"links" => array(
+ 						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 386))."</b>",
+ 						"<b><a href='https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0203022'>Read the published article</a></b>"
  					)
  				)
  			);
