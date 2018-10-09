@@ -593,6 +593,7 @@ class ms_media_files extends BaseModel {
 									"doi",
 									"file type",
 									"file size",
+									"md5 checksum",
 									"title",
 									"notes",
 									"specimen",
@@ -655,6 +656,7 @@ class ms_media_files extends BaseModel {
 					$vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
 					$va_media_md[] = (($vs_file_type) ? $vs_file_type."; " : "").$va_properties['MIMETYPE'];
 					$va_media_md[] = caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
+                    $va_media_md[] = $va_properties['MD5'];
 					$va_media_md[] = $q_media_files->get("file_title");
 					$va_media_md[] = $q_media_files->get("file_notes");
 					$va_media_md[] = $vs_specimen_name;
