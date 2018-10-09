@@ -593,7 +593,7 @@ class ms_media_files extends BaseModel {
 									"doi",
 									"file type",
 									"file size",
-									"md5",
+									"md5 checksum",
 									"title",
 									"notes",
 									"specimen",
