@@ -281,7 +281,7 @@
                                         /* if the file extension is zip, get the md5 from _archive_ subarray,
                                         otherwise get md5 from 'original' sub-array
 										*/
-                                        'md5' => ($va_archive_info['EXTENSION'] == 'zip') ? $va_archive_info['MD5'] : $va_info['MD5'] 
+                                        'md5_checksum' => ($va_archive_info['EXTENSION'] == 'zip') ? $va_archive_info['MD5'] : $va_info['MD5'] 
 									];
 									
 									if ($ps_naming == 'darwincore') {
