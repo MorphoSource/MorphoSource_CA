@@ -342,7 +342,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 						$vs_env_new = "/lib/"; 
 						if ($vs_env_saved) { $vs_env_new .= ":$vs_env_saved"; } 
 						putenv("LD_LIBRARY_PATH=$vs_env_new"); 
-						exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}_temp_bin.stl 2>&1", $va_output);
+						exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i '".$this->filepath."' -o {$ps_filepath}_temp_bin.stl 2>&1", $va_output);
 						putenv("LD_LIBRARY_PATH=$vs_env_saved");
 						$vs_convfilepath = $ps_filepath.'_temp_bin.stl';
 						$vb_del = true;	
@@ -352,7 +352,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 
 					# Create CTM
 					if (file_exists("/usr/local/bin/ctmconv")) {
-						exec("/usr/local/bin/ctmconv ".$vs_convfilepath." {$ps_filepath}.ctm --method MG2 --level 9 2>&1", $va_output);
+						exec("/usr/local/bin/ctmconv '".$vs_convfilepath."' {$ps_filepath}.ctm --method MG2 --level 9 2>&1", $va_output);
 						if ($vb_del) {
 							unlink($ps_filepath.'_temp_bin.stl');
 						}
@@ -374,7 +374,7 @@ class WLPlugMediaMesh extends BaseMediaPlugin implements IWLPlugMedia {
 							$vs_env_new = "/lib/"; 
 							if ($vs_env_saved) { $vs_env_new .= ":$vs_env_saved"; } 
 							putenv("LD_LIBRARY_PATH=$vs_env_new"); 
-							exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i ".$this->filepath." -o {$ps_filepath}.stl 2>&1", $va_output);
+							exec("xvfb-run -a -s '-screen 0 800x600x24' meshlabserver -i '".$this->filepath."' -o {$ps_filepath}.stl 2>&1", $va_output);
 							putenv("LD_LIBRARY_PATH=$vs_env_saved");
 							return $ps_filepath.'.stl';	
 						} elseif(PlyToStl::convert($this->filepath,$ps_filepath.'.stl')){
