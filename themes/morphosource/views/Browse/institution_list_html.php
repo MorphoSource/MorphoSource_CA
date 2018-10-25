@@ -26,15 +26,19 @@
  * ----------------------------------------------------------------------
  */
 	$pn_browse_institution_id = $this->getVar("browse_institution_id");
-	
 	$q_institutions = $this->getVar("institutions");
 ?>
 	<div id="browseList">
 		<div class="tealRule"><!-- empty --></div>
 		<H2><?php print _t("Institutions"); ?></H2>
+		<div class='' style='padding-left: 10px;'>
+			Filter: <input type='text' name='filter' value='' onkeyup='filterInstBrowse(this.value); return false;' size='20' style='border:1px solid #828282; margin-right: 10px; margin-left: 5px;'/>
+			<span id='numberInstFiltered'></span>
+			<br/><br/>
+		</div><!-- end class list-filter -->
 <?php
 	if($q_institutions->numRows() > 0){
-		print "<div id='browseListScrollContainer'>";
+		print "<div class='browseListScrollContainer' style='padding-right: 10px; border-top: 1px solid #578686; margin-top: 5px; padding-top: 20px;'>";
 		while($q_institutions->nextRow()){
 			print "<div class='browseItem'><a href='#' onClick='highlightLink(this); jQuery(\"#specimenResults\").load(\"".caNavUrl($this->request, '', 'Browse', 'specimenResults', array('institution_id' => $q_institutions->get("institution_id")))."\"); return false;' class='blueText".(($q_institutions->get("institution_id") == $pn_browse_institution_id) ? " browseItemSelected" : "")."'>".$q_institutions->get("name")."</a></div>";
 			#print "<div class='browseItem'><a href='#' onclick='jQuery(\"#specimenResults\").smoothDivScroll(\"getAjaxContent\", \"".caNavUrl($this->request, '', 'Browse', 'specimenResults', array('institution_id' => $q_institutions->get("institution_id")))."\",\"replace\"); return false;'>".$q_institutions->get("name")."</a></div>";
@@ -60,4 +64,16 @@
 <?php	
 	}
 ?>
+	filterInstBrowse = function (searchText) {
+		if (!searchText) {
+			jQuery('#browseList').find('.browseItem').show();
+			jQuery('#numberInstFiltered').text('');
+			return;
+		}
+		jQuery('#browseList').find('.browseItem').hide();
+		var filtered = jQuery('#browseList')
+			.find('.browseItem:iContains('+searchText+')');
+		filtered.show();
+		jQuery('#numberInstFiltered').text(filtered.length + ' institutions found');
+	}
 </script>
