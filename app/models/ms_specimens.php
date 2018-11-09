@@ -525,7 +525,7 @@ class ms_specimens extends BaseModel {
 		if($pa_specimen["catalog_number"]){
 			$va_specimen_parts[] = $pa_specimen["catalog_number"];
 		}
-		$vs_num =  join("-", $va_specimen_parts);
+		$vs_num =  join(":", $va_specimen_parts);
 		
 		if (!caGetOption('omitTaxonomy', $pa_options, false)) {
 			if(is_array($pa_specimen["taxa"]) && (sizeof($pa_specimen["taxa"]) > 0)) {
@@ -547,7 +547,7 @@ class ms_specimens extends BaseModel {
 		if($pa_specimen["catalog_number"]){
 			$va_specimen_parts[] = $pa_specimen["catalog_number"];
 		}
-		$vs_num =  join("-", $va_specimen_parts);
+		$vs_num =  join(":", $va_specimen_parts);
 		
 		return $vs_num;
 	}
