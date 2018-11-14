@@ -100,12 +100,15 @@
 			if (!in_array($ps_rank, ms_resolved_taxonomy::$s_ranks)) { $ps_rank = 'Phylum'; }
 			
 			$va_path = [];
+			$vs_taxon_name = "";
 			
 			$t_taxon = new ms_resolved_taxonomy($pn_taxon_id);
 			if ($t_taxon->getPrimaryKey()) {
 				//
 				// Browse on a specific taxon
 				//
+				$vs_taxon_name = $t_taxon->get("name");
+
 				$va_ancestors = array_reverse($t_taxon->getHierarchyAncestors(null, ['includeSelf' => true]));
 				$vn_i = 1;
 				foreach($va_ancestors as $va_ancestor) {
@@ -156,6 +159,7 @@
 			
 			$this->view->setVar('specimens', $va_specimens);
 			$this->view->setVar('taxon_id', $pn_taxon_id);
+			$this->view->setVar('taxon_name', $vs_taxon_name);
 			$this->view->setVar('rank', $ps_rank);
 			$this->view->setVar('path', $va_path);
 			$this->view->setVar('nextRank', $vs_next_rank = (($vn_index = array_search($ps_rank, ms_resolved_taxonomy::$s_ranks)) >= 0) ? ms_resolved_taxonomy::$s_ranks[$vn_index + 1] : "class");
