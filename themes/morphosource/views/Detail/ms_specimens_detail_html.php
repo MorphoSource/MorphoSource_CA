@@ -6,38 +6,53 @@
 	$t_specimen = new ms_specimens($t_specimen->get("specimen_id"));
 	$vs_specimen_name = $t_specimen->getSpecimenName();
 ?>
+
 <div class="blueRule"><!-- empty --></div>
 <?php
 	$vs_back_link = "";
 	switch(ResultContext::getLastFind($this->request, "ms_specimens")){
 		case "specimen_browse":
-			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Browse', 'Index', array(), array('id' => 'back'));
+			$vs_back_link = caNavLink($this->request, _t("Back To Browse"), 'button buttonMedium', '', 'Browse', 'Index', array(), array('id' => 'back'));
 		break;
 		# ----------------------------------
 		case "basic_search":
-			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Search', 'Index', array(), array('id' => 'back'));
+			$vs_back_link = caNavLink($this->request, _t("Back To Search"), 'button buttonMedium', '', 'Search', 'Index', array(), array('id' => 'back'));
 		break;
 		# ----------------------------------
 	}
-	if (($this->getVar('is_in_result_list'))) {
-		if ($this->getVar('next_id') > 0) {
-			print "<div style='float:right; padding:10px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
-		}
-		print "<div style='float:right; padding:10px 0px 0px 15px;'>".$vs_back_link."</div>";
-		if ($this->getVar('previous_id')) {
-			print "<div style='float:right; padding:10px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
-		}
-	}
 ?>
-<H1 class="specimenDetailTitle">
-<?php 
-	print _t("Specimen: ").$vs_specimen_name;
+
+<div style='overflow:hidden;'>
+<?php
+	print "<div style=''>";
+	print "<H1 class='specimenDetailTitle'>"._t("Specimen: ").$vs_specimen_name."</H1>";
+	print "</div>";
+?>
+</div>
+<div class="tealRule"><!-- empty --></div>
+<div style='overflow:hidden;'>
+<?php
 	if($vs_uuid_id = $t_specimen->get("uuid")){
-		print "<br/><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='button buttonSmall' style='margin-top:3px;'>View specimen on iDigBio</a><br/>";
+		print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='https://www.idigbio.org/portal/records/".$vs_uuid_id."' target='_blank' class='button buttonMedium' style=''>View specimen on iDigBio</a></div>";
 	}
+	if($vb_show_edit_link){
+		print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px;'>".caNavLink($this->request, _t("Edit Specimen"), "button buttonMedium", "MyProjects", "Specimens", "form", array("specimen_id" => $t_specimen->get("specimen_id"), "select_project_id" => $t_specimen->get("project_id")))."</div>";
+	}
+	if (($this->getVar('is_in_result_list'))) {
+		// print "<div class='blueRule'><!-- empty --></div>";
+		// print "<H1 class=''>Search Result</H1>";
+		print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px;'>".$vs_back_link."</div>";
+		if ($this->getVar('next_id') > 0) {
+			print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'>".caNavLink($this->request, _t("Next Result"), 'button buttonMedium', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+		}
 		
+		if ($this->getVar('previous_id')) {
+			print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'>".caNavLink($this->request, _t("Previous Result"), 'button buttonMedium', 'Detail', 'SpecimenDetail', 'Show', array('specimen_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
+		}
+	}
 ?>
-</H1>
+</div>
+
 <div id="specimenDetail">
 <?php
 	if($t_specimen->get("specimen_id")){
@@ -45,7 +60,7 @@
 		$t_project = new ms_projects($t_specimen->get("project_id"));
 		if($t_project->get("publication_status")){
 ?>
-		<div class="tealRule"><!-- empty --></div>
+		
 		<H2>Project</H2>
 			<div class="unit">
 <?php
@@ -56,7 +71,6 @@
 		}
 
 ?>
-		<div class="tealRule"><!-- empty --></div>
 <?php
 		if(is_array($va_bib_citations) && sizeof($va_bib_citations)){
 ?>
@@ -73,9 +87,6 @@
 			}
 			print "</div><!-- end unit --></div><!-- end specimenDetailBibContainer -->";
 			print "<div id='specimenDetailInfoContainer'>";
-		}
-		if($vb_show_edit_link){
-			print "<div style='float:right; padding:0px 0px 0px 15px;'>".caNavLink($this->request, _t("Edit"), "button buttonSmall", "MyProjects", "Specimens", "form", array("specimen_id" => $t_specimen->get("specimen_id"), "select_project_id" => $t_specimen->get("project_id")))."</div>";
 		}
 ?>
 		<H2>Specimen Information</H2>
@@ -190,7 +201,7 @@
 ?>
 		<div class="tealRule" style="clear:both;"><!-- empty --></div>
 			<H2>Specimen Media</H2>
-			<div id="specimenMediaList" class="unit">
+			<div class="unit">
 <?php
 			$va_options = array('versions' => array('preview190'), 'published' => true);
 			if($this->request->isLoggedIn()){
@@ -200,23 +211,21 @@
 			if (is_array($va_media_list) && sizeof($va_media_list)) {
 				$vn_media_output = false;
 				foreach($va_media_list as $vn_media_id => $va_media_info) {
-					if($va_media_info["numFiles"]){
-						$vn_media_output = true;
-						$t_media = new ms_media($vn_media_id);
-						$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
-				
-						print '<div class="specimenMediaListContainer">';
-						if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
-							$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
-						}
-						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
-						print caNavLink($this->request, "M".$vn_media_id, "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id)).", ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s")."<br/>";
-						if($va_media_info['title']){
-							print $va_media_info['title']."<br/>";
-						}
-						print (($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
-						print "</div><!-- end specimenMediaListContainer -->\n";
+					$vn_media_output = true;
+					$t_media = new ms_media($vn_media_id);
+					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
+			
+					print '<div class="specimenMediaListContainer">';
+					if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
+						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
+					print "<div class='specimenMediaListSlide' style='height: 190px;'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+					print caNavLink($this->request, "M".$vn_media_id, "blueText", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id)).", ".$va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s")."<br/>";
+					if($va_media_info['title']){
+						print $va_media_info['title']."<br/>";
+					}
+					print (($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
+					print "</div><!-- end specimenMediaListContainer -->\n";
 				}
 			}
 			if(!$vn_media_output){

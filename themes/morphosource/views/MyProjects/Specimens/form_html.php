@@ -121,7 +121,7 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					}
 					$t_project = new ms_projects();
 					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
-						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+						print "<div class='specimenMediaListSlide' style='height: 190px;'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
 						print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
 					}else{
 						$vb_read_only_access = false;
