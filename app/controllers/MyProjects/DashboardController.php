@@ -891,11 +891,12 @@
  					} elseif ($vs_mode == 'deny'){
  						$this->MarkDownloadRequest(2, $vn_request_id, true);
  					}else{
- 						$this->manageAllDownloadRequests();
- 						return;
+ 						$vb_failure = 1;
+ 						break;
  					}
  				} else {
  					$vb_failure = 1;
+ 					break;
  				}
  			}
 
