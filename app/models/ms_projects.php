@@ -1627,16 +1627,17 @@ class ms_projects extends BaseModel {
  		$o_db = $this->getDb();
  		
  		$qr_res = $o_db->query("
- 			SELECT r.*, u.*, p.project_id, p.name
+ 			SELECT r.*, u.*, s.*, r.user_id AS request_user_id, m.user_id AS media_user_id, m.*, p.project_id, p.name
  			FROM ms_media_download_requests r
- 			INNER JOIN ms_media AS m ON m.media_id = r.media_id 
+ 			INNER JOIN ms_media AS m ON m.media_id = r.media_id
+ 			INNER JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
  			INNER JOIN ca_users AS u ON u.user_id = r.user_id
  			INNER JOIN ms_projects AS p ON m.project_id = p.project_id 
  			WHERE
  				((m.reviewer_id IS NULL) OR 
  				(m.reviewer_id = {$pn_user_id})) AND 
  				(m.project_id IN (".join(", ", $va_project_ids).")) {$vs_status_sql}
- 			ORDER BY m.project_id, r.requested_on DESC
+ 			ORDER BY m.project_id, r.user_id, r.requested_on DESC
  		");
  		return $qr_res->getAllRows();
  	}
