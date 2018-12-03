@@ -34,6 +34,8 @@
 	$ps_path = 			$this->getVar('path');
 	$q_taxa = 			$this->getVar("taxa");
 	$pn_taxon_id = 		$this->getVar("taxon_id");
+	$vs_taxon_name = 	$this->getVar("taxon_name");
+	$va_specimens =		$this->getVar("specimens");
 ?>	
 	<div id="browseList">
 		<div class="tealRule"><!-- empty --></div>
@@ -78,10 +80,7 @@
 // 	}else{
 // 		print "<div class='browseItem'>"._t("There are no specimens available")."</div>";
 // 	}
-	if(sizeof($va_specimens = $this->getVar('specimens'))){
-		print "<H2>"._t("Species")."</H2>";
-		print '<div id="specimenResultScrollContainer">';
-		
+	if(sizeof($va_specimens)){
 		$t_specimen = new ms_specimens();
 		$va_species_by_specimen_list = $t_specimen->getSpecimenTaxonomy($va_specimens);
 		
@@ -92,6 +91,10 @@
 		
 		ksort($va_species);
 		
+		print "<H2>".( $vs_taxon_name ? $vs_taxon_name : "Taxon")."</H2>";
+		print "<H5 class='ltBlueBottomRule' style='margin-bottom: 5px;'>".sizeof($va_species)." species (".sizeof($va_specimens)." specimens)</H5>";
+		print "<div id='specimenResultScrollContainer'>";
+
 		$vn_c = 0;
 		foreach($va_species as $vs_name => $va_specimens){
 			print "<div class='browseItem'><a href='#' onclick='jQuery(this).parent().find(\".specimenList\").slideToggle(100); return false;'>{$vs_name}</a> (".sizeof($va_specimens).")";
