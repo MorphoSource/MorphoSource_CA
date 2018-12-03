@@ -150,7 +150,15 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					if($vb_access){
 						print $vs_media_html;
 						print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
-						print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
+
+						# Media description
+						$vs_title = ((strlen($va_media_info['title']) > 50) ? 
+							substr($va_media_info['title'], 0, 50).'...' : 
+							$va_media_info['title'] );
+						$vs_element = ((strlen($va_media_info['element']) > 20) ? 
+							substr($va_media_info['element'], 0, 20).'...' : 
+							$va_media_info['element'] );
+						print "<br/>{$vs_title}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element) ? " ({$vs_element})" : "");
 						print "<br><br>".$vs_project_tag;
 						print "<br>".$t_media->formatPublishedText();
 						if($vb_read_only_access){
@@ -305,7 +313,7 @@ if (!$this->request->isAjax()) {
 			if (t = jQuery("#collection_code").val()) { v.push(t); }
 			if (t = jQuery("#catalog_number").val()) { v.push(t); }
 			
-			jQuery("#specimen_identifier_preview").html(v.join('-'));
+			jQuery("#specimen_identifier_preview").html(v.join(':'));
 		}
 		_updateSpecimenIdentifierPrefix();
 		

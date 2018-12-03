@@ -1629,10 +1629,10 @@ class ms_projects extends BaseModel {
  		$qr_res = $o_db->query("
  			SELECT r.*, u.*, s.*, r.user_id AS request_user_id, m.user_id AS media_user_id, m.*, p.project_id, p.name
  			FROM ms_media_download_requests r
- 			INNER JOIN ms_media AS m ON m.media_id = r.media_id
- 			INNER JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
- 			INNER JOIN ca_users AS u ON u.user_id = r.user_id
- 			INNER JOIN ms_projects AS p ON m.project_id = p.project_id 
+ 			LEFT JOIN ms_media AS m ON m.media_id = r.media_id
+ 			LEFT JOIN ms_specimens AS s ON s.specimen_id = m.specimen_id
+ 			LEFT JOIN ca_users AS u ON u.user_id = r.user_id
+ 			LEFT JOIN ms_projects AS p ON m.project_id = p.project_id 
  			WHERE
  				((m.reviewer_id IS NULL) OR 
  				(m.reviewer_id = {$pn_user_id})) AND 

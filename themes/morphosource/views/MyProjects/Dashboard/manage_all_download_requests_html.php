@@ -101,10 +101,10 @@
 					$vs_specimen_taxonomy = "";
 				}
 				
-				print "<div><b>Specimen:</b> ".$vs_specimen_link.$vs_specimen_taxonomy."</div>";
+				print "<br/><b>Specimen:</b> ".$vs_specimen_link.$vs_specimen_taxonomy."";
 			}
 
-			print "<br/><b>Request date:</b> ".caGetLocalizedDate(
+			print "<br/><br/><b>Request date:</b> ".caGetLocalizedDate(
 				$va_pending_download_request['requested_on'], 
 				array('dateFormat' => 'delimited', 'timeOmit' => true));
 			if($va_pending_download_request['request']){

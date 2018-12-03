@@ -646,7 +646,7 @@
  			
  			if(!$vb_dont_load_view){
 				if($this->request->getParameter('manage_all', pInteger)){
-					$this->render('Dashboard/manage_all_download_requests_html.php');
+					$this->manageAllDownloadRequests();
 				}else{
 					$this->render('Dashboard/pending_download_requests_html.php');
 				}
