@@ -1276,7 +1276,6 @@ H1.specimenDetailTitle{
 
 
 #specimenMediaList {
-	max-height: 600px;
 	overflow-y: auto;
 	margin-bottom: 10px;
 }
