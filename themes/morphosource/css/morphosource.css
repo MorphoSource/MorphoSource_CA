@@ -1221,9 +1221,6 @@ input.lookupBg, textarea.lookupBg, #formArea input.lookupBg{
 }
 
 #mediaDetail #mediaDetailImageScrollArea{
-	max-height:450px;
-	overflow-y:auto;
-	margin-bottom:10px;
 }
 #mediaDetail #mediaDetailImageScrollArea .mediaDetailImage{
 	min-height:190px;
@@ -1279,7 +1276,6 @@ H1.specimenDetailTitle{
 
 
 #specimenMediaList {
-	max-height: 600px;
 	overflow-y: auto;
 	margin-bottom: 10px;
 }

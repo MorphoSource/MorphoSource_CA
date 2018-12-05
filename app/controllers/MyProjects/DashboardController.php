@@ -646,7 +646,7 @@
  			
  			if(!$vb_dont_load_view){
 				if($this->request->getParameter('manage_all', pInteger)){
-					$this->render('Dashboard/manage_all_download_requests_html.php');
+					$this->manageAllDownloadRequests();
 				}else{
 					$this->render('Dashboard/pending_download_requests_html.php');
 				}
@@ -830,6 +830,11 @@
  		}
  		# -------------------------------------------------------
  		public function manageAllDownloadRequests(){
+ 			$va_all_requests = $this->opo_project->getDownloadRequestsForUser(
+ 				$this->request->user->get("user_id"), 
+ 				array('status' => __MS_DOWNLOAD_REQUEST_NEW__));
+ 			$this->view->setVar("all_requests", $va_all_requests);
+
  			$this->render('Dashboard/manage_all_download_requests_html.php');
  		}
  		# -------------------------------------------------------
@@ -862,6 +867,52 @@
 
  			$this->render('Dashboard/manage_all_download_requests_html.php');
  		}
+  		# -------------------------------------------------------
+  		public function manageDownloadsApproveDeny(){
+  			$va_request_ids = $this->request->getParameter('request_ids', pArray);
+  			$vs_mode = $this->request->getParameter('approve_or_deny', pString);
+  			$pn_user_id = $this->request->user->get("user_id");
+
+  			if (!$vs_mode || (sizeof($va_request_ids) == 0)){
+  				$this->manageAllDownloadRequests();
+  				return;
+  			}
+
+  			$t_req = new ms_media_download_requests();
+ 			$t_media = new ms_media();
+
+ 			$vb_failure = 0;
+ 			foreach($va_request_ids as $vn_request_id){
+ 				$t_req->load($vn_request_id);
+ 				$t_media->load($t_req->get('media_id'));
+ 				if ($t_media->userCanApproveDownloadRequest($pn_user_id)) {
+ 					if ($vs_mode == 'approve'){
+ 						$this->MarkDownloadRequest(1, $vn_request_id, true);
+ 					} elseif ($vs_mode == 'deny'){
+ 						$this->MarkDownloadRequest(2, $vn_request_id, true);
+ 					}else{
+ 						$vb_failure = 1;
+ 						break;
+ 					}
+ 				} else {
+ 					$vb_failure = 1;
+ 					break;
+ 				}
+ 			}
+
+ 			if ($vb_failure) {
+				$this->notification->addNotification(
+					_t('Not authorized to approve one or more download requests'),
+					__NOTIFICATION_TYPE_ERROR__);
+			} else {
+				$vs_verb = ($vs_mode == 'approve' ? 'approved' : 'denied');
+				$notif_txt = sizeof($va_request_ids)
+					._t(' download requests successfully ').$vs_verb;
+				$this->notification->addNotification($notif_txt, __NOTIFICATION_TYPE_ERROR__);
+			}
+
+			$this->manageAllDownloadRequests();
+  		}
   		# -------------------------------------------------------
  		function specimenByTaxonomy() {
  			if(!$this->request->user->isFullAccessUser()){

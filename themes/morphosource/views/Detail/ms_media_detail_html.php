@@ -13,58 +13,149 @@
 	$q_media_files = $o_db->query("SELECT m.media, m.media_file_id, m.doi, m.ark, m.ark_reserved, m.side, m.element, m.title, m.notes, m.published, m.file_type, m.derived_from_media_file_id, mg.published group_published FROM ms_media_files m INNER JOIN ms_media as mg ON m.media_id = mg.media_id where m.media_id = ?".$vs_publish_wheres, $t_media->get("media_id"));
 
 	$t_media_file = new ms_media_files();
+
+	$va_file_permissions = array();
+	while($q_media_files->nextRow()){
+		if($q_media_files->get("published") != null){
+			$va_file_permissions[] = $q_media_files->get("published");
+		}
+	}
+	$q_media_files->seek(0);
 ?>
+
 <div class="blueRule"><!-- empty --></div>
 <?php
 	$vs_back_link = "";
 	switch(ResultContext::getLastFind($this->request, "ms_specimens")){
 		case "specimen_browse":
-			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Browse', 'Index', array(), array('id' => 'back'));
+			$vs_back_link = caNavLink($this->request, _t("Back To Specimen Browse"), 'button buttonMedium', '', 'Browse', 'Index', array(), array('id' => 'back'));
 		break;
 		# ----------------------------------
 		case "basic_search":
-			$vs_back_link = caNavLink($this->request, _t("Back"), 'button buttonLarge', '', 'Search', 'Index', array(), array('id' => 'back'));
+			$vs_back_link = caNavLink($this->request, _t("Back To Search"), 'button buttonMedium', '', 'Search', 'Index', array(), array('id' => 'back'));
 		break;
 		# ----------------------------------
 	}
-	if (($this->getVar('is_in_result_list'))) {
-		if ($this->getVar('next_id') > 0) {
-			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Next"), 'button buttonLarge', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+?>
+
+<div style='overflow:hidden;'>
+<?php
+	print "<div style='float:left;'>";
+	print "<H1 class='specimenDetailTitle'>"._t("Media: M%1", $t_media->get("media_id"))."</H1>";
+	print "</div>";
+?>
+</div>
+<div class="tealRule"><!-- empty --></div>
+<div style='overflow:hidden;'>
+<?php
+	# download all media/request download/login buttons
+	if($q_media_files->numRows()){
+		print "<div>";
+		if ($this->request->isLoggedIn()) {
+			if($vb_show_download_link){
+				# --- user has access to project or read only access to media so the pub setting doesn't matter		
+				print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonMedium'>"._t("Download All Media")."</a></div>";
+		
+			}else{
+				if(($t_media->get("published") == 2) || (in_array(2, $va_file_permissions))){
+					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
+						print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px;  margin-right: 15px;'><div class='button buttonMedium'>"._t("Access to Restricted Media Pending")."</div></div>";
+					} else {
+						if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
+							print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonMedium'>"._t("Download All Media")."</a></div>";
+		
+						} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
+							print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' class='button buttonMedium'>"._t('Access to Restricted Media Denied')."</a></div>";
+						} else {
+							print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' class='button buttonMedium' onclick='jQuery(\"#msMediaDownloadRequestFormWrapper\").slideDown(250); return false;'>"._t("Request Download of Restricted Media")."</a></div>";
+						}
+					}
+					
+				}else{
+					print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonMedium'>"._t("Download All Media")."</a></div>";		
+				}
+			}
+		} else {
+			print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'>".caNavLink($this->request, _t("Login to download"), "button buttonMedium", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";
 		}
-		print "<div style='float:right; padding:15px 0px 0px 15px;'>".$vs_back_link."</div>";
+		print "</div>";
+	}
+
+	# edit button
+	if($vb_show_edit_link){
+		print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px;'>".caNavLink($this->request, _t("Edit Media"), "button buttonMedium", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id"), "select_project_id" => $t_media->get("project_id")))."</div>";
+	}
+
+	# search/browse result list buttons
+	if (($this->getVar('is_in_result_list'))) {
+		print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px;'>".$vs_back_link."</div>";
+		if ($this->getVar('next_id') > 0) {
+			print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'>".caNavLink($this->request, _t("Next Result"), 'button buttonMedium', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('next_id')), array('id' => 'next'))."</div>";
+		}
 		if ($this->getVar('previous_id')) {
-			print "<div style='float:right; padding:15px 0px 0px 15px;'>".caNavLink($this->request, _t("Previous"), 'button buttonLarge', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
+			print "<div style='float:right; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'>".caNavLink($this->request, _t("Previous Result"), 'button buttonMedium', 'Detail', 'MediaDetail', 'Show', array('media_id' => $this->getVar('previous_id')), array('id' => 'previous'))."</div>";
 		}
 	}
 ?>
-<div style="float:right; position:relative; padding:5px 5px 0px 0px;">
-	<a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-info'></i> Citation Elements</a>
 </div>
-<div id="groupCitationElements" style="background-color:#FFF; padding:10px; display:none; width:65%; margin-left:auto; margin-right:auto;">
-	<br/><div class="tealRule"><!-- empty --></div>
-	<H2 style="padding-top:10px;">Citation Elements</H2>
-	<div class="unit">
-		<b><i>Essential</i></b><br/>
-		<b>Media group-file numbers:</b> see info for individual files<br/>
-		<b>DOIs:</b> see info for individual files<br/>
+
+<div id='msMediaDownloadRequestFormWrapper' style='text-align: center; display: none;'>
 <?php
-		if($vs_by_author = $t_media->getMediaCitationInstructions()){
-			print "<b>Media citation instructions from data author:</b> ".$vs_by_author;
-		}
-?>	
-	</div>
-	<div class="unit">
-		<b><i>Optional</i></b><br/>
-		<b>URL:</b> http://www.morphosource.org/Detail/MediaDetail/Show/media_id/<?php print $t_media->get("media_id"); ?>
-	</div>
-	<div style="text-align:center;"><a href="#" onClick="jQuery('#groupCitationElements').toggle(); return false;" style="text-decoration:none;"><i class='fa fa-close'></i> Close</a></div>
-</div>
-<H1>
-<?php
-	print _t("Media: M%1", $t_media->get("media_id"));
+print "<div id='msMediaDownloadRequestFormContainer' style='background-color: white; margin-bottom: 20px; float: none; clear: none; width: 700px; box-sizing: border-box; border: 1px solid #003880; text-align: center; display: inline-block;'>\n";
+print caFormTag($this->request, 'RequestDownload', 'msMediaDownloadRequestForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true, 'noTimestamp' => true));
 ?>
-</H1>
+<h1 class='specimenDetailTitle'>Download Request</h1>
+<div class='' style='margin-bottom: 15px; width: 600px; display: inline-block;'>
+	<?php print _t('To download this media, you must request access from the data contributor. Please explain how you plan to use the media. Your explanation must contain at least 50 characters, including spaces. The contributor will also receive the name and email associated with your account, and may contact you. When you submit this form, the contributor will be notified of your request and should reply shortly. Please contact MorphoSource support if you do not receive a response after two weeks.'); ?>
+</div>
+<?php
+$t_req = new ms_media_download_requests();
+print $t_req->htmlFormElement('request', "<div class='' style='font-weight: bold;'>^ELEMENT</div>", array('width' => '600px'));
+print caHTMLHiddenInput("media_id", array('value' => $t_media->getPrimaryKey()));
+print caHTMLHiddenInput("user_id", array('value' => $this->request->getUserID()));
+
+print "<div style='width: 600px; display: inline-block; margin-bottom: 15px overflow: hidden;'>";
+print "<div id='msMediaDownloadRequestCharText' style='float: right; margin-bottom: 15px;'><span id='msMediaDownloadRequestCharNum'>0</span> characters (50 required)</div>";
+print "<div id='msMediaDownloadRequestValidationText' style='float: left; display: none; color: red; font-weight: bold;'>Not enough characters</div>";
+print "</div>";
+
+print "<div style=''>";
+print "<a href='#' class='button buttonMedium buttonGray' style='cursor: default;' id='msMediaDownloadRequestSubmitButton'>Send</a>";
+print "<a href='#' class='button buttonMedium' style='margin-left: 15px;' onclick='jQuery(\"#msMediaDownloadRequestFormWrapper\").slideUp(250); return false;'>"._t('Cancel')."</a>";
+print "</div>";
+print "</form>";
+print "</div>\n";
+?>
+</div>
+
+<script>
+	$('textarea').keyup(function() {
+		var req_length = 50;
+		var length = $(this).val().length;	
+		$('#msMediaDownloadRequestCharNum').text(length);
+		if (length < req_length) {
+			$('#msMediaDownloadRequestSubmitButton').addClass('buttonGray');
+			$('#msMediaDownloadRequestSubmitButton').css('cursor', 'default');
+		} else {
+			$('#msMediaDownloadRequestSubmitButton').removeClass('buttonGray');
+			$('#msMediaDownloadRequestSubmitButton').css('cursor', 'pointer');
+		}
+	});
+
+	$('#msMediaDownloadRequestSubmitButton').click(function () {
+		var req_length = 50;
+		var length = $('textarea').val().length;
+		if (length < req_length) {
+			$('#msMediaDownloadRequestValidationText').show();
+			return false;
+		} else {
+			document.getElementById("msMediaDownloadRequestForm").submit();
+		}
+	});
+</script>
+
 <div id="mediaDetail">
+
 <?php
 	$vn_width = 0;
 	if($q_media_files->numRows()){
@@ -74,14 +165,13 @@
 			$vn_width = $va_properties["WIDTH"];
 			$q_media_files->seek(0);
 		}else{
-			$vn_width = 420;
+			$vn_width = 400;
 		}
 		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'>";
 ?>
 		<H2 style="text-align:right;"><?php print $q_media_files->numRows(); ?> media file<?php print ($q_media_files->numRows() == 1) ? "" : "s"; ?></H2>
 		<div id='mediaDetailImageScrollArea'>
 <?php
-		$va_file_permissions = array();
 		while($q_media_files->nextRow()){
 ?>
 			<div class="mediaDetailImage" id="media<?php print $q_media_files->get("media_file_id"); ?>">
@@ -168,62 +258,20 @@
 ?>
 			<div style='clear:both;'></div></div><!-- end mediaImage -->
 <?php
-			if($q_media_files->get("published") != null){
-				$va_file_permissions[] = $q_media_files->get("published");
-			}
 		}
 		print "</div><!-- end scrollArea -->";
-if ($this->request->isLoggedIn()) {
-		if($vb_show_download_link){
-			# --- user has access to project or read only access to media so the pub setting doesn't matter
-			#print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";		
-			print "<div style='float:right; clear: right;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonLarge'>"._t("Download All Media")."</a></div>";
-		
-		}else{
-			if(($t_media->get("published") == 2) || (in_array(2, $va_file_permissions))){
-				if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
-					print "<div style='float:right; clear: right; cursor:default;' class='button buttonLarge' onclick='return false;'>"._t("Access to Media Pending")."</div>";
-				} else {
-					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_APPROVED__))) && (sizeof($va_prev_requests) > 0)){
-						#print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
-						print "<div style='float:right; clear: right;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonLarge'>"._t("Download All Media")."</a></div>";
-		
-					} elseif (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_DENIED__))) && (sizeof($va_prev_requests) > 0)){
-						print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge'>"._t('You may not download this media')."</a></div>";
-					} else {
-						print "<div style='float:right; clear: right;'><a href='#' class='button buttonLarge' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideDown(250); return false;'>"._t("Request Download of Media")."</a></div>";
-					}
-				}
-				print "<div id='msMediaDownloadRequestFormContainer'>\n";
-				print caFormTag($this->request, 'RequestDownload', 'msMediaDownloadRequestForm', null, 'post', 'multipart/form-data', '_top', array('disableUnsavedChangesWarning' => true, 'noTimestamp' => true));
-?>
-				<div class='msMediaDownloadRequestFormHelpText'>
-					<?php print _t('The author will provide this media only upon request. Please explain how you plan to use this media below. The author will review your request and reply shortly.'); ?>
-				</div>
-<?php
-				$t_req = new ms_media_download_requests();
-				print $t_req->htmlFormElement('request', "<div class='msMediaDownloadRequestFormLabel'>^LABEL<br/>^ELEMENT</div>");
-				print caHTMLHiddenInput("media_id", array('value' => $t_media->getPrimaryKey()));
-				print caHTMLHiddenInput("user_id", array('value' => $this->request->getUserID()));
-				print caFormSubmitLink($this->request,_t('Send'), 'msMediaDownloadRequestFormSubmit', 'msMediaDownloadRequestForm');
-				print "<a href='#' class='msMediaDownloadRequestFormCancel' onclick='jQuery(\"#msMediaDownloadRequestFormContainer\").slideUp(250); return false;'>"._t('Cancel')."</a>";
-				print "</form>";
-				print "</div>\n";
-			}else{
-				#print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Download All Media"), "button buttonLarge", "Detail", "MediaDetail", "DownloadAllMedia", array("media_id" => $t_media->get("media_id")))."</div>";
-				print "<div style='float:right; clear: right;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonLarge'>"._t("Download All Media")."</a></div>";		
-			}
-		}
-		if($vb_show_edit_link){
-			print "<div style='float:right; padding-right:10px;'>".caNavLink($this->request, _t("Edit"), "button buttonLarge", "MyProjects", "Media", "mediaInfo", array("media_id" => $t_media->get("media_id"), "select_project_id" => $t_media->get("project_id")))."</div>";
-		}
-} else {
-		print "<div style='float:right; clear: right;'>".caNavLink($this->request, _t("Login to download"), "button buttonLarge", "", "LoginReg", "form", array("media_id" => $t_media->get("media_id"), 'site_last_page' => 'MediaDetail'))."</div>";
-}
 		print "</div><!-- end mediaDetailMedia -->";
 	}else{
+		$vn_width = 400;
+		print "<div class='mediaDetailMedia' style='width:".$vn_width."px;'>";
+		print "<h2 style='text-align:right;'>0 media files</h2>";
+		print "<h3 class='blueText' style='text-align:center;'>This media group is empty. It does not currently contain any media files.</h3>";
+		if($vb_show_edit_link){
+		print "<h3 class='blueText' style='text-align:center;'>Please edit this media group to add files.</h3>";
+		}
+		print "</div>";
 ?>
-		<div class='formErrors'>There are no media files linked to this media record</div>
+		
 <?php
 	}
 	print "<div ".(($vn_width) ? "style='width:".(830 - $vn_width)."px;'" : "").">";
@@ -231,7 +279,6 @@ if ($this->request->isLoggedIn()) {
 	# --- is this record shared with the current user?
 	if($this->getVar("share")){
 ?>
-			<div class="tealRule"><!-- empty --></div>
 			<H2>Sharing Details</H2>
 			<div class="unit">
 <?php		
@@ -246,7 +293,7 @@ if ($this->request->isLoggedIn()) {
 		$t_parent = new ms_media($t_media->get("derived_from_media_id"));
 		$t_specimen = new ms_specimens();
 ?>
-		<div class="tealRule"><!-- empty --></div>
+
 		<H2>Derived From</H2>
 			<div class="unit">
 <?php
@@ -282,7 +329,7 @@ if ($this->request->isLoggedIn()) {
 	$t_project = new ms_projects($t_media->get("project_id"));
 	if($t_project->get("publication_status")){
 ?>
-		<div class="tealRule"><!-- empty --></div>
+
 		<H2>Project</H2>
 			<div class="unit">
 <?php
@@ -293,7 +340,6 @@ if ($this->request->isLoggedIn()) {
 	}	
 	if($t_media->get("specimen_id")){
 ?>
-		<div class="tealRule"><!-- empty --></div>
 		<H2>Specimen Information</H2>
 			<div class="unit">
 <?php
@@ -328,8 +374,8 @@ if ($this->request->isLoggedIn()) {
 
 	}
 ?>
-		<div class="tealRule"><!-- empty --></div>
-		<H2>Scan Information</H2>
+
+		<H2>Media Group Information</H2>
 			<div class="unit">
 <?php
 
@@ -416,7 +462,7 @@ if ($this->request->isLoggedIn()) {
 <?php
 	if(is_array($va_bib_citations) && sizeof($va_bib_citations)){
 ?>
-		<div class="tealRule"><!-- empty --></div>
+
 		<H2>Bibliography</H2>
 			<div class="unit">
 <?php
@@ -466,7 +512,6 @@ if ($this->request->isLoggedIn()) {
 		}
 		if(sizeof($va_derivatives)){
 ?>
-			<div class="tealRule"><!-- empty --></div>
 			<H2>Derivatives</H2>
 <?php
 			foreach($va_derivatives as $vs_derivative){

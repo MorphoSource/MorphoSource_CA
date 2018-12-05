@@ -115,35 +115,57 @@ if (!$this->request->isAjax() && $t_item->get("specimen_id")) {
 					$t_media = new ms_media($vn_media_id);
 					$vs_side = $t_media->getChoiceListValue("side", $va_media_info['side']);
 			
-					print '<div class="specimenMediaListContainer">';
+					// print '<div class="specimenMediaListContainer">';
+
+					$vb_access = false;
+					$vb_read_only_access = false;
+					$vs_media_html = '<div class="specimenMediaListContainer" style="height: 280px;">';
 					if (!($vs_media_tag = $va_media_info['media']['preview190'])) {
 						$vs_media_tag = "<div class='projectMediaPlaceholder'> </div>";
 					}
-					$t_project = new ms_projects();
-					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id"), $va_media_info['project_id']))){
-						print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
-						print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
+					$t_project = new ms_projects($va_media_info['project_id']);
+					$vs_project_name = 
+						((strlen($t_project->get('name')) > 25) ? 
+							substr($t_project->get('name'), 0, 25).'...' : 
+							$t_project->get('name'));
+					if(($va_media_info['project_id'] == $this->getVar("project_id")) || ($t_project->isMember($this->request->user->get("user_id")))){
+						# --- media owned by same project as specimen or user has edit access to media
+						$vb_access = true;
+						$vs_media_html .= "<div class='specimenMediaListSlide' style='height: 190px;'>".caNavLink($this->request, $vs_media_tag, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</div>";
+						$vs_media_html .= "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", "Media", "mediaInfo", array("media_id" => $vn_media_id))."</span>, ";
+						$vs_project_tag = caNavLink($this->request, $vs_project_name, "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $t_project->get("project_id")));
 					}else{
-						$vb_read_only_access = false;
 						if($t_media->userHasReadOnlyAccessToMedia($this->request->user->get("user_id"))){
 							$vb_read_only_access = true;
 						}
 						if(($t_media->get("published") > 0) || $vb_read_only_access){
 							# --- media owned by another project, but is published or user has read only access to media - so link to the public detail page
-							print "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
-							print "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</span>, ";
-						}else{
-							print "<div class='specimenMediaListSlide'>".$vs_media_tag."</div>";
-							print "<span class='mediaID'>M{$vn_media_id}</span>, ";
+							$vb_access = true;
+							$vs_media_html .= "<div class='specimenMediaListSlide'>".caNavLink($this->request, $vs_media_tag, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</div>";
+							$vs_media_html .= "<span class='mediaID'>".caNavLink($this->request, "M".$vn_media_id, "", "Detail", "MediaDetail", "Show", array("media_id" => $vn_media_id))."</span>, ";
+							$vs_project_tag = caNavLink($this->request, $vs_project_name, "", "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")));
 						}
 					}
-					if($vb_read_only_access){
-						print "<b>READ ONLY ACCESS</b>, ";
-					}
-					print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
-					print "<br/>{$va_media_info['title']}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element = $va_media_info['element']) ? " ({$vs_element})" : "");
-					print "<br>".$t_media->formatPublishedText();
-					print "</div><!-- end specimenMediaListContainer -->\n";
+					
+					if($vb_access){
+						print $vs_media_html;
+						print $va_media_info["numFiles"]." file".(($va_media_info["numFiles"] == 1) ? "" : "s");;
+
+						# Media description
+						$vs_title = ((strlen($va_media_info['title']) > 50) ? 
+							substr($va_media_info['title'], 0, 50).'...' : 
+							$va_media_info['title'] );
+						$vs_element = ((strlen($va_media_info['element']) > 20) ? 
+							substr($va_media_info['element'], 0, 20).'...' : 
+							$va_media_info['element'] );
+						print "<br/>{$vs_title}".(($vs_side && (strtolower($vs_side) != 'unknown')) ? " ({$vs_side})" : "").(($vs_element) ? " ({$vs_element})" : "");
+						print "<br><br>".$vs_project_tag;
+						print "<br>".$t_media->formatPublishedText();
+						if($vb_read_only_access){
+							print "<br><br><b>READ ONLY ACCESS</b>";
+						}
+						print "</div><!-- end specimenMediaListContainer -->\n";
+					}	
 				}
 			} else {
 				print "<H2>"._t("This specimen has no media.  Use the \"ADD MEDIA\" button to add media files for this specimen.")."</H2>";
@@ -291,7 +313,7 @@ if (!$this->request->isAjax()) {
 			if (t = jQuery("#collection_code").val()) { v.push(t); }
 			if (t = jQuery("#catalog_number").val()) { v.push(t); }
 			
-			jQuery("#specimen_identifier_preview").html(v.join('-'));
+			jQuery("#specimen_identifier_preview").html(v.join(':'));
 		}
 		_updateSpecimenIdentifierPrefix();
 		
