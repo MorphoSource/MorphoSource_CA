@@ -591,7 +591,8 @@ class ms_media_files extends BaseModel {
 									"downloaded file name",
 									"public url",
 									"doi",
-									"file type",
+									"raw or derivative",
+									"mime type",
 									"file size",
 									"md5 checksum",
 									"title",
@@ -609,6 +610,8 @@ class ms_media_files extends BaseModel {
 									"x res",
 									"y res",
 									"z res",
+									"pixel width",
+									"pixel height",
 									"voltage",
 									"amperage",
 									"watts",
@@ -644,17 +647,25 @@ class ms_media_files extends BaseModel {
 						$vs_specimen_name = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"];
 						$vs_specimen_taxonomy = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"];
 					}
+
+					if (!$vs_specimen_name){
+						$vs_specimen_name = 'no_specimen';
+					}
+
 					$va_versions = $q_media_files->getMediaVersions('file_media');
 					$va_properties = $q_media_files->getMediaInfo('file_media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+					$va_original_properties = $q_media_files->getMediaInfo('file_media', 'original');
 					
+					# Begin filling out media metadata
 					$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
 					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
 					$va_media_md[] = "http://www.morphosource.org/Detail/MediaDetail/Show/media_id/".$q_media_files->get("media_id");
 					
 					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
 					$va_media_md[] = trim($va_tmp[0]);
-					$vs_file_type = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
-					$va_media_md[] = (($vs_file_type) ? $vs_file_type."; " : "").$va_properties['MIMETYPE'];
+
+					$va_media_md[] = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
+					$va_media_md[] = $va_original_properties['MIMETYPE'];
 					$va_media_md[] = caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
                     $va_media_md[] = $va_properties['MD5'];
 					$va_media_md[] = $q_media_files->get("file_title");
@@ -680,6 +691,11 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $q_media_files->get("scanner_x_resolution")." mm";
 					$va_media_md[] = $q_media_files->get("scanner_y_resolution")." mm";
 					$va_media_md[] = $q_media_files->get("scanner_z_resolution")." mm";
+
+					$va_media_md[] = $va_original_properties['WIDTH'];
+					$va_media_md[] = $va_original_properties['HEIGHT'];
+					# TODO number of images per zip, but don't track this currently
+
 					$va_media_md[] = $q_media_files->get("scanner_voltage")." kv";
 					$va_media_md[] = $q_media_files->get("scanner_amperage")." �a";
 					$va_media_md[] = $q_media_files->get("scanner_watts")." W";
