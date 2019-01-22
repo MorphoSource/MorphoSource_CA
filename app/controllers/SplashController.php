@@ -203,8 +203,6 @@
  				)
  			);
 
-			// die(print_r($va_featured_projects));
-
  			foreach ($va_featured_projects as $vn_proj_id => $vn_proj) {
  				$va_featured_projects[$vn_proj_id]['media'] = 
  					array_filter($va_featured_projects[$vn_proj_id]['media']);
