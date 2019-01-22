@@ -30,6 +30,7 @@
  	require_once(__CA_APP_DIR__.'/helpers/accessHelpers.php');
  	require_once(__CA_MODELS_DIR__."/ms_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_media.php");
+ 	require_once(__CA_MODELS_DIR__."/ms_media_files.php");
  
  	class SplashController extends ActionController {
  		# -------------------------------------------------------
@@ -63,6 +64,27 @@
 			
  			# --- featured projects
  			$va_featured_projects = array(
+ 				"419" => array(
+ 					"media" => array(
+ 						"21064a" => ($vs_pre = (new ms_media_files(65668))->getMediaTag(
+ 										"media", "preview190")
+ 							) ? $vs_pre : null,
+ 						"21064b" => ($vs_pre = (new ms_media_files(59695))->getMediaTag(
+ 										"media", "preview190")
+ 							) ? $vs_pre : null,
+ 						"21062a" => ($vs_pre = (new ms_media_files(65669))->getMediaTag(
+ 										"media", "preview190")
+ 							) ? $vs_pre : null,
+ 						"21062b" => ($vs_pre = (new ms_media_files(59698))->getMediaTag(
+ 										"media", "preview190")
+ 							) ? $vs_pre : null,
+ 					),
+ 					"title" => "The integrated digital human forearm and hand</br>​</br>",
+ 					"links" => array(
+ 						"<b>".caNavLink($this->request, _t("See all project specimens"), '', 'Detail', 'ProjectDetail', 'Show', array('project_id' => 419))."</b>",
+ 						"<b><a href='https://onlinelibrary.wiley.com/doi/full/10.1111/joa.12877'>Read the published article</a></b>"
+ 					)
+ 				),
  				"394" => array(
  					"media" => array(
  						15845 => ($vs_pre = $t_media->getPreviewMediaFile(
