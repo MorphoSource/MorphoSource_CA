@@ -28,7 +28,7 @@
 ?>
 		<div id="hpImage">
 			<div id="hpImageCaption">
-				foot of <span style="font-style:normal;">Daubentonia madagscariensis</span> scanned at 38micron resolution at Duke Evolutionary Anthropology department's new high resolution microCt facility. <a href="https://smif.lab.duke.edu/Description.asp?ID=88" target="_blank">Click here if you are interested in details on the facility</a>
+				foot of <span style="font-style:normal;">Daubentonia madagascariensis</span> scanned at 38micron resolution at Duke Evolutionary Anthropology department's new high resolution microCt facility. <a href="https://smif.lab.duke.edu/Description.asp?ID=88" target="_blank">Click here if you are interested in details on the facility</a>
 			</div><!-- end hpImageCaption -->
 			<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/homePageFeaured.jpg">
 		</div><!-- end hpImage -->
@@ -92,6 +92,7 @@
 				</H2>
 <?php
 				foreach($va_project_info["media"] as $vn_media_id => $vs_media){
+					$vn_media_id = preg_replace("/[^0-9]/", "", $vn_media_id );
 					print "<div class='recentlyPublished'>".caNavLink($this->request, $vs_media, '', 'Detail', 'MediaDetail', 'Show', array('media_id' => $vn_media_id))."</div>";	
 				}
 ?>
