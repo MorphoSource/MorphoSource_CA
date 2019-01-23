@@ -574,7 +574,7 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.ark, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -591,6 +591,7 @@ class ms_media_files extends BaseModel {
 									"downloaded file name",
 									"public url",
 									"doi",
+									"ark",
 									"raw or derivative",
 									"mime type",
 									"file size",
@@ -661,8 +662,8 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
 					$va_media_md[] = "http://www.morphosource.org/Detail/MediaDetail/Show/media_id/".$q_media_files->get("media_id");
 					
-					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
-					$va_media_md[] = trim($va_tmp[0]);
+					$va_media_md[] = $q_media_files->get('doi');
+					$va_media_md[] = $q_media_files->get('ark');
 
 					$va_media_md[] = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
 					$va_media_md[] = $va_original_properties['MIMETYPE'];
