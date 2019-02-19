@@ -34,6 +34,17 @@
 
 ?>
 <div id="dashboardColLeft">
+	<div class="dashboardButtons" style="margin: 15px 0px 15px 0px">
+	<?php
+		if($this->request->user->canDoAction("is_administrator") || ($this->request->user->get("user_id") == $t_project->get("user_id"))){
+			print "&nbsp;".caNavLink($this->request, _t("Project Settings"), "button buttonMedium", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
+			print "&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonMedium", "MyProjects", "Members", "listForm");
+		}
+		if($this->request->user->canDoAction('batch_upload_enabled')){
+			print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonMedium", "MyProjects", "BatchImport", "overview");
+		}
+	?>
+	</div>
 	<div class="blueRule"><!-- empty --></div>
 	<H1>
 		<?php print $t_project->get("name"); ?>
@@ -56,28 +67,26 @@
 		}
 		if($t_project->get("publication_status")){
 			print "<div id='projectLink' style='display:none;'>".caNavUrl($this->request, "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))."</div>";
-			print "<br/><br/><b>"._t("Your project is public.")."</b><br/>".caNavLink($this->request, _t("View public page"), "publicProjectLink", "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))." or <a href='#' onClick='copyToClipboard(\"#projectLink\"); return false;' class='button buttonSmall' title='click to copy link to clipboard'>Copy <i class='fa fa-external-link'></i></a><br/>";
+			print "<br/><br/><b>"._t("Your project is public.")."</b><br/>".caNavLink($this->request, _t("View public page"), "publicProjectLink", "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->get("project_id")))." or <a href='#' onClick='copyToClipboard(\"#projectLink\"); return false;' title='click to copy link to clipboard'>copy to clipboard <i class='fa fa-clipboard'></i></a><br/>";
 		}else{
 			print "<br/><br/><b>"._t("Your project is private.")."</b>";
 		}
 ?>
 	</div><!-- end dashboardAbstract -->
-	<div class="dashboardButtons" style="text-align:center;">
+
+<div class="tealRule"></div>
+<div>
+	<h2 style="padding-bottom: 2px;">Metadata and usage reports</h2>
+	<div style="margin-top: 10px; margin-left: 5px;">
 <?php
-	print caNavLink($this->request, _t("New Project"), "button buttonSmall", "MyProjects", "Project", "form", array("new_project" => 1));
-	if($this->request->user->canDoAction("is_administrator") || ($this->request->user->get("user_id") == $t_project->get("user_id"))){
-		print "&nbsp;".caNavLink($this->request, _t("Project Info"), "button buttonSmall", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")));
-		print "&nbsp;".caNavLink($this->request, _t("Manage Members"), "button buttonSmall", "MyProjects", "Members", "listForm");
-	}
-	if($this->getVar("num_projects") > 1){
-		print "&nbsp;".caNavLink($this->request, _t("Change Project"), "button buttonSmall", "MyProjects", "Dashboard", "projectList");
-	}
-	if($this->request->user->canDoAction('batch_upload_enabled')){
-	#if(in_array($this->request->user->get("user_id"), array(866, 1589, 12, 162, 10, 11, 13, 7, 37, 2348, 4346, 4450, 4253, 4864, 3298))){
-		print "&nbsp;".caNavLink($this->request, _t("Batch Import"), "button buttonSmall", "MyProjects", "BatchImport", "overview");
-	}
+	print caNavLink($this->request, "<i class='fa fa-download'></i> Project media", "button buttonSmall", "MyProjects", "Dashboard", "exportMediaReport");
+	print "<span style='margin-left:10px;'></span>";
+	print caNavLink($this->request, "<i class='fa fa-download'></i> All media of project specimens", "button buttonSmall", "MyProjects", "Dashboard", "exportSpecimenMediaReport");
 ?>
 	</div>
+	<p style='margin-top: 10px; margin-left:5px;'><i>Warning: For large projects, this may take up to several minutes</i><p>
+</div>
+
 <?php
 	print $this->render('Dashboard/pending_download_requests_html.php');
 	print $this->render('Dashboard/media_movement_requests_html.php');	

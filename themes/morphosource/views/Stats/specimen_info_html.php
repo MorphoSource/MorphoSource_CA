@@ -33,10 +33,12 @@ $va_media_projects = $this->getVar('media_projects');
 if (sizeof($va_specimen_info)) {	
 	print "<br/><div class='blueRule'><!-- empty --></div>";
 	print "<H1>Specimen Info</H1>";
-	print "<H2>".$va_specimen_info["specimen_name"].", Specimen Public Views: ".$va_specimen_info["specimen_views"].", ";
-	print "Specimen Media: ".$va_specimen_info["num_specimen_media"]."</H2>";
+	print "<H2>".$va_specimen_info["specimen_name"]."</H2>";
+	print "<H2>".$va_specimen_info["num_specimen_media"]." Media Groups".($va_specimen_info["num_specimen_media_unpublished"] ? " (".$va_specimen_info["num_specimen_media_unpublished"]." unpublished)" : "")."</H2>";
+	print "<H2>".$va_specimen_info["specimen_views"]." specimen views</H2>";
+
 	if($va_specimen_info["num_specimen_media_no_access"] > 0){
-		print "<H2><b>*** ".$va_specimen_info["num_specimen_media_no_access"]." unpublished specimen media belong to projects you are not a member of</b></H2>";
+		print "<H2><b>*** ".$va_specimen_info["num_specimen_media_no_access"]." unpublished specimen media in projects you do not have membership in</b></H2>";
 	}
 	if (sizeof($va_rows)) {
 ?>
@@ -59,10 +61,10 @@ if (sizeof($va_specimen_info)) {
 					<?php print _t('Media'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Media Public Views'); ?>
+					<?php print _t('Media Views (Click for detail)'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Media Downloads'); ?>
+					<?php print _t('Media Downloads (Click for detail)'); ?>
 				</th>
 			</tr>
 		</thead>
@@ -84,12 +86,12 @@ if (sizeof($va_specimen_info)) {
 				<td>
 <?php
 					if(is_array($va_row["views"]) && sizeof($va_row["views"])){
-						print "<a href='#' onClick='$(\"#views".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["views"])." media view".((sizeof($va_row["views"]) == 1) ? "" : "s")."</b></a><br/>";
+						print "<a href='#' onClick='$(\"#views".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["views"])."</b></a><br/>";
 						print "<div id='views".$vn_media_id."' style='display:none;'>";
 						$vn_anon = 0;
 						foreach($va_row["views"] as $vn_view_id => $va_view_info){
 							if($va_view_info["user_id"]){
-								print $va_view_info["user_info"]."; ";
+								print "<p>".$va_view_info["user_info"]."</p>";
 							}else{
 								$vn_anon++;
 							}
@@ -107,16 +109,11 @@ if (sizeof($va_specimen_info)) {
 				<td>
 <?php
 					if(is_array($va_row["downloads"]) && sizeof($va_row["downloads"])){
-						print "<a href='#' onClick='$(\"#downloads".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["downloads"])." media download".((sizeof($va_row["downloads"]) == 1) ? "" : "s")."</b><br/>";
-						foreach($va_downloads_by_file[$vn_media_id] as $vn_file_id => $va_file_download_info){
-							if($vn_file_id){
-								print "M".$vn_media_id."-".$vn_file_id.": ".sizeof($va_file_download_info)." downloads; ";
-							}
-						}
+						print "<a href='#' onClick='$(\"#downloads".$vn_media_id."\").slideToggle(); return false;'><b>".sizeof($va_row["downloads"])."</b><br/>";
 						print "</a><br/>";
 						print "<div id='downloads".$vn_media_id."' style='display:none;'>";
 						foreach($va_row["downloads"] as $vn_download_id => $va_download_info){
-							print (($va_download_info["media_file_id"]) ? "<b>M".$vn_media_id."-".$va_download_info["media_file_id"]."</b>: " : "").$va_download_info["date"].", <a href='#' onClick='jQuery(\"#specimenInfo\").load(\"".caNavUrl($this->request, "", "Stats", "userInfo", array('user_id' => $va_download_info["user_id"]))."\"); return false;'>".$va_download_info["name"]."</a>, (".$va_download_info["email"]."); ";
+							print "<p>".(($va_download_info["media_file_id"]) ? "<b>M".$vn_media_id."-".$va_download_info["media_file_id"]."</b>: " : "").$va_download_info["date"].", <a href='#' onClick='jQuery(\"#specimenInfo\").load(\"".caNavUrl($this->request, "", "Stats", "userInfo", array('user_id' => $va_download_info["user_id"]))."\"); return false;'>".$va_download_info["name"]."</a>, (".$va_download_info["email"].")</p>";
 						}
 						print "</div>";
 					}

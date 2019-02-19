@@ -35,6 +35,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_media_x_projects.php");
  	require_once(__CA_MODELS_DIR__."/ms_specimens.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
  
  	class DashboardController extends ActionController {
  		# -------------------------------------------------------
@@ -1021,6 +1022,118 @@
 			}
 
 			$this->dashboard();
-		}		
+		}
+		# -------------------------------------------------------
+		function exportMediaReport() {
+			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+
+			$t_media = new ms_media();
+			$t_media_file = new ms_media_files();
+			$va_media_file_ids = [];
+
+			$qr_media = $this->opo_project->getProjectMedia(true);
+			while($qr_media->nextRow()){
+				$va_media_files = 
+					$t_media->getMediaFiles($qr_media->get("media_id"));
+				foreach ($va_media_files as $t_mf) {
+					$va_media_file_ids[] = $t_mf->get("media_file_id");
+				}
+			}
+
+			if(sizeof($va_media_file_ids)){
+ 				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'media_statistics');
+ 				$vs_text_file_name = "morphosourceProjectMediaStatistics_".date('m_d_y_His');
+ 				$va_text_file_text = 
+ 					$t_media_file->mediaMdText($va_media_file_ids, null, True);
+
+ 				if(sizeof($va_text_file_text)){
+ 					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+
+					$o_zip = new ZipStream();
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+
+					$this->view->setVar('zip_stream', $o_zip);
+					$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
+					
+					$this->response->sendHeaders();
+					$vn_rc = $this->render('Dashboard/media_download_binary.php');
+					$this->response->sendContent();
+						
+					@unlink($vs_tmp_file_name);
+
+					return $vn_rc;
+ 				}
+ 			}else{
+ 				$this->dashboard();
+ 			}
+		}
+		# -------------------------------------------------------
+		function exportSpecimenMediaReport() {
+			if(!$this->request->user->isFullAccessUser()){
+ 				$this->projectList();
+ 				return;
+ 			}
+
+ 			$t_media = new ms_media();
+			$t_media_file = new ms_media_files();
+			$t_specimen = new ms_specimens();
+			$va_media_file_ids = [];
+
+			$va_specimens = $this->opo_project->getProjectSpecimens();
+			foreach ($va_specimens as $vn_specimen_id => $va_spec) {
+				$va_media_ids = $t_specimen->getSpecimenMediaIDs(
+					$vn_specimen_id, 
+					[
+						'published' => true, 
+						'user_id' => $this->request->user->get("user_id")
+					]
+				);
+				foreach ($va_media_ids as $vn_media_id) {
+					$va_media_files = $t_media->getMediaFiles($vn_media_id);
+					foreach ($va_media_files as $t_mf) {
+						$va_media_file_ids[] = $t_mf->get("media_file_id");
+					}
+				}
+			}
+
+			if(sizeof($va_media_file_ids)){
+ 				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'media_statistics');
+ 				$vs_text_file_name = "morphosourceProjectSpecimenMediaStatistics_".date('m_d_y_His');
+ 				$va_text_file_text = 
+ 					$t_media_file->mediaMdText($va_media_file_ids, null, True);
+
+ 				if(sizeof($va_text_file_text)){
+ 					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+
+					$o_zip = new ZipStream();
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+
+					$this->view->setVar('zip_stream', $o_zip);
+					$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
+					
+					$this->response->sendHeaders();
+					$vn_rc = $this->render('Dashboard/media_download_binary.php');
+					$this->response->sendContent();
+						
+					@unlink($vs_tmp_file_name);
+
+					return $vn_rc;
+ 				}
+ 			}else{
+ 				$this->dashboard();
+ 			}
+
+ 		}		
  	}
  ?>

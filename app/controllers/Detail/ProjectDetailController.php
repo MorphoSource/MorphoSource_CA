@@ -36,6 +36,7 @@
  	require_once(__CA_MODELS_DIR__."/ms_facilities.php");
  	require_once(__CA_MODELS_DIR__."/ms_institutions.php");
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
+ 	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
  	require_once(__CA_LIB_DIR__.'/ca/ResultContext.php');
  
  	class ProjectDetailController extends ActionController {
@@ -332,7 +333,7 @@
  		function specimenWithoutTaxonomy() {
  			JavascriptLoadManager::register("cycle");
 			if(!$this->opn_item_id){
-				$this->dashboard();
+				$this->show();
 				return;
 			}
 			# --- are we showing those missing genus, species, or family?
@@ -357,5 +358,116 @@
 			$this->render('specimen_without_taxonomy_html.php');
 		}
   		# -------------------------------------------------------
+  		function exportMediaReport() {
+  			JavascriptLoadManager::register("cycle");
+  			$vn_project_id = $this->request->getParameter('project_id', pInteger);
+
+  			$t_media = new ms_media();
+			$t_media_file = new ms_media_files();
+			$va_media_file_ids = [];
+
+			if($vn_project_id){
+				$qr_media = $this->opo_item->getProjectMedia();
+				if($qr_media->numRows()){
+					while($qr_media->nextRow()){
+						$va_media_files = 
+							$t_media->getMediaFiles($qr_media->get("media_id"), true);
+						foreach ($va_media_files as $t_mf) {
+							$va_media_file_ids[] = $t_mf->get("media_file_id");
+						}
+					}
+				}
+			}else{
+				$this->show();
+			}
+			
+			if(sizeof($va_media_file_ids)){
+ 				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'media_statistics');
+ 				$vs_text_file_name = "morphosourceProjectMediaStatistics_".date('m_d_y_His');
+ 				$va_text_file_text = 
+ 					$t_media_file->mediaMdText($va_media_file_ids, null, True);
+
+ 				if(sizeof($va_text_file_text)){
+ 					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+
+					$o_zip = new ZipStream();
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+
+					$this->view->setVar('zip_stream', $o_zip);
+					$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
+					
+					$this->response->sendHeaders();
+					$vn_rc = $this->render('media_download_binary.php');
+					$this->response->sendContent();
+						
+					@unlink($vs_tmp_file_name);
+
+					return $vn_rc;
+ 				}
+ 			}else{
+ 				$this->show();
+ 			}
+  		}
+  		# -------------------------------------------------------
+  		function exportSpecimenMediaReport() {
+  			JavascriptLoadManager::register("cycle");
+  			$vn_project_id = $this->request->getParameter('project_id', pInteger);
+
+  			$t_media = new ms_media();
+			$t_media_file = new ms_media_files();
+			$t_specimen = new ms_specimens();
+			$va_media_file_ids = [];
+
+			if($vn_project_id){
+				$va_specimens = $this->opo_item->getProjectSpecimens();
+				foreach ($va_specimens as $vn_specimen_id => $va_spec) {
+					$va_media_ids = $t_specimen->getSpecimenMediaIDs(
+						$vn_specimen_id, ['published' => true]);
+					foreach ($va_media_ids as $vn_media_id) {
+						$va_media_files = $t_media->getMediaFiles($vn_media_id, true);
+						foreach ($va_media_files as $t_mf) {
+							$va_media_file_ids[] = $t_mf->get("media_file_id");
+						}
+					}
+				}
+			}else{
+				$this->show();
+			}
+			
+			if(sizeof($va_media_file_ids)){
+ 				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'media_statistics');
+ 				$vs_text_file_name = "morphosourceProjectSpecimenMediaStatistics_".date('m_d_y_His');
+ 				$va_text_file_text = 
+ 					$t_media_file->mediaMdText($va_media_file_ids, null, True);
+
+ 				if(sizeof($va_text_file_text)){
+ 					$vo_file = fopen($vs_tmp_file_name, "w");
+					foreach($va_text_file_text as $va_row){
+						fputcsv($vo_file, $va_row);			
+					}
+					fclose($vo_file);
+
+					$o_zip = new ZipStream();
+					$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+
+					$this->view->setVar('zip_stream', $o_zip);
+					$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
+					
+					$this->response->sendHeaders();
+					$vn_rc = $this->render('media_download_binary.php');
+					$this->response->sendContent();
+						
+					@unlink($vs_tmp_file_name);
+
+					return $vn_rc;
+ 				}
+ 			}else{
+ 				$this->show();
+ 			}
+  		}
  	}
  ?>

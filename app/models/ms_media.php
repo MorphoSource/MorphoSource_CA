@@ -831,18 +831,23 @@ class ms_media extends BaseModel {
  		return $va_file_info;
  	}
  	# ------------------------------------------------------
- 	public function getMediaFiles($pn_media_id=null){
+ 	public function getMediaFiles($pn_media_id=null, $pb_published=False){
  		if(!($vn_media_id = $pn_media_id)) { 
  			if (!($vn_media_id = $this->getPrimaryKey())) {
  				return null; 
  			}
  		}
  		
+ 		$vs_pub_where = " AND (mf.published > 0 OR (mf.published IS NULL AND m.published > 0))";
+
  		$va_media_files = array();
  		# Get media files
  		$o_db= $this->getDb();
- 		$q_result = $o_db->query("SELECT media_file_id FROM ms_media_files ".
- 			"WHERE media_id = ?", $vn_media_id);
+ 		$q_result = $o_db->query("
+ 			SELECT mf.media_file_id 
+ 			FROM ms_media_files AS mf
+ 			LEFT JOIN ms_media AS m ON m.media_id = mf.media_id
+ 			WHERE mf.media_id = ?".($pb_published ? $vs_pub_where : ""), $vn_media_id);
 
  		if($q_result->numRows()){
  			while($q_result->nextRow()){
