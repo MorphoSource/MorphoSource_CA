@@ -93,7 +93,7 @@
 					var institution_id = parseInt(ui.item.id);
 					if (institution_id < 1) {
 						// nothing found...
-						jQuery("#specimenInstitutionFormContainer").load("<?php print caNavUrl($this->request, 'MyProjects', 'Institutions', 'form', array('specimen_id' => $pn_specimen_id)); ?>");
+						window.location.href = "<?php print caNavUrl($this->request, 'MyProjects', 'Institutions', 'form', array('batch' => 1)); ?>";
 					} else {
 						// found an id
 						jQuery('#institution_id').val(institution_id);

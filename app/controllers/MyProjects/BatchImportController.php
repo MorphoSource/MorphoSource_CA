@@ -745,7 +745,19 @@
 									}
 								}
 							}elseif(in_array($vn_specimen_id, $va_idigbio_imported_specimen)){
-								$vn_idigbio_imported_specimen++;
+								$t_idb_specimen = new ms_specimens($vn_specimen_id);
+								$t_idb_specimen->set("institution_id", $this->opn_batch_institution_id);
+								$t_idb_specimen->set("user_id", $this->request->user->get("user_id"));
+								$t_idb_specimen->set("project_id", $this->opn_project_id);
+								$t_idb_specimen->set("batch_status", 1);
+								$t_idb_specimen->setMode(ACCESS_WRITE);
+								$t_idb_specimen->update();
+								if ($t_idb_specimen->numErrors()) {
+									$va_errors[$vs_row] = "There were errors saving the specimen record: ".join("; ", $t_idb_specimen->getErrors());
+									$va_rows_not_imported[] = $vs_row;
+								}else{
+									$vn_idigbio_imported_specimen++;
+								}
 							}else{
 								$vn_linked_specimen++;
 							}
