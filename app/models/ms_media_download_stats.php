@@ -89,7 +89,6 @@ BaseModel::$s_ca_models_definitions['ms_media_download_stats'] = array(
 					"Education: museums, documentaries and/or other public outreach" => "Education_museums_public_outreach",
 					"Personal interest" => "Personal_interest",
 					"Research" => "Research",
-					"Commercial" => "Commercial",
 					"Art" => "Art"
 				)
 		),

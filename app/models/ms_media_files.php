@@ -634,7 +634,7 @@ class ms_media_files extends BaseModel {
 									"grant support",
 									"copyright holder",
 									"copyright license",
-									"citation instruction statement (to be copy-pasted into acknolwedgements)"
+									"citation instruction statement (to be copy-pasted into acknowledgements)"
 								);
 
 				if($dl_usage){
