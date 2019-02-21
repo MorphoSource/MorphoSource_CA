@@ -74,8 +74,9 @@
 ?>
 	</div><!-- end dashboardAbstract -->
 
-<div class="tealRule"></div>
-<div>
+
+<div id='usageReports' style='margin-top: 30px; margin-bottom: 20px;'>
+	<div class="tealRule"></div>
 	<h2 style="padding-bottom: 2px;">Metadata and usage reports</h2>
 	<div style="margin-top: 10px; margin-left: 5px;">
 <?php
@@ -84,7 +85,7 @@
 	print caNavLink($this->request, "<i class='fa fa-download'></i> All media of project specimens", "button buttonSmall", "MyProjects", "Dashboard", "exportSpecimenMediaReport");
 ?>
 	</div>
-	<p style='margin-top: 10px; margin-left:5px;'><i>Warning: For large projects, this may take up to several minutes</i><p>
+	<div style='margin-top: 10px; margin-left:5px;'><i>Warning: For large projects, this may take up to several minutes</i></div>
 </div>
 
 <?php
