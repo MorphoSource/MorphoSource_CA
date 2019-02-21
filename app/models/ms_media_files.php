@@ -634,7 +634,8 @@ class ms_media_files extends BaseModel {
 									"grant support",
 									"copyright holder",
 									"copyright license",
-									"citation instruction statement (to be copy-pasted into acknowledgements)"
+									"citation instruction statement (to be copy-pasted into acknowledgements)",
+									"This text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist."
 								);
 
 				if($dl_usage){
@@ -865,12 +866,13 @@ class ms_media_files extends BaseModel {
 						$va_media_md[] = $va_dl_user_stats["other"];
 					}
 					
+					# Footer column
+					$va_media_md[] = "";
 
 					#$va_all_md[] = join(",", $va_media_md);
 					$va_all_md[] = $va_media_md;
 				}
-				#return join($va_all_md, "\n")."\n\nThis text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.\n\n";
-				$va_all_md[] = array("This text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.");
+
 				return $va_all_md;
 			}
 		}else{

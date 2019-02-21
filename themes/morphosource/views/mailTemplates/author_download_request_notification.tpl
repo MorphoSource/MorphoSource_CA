@@ -12,7 +12,7 @@
 <p>
 Media Name: 
 <?php
-	print "<strong><a href='http://www.morphosource.org/Detail/MediaDetail/Show/media_file_id/".$t_media->getPrimaryKey()."' target='_blank'>";
+	print "<strong><a href='http://www.morphosource.org/Detail/MediaDetail/Show/media_id/".$t_media->getPrimaryKey()."' target='_blank'>";
 	print "M".$t_media->getPrimaryKey();
 	print "</a></strong>";
 ?>
