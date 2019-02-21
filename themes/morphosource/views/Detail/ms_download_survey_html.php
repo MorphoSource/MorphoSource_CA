@@ -73,8 +73,4 @@
 		}
 		return false;
 	}
-
-	jQuery(document).ready(function () {
-
-	});
 </script>
