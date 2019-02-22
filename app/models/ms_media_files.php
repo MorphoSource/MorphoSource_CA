@@ -31,7 +31,9 @@
  */
  
 require_once(__CA_LIB_DIR__."/core/BaseModel.php");
+require_once(__CA_MODELS_DIR__."/ca_users.php");
 require_once(__CA_MODELS_DIR__."/ms_projects.php");
+require_once(__CA_MODELS_DIR__."/ms_media_download_stats.php");
 require_once(__CA_MODELS_DIR__."/ms_media_files_multifiles.php");
 require_once(__CA_LIB_DIR__.'/ms/ARK.php');
 require_once(__CA_LIB_DIR__.'/ms/DOI.php');
@@ -565,7 +567,7 @@ class ms_media_files extends BaseModel {
 	*  $pa_media_file_ids = array of media file ids to get MD for
 	*  $t_specimen = ms_specimens object
 	*/
-	public function mediaMdText($pa_media_file_ids, $t_specimen = null) {
+	public function mediaMdText($pa_media_file_ids, $t_specimen = null, $dl_usage = False) {
 		if(sizeof($pa_media_file_ids)){
 			$o_db = $this->getDb();
 			if(!$t_specimen){
@@ -574,13 +576,14 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.ark, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner, p.name project_name
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
 				LEFT JOIN ms_facilities as f ON f.facility_id = m.facility_id
 				LEFT JOIN ms_institutions as i ON s.institution_id = i.institution_id
 				LEFT JOIN ms_scanners as scan ON scan.scanner_id = m.scanner_id
+				LEFT JOIN ms_projects as p ON m.project_id = p.project_id
 				WHERE mf.media_file_id IN (".join(", ", $pa_media_file_ids).")");
 			$va_all_md = array();
 			if($q_media_files->numRows()){
@@ -591,6 +594,8 @@ class ms_media_files extends BaseModel {
 									"downloaded file name",
 									"public url",
 									"doi",
+									"ark",
+									"project",
 									"raw or derivative",
 									"mime type",
 									"file size",
@@ -629,9 +634,60 @@ class ms_media_files extends BaseModel {
 									"grant support",
 									"copyright holder",
 									"copyright license",
-									"citation instruction statement (to be copy-pasted into acknolwedgements)",
+									"citation instruction statement (to be copy-pasted into acknowledgements)",
 									"This text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist."
 								);
+
+				if($dl_usage){
+					$va_header = array_merge($va_header, 
+						array(
+							"media group views",
+							"number of download statistics for this media",
+							"total_downloads",
+							"dl_intended_use_School",
+							"dl_intended_use_School_K_6",
+							"dl_intended_use_School_7_12",
+							"dl_intended_use_School_College_Post_Secondary",
+							"dl_intended_use_School_Graduate_school",
+							"dl_intended_use_Education",
+							"dl_intended_use_Education_K_6",
+							"dl_intended_use_Education_7_12",
+							"dl_intended_use_Education_College_Post_Secondary",
+							"dl_intended_use_Educaton_general",
+							"dl_intended_use_Education_museums_public_outreach",
+							"dl_intended_use_Personal_interest",
+							"dl_intended_use_Research",
+							"dl_intended_use_Commercial",
+							"dl_intended_use_Art",
+							"dl_intended_use_other",
+							"dl_intended_use_3d_print",
+							"demographic statistics of users downloading this media",
+							"total_download_users",
+							"u_affiliation_Student",
+							"u_affiliation_Student:_K-6",
+							"u_affiliation_Student:7-12",
+							"u_affiliation_Student:_College/Post-Secondary",
+							"u_affiliation_Student:_Graduate",
+							"u_affiliation_Faculty",
+							"u_affiliation_Faculty:_K-6",
+							"u_affiliation_Faculty:7-12",
+							"u_affiliation_Faculty_College/Post-Secondary",
+							"u_affiliation_Staff:_College/Post-Secondary",
+							"u_affiliation_General_Educator",
+							"u_affiliation_Museum",
+							"u_affiliation_Museum_Curator",
+							"u_affiliation_Museum_Staff",
+							"u_affiliation_Librarian",
+							"u_affiliation_IT",
+							"u_affiliation_Private_Individual",
+							"u_affiliation_Researcher",
+							"u_affiliation_Private_Industry",
+							"u_affiliation_Artist",
+							"u_affiliation_Government",
+							"u_affiliation_other"
+						)
+					);
+				}
 
 				$va_all_md[] = $va_header;
 				while($q_media_files->nextRow()){
@@ -662,8 +718,9 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $vs_specimen_name.'_M'.$q_media_files->get("media_id").'-'.$q_media_files->get("media_file_id").'.'.$va_properties['EXTENSION'];
 					$va_media_md[] = "http://www.morphosource.org/Detail/MediaDetail/Show/media_id/".$q_media_files->get("media_id");
 					
-					$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
-					$va_media_md[] = trim($va_tmp[0]);
+					$va_media_md[] = $q_media_files->get('doi');
+					$va_media_md[] = $q_media_files->get('ark');
+					$va_media_md[] = $q_media_files->get('project_name');
 
 					$va_media_md[] = $t_media_file->getChoiceListValue("file_type", $q_media_files->get("file_type"));
 					$va_media_md[] = $va_original_properties['MIMETYPE'];
@@ -727,10 +784,86 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $q_media_files->get("grant_support");
 					$va_media_md[] = $q_media_files->get("copyright_info");
 					$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->get("copyright_license"));
+
 					if($q_media_files->get("media_citation_instruction1")){
 						$va_media_md[] = "Citation: ".$t_media->getMediaCitationInstructionsFromFields(array("media_citation_instruction1" => $q_media_files->get("media_citation_instruction1"), "media_citation_instruction2" => $q_media_files->get("media_citation_instruction2"), "media_citation_instruction3" => $q_media_files->get("media_citation_instruction3")));
 					}else{
 						$va_media_md[] = "";
+					}
+
+					if($dl_usage){
+						### Media group views ###
+						$o_db = $this->getDb();
+						$q_view_num = $o_db->query("
+							SELECT count(*) AS c
+							FROM ms_media_files AS mf
+							LEFT JOIN ms_media AS m ON m.media_id = mf.media_id
+							LEFT JOIN ms_media_view_stats AS ms ON ms.media_id = m.media_id
+							WHERE mf.media_file_id = ".$q_media_files->get("media_file_id")	
+						);
+
+						$vn_view_num = 0;
+						if($q_view_num->numRows()){
+	 						while($q_view_num->nextRow()){
+	 							$vn_view_num = $q_view_num->get("c");
+	 						}
+	 					}
+
+ 						$va_media_md[] = $vn_view_num;
+
+						### Download statistics ###
+						$va_dl_stats = $this->getIntendedUse(
+							$q_media_files->get('media_file_id'));
+
+						$va_media_md[] = ""; # Section header column
+						$va_media_md[] = $va_dl_stats["Total_Downloads"];
+						$va_media_md[] = $va_dl_stats["School"];
+						$va_media_md[] = $va_dl_stats["School_K_6"];
+						$va_media_md[] = $va_dl_stats["School_7_12"];
+						$va_media_md[] = $va_dl_stats["School_College_Post_Secondary"];
+						$va_media_md[] = $va_dl_stats["School_Graduate_school"];
+						$va_media_md[] = $va_dl_stats["Education"];
+						$va_media_md[] = $va_dl_stats["Education_K_6"];
+						$va_media_md[] = $va_dl_stats["Education_7_12"];
+						$va_media_md[] = $va_dl_stats["Education_College_Post_Secondary"];
+						$va_media_md[] = $va_dl_stats["Education_general"];
+						$va_media_md[] = $va_dl_stats["Education_museums_public_outreach"];
+						$va_media_md[] = $va_dl_stats["Personal_interest"];
+						$va_media_md[] = $va_dl_stats["Research"];
+						$va_media_md[] = $va_dl_stats["Commercial"];
+						$va_media_md[] = $va_dl_stats["Art"];
+						$va_media_md[] = $va_dl_stats["other"];
+						$va_media_md[] = $va_dl_stats["3d_print"];
+
+						### Downloading user demographic statistics ###
+
+						$va_dl_user_stats = $this->getDLUserStatistics(
+							$q_media_files->get('media_file_id'));
+
+						$va_media_md[] = ""; # Section header column
+						$va_media_md[] = $va_dl_user_stats["Total_Download_Users"];
+						$va_media_md[] = $va_dl_user_stats["Student"];
+						$va_media_md[] = $va_dl_user_stats["Student:_K-6"];
+						$va_media_md[] = $va_dl_user_stats["Student:7-12"];
+						$va_media_md[] = $va_dl_user_stats["Student:_College/Post-Secondary"];
+						$va_media_md[] = $va_dl_user_stats["Student:_Graduate"];
+						$va_media_md[] = $va_dl_user_stats["Faculty"];
+						$va_media_md[] = $va_dl_user_stats["Faculty:_K-6"];
+						$va_media_md[] = $va_dl_user_stats["Faculty:7-12"];
+						$va_media_md[] = $va_dl_user_stats["Faculty_College/Post-Secondary"];
+						$va_media_md[] = $va_dl_user_stats["Staff:_College/Post-Secondary"];
+						$va_media_md[] = $va_dl_user_stats["General_Educator"];
+						$va_media_md[] = $va_dl_user_stats["Museum"];
+						$va_media_md[] = $va_dl_user_stats["Museum_Curator"];
+						$va_media_md[] = $va_dl_user_stats["Museum_Staff"];
+						$va_media_md[] = $va_dl_user_stats["Librarian"];
+						$va_media_md[] = $va_dl_user_stats["IT"];
+						$va_media_md[] = $va_dl_user_stats["Private_Individual"];
+						$va_media_md[] = $va_dl_user_stats["Researcher"];
+						$va_media_md[] = $va_dl_user_stats["Private_Industry"];
+						$va_media_md[] = $va_dl_user_stats["Artist"];
+						$va_media_md[] = $va_dl_user_stats["Government"];
+						$va_media_md[] = $va_dl_user_stats["other"];
 					}
 					
 					# Footer column
@@ -1118,5 +1251,163 @@ class ms_media_files extends BaseModel {
 			$va_ark["error"] = "Could not delete ARK for media: ".$e->getMessage();
 		}
 		return $va_ark;
+ 	}
+ 	# ------------------------------------------------------
+ 	# Media file download statistics
+ 	# ------------------------------------------------------
+ 	/*
+ 	 *
+ 	 */
+ 	private function getIntendedUse($pn_media_file_id=null) {
+ 		if(!($vn_media_file_id = $pn_media_file_id)) { 
+ 			if (!($vn_media_file_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+
+ 		$va_dl_stats = [
+ 			"Total_Downloads" => 0,
+ 			"School" => 0,
+ 			"School_K_6" => 0,
+ 			"School_7_12" => 0,
+ 			"School_College_Post_Secondary" => 0,
+ 			"School_Graduate_school" => 0,
+ 			"Education" => 0,
+ 			"Education_K_6" => 0,
+ 			"Education_7_12" => 0,
+ 			"Education_College_Post_Secondary" => 0,
+ 			"Education_general" => 0,
+ 			"Education_museums_public_outreach" => 0,
+ 			"Personal_interest" => 0,
+ 			"Research" => 0,
+ 			"Commercial" => 0,
+ 			"Art" => 0,
+ 			"other" => 0,
+ 			"3d_print" => 0
+ 		];
+
+ 		$o_db = $this->getDb();
+ 		$q_media_file_dl = $o_db->query("
+ 			SELECT *
+ 			FROM ms_media_download_stats
+ 			WHERE media_file_id = ".$vn_media_file_id."
+ 			");
+
+ 		$t_dl = new ms_media_download_stats();
+ 		if($q_media_file_dl->numRows()){
+ 			while($q_media_file_dl->nextRow()){
+ 				$t_dl->load($q_media_file_dl->get("download_id"));
+
+ 				$va_dl_stats["Total_Downloads"]++;
+ 				if($t_dl->get("intended_use_other")){
+ 					$va_dl_stats["other"]++;
+ 				}
+ 				if($t_dl->get("3d_print")){
+ 					$va_dl_stats["3d_print"]++;
+ 				}
+ 				if(($va_intended_use = $t_dl->get("intended_use"))
+ 					&& is_array($va_intended_use)
+ 					&& sizeof($va_intended_use)
+ 				){
+ 					 # todo remove this
+ 					foreach($va_intended_use as $vs_use){
+ 						$va_dl_stats[$vs_use]++;
+ 					}
+ 				}
+ 			}
+ 		}
+
+ 		$va_dl_stats["School"] = $va_dl_stats["School_K_6"] + 
+ 			$va_dl_stats["School_7_12"] + 
+ 			$va_dl_stats["School_College_Post_Secondary"] + 
+ 			$va_dl_stats["School_Graduate_school"];
+ 		$va_dl_stats["Education"] = $va_dl_stats["Education_K_6"] + 
+ 			$va_dl_stats["Education_7_12"] + 
+ 			$va_dl_stats["Education_College_Post_Secondary"] + 
+ 			$va_dl_stats["Education_general"] + 
+ 			$va_dl_stats["Education_museums_public_outreach"];
+
+ 		return $va_dl_stats;
+ 	}
+ 	/*
+ 	 *
+ 	 */
+ 	private function getDLUserStatistics($pn_media_file_id=null) {
+ 		if(!($vn_media_file_id = $pn_media_file_id)) { 
+ 			if (!($vn_media_file_id = $this->getPrimaryKey())) {
+ 				return null; 
+ 			}
+ 		}
+
+ 		$va_dl_user_stats = [
+ 			"Total_Download_Users" => 0,
+ 			"Student" => 0,
+ 			"Student:_K-6" => 0,
+ 			"Student:7-12" => 0,
+ 			"Student:_College/Post-Secondary" => 0,
+ 			"Student:_Graduate" => 0,
+ 			"Faculty" => 0,
+ 			"Faculty:_K-6" => 0,
+ 			"Faculty:7-12" => 0,
+ 			"Faculty_College/Post-Secondary" => 0,
+ 			"Staff:_College/Post-Secondary" => 0,
+ 			"General_Educator" => 0,
+ 			"Museum" => 0,
+ 			"Museum_Curator" => 0,
+ 			"Museum_Staff" => 0,
+ 			"Librarian" => 0,
+ 			"IT" => 0,
+ 			"Private_Individual" => 0,
+ 			"Researcher" => 0,
+ 			"Private_Industry" => 0,
+ 			"Artist" => 0,
+ 			"Government" => 0,
+ 			"other" => 0,
+ 		];
+
+ 		$o_db = $this->getDb();
+ 		$q_dl_users = $o_db->query("
+ 			SELECT user_id
+ 			FROM ca_users
+ 			WHERE user_id IN (
+ 				SELECT DISTINCT(user_id)
+ 				FROM ms_media_download_stats
+ 				WHERE media_file_id = ".$vn_media_file_id."
+ 			)
+ 		");
+
+ 		if($q_dl_users->numRows()){
+ 			$t_user = new ca_users();
+ 			while($q_dl_users->nextRow()){
+ 				$t_user->load($q_dl_users->get("user_id"));
+ 				
+ 				$va_dl_user_stats["Total_Download_Users"]++;
+ 				
+ 				if($t_user->getPreference("user_profile_professional_affiliation_other")){
+ 					$va_dl_user_stats["other"]++;
+ 				}
+ 				
+ 				if(($va_affil = $t_user->getPreference("user_profile_professional_affiliation"))
+ 					&& is_array($va_affil)
+ 					&& sizeof($va_affil)
+ 				){
+ 					foreach ($va_affil as $vs_affil) {
+ 						$va_dl_user_stats[str_replace(" ", "_", $vs_affil)]++;
+ 					}
+ 				}
+ 			}
+ 		}
+
+ 		$va_dl_user_stats["Student"] = $va_dl_user_stats["Student:_K-6"] + 
+ 			$va_dl_user_stats["Student:7-12"] + 
+ 			$va_dl_user_stats["Student:_College/Post-Secondary"] + 
+ 			$va_dl_user_stats["Student:_Graduate"];
+ 		$va_dl_user_stats["Faculty"] = $va_dl_user_stats["Faculty:_K-6"] + 
+ 			$va_dl_user_stats["Faculty:7-12"] + 
+ 			$va_dl_user_stats["Faculty_College/Post-Secondary"];
+ 		$va_dl_user_stats["Museum"] = $va_dl_user_stats["Museum_Curator"] + 
+ 			$va_dl_user_stats["Museum_Staff"];
+
+ 		return $va_dl_user_stats;
  	}
 }

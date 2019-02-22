@@ -29,8 +29,9 @@
 	$va_rows = $this->getVar('rows');
 ?>
 	<div class="blueRule"><!-- empty --></div>
-	<p style="float:right; padding-top:15px;">See how your project Specimens and media have been viewed and downloaded</p>
 	<H1>Usage Stats</H1>
+	<p>Below are detailed statistics for all specimens you can edit and media groups representing these specimens. Your project membership determines edit access to specimens and media. Descriptive metadata and download usage reports are also available here. The media usage report includes all media that you can edit, as determined by project membership. The specimen media usage report includes all accessible media representing specimens you can edit. Media are accessible either if you have edit access to them, or if the media are published and publicly viewable.</p>
+	<p><b>Please note: if you have access to a large number of specimens or media, the metadata and usage statistics reports may take a long time to begin downloading. Be patient, it will happen!</b></p>
 <div id='formArea' style="margin-top:0px; padding-top:0px;">		
 		<br style="clear: both"/>
 
@@ -61,19 +62,19 @@
 					<?php print _t('Specimen'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Project(s)'); ?>
+					<?php print _t('Project'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Specimen Public Views'); ?>
+					<?php print _t('Views'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Specimen Media'); ?>
+					<?php print _t('Media'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Specimen Media Public Views'); ?>
+					<?php print _t('Media Views'); ?>
 				</th>
 				<th class="list-header-unsorted">
-					<?php print _t('Specimen Media Downloads'); ?>
+					<?php print _t('Media Downloads'); ?>
 				</th>
 				<th class="{sorter: false} list-header-nosort">&nbsp;</th>
 			</tr>
@@ -93,7 +94,7 @@
 					<?php print $va_row["specimen_views"]; ?>
 				</td>
 				<td>
-					<?php print $va_row["num_specimen_media"].(($va_row["num_specimen_media_unpublished"]) ? ", (".$va_row["num_specimen_media_unpublished"]." unpublished)" : ""); ?>
+					<?php print $va_row["num_specimen_media"]; ?>
 				</td>
 				<td>
 					<?php print $va_row["specimen_media_views"]; ?>

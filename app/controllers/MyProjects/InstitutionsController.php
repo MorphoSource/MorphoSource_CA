@@ -102,6 +102,7 @@
  		# -------------------------------------------------------
  		public function form() {
  			$this->view->setVar("specimen_id", $this->request->getParameter('specimen_id', pInteger));
+ 			$this->view->setVar("batch", $this->request->getParameter('batch', pInteger));
 			$this->render('Institutions/form_html.php');
  		}
  		# -------------------------------------------------------
@@ -131,6 +132,8 @@
  		}
  		# -------------------------------------------------------
  		public function save() {
+ 			$vb_batch = $this->request->getParameter('batch', pInteger);
+
 			# get names of form fields
 			$va_fields = $this->opo_item->getFormFields();
 			$va_errors = array();
@@ -180,10 +183,14 @@
 				$this->view->setVar("errors", $va_errors);
 				$this->form();
 			}else{
-				$this->opn_item_id = $this->opo_item->get($this->ops_primary_key);
-				$this->view->setVar("item_id", $this->opn_item_id);
-				$this->view->setVar("item", $this->opo_item);
-				$this->form();
+				if(!$vb_batch){
+					$this->opn_item_id = $this->opo_item->get($this->ops_primary_key);
+					$this->view->setVar("item_id", $this->opn_item_id);
+					$this->view->setVar("item", $this->opo_item);
+					$this->form();
+				}else{
+					$this->response->setRedirect(caNavUrl($this->request, "MyProjects", "BatchImport", "importSettingsForm"));
+				}
 			} 			 			
  		}
  		# -------------------------------------------------------

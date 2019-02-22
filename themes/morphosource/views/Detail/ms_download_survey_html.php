@@ -46,12 +46,13 @@
 		
 ?>
 			<div id='download_agreement' style='margin-top: 20px; margin-bottom: 20px; padding: 4px;'>
-				<input type='checkbox' id='agreement_check'>
+				<input type='checkbox' id='agreement_check' />
 				<label for='agreement_check'>
-					I agree to the conditions of this download as outlined in the 
-					<a href="<?php print $agreement_url; ?>" target='_blank'>MorphoSource download use agreement</a>.
-					<span id='required' style='color: red; font-weight: bold; display: none;'>You must agree to the conditions to download.</span>
+					I agree to the conditions of the 
+					<a href="<?php print $agreement_url; ?>" target='_blank'>MorphoSource download use agreement</a>,
+					including terms restricting commercial use.
 				</label>
+				<br/><span id='required' style='color: red; font-weight: bold; display: none;'>You must agree to the conditions to download.</span>
 			</div>
 			<div class="formButtons" style='text-align: center;'>
 				<a href="#" name="save" class="button buttonLarge" onclick="submitDownloadForm(); return false;"><?php print _t("Download"); ?></a>

@@ -3,6 +3,7 @@
 	$va_fields = $t_item->getFormFields();
 	$va_errors = $this->getVar("errors");
 	$ps_primary_key = $this->getVar("primary_key");
+	$vb_batch = $this->getVar("batch");
 	
 	# --- formatting varibales
 	# --- all fields in float_fields array  will be floated to the left
@@ -19,11 +20,19 @@ if (!$this->request->isAjax()) {
 	<div id='formArea'>
 	
 <?php
-print caFormTag($this->request, 'save', 'institutionForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
+	if(!$vb_batch){
+		print caFormTag($this->request, 'save', 'institutionForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+	}else{
+		print caFormTag($this->request, 'save/batch/1', 'institutionForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));
+	}
 ?>
 	<div class="formButtons tealTopBottomRule">
 <?php
-		print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+		if(!$vb_batch){
+			print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", $this->request->getController(), "listItems")."</div>";
+		}else{
+			print "<div style='float:right;'>".caNavLink($this->request, _t("Back"), "button buttonSmall", "MyProjects", "BatchImport", "importSettingsForm")."</div>";
+		}
 ?>
 		<a href="#" name="save" class="button buttonSmall" onclick="jQuery('#institutionForm').submit(); return false;"><?php print _t("Save"); ?></a>
 <?php

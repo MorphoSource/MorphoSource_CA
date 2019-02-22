@@ -33,6 +33,7 @@
  	require_once(__CA_LIB_DIR__."/ca/Search/MediaSearch.php");
  	require_once(__CA_LIB_DIR__."/ca/Search/SpecimenSearch.php");
  	require_once(__CA_LIB_DIR__.'/core/GeographicMap.php');
+ 	require_once(__CA_MODELS_DIR__.'/ms_media_files.php');
  	require_once(__CA_MODELS_DIR__.'/ms_projects.php');
  	require_once(__CA_APP_DIR__.'/helpers/morphoSourceHelpers.php');
  	require_once(__CA_LIB_DIR__.'/core/Parsers/ZipStream.php');
@@ -312,235 +313,48 @@
 		# -------------------------------------------------------
 		public function exportMediaReport(){
 			$va_media_ids = $this->opo_result_context->getResultList();
+			$va_media_file_ids = [];
 			if(sizeof($va_media_ids)){
-				# - generate report
-				# - should include
-// Specimen number
-// media #
-// DOI or current URL on MorphoSource
-// description
-// project membership
-// publication status
-// published on
-// copyright holder
-// copyright status
-// resolution
-// facility
-// number of views
-// view diversity
-// number of downloads
-// download diversity
-// downloads for research
-// downloads for college education
-// downloads for k-12 education
-// downloads for 'other' purposes
-				
-			$o_db = new Db();
-			if(!$t_specimen){
-				$t_specimen = new ms_specimens();
-			}
-			$t_media = new ms_media();
-			$t_media_file = new ms_media_files();
-			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.file_type, mf.published file_pub, m.*, f.name facility, i.name institution, p.name
-				FROM ms_media m
-				INNER JOIN ms_media_files as mf ON mf.media_id = m.media_id
-				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
-				LEFT JOIN ms_facilities as f ON f.facility_id = m.facility_id
-				LEFT JOIN ms_institutions as i ON s.institution_id = i.institution_id
-				LEFT JOIN ms_projects as p ON m.project_id = p.project_id
-				WHERE m.media_id IN (".join(", ", $va_media_ids).")");
-			$va_all_md = array();
-			if($q_media_files->numRows()){
-				$va_specimen_info = array();
-				# --- header row
-				$va_header = array(
-									"specimen",
-									"specimen taxonomy",
-									"insitution",
-									"media group number",
-									"media file number",
-									"derived from",
-									"file type",
-									"project",
-									"doi",
-									"description/element",
-									"copyright holder",
-									"copyright license",
-									"citation instruction statement (to be copy-pasted into acknolwedgements)",
-									"publication status",
-									"published on",
-									"facility",
-									"x res",
-									"y res",
-									"z res",
-									"media views",
-									"media file downloads",
-									"date of first download",
-									"media file download diversity",
-									"downloads for research",
-									"downloads for college education",
-									"downloads for k-12 education",
-									"downloads for 'other' purposes"
-								);
+				$o_db = new Db();
+				$q_media_file_ids = $o_db->query("
+					SELECT media_file_id
+					FROM ms_media_files
+					WHERE media_id IN (".join(',', $va_media_ids).")"
+					);
 
-				$va_all_md[] = $va_header;
-				$t_download_stats = new ms_media_download_stats();
-				while($q_media_files->nextRow()){
-					$va_media_md = array();
-					$vn_pub = "";
-					if($q_media_files->get("file_pub") !== null){
-						$vn_pub = $q_media_files->get("file_pub");
-					}else{
-						$vn_pub = $q_media_files->get("published");
-					}
-					#print "media_id: ".$q_media_files->get("media_id")." file pub: ".$q_media_files->get("file_pub")." - "." media pub: ".$q_media_files->get("published")." - ";
-					if($vn_pub > 0){
-						$vs_specimen_taxonomy = $vs_specimen_name = "";
-						if(!$va_specimen_info[$q_media_files->get("specimen_id")]){
-							if($q_media_files->get("specimen_id")){
-								$vs_specimen_name = $t_specimen->getSpecimenNumber($q_media_files->get("specimen_id"));
-								$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"] = $vs_specimen_name;
-								$vs_specimen_taxonomy = join(", ", $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id")));
-								$va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"] = join(", ", $t_specimen->getSpecimenTaxonomy($q_media_files->get("specimen_id")));
-							}
-						}else{
-							$vs_specimen_name = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_name"];
-							$vs_specimen_taxonomy = $va_specimen_info[$q_media_files->get("specimen_id")]["specimen_taxonomy"];
-						}
-						$va_versions = $q_media_files->getMediaVersions('file_media');
-						$va_properties = $q_media_files->getMediaInfo('file_media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
-					
-					
-						$va_media_md[] = $vs_specimen_name;
-						$va_media_md[] = $vs_specimen_taxonomy;
-						$va_media_md[] = $q_media_files->get("institution");
-						$va_media_md[] = "M".$q_media_files->get("media_id");
-						$va_media_md[] = "M".$q_media_files->get("media_id")."-".$q_media_files->get("media_file_id");
-						$va_media_md[] = ($q_media_files->get("derived_from_media_id")) ? "M".$q_media_files->get("derived_from_media_id") : "";
-						$t_media_file = new ms_media_files($q_media_files->get("media_file_id"));
-						$va_media_md[] = strip_tags(msGetMediaFilesFormatDisplayString($t_media_file));
-						$va_media_md[] = $q_media_files->get("name");
-						$va_tmp = preg_split("![ ]*\|[ ]*!", $q_media_files->get('doi'));
-						$va_media_md[] = trim($va_tmp[0]);
-						if($q_media_files->get("file_element")){
-							$va_media_md[] = preg_replace("/\r|\n/", " ", $q_media_files->get("file_element"));
-						}else{
-							$va_media_md[] = preg_replace("/\r|\n/", " ", $q_media_files->get("element"));
-						}
-						$va_media_md[] = $q_media_files->get("copyright_info");
-						$va_media_md[] = $t_media->getChoiceListValue("copyright_license", $q_media_files->get("copyright_license"));
-						if($q_media_files->get("media_citation_instruction1")){
-							$va_media_md[] = "Citation: ".$t_media->getMediaCitationInstructionsFromFields(array("media_citation_instruction1" => $q_media_files->get("media_citation_instruction1"), "media_citation_instruction2" => $q_media_files->get("media_citation_instruction2"), "media_citation_instruction3" => $q_media_files->get("media_citation_instruction3")));
-						}else{
-							$va_media_md[] = "";
-						}
-						$va_media_md[] = $t_media->getChoiceListValue("published", $vn_pub);
-						if($q_media_files->get("published_on")){
-							$va_media_md[] = date("m/j/y", $q_media_files->get("published_on"));
-						}else{
-							$va_media_md[] = "NA";
-						}
-						$va_media_md[] = $q_media_files->get("facility");
-						$va_media_md[] = $q_media_files->get("scanner_x_resolution")." mm";
-						$va_media_md[] = $q_media_files->get("scanner_y_resolution")." mm";
-						$va_media_md[] = $q_media_files->get("scanner_z_resolution")." mm";
-					
-						# --- media views
-						$q_media_views = $o_db->query("SELECT * from ms_media_view_stats where media_id = ?", $q_media_files->get("media_id"));
-						$va_media_md[] = $q_media_views->numRows();
-					
-						# --- media file download
-						$q_media_file_downloads = $o_db->query("SELECT download_id, user_id, intended_use, intended_use_other, downloaded_on from ms_media_download_stats where media_file_id = ? ORDER BY downloaded_on asc", $q_media_files->get("media_file_id"));
-						$va_media_md[] = $q_media_file_downloads->numRows();
-						# --- download diversity and use
-						$va_download_users = array();
-						$va_download_use = array("research" => 0, "college" => 0, "k-12" => 0, "other" => 0);
-						$vs_first_download = "";
-						if($q_media_file_downloads->numRows()){
-							while($q_media_file_downloads->nextRow()){
-								if($q_media_file_downloads->get("user_id")){
-									$va_download_users[$q_media_file_downloads->get("user_id")] = $q_media_file_downloads->get("user_id");
-								}
-								if(!$vs_first_download && $q_media_file_downloads->get("downloaded_on")){
-									$vs_first_download = date("m/j/y", $q_media_file_downloads->get("downloaded_on"));
-								}
-								$t_download_stats->load($q_media_file_downloads->get("download_id"));
-								$va_intended_use = $t_download_stats->get("intended_use");
-								if(is_array($va_intended_use) and sizeof($va_intended_use)){
-									foreach($va_intended_use as $vs_use){
-										switch($vs_use){
-											case "Research":
-												$va_download_use["research"] = $va_download_use["research"] + 1;
-											break;
-											# -------------------------------------------
-											case "School_K_6":
-											case "School_7_12":
-											case "Education_K_6":
-											case "Education_7_12":
-												$va_download_use["k-12"] = $va_download_use["k-12"] + 1;
-											break;
-											# -------------------------------------------
-											case "School_College_Post_Secondary":
-											case "School_Graduate_school":
-											case "Education_College_Post_Secondary":
-												$va_download_use["college"] = $va_download_use["college"] + 1;
-											break;
-											# ----------------------------------
-											default:
-												$va_download_use["other"] = $va_download_use["other"] + 1;
-											break;
-										}
-									}
-								}
-							}
-						}
-						$va_media_md[] = $vs_first_download;
-						$va_media_md[] = sizeof($va_download_users);
-						$va_media_md[] = $va_download_use["research"];
-						$va_media_md[] = $va_download_use["college"];
-						$va_media_md[] = $va_download_use["k-12"];
-						$va_media_md[] = $va_download_use["other"];
-					
-						$va_all_md[] = $va_media_md;
-					}
-				}
-				#exit;	
-				#return join($va_all_md, "\n")."\n\nThis text file is a selective, not an exhaustive distillation of the metadata available for your downloaded files. If you require more information, it may still be available within MorphoSource and you should seek it there before contacting the data author or making the assumption that it does not exist.\n\n";
 				
-				if(sizeof($va_all_md)){
-						if (!($vn_limit = ini_get('max_execution_time'))) { $vn_limit = 30; }
-						set_time_limit($vn_limit * 2);
-						# --- generate text file for media in cart
-						$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'mediaDownloadTxt');
-						$vs_text_file_name = "morphosourceMedia_".date('m_d_y_His');
-						$vo_file = fopen($vs_tmp_file_name, "w");
-						foreach($va_all_md as $va_row){
-							fputcsv($vo_file, $va_row);			
-						}
-						fclose($vo_file);
-						
-						$o_zip = new ZipStream();
-						$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
-						
-						$this->view->setVar('zip_stream', $o_zip);
-						$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
-					
-						$this->response->sendHeaders();
-						$vn_rc = $this->render('Detail/media_download_binary.php');
-						$this->response->sendContent();
-						
-						@unlink($vs_tmp_file_name);
-					}
-					
-					return $vn_rc;
+				if($q_media_file_ids->numRows()){
+					$va_media_file_ids = 
+						$q_media_file_ids->getAllFieldValues("media_file_id");
+				}
 			}
-		
-		
-		
-		
-		
-				}else{
+
+			if(sizeof($va_media_file_ids)){
+				$t_media_file = new ms_media_files();
+				$vs_tmp_file_name = tempnam(caGetTempDirPath(), 'searchMetadataCSV');
+				$vs_text_file_name = "morphosourceMediaSearchMetadata_".date('m_d_y_His');
+				$va_text_file_text = 
+ 					$t_media_file->mediaMdText($va_media_file_ids, null, True);
+				$vo_file = fopen($vs_tmp_file_name, "w");
+				foreach($va_text_file_text as $va_row){
+					fputcsv($vo_file, $va_row);			
+				}
+				fclose($vo_file);
+				
+				$o_zip = new ZipStream();
+				$o_zip->addFile($vs_tmp_file_name, $vs_text_file_name.".csv");
+				
+				$this->view->setVar('zip_stream', $o_zip);
+				$this->view->setVar('version_download_name', $vs_text_file_name.".zip");
+			
+				$this->response->sendHeaders();
+				$vn_rc = $this->render('Detail/media_download_binary.php');
+				$this->response->sendContent();
+				
+				@unlink($vs_tmp_file_name);
+						
+				return $vn_rc;
+			}else{
 				$this->Index();
 			}
 		}

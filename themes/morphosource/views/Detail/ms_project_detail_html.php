@@ -44,10 +44,25 @@
 </H1>
 <div id="projectDetail">
 	<div class="tealRule"><!-- empty --></div>
+	<div class='InfoContainerRight'>
 <?php
 	if($vs_project_abstract){
-		print "<div class='InfoContainerRight'><H2>"._t("About the project")."</H2><div class='unit'>".$vs_project_abstract."</div></div>";
+		print "<H2>"._t("About the project")."</H2><div class='unit'>".$vs_project_abstract."</div>";
 	}
+
+	print "<H2>Metadata and usage reports</H2>";
+	print "<div class='unit'>";
+	print "<div>";
+	print "<div style='margin-bottom: 10px; margin-top: 5px;'>".caNavLink($this->request, "<i class='fa fa-download'></i> Project media", "button buttonMedium", "Detail", "ProjectDetail", "exportMediaReport", ["project_id" => $vn_project_id]);
+	print "<span style='margin-left:10px;'></span>";
+	print caNavLink($this->request, "<i class='fa fa-download'></i> All media of project specimens", "button buttonMedium", "Detail", "ProjectDetail", "exportSpecimenMediaReport", ["project_id" => $vn_project_id]);
+	print "</div>";
+	print "<p style='margin-top: 0px; margin-left: 0px;'><i>Warning: For large projects, this may take up to several minutes</i></p>";
+	print "</div>";
+	print "</div>";
+?>
+	</div>
+<?php
 	print "<div class='InfoContainerLeft'>";
 	print "<H2>"._t("Members")."</H2><div class='unit'>";
 
