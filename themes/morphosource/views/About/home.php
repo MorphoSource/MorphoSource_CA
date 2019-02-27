@@ -27,14 +27,14 @@
 
         <h3>Repository scale</h3>
 
-        <b>Users:</b> 6,164<br/>
-        <b>Contributors:</b> 712<br/>
-        <b>Datasets:</b> 44,677<br/>
-        <b>Specimens:</b> 4,803<br/>
-        <b>Species:</b> 11,868<br/>
-        <b>Storage footprint:</b> 18TB<br/>
-        <b>Downloads:</b> 91,890<br/>
-        <b>Views:</b> 1,218,175<br/>
+        <b>Users:</b> 7,788<br/>
+        <b>Contributors:</b> 912<br/>
+        <b>Datasets:</b> 62,717<br/>
+        <b>Specimens:</b> 20,085<br/>
+        <b>Species:</b> 7,355<br/>
+        <b>Storage footprint:</b> 27TB<br/>
+        <b>Downloads:</b> 128,255<br/>
+        <b>Views:</b> 2,213,945<br/>
         
     </div>
 </div><!-- end textContent -->
