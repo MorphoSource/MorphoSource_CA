@@ -227,9 +227,6 @@
 				"button buttonMedium buttonWhiteBorder", "MyProjects", 
 				"Specimens", "lookupSpecimen");
 		} else if ($vs_entity_type == 'm') {
-			print caNavLink($this->request, "New Media Group", 
-				"button buttonMedium buttonWhiteBorder", "MyProjects", 
-				"Media", "form");
 			print "<a href='#' name='mediaBatchButton' ". 
 				"class='button buttonMedium buttonWhiteBorder' id='mediaBatchButton' ".
 				"title='Batch edit media groups' >Batch Edit</a>";

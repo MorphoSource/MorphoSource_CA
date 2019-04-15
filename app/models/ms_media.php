@@ -181,7 +181,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
-				'DEFAULT' => 'originally appearing in',
+				'DEFAULT' => '',
 				'LABEL' => _t('Media citation instructions part 2'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
@@ -189,7 +189,7 @@ BaseModel::$s_ca_models_definitions['ms_media'] = array(
 				'FIELD_TYPE' => FT_TEXT, 'DISPLAY_TYPE' => DT_FIELD, 
 				'DISPLAY_WIDTH' => 40, 'DISPLAY_HEIGHT' => 1,
 				'IS_NULL' => false, 
-				'DEFAULT' => ', the collection of which was funded by ',
+				'DEFAULT' => '',
 				'LABEL' => _t('Media citation instructions part 3'), 'DESCRIPTION' => _t('Describes how to cite this media.'),
 				'BOUNDS_LENGTH' => array(0,255)
 		),
