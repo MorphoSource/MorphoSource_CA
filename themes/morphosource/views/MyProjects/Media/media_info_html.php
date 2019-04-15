@@ -33,7 +33,6 @@
     var jfu_temp_dir = '<?php print $t_media_file->getAppConfig()->get('jfu_tempDir') ?>';
 </script>
 <div id="mediaInfo">
-		<div id="newMediaButton"><?php print caNavLink($this->request, _t("New Media Group"), "button buttonLarge", "MyProjects", "Media", "form"); ?></div><!-- end newMediaButton -->
 		<div class="blueRule"><!-- empty --></div>
 <?php
 		if($vs_specimen_info){
