@@ -359,7 +359,9 @@ if (!$this->request->isAjax()) {
 			# -----------------------------------------------
 			case "media_citation_instruction1":
 				print "<div class='formLabel'>";
-				print $t_item->htmlFormElement("media_citation_instruction1", "^LABEL<br>^ELEMENT")."<span style='font-weight:normal;'> provided access to these data ".$t_item->htmlFormElement("media_citation_instruction2", "^ELEMENT")." ".$t_item->htmlFormElement("media_citation_instruction3", "^ELEMENT").". The files were downloaded from www.MorphoSource.org, Duke University.";
+				print "<b>Media citation instructions</b></br>";
+				print "<p style='font-weight: normal; font-style: italic'>These fields provide a template for media citation instructions. The placeholder entries in these fields are provided as examples. They will not be saved if you do not modify them.</p>";
+				print $t_item->htmlFormElement("media_citation_instruction1", "^ELEMENT")."<span style='font-weight:normal;'> provided access to these data ".$t_item->htmlFormElement("media_citation_instruction2", "^ELEMENT")." ".$t_item->htmlFormElement("media_citation_instruction3", "^ELEMENT").". The files were downloaded from MorphoSource, Duke University (www.morphosource.org).";
 				print "</span></div>";
 			break;
 			# -----------------------------------------------
@@ -695,6 +697,11 @@ if (!$this->request->isAjax()) {
 				$('#copyrightBlock').slideUp(200);
 			}
 		});
+
+		// Add placeholder text for media citation instructions. 
+		jQuery('#media_citation_instruction1').attr("placeholder", "Jane Doe and colleagues");
+		jQuery('#media_citation_instruction2').attr("placeholder", "originally appearing in Doe et al., 2019,");
+		jQuery('#media_citation_instruction3').attr("placeholder", "with data collection funded by NSF 1234567");
 	});
 
 	var scannerListByFacilityID = <?php print json_encode($this->getVar('scannerListByFacilityID')); ?>;
