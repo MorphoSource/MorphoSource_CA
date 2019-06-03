@@ -56,15 +56,13 @@ class WLPlugMediaPDF extends BaseMediaPlugin implements IWLPlugMedia {
 	
 	var $info = array(
 		"IMPORT" => array(
-			"model/gltf+json"					=> "glb",
 			"application/pdf"					=> "pdf"
 		),
 		
 		"EXPORT" => array(
-			"model/gltf+json"						=> "glb",			
+			"application/pdf"						=> "pdf",
 			"image/jpeg"							=> "jpg",
-			"image/png"								=> "png",
-			"application/pdf"						=> "pdf"
+			"image/png"								=> "png"
 		),
 		
 		"TRANSFORMATIONS" => array(
@@ -91,18 +89,16 @@ class WLPlugMediaPDF extends BaseMediaPlugin implements IWLPlugMedia {
 	);
 	
 	var $typenames = array(
-		"model/gltf+json" 				=> "Binary GLTF",
 		"application/pdf"				=> "PDF"
 	);
 	
 	var $magick_names = array(
-		"model/gltf+json" 				=> "GLB",
 		"application/pdf"				=> "PDF"
 	);
 	
 	# ------------------------------------------------
 	public function __construct() {
-		$this->description = _t('Accepts files describing 3D models');
+		$this->description = _t('Accepts files describing PDFs');
 
 		$this->opo_config = Configuration::load();
 		$vs_external_app_config_path = $this->opo_config->get('external_applications');
@@ -139,16 +135,6 @@ class WLPlugMediaPDF extends BaseMediaPlugin implements IWLPlugMedia {
 		// PLY and STL are basically a simple text files describing polygons
 		// SURF is binary but with a plain text meta part at the beginning
 		if ($r_fp = @fopen($ps_filepath, "r")) {
-			// GLB?
-			if (strtolower(pathinfo($this->filepath, PATHINFO_EXTENSION)) == 'glb') {
-				$this->properties = $this->handle = $this->ohandle = array(
-					"mimetype" => 'model/gltf+json',
-					"filesize" => filesize($ps_filepath),
-					"typename" => "GLTF"
-				);
-				return "model/gltf+json";
-			}
-
 			// PDF?
 			if (strtolower(pathinfo($this->filepath, PATHINFO_EXTENSION)) == 'pdf') {
 				$this->properties = $this->handle = $this->ohandle = array(
