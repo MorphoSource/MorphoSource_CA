@@ -3,7 +3,6 @@
 </div><!-- end contentArea -->
 <div id="footer">
 	<div style="float: right;">
-		<em>Commercial use of MorphoSource media is strictly prohibited.</em>
 <?php
 		if($this->request->getController() == "Splash"){
 ?>
