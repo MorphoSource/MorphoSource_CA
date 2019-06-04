@@ -56,8 +56,7 @@
 			$vb_show_progress_bar = true;
 			break;
 		case 'application/pdf':
-			$vb_force_resize = true;
-			print $t_media_file->getMediaTag('media', 'original', array('viewer_width' => '1000', 'viewer_height' => '800', 'id' => 'msMediaViewer', 'progress_id' => 'msMediaOverlayProgress', 'progress_total_filesize' => $vn_filesize));
+			print "<div style='height: 100%; width: 100%; min-height: 100%; padding: 20% 40% 200% 40%;' onclick='msMediaPanel.hidePanel(); return false;'><div style='color: white; background-color: black; opacity: 0.7; width: 200px; padding: 10px;' onclick='msMediaPanel.hidePanel(); return false;'>Preview unavailable for this content</div></div>";
 			break;
 		case 'video/mp4':
 			$vb_force_resize = true;

@@ -1395,7 +1395,7 @@ function caFileIsIncludable($ps_file) {
 					case 'text/html':
 					case 'text/plain':
 					case 'application/msword':
-						return 'document';
+						return 'Document';
 						break;
 					case 'application/ply':
 					case 'application/stl':

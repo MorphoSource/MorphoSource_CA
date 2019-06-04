@@ -125,7 +125,7 @@ var jfuInit = function (j, fileId) {
         add: function (e, data) {
             // For the record: these extension have been tested and working
             // gif|jpe?g|png|zip|ply|bmp|tif?f|stl|obj
-            var fileType = data.files[0].name.split('.').pop(), allowdtypes = 'gif,jpg,jpeg,png,zip,ply,bmp,tif,tiff,stl,obj,rm,asf,wmv,mov,avi,flv,swf,mpeg,m4v,ogg,webm';
+            var fileType = data.files[0].name.split('.').pop(), allowdtypes = 'gif,jpg,jpeg,png,zip,ply,bmp,tif,tiff,stl,obj,rm,asf,wmv,mov,avi,flv,swf,mpeg,m4v,ogg,webm,pdf';
             if (allowdtypes.toUpperCase().indexOf(fileType.toUpperCase()) < 0) {
                 alert('Sorry, the file type is not accepted.');
                 return false;
