@@ -77,7 +77,9 @@
 			</ul>
 			<ul class="subNav">
 <?php
-			if($this->request->isLoggedIn()){
+			require_once(__CA_MODELS_DIR__."/ms_projects.php");
+			$t_project = new ms_projects();
+			if($this->request->isLoggedIn()) {
 				#print "<li class='last'>".caNavLink($this->request, _t("Preferences"), "", "system", "Preferences", "EditProfilePrefs")."</li>";
 				
 				print "<li class='last'><a href='#' onClick='return false;'><i class='fa fa-user'></i></a>";
@@ -103,27 +105,30 @@
 				
 				# --- display the current project if there is one
 				if($this->request->session->getVar('current_project_id')){
-					require_once(__CA_MODELS_DIR__."/ms_projects.php");
 					$t_project = new ms_projects($this->request->session->getVar('current_project_id'));
 					print "<li style='text-transform:none;'>";
 					print "<a href='#' onClick='return false;' class='ltBlueText'>".((strlen($t_project->get("name")) > 25) ? mb_substr($t_project->get("name"), 0, 25)."..." : $t_project->get("name"));
 					print " <i class='fa fa-cog'></i></a>";
 					print "<div class='jumpMenu' id='projectJumpMenu'>\n";
-					print "<div>VIEW:</div>";
+					if ($this->request->user->isFullAccessUser()) {
+						print "<div>NEW:</div>";
+						print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Project"), "", "MyProjects", "Project", "form", array("new_project" => 1))."</div>";
+					}
+					print "<div>MANAGE:</div>";
+					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("All download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
+					print "<div>VIEW PROJECT RECORDS:</div>";
 					print "<div><a href='".caNavUrl($this->request, "MyProjects", "Dashboard", "dashboard")."'>"._t("Dashboard")."</a></div>\n";
 					print "<div>".caNavLink($this->request, _t("Bibliography"), "", "MyProjects", "Bibliography", "ListItems")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("Taxonomy"), "", "MyProjects", "Taxonomy", "ListItems")."</div>\n";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Facilities"), "", "MyProjects", "Facilities", "ListItems")."</div>\n";
-					print "<div>MANAGE:</div>";
-					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("All download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
-					print "<div>NEW:</div>";
+					print "<div>NEW PROJECT RECORD:</div>";
 					print "<div>".caNavLink($this->request, _t("New Specimen"), "", "MyProjects", "Specimens", "lookupSpecimen")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Bibliographic Citation"), "", "MyProjects", "Bibliography", "form")."</div>\n";
 					print "<div>".caNavLink($this->request, _t("New Taxonomic Name"), "", "MyProjects", "Taxonomy", "form")."</div>\n";
-					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Facility"), "", "MyProjects", "Facilities", "form")."</div>\n";
+					print "<div>".caNavLink($this->request, _t("New Facility"), "", "MyProjects", "Facilities", "form")."</div>\n";
 					print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Project"), "", "MyProjects", "Project", "form", array("new_project" => 1))."</div>";
 					if($t_project->get("user_id") == $this->request->user->get("user_id")){
-						print "<div>PROJECT:</div>";
+						print "<div>PROJECT ADMIN:</div>";
 						print "<div>".caNavLink($this->request, _t("Project Info"), "", "MyProjects", "Project", "form", array("project_id" => $t_project->get("project_id")))."</div>";
 						print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("Manage Members"), "", "MyProjects", "Members", "listForm")."</div>";
 					}
@@ -141,23 +146,32 @@
 					print "</div>\n";
 					print "</li>\n";
 				}else{
-					require_once(__CA_MODELS_DIR__."/ms_projects.php");
-					$t_project = new ms_projects();
 					$va_projects = $t_project->getProjectsForMember($this->request->user->get("user_id"));
-					if(sizeof($va_projects)){
+					if ($this->request->user->isFullAccessUser() || sizeof($va_projects)) {
 						print "<li style='text-transform:none;'>";
-						print "<a href='#' onClick='return false;' class='ltBlueText'>Choose a project <i class='fa fa-cog'></i></a>";
+						print "<a href='#' onClick='return false;' class='ltBlueText'>Actions <i class='fa fa-cog'></i></a>";
 						print "<div class='jumpMenu' id='projectJumpMenu'>\n";
-						foreach($va_projects as $va_project){
-							print "<div>";
-							if($va_project["membership_type"] == 2){
-								print caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]))." <i>(Read Only)</i>";
-							}else{
-								print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
-							}
-							print "</div>";
+						
+						if ($this->request->user->isFullAccessUser()) {
+							print "<div>NEW:</div>";
+							print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("New Project"), "", "MyProjects", "Project", "form", array("new_project" => 1))."</div>";
 						}
-						print "<div>".caNavLink($this->request, _t("Manage all download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
+
+						if(sizeof($va_projects)){	
+							print "<div>MANAGE:</div>";
+							print "<div class='ltBlueBottomRule'>".caNavLink($this->request, _t("All download requests"), "", "MyProjects", "Dashboard", "manageAllDownloadRequests")."</div>\n";
+							print "<div>CHOOSE PROJECT:</div>";
+							foreach($va_projects as $va_project){
+								print "<div>";
+								if($va_project["membership_type"] == 2){
+									print caNavLink($this->request, $va_project["name"], "", "MyProjects", "ReadOnly", "dashboard", array("project_id" => $va_project["project_id"]))." <i>(Read Only)</i>";
+								}else{
+									print caNavLink($this->request, $va_project["name"], "", "MyProjects", "Dashboard", "dashboard", array("select_project_id" => $va_project["project_id"]));
+								}
+								print "</div>";
+							}						
+						}
+
 						print "</div>\n";
 						print "</li>\n";
 					}

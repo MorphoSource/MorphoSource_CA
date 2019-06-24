@@ -11,7 +11,7 @@
 ?>
 				<form action="<?php print caNavUrl($this->request, '', 'LoginReg', 'login', array()); ?>" method="post" name="login">
 					<div>
-						<b><?php print _t("Username"); ?></b><br/>
+						<b><?php print _t("Email Address"); ?></b><br/>
 						<input type="text" name="username" />
 					</div>
 					<div>

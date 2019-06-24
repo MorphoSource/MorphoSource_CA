@@ -791,6 +791,8 @@ class ms_media_files extends BaseModel {
 						$va_media_md[] = "";
 					}
 
+					$va_media_md[] = "";
+
 					if($dl_usage){
 						### Media group views ###
 						$o_db = $this->getDb();
