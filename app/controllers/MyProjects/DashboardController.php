@@ -100,7 +100,7 @@
 				$vs_specimens_group_by = 'number';
 			}
 			if (!in_array($vs_specimens_group_by, 
-				['n', 't', 'a', 'm', 'u', 'v'])) {
+				['n', 't', 'd', 'p', 'a', 'm', 'u', 'v'])) {
 				$vs_specimens_group_by = 'n';
 			}
 			$this->view->setVar('specimens_group_by', $vs_specimens_group_by);
@@ -135,6 +135,14 @@
 			}
 			$this->view->setVar('entity_type', $vs_entity_type);
 			$this->request->session->setVar('entity_type', $vs_entity_type);
+
+			// Initial batch menu visibility handling
+			if ($this->request->getParameter('b', pInteger)) {
+				$vs_batch_vis = $this->request->getParameter('b', pInteger);
+			}else{
+				$vs_batch_vis = 0;
+			}
+			$this->view->setVar('batch_vis', $vs_batch_vis);
 
 			// Initial db query
 			$o_db = new Db();
@@ -177,6 +185,9 @@
 							case 't':
 								$vs_order_by = 'taxon';
 								break;
+							case 'd':
+								$vs_order_by = 'description';
+								break;
 							case 'a':
 								$vs_order_by = 'added';
 								break;
@@ -218,11 +229,17 @@
 							case 't':
 								$vs_order_by = 'taxon';
 								break;
+							case 'd':
+								$vs_order_by = 'element';
+								break;
 							case 'a':
 								$vs_order_by = 'added';
 								break;
 							case 'm':
 								$vs_order_by = 'modified';
+								break;
+							case 'p':
+								$vs_order_by = 'published';
 								break;
 							default:
 								$vs_order_by = 'number';
@@ -271,7 +288,9 @@
 					"media_citation_instruction2", "media_citation_instruction3"), 
 				"copyright" => array("copyright_permission", "copyright_license", 
 					"copyright_info"), 
-				"grant_support" => array("grant_support"));
+				"grant_support" => array("grant_support"),
+				"publication" => array("published", "reviewer_id")
+			);
 			$f_type = array(
 				"bibliography_id" => pInteger, 
 				"media_citation_instruction1" => pString, 
@@ -280,7 +299,10 @@
 				"copyright_permission" => pInteger, 
 				"copyright_license" => pInteger, 
 				"copyright_info" => pString, 
-				"grant_support" => pString);
+				"grant_support" => pString,
+				"published" => pInteger,
+				"reviewer_id" => pInteger
+			);
 
 			$f_val = array();
 			foreach ($f_type as $f => $type) {
@@ -355,7 +377,9 @@
 									|| ($key == 'media_citation_instruction3' && $value == ', the collection of which was funded by ')) {
 									continue;
 								}
-								if ($value) {
+								if ($value != "") {
+									if ( ($key == 'reviewer_id') & ($value == "-1") ) { $value = ""; }
+
 									$media_set = TRUE;
 									$section_attempt = TRUE;
 									$t_media->set($key, $value);
