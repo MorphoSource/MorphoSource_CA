@@ -618,12 +618,20 @@ class ms_projects extends BaseModel {
 				$vs_order_by = " t.genus, t.species, t.subspecies";
 			break;
 			# -----------------
+			case "element":
+				$vs_order_by = " m.element";
+			break;
+			# -----------------
 			case "added":
 				$vs_order_by = " m.created_on";
 			break;
 			# -----------------
 			case "modified":
 				$vs_order_by = " m.last_modified_on";
+			break;
+			# -----------------
+			case "published":
+				$vs_order_by = " m.published";
 			break;
 			# -----------------
 			default:
@@ -858,6 +866,10 @@ class ms_projects extends BaseModel {
 				$vs_order_by = " t.genus, t.species, t.subspecies";
 				$vs_order_by_joins = "LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
 										LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id";
+			break;
+			# -----------------
+			case "description":
+				$vs_order_by = " s.description";
 			break;
 			# -----------------
 			case "added":

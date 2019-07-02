@@ -414,7 +414,7 @@
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 120px;'>";
-			print "<b>Collection code</b>";
+			print "<b>Specimen Number</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 80px;'>";
@@ -423,15 +423,15 @@
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 105px; 
 				text-align: center;'>";
-			print "<b>Media groups (published/total)</b>";
+			print "<b>Media Groups (published/total)</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 90px;'>";
-			print "<b>Date added</b>";
+			print "<b>Date Added</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 90px;'>";
-			print "<b>Date modified</b>";
+			print "<b>Date Modified</b>";
 			print "</div>";
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 55px; text-align: center;'>";
@@ -451,17 +451,17 @@
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 65px; padding-right: 10px; 
 				text-align: center;'>";
-			print "<b>Media group</b>";
+			print "<b>Media Group</b>";
 			print "</div>";
 
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 155px;'>";
-			print "<b>Element description</b>";
+			print "<b>Element Description</b>";
 			print "</div>";
 
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 120px;'>";
-			print "<b>Collection code</b>";
+			print "<b>Specimen Number</b>";
 			print "</div>";
 
 			print "<div class='entityListCell' 
@@ -476,12 +476,12 @@
 
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 85px;'>";
-			print "<b>Date added</b>";
+			print "<b>Date Added</b>";
 			print "</div>";
 
 			print "<div class='entityListCell' 
 				style='display: table-cell; width: 85px;'>";
-			print "<b>Date modified</b>";
+			print "<b>Date Modified</b>";
 			print "</div>";
 		}
 		print "</div><!-- end entityListHeader -->";
