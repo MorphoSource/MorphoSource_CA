@@ -226,10 +226,17 @@
 			print caNavLink($this->request, "New Specimen", 
 				"button buttonMedium buttonWhiteBorder", "MyProjects", 
 				"Specimens", "lookupSpecimen");
+			print "<a href='#' name='specimenMediaBatchButton' ". 
+				"class='button buttonMedium buttonWhiteBorder' id='specimenMediaBatchButton' ".
+				"title='Batch edit media groups' >Batch Edit Media</a>";
+			print caNavLink($this->request, _t("Add All Media to Cart"), 
+				"button buttonMedium buttonWhiteBorder", "", "MediaCart", 
+				"addProjectMediaToCart", 
+				array("project_id" => $t_project->get("project_id")));
 		} else if ($vs_entity_type == 'm') {
 			print "<a href='#' name='mediaBatchButton' ". 
 				"class='button buttonMedium buttonWhiteBorder' id='mediaBatchButton' ".
-				"title='Batch edit media groups' >Batch Edit</a>";
+				"title='Batch edit media groups' >Batch Edit Media</a>";
 			print caNavLink($this->request, _t("Add All Media to Cart"), 
 				"button buttonMedium buttonWhiteBorder", "", "MediaCart", 
 				"addProjectMediaToCart", 
@@ -237,7 +244,7 @@
 		}
 
 		$sort_opt_selected = $this->getVar("specimens_group_by");
-		if (!in_array($sort_opt_selected, ['n', 't', 'a', 'm', 'u', 'v'])) {
+		if (!in_array($sort_opt_selected, ['n', 't', 'd', 'p', 'a', 'm', 'u', 'v'])) {
 			$sort_opt_selected = 'n';
 		}
 
@@ -245,10 +252,15 @@
 
 		print "<div class='dashboardMediaHeaderItem' style='width: 26%;'>";
 		$sort_options = array(
-			'Flat list' => array('Specimen number' => 'n', 
-				'Taxon name' => 't', 'Date added' => 'a', 
-				'Date modified' => 'm'), 
-			'Taxonomy tree' => array('User-entered data' => 'u', 
+			'Flat list' => array(
+				'Specimen Number' => 'n', 
+				'Taxon Name' => 't',
+				'Description' => 'd',
+				'Date Added' => 'a', 
+				'Date Modified' => 'm',
+				'Media Publication' => 'p'), 
+			'Taxonomy tree' => array(
+				'User-entered data' => 'u', 
 				"External taxonomy" => 'v'));
 		print "<span class='entityViewHeaderText'>sort by</span>";
 		print "<select class='dashboardMediaHeaderSelect' id='mediaSortSelect'>";
@@ -285,19 +297,18 @@
 ?>
 	</div><!-- end dashboardMediaHeader --> 
 	<!-- end entity view header -->
-	
+
+
 	<!-- batch media edit pane (hidden by default) -->
-	<div id='entityMediaBatchEditContainer' style='display: none;'>
 <?php
+	$vs_batch_vis = $this->getVar('batch_vis');
+	print "<div id='entityMediaBatchEditContainer' style='".( $vs_batch_vis == 1 ? "" : "display: none;")."'>";
+
 		// tab buttons
 		print "<a href='#' name='generalButton' ".
 			"class='tab tabActive' id='generalButton' ".
-			"title='General batch edit options' ".
-			">General</a>";
-		print "<a href='#' name='scanOriginButton' class='tab' ".
-			"id='scanOriginButton' ".
-			"title='Scan origin batch edit options coming soon' 
-			style='opacity: 0.3;'>Scan Origin</a>";
+			"title='Batch Edit Media Menu' ".
+			">Batch Edit</a>";
 
 		print "<a href='#' name='mediaBatchSelectNoneButton' ". 
 				"class='button buttonLarge batchTopButton' 
@@ -369,10 +380,17 @@
 		} else if (jQuery('#entityContainerList').is(':visible')) {
 			var entityFormat = 'l';
 		}
+
+		if (jQuery('#mediaSortSelect').val() == 'p') {
+			var entityType = 'm';
+		} else {
+			var entityType = jQuery('#entityTypeSelect').val();
+		}
+
 		window.location.href = 
 			'/MyProjects/Dashboard/dashboard/s/'+ 
 			jQuery('#mediaSortSelect').val() + '/t/' + 
-			jQuery('#entityTypeSelect').val() + '/f/' + 
+			entityType + '/f/' + 
 			entityFormat;
 	});
 
@@ -385,11 +403,11 @@
 		} else {
 			var entityFormat = 't';
 		}
+
 		window.location.href = 
-			'/MyProjects/Dashboard/dashboard/s/'+ 
-			jQuery('#mediaSortSelect').val() + '/t/' + 
-			jQuery('#entityTypeSelect').val() + '/f/' + 
-			entityFormat;
+			'/MyProjects/Dashboard/dashboard/s/' + jQuery('#mediaSortSelect').val() + 
+			'/t/' + jQuery('#entityTypeSelect').val() + 
+			'/f/' + entityFormat;
 	});
 
 
@@ -431,6 +449,21 @@
 	}).click(function() { this.select(); });
 
 	jQuery('.buttonGray').click(function() {
+		return false;
+	});
+
+	jQuery('#specimenMediaBatchButton').click(function () {
+		if (jQuery('#entityContainerTile').is(':visible')) {
+			var entityFormat = 't';
+		} else if (jQuery('#entityContainerList').is(':visible')) {
+			var entityFormat = 'l';
+		} else {
+			var entityFormat = 't';
+		}
+
+		window.location.href = 
+			'/MyProjects/Dashboard/dashboard/s/' + jQuery('#mediaSortSelect').val() + 
+			'/t/m' + '/f/' + entityFormat + '/b/1';
 		return false;
 	});
 

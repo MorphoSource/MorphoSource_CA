@@ -1,6 +1,7 @@
 <?php
 	$vs_message = $this->getVar("message");
 	$t_media = new ms_media();
+	$t_project = $this->getVar("project");
 
 	// Entity viewer batch editing menu
 	print "<div id='entityMediaBatchFormContainer'>";
@@ -48,7 +49,7 @@
 	print "<div id='mediaGrantSupportContainer' ".
 		"style='margin: 15px 0px 0px 0px;'>";
 	print "<h2>Support information:</h2>";
-	print "<div class='formLabel entityBatchFormItem'>Grant support:</br>";
+	print "<div class='formLabel entityBatchFormItem'>Grant Support:</br>";
 	print $t_media->htmlFormElement('grant_support', '^ELEMENT', 
 		array('width' => '350px'));
 	print "</div>";
@@ -72,13 +73,31 @@
 		'^ELEMENT', array('width' => '350px'))."</div>";
 	print "</div><!-- end mediaCopyrightContainer -->";
 
-	// Link to edit publication status 
+	// Edit publication status 
 	print "<div id='batchPublicationLinkContainer' 
-		style='margin: 15px 0px 0px 0px;'>";
+		style='margin: 15px 0px 0px 0px; width: 360px;'>";
+
 	print "<h2>Publication information</h2>";
+	print "<div class='formLabel entityBatchFormItem'>Publication Status of Media Groups:</br>";
+	print $t_media->htmlFormElement('published', '^ELEMENT', array('width' => '350px'))."</div>";
+	
+	$va_members = $t_project->getMembers();
+	if(sizeof($va_members)){
+		print "<div class='formLabel entityBatchFormItem'>Download Requests Reviewed By:</br>";
+		print "<select name='reviewer_id' id='reviewer_id' style='width: 350px;'".(($t_media->get("published") == 2) ? "" : "disabled").">\n";
+		print "<option value=''>"._t("Use project default")."</option>\n";
+		foreach($va_members as $va_member){
+			if($va_member["membership_type"] == 1){
+				print "<option value='".$va_member["user_id"]."' ".(($t_media->get("reviewer_id") == $va_member["user_id"]) ? "selected" : "").">".$va_member["fname"]." ".$va_member["lname"].", ".$va_member["email"]."</option>\n";
+			}
+		}
+		print "</select>";
+		print "</div>";
+	}
+
 	print "<div style='margin-left: 5px;'>".
 		caNavLink($this->request, 
-			_t("Click here to batch edit publication settings."), 
+			"Batch edit publication of media files in media groups <i class='fa fa-external-link'></i>", 
 			"", "MyProjects", "Media", "reviewPublicationSettings").
 		"</div>";
 	print "</div><!-- end batchPublicationLinkContainer -->";
@@ -200,3 +219,25 @@
 	print "</div><!-- end batchButtonContainer -->";
 
 ?>
+
+<script>
+	$('#published').prepend($("<option></option>").attr("value","").text("")); 
+	$('#published :nth-child(1)').prop('selected', true);
+	$('#reviewer_id').prepend($("<option></option>").attr("value","").text("")); 
+	$('#reviewer_id :nth-child(1)').prop('selected', true);
+	$('#reviewer_id :nth-child(2)').prop('value', -1);
+	$('#copyright_permission').prepend($("<option></option>").attr("value","").text("")); 
+	$('#copyright_permission :nth-child(1)').prop('selected', true);
+	$('#copyright_license').prepend($("<option></option>").attr("value","").text("")); 
+	$('#copyright_license :nth-child(1)').prop('selected', true);
+
+
+	jQuery('#published').on('change', function() {
+	  if($(this).val() == 2){
+	  	$('#reviewer_id').prop("disabled", false);
+	  }else{
+	  	$('#reviewer_id').val('');
+	  	$('#reviewer_id').prop("disabled", true);
+	  }
+	});
+</script>
