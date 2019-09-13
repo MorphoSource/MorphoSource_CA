@@ -104,7 +104,8 @@
 	//
 	// Load mobile
 	//
-	if (caDeviceIsMobile()) { JavascriptLoadManager::register('mobile'); }
+	// JMW edited this out 9/13/2019 because it seems to fix issues with 'undefined'
+	// if (caDeviceIsMobile()) { JavascriptLoadManager::register('mobile'); }
 	
 	// Prevent caching
 	$resp->addHeader("Cache-Control", "no-cache, must-revalidate");
