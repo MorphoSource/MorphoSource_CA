@@ -118,7 +118,9 @@
 						$va_institution_ids[$va_specimen["institution_id"]] = $va_specimen["institution_id"];
 					}
 				}
-				$vs_project_institutions = " OR i.institution_id IN (".join(", ", $va_institution_ids).") ";
+				if(is_array($va_institution_ids) && sizeof($va_institution_ids)){
+					$vs_project_institutions = " OR i.institution_id IN (".join(", ", $va_institution_ids).") ";
+				}
 			}
 			$q_listings = $o_db->query("
 				SELECT i.* 
