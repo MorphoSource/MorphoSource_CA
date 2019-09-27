@@ -60,7 +60,7 @@ var caUI = caUI || {};
 		// --------------------------------------------------------------------------------
 		// Define methods
 		// --------------------------------------------------------------------------------
-		that.showPanel = function(url, onCloseCallback='', position='fixed') {
+		that.showPanel = function(url, scrollable=false, onCloseCallback='', position='fixed') {
 			that.setZoom(that.allowMobileSafariZooming);
 			that.isChanging = true;
 			
@@ -69,7 +69,15 @@ var caUI = caUI || {};
 				jQuery('#' + that.panelID).css("left", ((jQuery(window).width() - jQuery('#' + that.panelID).width())/2) + "px");
 			}
 			
-			jQuery('#' + that.panelID).css('position', position);
+			if (scrollable) {
+				jQuery('#' + that.panelID).css('padding-top', jQuery(window).scrollTop());
+				jQuery('#' + that.panelID).css('position', 'absolute');
+			} else{
+				jQuery('#' + that.panelID).css('padding-top', 0);
+				jQuery('#' + that.panelID).css('position', 'fixed');
+			}
+
+			
 			jQuery('#' + that.panelID).fadeIn(that.panelTransitionSpeed, function() { that.isChanging = false; });
 			
 			if (that.useExpose) { 
