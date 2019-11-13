@@ -269,6 +269,21 @@ class DbResult extends DbBase {
 	}
 	# ---------------------------------------------------------------------------
 	/**
+	  * Return all rows from the result set as a list. Each item in the list is an array with keys set to field names and values set to field values
+	  * 
+	  * @return array List of arrays containing row data
+	  */
+	public function getAllRowsKeyed($ps_field) {
+		$this->seek(0);
+		$va_rows = array();
+		while($this->nextRow()) {
+			$va_rows[$this->get($ps_field)] = $this->getRow();
+		}
+		
+		return $va_rows;
+	}
+	# ---------------------------------------------------------------------------
+	/**
 	  * Returns a list of values for the specified field from all rows in the result set. If you need to extract all values from single field in a result set this method provides a convenient means to do so.
 	  *
 	  * @param string $ps_field Name of field to fetch

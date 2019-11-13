@@ -268,6 +268,7 @@
 								$vs_order_by = 'number';
 								break;
 						}
+
 						$qr = $this->opo_item->
 							getProjectMedia(null, $vs_order_by, 
 								array(

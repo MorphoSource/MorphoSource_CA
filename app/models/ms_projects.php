@@ -882,47 +882,118 @@ class ms_projects extends BaseModel {
 		}
 		
 		$o_db = $this->getDb();		
-		$qr = $o_db->query("
-			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen
-			FROM ms_specimens s
-			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
-			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
-			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
-			LEFT JOIN ca_users AS u ON p.user_id = u.user_id
-			LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
-			LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+		// $qr = $o_db->query("
+		// 	SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, u.fname, u.lname, u.email, sp.link_id linked_specimen
+		// 	FROM ms_specimens s
+		// 	LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+		// 	LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
+		// 	LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+		// 	LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+		// 	LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+		// 	LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+		// 	".$vs_order_by_joins."
+		// 	WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
+		// 	(s.project_id = ?
+		// 	OR m.project_id = ?
+		// 	OR mp.project_id = ?
+		// 	OR sp.project_id = ?)".$vs_published_where."
+		// 	ORDER BY ".$vs_order_by
+		// , $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
+
+		$qr_specimens = $o_db->query("
+			SELECT DISTINCT s.*
+			FROM ms_specimens AS s
 			".$vs_order_by_joins."
-			WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
-			(s.project_id = ?
-			OR m.project_id = ?
-			OR mp.project_id = ?
-			OR sp.project_id = ?)".$vs_published_where."
-			ORDER BY ".$vs_order_by
-		, $vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
-			
+			WHERE 
+				(s.project_id = ?)
+			OR
+				(s.specimen_id IN 
+					(SELECT specimen_id
+					FROM ms_specimens_x_projects
+					WHERE project_id = ?)
+				)
+			OR 
+				(s.specimen_id IN
+					(SELECT specimen_id
+					FROM ms_media AS m
+					WHERE m.project_id = ?".$vs_published_where.")
+				)
+			OR
+				(s.specimen_id IN
+					(SELECT m.specimen_id
+					FROM ms_media_x_projects AS mxp
+					LEFT JOIN ms_media AS m ON m.media_id = mxp.media_id
+					WHERE mxp.project_id = ?".$vs_published_where.")
+				)
+			ORDER BY ".$vs_order_by,
+			$vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
+		
+		$va_specimen_ids = $qr_specimens->getAllFieldValues('specimen_id');
+		$va_specimens = $qr_specimens->getAllRowsKeyed('specimen_id');
+		// die(print_r($va_specimen_ids));
+
+		// $qr_media = $o_db->query("
+		// 	SELECT m.media_id, m.published, m.specimen_id
+		// 	FROM ms_media AS m
+		// 	WHERE m.specimen_id IN (".implode(',', $va_specimen_ids).")".$vs_published_where.
+		// 	"GROUP BY specimen_id"
+		// );
+
+		$qr_media = $o_db->query("
+			SELECT m.media_id, m.published, m.specimen_id
+			FROM ms_media AS m
+			WHERE m.media_id IN
+			(
+				SELECT max(m.media_id)
+				FROM ms_media AS m
+				WHERE specimen_id IN (".implode(',', $va_specimen_ids).")".$vs_published_where."
+				GROUP BY m.specimen_id
+			)"		
+		);
+		
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
 			$pa_versions = array('small', 'preview190');
 		}
 		
-		$va_specimens = array();
-		while($qr->nextRow()) {
-			$va_specimen = $qr->getRow();
+		$t_media = new ms_media();
+		while($qr_media->nextRow()) {
+			$va_media = $qr_media->getRow();
+			$vn_media_id = $va_media['media_id'];
+			$vn_specimen_id = $va_media['specimen_id'];
+
+			$va_specimens[$vn_specimen_id]['media'][$vn_media_id] = $va_media;
 			
-			if(!isset($va_specimens[$va_specimen['specimen_id']])) {
-				$va_specimen['media'] = array();
-				$va_specimens[$va_specimen['specimen_id']] = $va_specimen;
-			}
-			if ($vn_media_id = $va_specimen['media_id']) {
-				$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
-				$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
-				$t_media = new ms_media();
-				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
-				foreach($pa_versions as $vs_version) {
-					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
-					$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
-				}
-			}
+			$va_media_preview_file_info = 
+				$t_media->getPreviewMediaFile($vn_media_id, 
+					$pa_versions, 
+					($pa_options["published_media_only"]) ? true : false
+				)
+			;
+			$va_specimens[$vn_specimen_id]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+			$va_specimens[$vn_specimen_id]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+
 		}
+
+
+		// $va_specimens = array();
+		// while($qr->nextRow()) {
+		// 	$va_specimen = $qr->getRow();
+			
+		// 	if(!isset($va_specimens[$va_specimen['specimen_id']])) {
+		// 		$va_specimen['media'] = array();
+		// 		$va_specimens[$va_specimen['specimen_id']] = $va_specimen;
+		// 	}
+		// 	if ($vn_media_id = $va_specimen['media_id']) {
+		// 		$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
+		// 		$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
+		// 		$t_media = new ms_media();
+		// 		$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
+		// 		foreach($pa_versions as $vs_version) {
+		// 			$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+		// 			$va_specimens[$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+		// 		}
+		// 	}
+		// }
 
 		return $va_specimens;
 	}
@@ -938,7 +1009,7 @@ class ms_projects extends BaseModel {
 			$pa_options = array();
 		}
 
-		// Constructing db query
+		// SPECIMEN DB QUERY
 		$vs_order_by = " s.institution_code, s.collection_code, 
 			s.catalog_number";
 		
@@ -946,68 +1017,165 @@ class ms_projects extends BaseModel {
 		if($pa_options["published_media_only"]){
 			$vs_published_where = " AND m.published != 0 ";
 		}
-		
-		if($pb_vertnet){
-			$vs_select_from = "
-			SELECT s.*, m.media_id, m.published, p.name AS 'project_name', 
-				u.fname, u.lname, u.email, sp.link_id AS 'linked_specimen', 
-				t.species, t.genus AS 'genus', g.name AS 'vn_genus', 
-				p1.name AS 'p1_name', p1.rank AS 'p1_rank', p2.name AS 'p2_name', 
-				p2.rank AS 'p2_rank', p3.name AS 'p3_name', p3.rank AS 'p3_rank',
-				t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
-			FROM ms_specimens s
-			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
-			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
-			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
-			LEFT JOIN ca_users AS u ON p.user_id = u.user_id
-			LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
-			LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
-			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON s.specimen_id = sxt.specimen_id
-			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
-			LEFT JOIN ms_specimens_x_resolved_taxonomy AS xrt ON s.specimen_id = xrt.specimen_id
-			LEFT JOIN ms_resolved_taxonomy AS g ON xrt.taxon_id = g.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS p1 ON g.parent_id = p1.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS p2 ON p1.parent_id = p2.taxon_id
-			LEFT JOIN ms_resolved_taxonomy AS p3 ON p2.parent_id = p3.taxon_id ";
-		}else{
-			$vs_select_from = "
-			SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, 
-				u.fname, u.lname, u.email, sp.link_id linked_specimen, 
-				t.species, t.genus, t.ht_family, t.ht_order, t.ht_class, 
-				t.taxon_id
-			FROM ms_specimens s
-			LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
-			LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
-			LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
-			LEFT JOIN ca_users AS u ON p.user_id = u.user_id
-			LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
-			LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
-			LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
-			LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id ";
+
+		$vs_taxonomy_field_where = "";
+		if($pa_options["taxonomy_type"] && $pa_options["taxonomy_term"]){
+			$vs_taxonomy_field_where = " AND (t.".$pa_options["taxonomy_type"]." = ".$pa_options["taxonomy_term"].") ";
 		}
+		
+		// if($pb_vertnet){
+		// 	$vs_select_from = "
+		// 	SELECT s.*, m.media_id, m.published, p.name AS 'project_name', 
+		// 		u.fname, u.lname, u.email, sp.link_id AS 'linked_specimen', 
+		// 		t.species, t.genus AS 'genus', g.name AS 'vn_genus', 
+		// 		p1.name AS 'p1_name', p1.rank AS 'p1_rank', p2.name AS 'p2_name', 
+		// 		p2.rank AS 'p2_rank', p3.name AS 'p3_name', p3.rank AS 'p3_rank',
+		// 		t.taxon_id, g.taxon_id AS 'vn_taxon_id'   
+		// 	FROM ms_specimens s
+		// 	LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+		// 	LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
+		// 	LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+		// 	LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+		// 	LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+		// 	LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+		// 	LEFT JOIN ms_specimens_x_taxonomy AS sxt ON s.specimen_id = sxt.specimen_id
+		// 	LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+		// 	LEFT JOIN ms_specimens_x_resolved_taxonomy AS xrt ON s.specimen_id = xrt.specimen_id
+		// 	LEFT JOIN ms_resolved_taxonomy AS g ON xrt.taxon_id = g.taxon_id
+		// 	LEFT JOIN ms_resolved_taxonomy AS p1 ON g.parent_id = p1.taxon_id
+		// 	LEFT JOIN ms_resolved_taxonomy AS p2 ON p1.parent_id = p2.taxon_id
+		// 	LEFT JOIN ms_resolved_taxonomy AS p3 ON p2.parent_id = p3.taxon_id ";
+		// }else{
+		// 	$vs_select_from = "
+		// 	SELECT DISTINCT s.*, m.media_id, m.published, p.name project_name, 
+		// 		u.fname, u.lname, u.email, sp.link_id linked_specimen, 
+		// 		t.species, t.genus, t.ht_family, t.ht_order, t.ht_class, 
+		// 		t.taxon_id
+		// 	FROM ms_specimens s
+		// 	LEFT JOIN ms_media AS m ON m.specimen_id = s.specimen_id
+		// 	LEFT JOIN ms_projects AS mproj ON m.project_id = mproj.project_id
+		// 	LEFT JOIN ms_projects AS p ON s.project_id = p.project_id
+		// 	LEFT JOIN ca_users AS u ON p.user_id = u.user_id
+		// 	LEFT JOIN ms_media_x_projects AS mp ON m.media_id = mp.media_id
+		// 	LEFT JOIN ms_specimens_x_projects AS sp ON s.specimen_id = sp.specimen_id
+		// 	LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+		// 	LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id ";
+		// }
 
 		$o_db = $this->getDb();
-		if($pa_options["taxonomy_type"] && $pa_options["taxonomy_term"]){
-			$qr = $o_db->query($vs_select_from."
-				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
-				(s.project_id = ?
-				OR m.project_id = ?
-				OR mp.project_id = ?
-				OR sp.project_id = ?)
-				AND (t.".$pa_options["taxonomy_type"]." = ?) ".
-				$vs_published_where." ORDER BY ".$vs_order_by, $vn_project_id, 
-				$vn_project_id, $vn_project_id, $vn_project_id, 
-				$pa_options["taxonomy_term"]);
+
+		if($pb_vertnet) {
+			$qr_specimens = $o_db->query("
+				SELECT DISTINCT s.*, t.species, t.genus AS 'genus', g.name AS 'vn_genus', 
+				p1.name AS 'p1_name', p1.rank AS 'p1_rank', p2.name AS 'p2_name', 
+				p2.rank AS 'p2_rank', p3.name AS 'p3_name', p3.rank AS 'p3_rank',
+				t.taxon_id, g.taxon_id AS 'vn_taxon_id'
+				FROM ms_specimens AS s
+				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+				LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+				LEFT JOIN ms_specimens_x_resolved_taxonomy AS xrt ON s.specimen_id = xrt.specimen_id
+				LEFT JOIN ms_resolved_taxonomy AS g ON xrt.taxon_id = g.taxon_id
+				LEFT JOIN ms_resolved_taxonomy AS p1 ON g.parent_id = p1.taxon_id
+				LEFT JOIN ms_resolved_taxonomy AS p2 ON p1.parent_id = p2.taxon_id
+				LEFT JOIN ms_resolved_taxonomy AS p3 ON p2.parent_id = p3.taxon_id
+				WHERE 
+				(
+						(s.project_id = ?)
+					OR
+						(s.specimen_id IN 
+							(SELECT specimen_id
+							FROM ms_specimens_x_projects
+							WHERE project_id = ?)
+						)
+					OR 
+						(s.specimen_id IN
+							(SELECT specimen_id
+							FROM ms_media AS m
+							WHERE m.project_id = ?".$vs_published_where.")
+						)
+					OR
+						(s.specimen_id IN
+							(SELECT m.specimen_id
+							FROM ms_media_x_projects AS mxp
+							LEFT JOIN ms_media AS m ON m.media_id = mxp.media_id
+							WHERE mxp.project_id = ?".$vs_published_where.")
+						)
+				) 
+				".$vs_taxonomy_field_where.
+				"ORDER BY s.institution_code, s.collection_code, s.catalog_number",
+				$vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
 		}else{
-			$qr = $o_db->query($vs_select_from."
-				WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
-				(s.project_id = ?
-				OR m.project_id = ?
-				OR mp.project_id = ?
-				OR sp.project_id = ?)".$vs_published_where." ORDER BY ".
-				$vs_order_by, $vn_project_id, $vn_project_id, $vn_project_id, 
-				$vn_project_id);
-		}	
+			$qr_specimens = $o_db->query("
+				SELECT DISTINCT s.*, t.species, t.genus, t.ht_family, t.ht_order, t.ht_class, t.taxon_id
+				FROM ms_specimens AS s
+				LEFT JOIN ms_specimens_x_taxonomy AS sxt ON sxt.specimen_id = s.specimen_id
+				LEFT JOIN ms_taxonomy_names AS t ON sxt.alt_id = t.alt_id
+				WHERE 
+				(
+						(s.project_id = ?)
+					OR
+						(s.specimen_id IN 
+							(SELECT specimen_id
+							FROM ms_specimens_x_projects
+							WHERE project_id = ?)
+						)
+					OR 
+						(s.specimen_id IN
+							(SELECT specimen_id
+							FROM ms_media AS m
+							WHERE m.project_id = ?".$vs_published_where.")
+						)
+					OR
+						(s.specimen_id IN
+							(SELECT m.specimen_id
+							FROM ms_media_x_projects AS mxp
+							LEFT JOIN ms_media AS m ON m.media_id = mxp.media_id
+							WHERE mxp.project_id = ?".$vs_published_where.")
+						)
+				) 
+				".$vs_taxonomy_field_where.
+				"ORDER BY s.institution_code, s.collection_code, s.catalog_number",
+				$vn_project_id, $vn_project_id, $vn_project_id, $vn_project_id);
+		}
+
+		// if($pa_options["taxonomy_type"] && $pa_options["taxonomy_term"]){
+		// 	$qr = $o_db->query($vs_select_from."
+		// 		WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
+		// 		(s.project_id = ?
+		// 		OR m.project_id = ?
+		// 		OR mp.project_id = ?
+		// 		OR sp.project_id = ?)
+		// 		AND (t.".$pa_options["taxonomy_type"]." = ?) ".
+		// 		$vs_published_where." ORDER BY ".$vs_order_by, $vn_project_id, 
+		// 		$vn_project_id, $vn_project_id, $vn_project_id, 
+		// 		$pa_options["taxonomy_term"]);
+		// }else{
+		// 	$qr = $o_db->query($vs_select_from."
+		// 		WHERE ((mproj.deleted != 1) OR (mproj.deleted IS NULL)) AND 
+		// 		(s.project_id = ?
+		// 		OR m.project_id = ?
+		// 		OR mp.project_id = ?
+		// 		OR sp.project_id = ?)".$vs_published_where." ORDER BY ".
+		// 		$vs_order_by, $vn_project_id, $vn_project_id, $vn_project_id, 
+		// 		$vn_project_id);
+		// }	
+
+		$va_specimen_ids = $qr_specimens->getAllFieldValues('specimen_id');
+
+		// MEDIA DB QUERY
+		$qr_media = $o_db->query("
+			SELECT m.media_id, m.published, m.specimen_id
+			FROM ms_media AS m
+			WHERE m.media_id IN
+			(
+				SELECT max(m.media_id)
+				FROM ms_media AS m
+				WHERE specimen_id IN (".implode(',', $va_specimen_ids).")".$vs_published_where."
+				GROUP BY m.specimen_id
+			)"		
+		);
+
+		$va_media_by_specimen = $qr_media->getAllRowsKeyed('specimen_id');
 
 		// Constructing taxonomically nested arrays 			
 		if (!is_array($pa_versions) || !sizeof($pa_versions)) {
@@ -1020,9 +1188,13 @@ class ms_projects extends BaseModel {
 
 		$va_ns = array();
 		$vn_count = 0;
+		$t_media = new ms_media();
 
-		while ($qr->nextRow()) {
-			$va_specimen = $qr->getRow();
+		// die(print_r($qr_specimens->getAllRows()));
+
+		$qr_specimens->seek(0);
+		while ($qr_specimens->nextRow()) {
+			$va_specimen = $qr_specimens->getRow();
 
 			if ($pb_vertnet) {
 				$va_parent_array = [
@@ -1066,29 +1238,45 @@ class ms_projects extends BaseModel {
 
 			if (!isset($va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']])) {
 				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']] = $va_specimen;
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["taxon_id"] = $qr->get("taxon_id");
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["species"] = $qr->get("species");
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["genus"] = $qr->get("genus");
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_family"] = $qr->get("ht_family");
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_order"] = $qr->get("ht_order");
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_class"] = $qr->get("ht_class");
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["taxon_id"] = $va_specimen['taxon_id'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["species"] = $va_specimen['species'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["genus"] = $va_specimen['genus'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_family"] = $va_specimen['ht_family'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_order"] = $va_specimen['ht_order'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["ht_class"] = $va_specimen['ht_class'];
 
 				$vn_count++;
 			}
-			if ($vn_media_id = $va_specimen['media_id']) {
-				$t_media = new ms_media();
+
+			// Setting media preview info
+
+			if(isset($va_media_by_specimen[$va_specimen['specimen_id']])) {
+				$vn_media_id = $va_media_by_specimen[$va_specimen['specimen_id']]['media_id'];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = $va_media_by_specimen[$va_specimen['specimen_id']]; 
+
 				$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
-				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
-				foreach($pa_versions as $vs_version) {
-					$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
-					$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
-					$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
-					$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
-				}
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+				$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
 			}
+
+			// if ($vn_media_id = $va_specimen['media_id']) {
+			// 	$t_media = new ms_media();
+			// 	$va_media_preview_file_info = $t_media->getPreviewMediaFile($vn_media_id, $pa_versions, ($pa_options["published_media_only"]) ? true : false);
+			// 	$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id] = array();
+			// 	$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['published'] = $va_specimen['published'];
+			// 	foreach($pa_versions as $vs_version) {
+			// 		$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+			// 		$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["specimens"][$va_specimen['specimen_id']]['media'][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+			// 		$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['tags'] = $va_media_preview_file_info["media"];
+			// 		$va_ns[$va_st["ht_class"]][$va_st["ht_order"]][$va_st["ht_family"]][$va_st["genus"]][$va_st["species"]]["media"][$vn_media_id]['urls'] = $va_media_preview_file_info["urls"];
+			// 	}
+			// }
 		}
 			
+		// die(print_r('done'));
+
 		return array("specimen" => $va_ns, "numSpecimen" => $vn_count);
 	}
 	# ----------------------------------------
