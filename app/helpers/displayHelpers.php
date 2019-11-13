@@ -2429,17 +2429,23 @@ $ca_relationship_lookup_parse_cache = array();
 	 */
 	function msGetMediaFormatDisplayString($t_media) {
 		$vs_mimetype = $t_media->getMediaInfo('ms_media.media', 'original', 'MIMETYPE');
-		$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
-		$va_versions = $t_media->getMediaVersions('ms_media.media');
-		
-		if (is_array($va_versions) && ($vb_is_archive = in_array('_archive_', $va_versions))) {
-			//$vn_num_files = $t_media->numFiles();
-			return "<em>{$vs_mimetype_name} image series ZIP file</em>"; // ({$vn_num_files} frames)";
+
+		if ($vs_mimetype) {
+			$vs_mimetype_name = caGetDisplayNameForMimetype($vs_mimetype);
+			$va_versions = $t_media->getMediaVersions('ms_media.media');
+			
+			if (is_array($va_versions) && ($vb_is_archive = in_array('_archive_', $va_versions))) {
+				//$vn_num_files = $t_media->numFiles();
+				return "<em>{$vs_mimetype_name} image series ZIP file</em>"; // ({$vn_num_files} frames)";
+			} else {
+				$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+			}
+			
+			return "<em>{$vs_media_class}</em> ({$vs_mimetype_name})";
 		} else {
-			$vs_media_class = caGetMediaClassForDisplay($vs_mimetype); 
+			return "<em>Unknown Type</em> <b>(Potentially Corrupt)</b>";
 		}
 		
-		return "<em>{$vs_media_class}</em> ({$vs_mimetype_name})";
 	}
 	# ------------------------------------------------------------------
 	/**

@@ -175,12 +175,30 @@ print "</div>\n";
 		while($q_media_files->nextRow()){
 ?>
 			<div class="mediaDetailImage" id="media<?php print $q_media_files->get("media_file_id"); ?>">
-				<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;"><?php print $q_media_files->getMediaTag("media", "preview190"); ?></a>
+<?php
+				if($vs_media_tag = $q_media_files->getMediaTag("media", "preview190")) {
+?>
+				<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;">
 <?php 
+					print($vs_media_tag);
+?>
+				</a>
+<?php
+				}else{
+					print(caGetDefaultMediaIconTag(__CA_MEDIA_3D_DEFAULT_ICON__, 190, 190));
+				} 
+ 
 				print "<div class='mediaDetailImageCaption'>";
 				print "<b class='blueText'>M".$t_media->get("media_id")."-".$q_media_files->get("media_file_id")."</b><br/>";
 				$va_versions = $q_media_files->getMediaVersions('media');
-				$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+				
+				if(is_array($va_versions)){
+					$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+
+				}else{
+					$va_properties = array();
+				}
+
 				print msGetMediaFormatDisplayString($q_media_files).", ".caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize'])."<br/>";
 				if($q_media_files->get("title")){
 					print $q_media_files->get("title");
