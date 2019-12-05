@@ -93,18 +93,35 @@
 			if(!$vn_spec_id){
 				print "<div class='listItemRightCol'>".caNavLink($this->request, _t("Import Specimen"), "button buttonSmall", "MyProjects", "Specimens", "importIDBSpecimen", array("uuid" => $va_result["uuid"]))."</div>";
 			}
-			if($va_result["indexTerms"]["institutioncode"]){
-				print $va_result["indexTerms"]["institutioncode"]."-";
+			if($va_result["data"]["dwc:institutionCode"]){
+				print strtolower($va_result["data"]["dwc:institutionCode"]).":";
 			}
-			if($va_result["indexTerms"]["collectioncode"]){
-				print $va_result["indexTerms"]["collectioncode"]."-";
+			if($va_result["data"]["dwc:collectionCode"]){
+				print strtolower($va_result["data"]["dwc:collectionCode"]).":";
 			}
-			if($va_result["indexTerms"]["catalognumber"]){
-				print $va_result["indexTerms"]["catalognumber"];
+			if($va_result["data"]["dwc:catalogNumber"]){
+				print strtolower($va_result["data"]["dwc:catalogNumber"]);
 			}
-			if($va_result["indexTerms"]["scientificname"]){
-				print ", <i>".$va_result["indexTerms"]["scientificname"]."</i>";
+			if($va_result["data"]["dwc:genus"] || $va_result["data"]["dwc:specificEpithet"]){
+				print ", <i>";
+				if($va_result["data"]["dwc:genus"]){
+					print ucfirst(strtolower($va_result["data"]["dwc:genus"]))." ";
+				}else{
+					print "Genus indet. ";
+				}
+				if($va_result["data"]["dwc:specificEpithet"]){
+					print strtolower($va_result["data"]["dwc:specificEpithet"]);
+				}else{
+					print "sp. indet.";
+				}
+				if($va_result["data"]["dwc:infraspecificEpithet"]){
+					print " ".strtolower($va_result["data"]["dwc:infraspecificEpithet"]);
+				}
+				print "</i>";
+			}elseif($va_result["data"]["dwc:scientificName"]){
+				print ", ".$va_result["data"]["dwc:scientificName"]." (Full scientific name displayed, explicit genus and species terms not found)";
 			}
+
 			print "<br/><a href='https://www.idigbio.org/portal/records/".$va_result["uuid"]."' target='_blank'>View on iDigBio</a>";
 			
 			if($vn_spec_id){
