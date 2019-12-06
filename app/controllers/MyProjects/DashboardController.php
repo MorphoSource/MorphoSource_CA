@@ -245,19 +245,8 @@
 								$vs_order_by = 'number';
 								break;
 						}
-						$qr = $this->opo_project->
+						$va_entity = $this->opo_project->
 							getProjectMedia(null, $vs_order_by);
-						$va_entity = array();
-						$t_media = new ms_media();
-						while ($qr->nextRow()) {
-							$va_media = $qr->getRow();
-							if(!isset($va_entity[$va_media['media_id']])) {
-								$va_media['preview'] = 
-									$t_media->getPreviewMediaFile(
-										$va_media['media_id']); 
-								$va_entity[$va_media['media_id']] = $va_media;
-							}
-						}
 						$vn_count = is_array($va_entity) ? 
 							sizeof($va_entity) : 0;
 						$vb_entity_nest = 0;
@@ -1023,10 +1012,8 @@
 
 			$va_project_media = $this->opo_project->getProjectMedia(true);
 			
-
-			while ($va_project_media->nextRow()) {
-				$va_media = $va_project_media->getRow();
-				$t_media = new ms_media($va_media['media_id']);
+			foreach ($va_project_media as $vn_media_id => $va_media) {
+				$t_media = new ms_media($vn_media_id);
 				$va_media_files = $t_media->getMediaFiles();
 				foreach ($va_media_files as $t_media_file) {
 					$t_user = new ca_users((
@@ -1058,10 +1045,10 @@
 			$t_media_file = new ms_media_files();
 			$va_media_file_ids = [];
 
-			$qr_media = $this->opo_project->getProjectMedia(true);
-			while($qr_media->nextRow()){
+			$va_media = $this->opo_project->getProjectMedia(true);
+			foreach ($va_media as $vn_media_id => $va_media_item) {
 				$va_media_files = 
-					$t_media->getMediaFiles($qr_media->get("media_id"));
+					$t_media->getMediaFiles($vn_media_id);
 				foreach ($va_media_files as $t_mf) {
 					$va_media_file_ids[] = $t_mf->get("media_file_id");
 				}

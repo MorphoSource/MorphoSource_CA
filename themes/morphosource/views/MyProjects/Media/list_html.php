@@ -3,7 +3,7 @@
 	$t_item = $this->getVar("item");
 	$ps_primary_key = $this->getVar("primary_key");
 	$pa_list_fields = $this->getVar("list_fields");
-	$q_listings = $this->getVar("listings");
+	$va_media_listings = $this->getVar("listings");
 	$t_specimen = new ms_specimens();
 	$t_project = new ms_projects();
 ?>
@@ -13,7 +13,7 @@
 		<?php print $this->getVar("name_plural"); ?>
 	</H1>
 <?php
-	if($q_listings->numRows()){
+	if(sizeof($va_media)){
 ?>
 		<H2 style="font-size:25px; margin-top:15px; margin-bottom:0px; padding-bottom:0px;" class="ltBlueBottomRule">Batch options</H2>
 		<div id="mediaBibliographyInfo">
@@ -41,26 +41,26 @@
 <?php
 		$t_own_project = new ms_projects();
 		print '<div id="mediaListings"><H2 style="font-size:25px; margin-top:15px; margin-bottom:25px;" class="ltBlueBottomRule">Media Groups</H2>';
-		while($q_listings->nextRow()){
+		foreach ($va_media_listings as $vn_media_id => $va_media) {
 			print "<div class='projectMediaContainer'>";
 			print "<div class='projectMedia'>";
-			$va_preview_file_info = $t_item->getPreviewMediaFile($q_listings->get("media_id"), array("preview190"));
+			$va_preview_file_info = $t_item->getPreviewMediaFile($vn_media_id, array("preview190"));
 			print "<span style='float:right'>".$va_preview_file_info["numFiles"]." file".(($va_preview_file_info["numFiles"] == 1) ? "" : "s")."</span>";
-			if(($q_listings->get("project_id") != $pn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $q_listings->get("project_id")))){
+			if(($va_media["project_id"] != $pn_project_id) && (!$t_project->isFullAccessMember($this->request->user->get("user_id"), $va_media["project_id"]))){
 				# --- read only access --- link to detail page
-				print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)))." - <b>READ ONLY ACCESS</b><br/>";
-				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $q_listings->get($ps_primary_key)));
+				print caNavLink($this->request, "M".$vn_media_id, "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $vn_media_id))." - <b>READ ONLY ACCESS</b><br/>";
+				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "Detail", "MediaDetail", "Show", array($ps_primary_key => $vn_media_id));
 			}else{
-				print caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."<br/>";
-				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)));
+				print caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $vn_media_id))."<br/>";
+				print caNavLink($this->request, $va_preview_file_info["media"]["preview190"], "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $vn_media_id));
 			}
-			if($q_listings->get("project_id") != $pn_project_id){
-				$t_own_project->load($q_listings->get("project_id"));
+			if($va_media["project_id"] != $pn_project_id){
+				$t_own_project->load($va_media["project_id"]);
 				print "<b>Owned by</b> ".((strlen($t_own_project->get("name")) > 22) ? mb_substr($t_own_project->get("name"), 0, 22)."..." : $t_own_project->get("name"))."<br/>";
 			}
-			print $q_listings->get("title")."<br/>";
-			print $t_specimen->getSpecimenName($q_listings->get("specimen_id"));
-			print "<br/>".$t_item->formatPublishedText($q_listings->get("published"));
+			print $va_media["title"]."<br/>";
+			print $t_specimen->getSpecimenName($va_media["specimen_id"]);
+			print "<br/>".$t_item->formatPublishedText($va_media["published"]);
 			print "</div>";
 			print '</div><!-- end projectMediaContainer -->';
 		}
