@@ -352,10 +352,10 @@
  			$va_media_file_ids = [];
  			foreach ($va_projects as $va_proj) {
  				$t_proj->load($va_proj["project_id"]);
- 				$qr_media = $t_proj->getProjectMedia(true);
-				while($qr_media->nextRow()){
+ 				$va_media = $t_proj->getProjectMedia(true);
+				foreach ($va_media as $vn_media_id => $va_media_item) {
 					$va_media_files = 
-						$t_media->getMediaFiles($qr_media->get("media_id"));
+						$t_media->getMediaFiles($vn_media_id);
 					foreach ($va_media_files as $t_mf) {
 						$va_media_file_ids[] = $t_mf->get("media_file_id");
 					}
