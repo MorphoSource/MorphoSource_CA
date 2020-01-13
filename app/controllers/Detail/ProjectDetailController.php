@@ -268,23 +268,14 @@
 								$vs_order_by = 'number';
 								break;
 						}
-						$qr = $this->opo_item->
+
+
+						$va_entity = $this->opo_item->
 							getProjectMedia(null, $vs_order_by, 
 								array(
 									"published_media_only" => true,
 									"all_specimen_media" => true
 							));
-						$va_entity = array();
-						$t_media = new ms_media();
-						while ($qr->nextRow()) {
-							$va_media = $qr->getRow();
-							if(!isset($va_entity[$va_media['media_id']])) {
-								$va_media['preview'] = 
-									$t_media->getPreviewMediaFile(
-										$va_media['media_id']); 
-								$va_entity[$va_media['media_id']] = $va_media;
-							}
-						}
 						$vn_count = is_array($va_entity) ? 
 							sizeof($va_entity) : 0;
 						$vb_entity_nest = 0;
@@ -367,16 +358,14 @@
 			$va_media_file_ids = [];
 
 			if($vn_project_id){
-				$qr_media = $this->opo_item->getProjectMedia();
-				if($qr_media->numRows()){
-					while($qr_media->nextRow()){
-						$va_media_files = 
-							$t_media->getMediaFiles($qr_media->get("media_id"), true);
-						foreach ($va_media_files as $t_mf) {
-							$va_media_file_ids[] = $t_mf->get("media_file_id");
-						}
+				$va_media = $this->opo_item->getProjectMedia();
+				foreach ($va_media as $vn_media_id => $va_media_item) {
+					$va_media_files = 
+						$t_media->getMediaFiles($vn_media_id, true);
+					foreach ($va_media_files as $t_mf) {
+						$va_media_file_ids[] = $t_mf->get("media_file_id");
 					}
-				}
+				}	
 			}else{
 				$this->show();
 			}

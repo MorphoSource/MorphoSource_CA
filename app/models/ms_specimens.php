@@ -809,16 +809,16 @@ class ms_specimens extends BaseModel {
 						#exit;
 						# --- set the fields for the specimen
 						$t_specimen->set("reference_source", 0);
-						$t_specimen->set("notes", "imported from iDigBio. uuid:".$vs_uuid." Occurrence ID:".$va_specimen_info["indexTerms"]["occurrenceid"]);
-						$t_specimen->set("institution_code", $va_specimen_info["indexTerms"]["institutioncode"]);
-						$t_specimen->set("collection_code", $va_specimen_info["indexTerms"]["collectioncode"]);
-						$t_specimen->set("catalog_number", $va_specimen_info["indexTerms"]["catalognumber"]);
+						$t_specimen->set("notes", "imported from iDigBio. uuid:".$vs_uuid." Occurrence ID:".$va_specimen_info["data"]["dwc:occurrenceID"]);
+						$t_specimen->set("institution_code", strtolower($va_specimen_info["data"]["dwc:institutionCode"]));
+						$t_specimen->set("collection_code", strtolower($va_specimen_info["data"]["dwc:collectionCode"]));
+						$t_specimen->set("catalog_number", strtolower($va_specimen_info["data"]["dwc:catalogNumber"]));
 						$t_specimen->set("uuid", $vs_uuid);
-						$t_specimen->set("occurrence_id", $va_specimen_info["indexTerms"]["occurrenceid"]);
+						$t_specimen->set("occurrence_id", $va_specimen_info["data"]["dwc:occurrenceID"]);
 						$t_specimen->set('project_id', $vn_project_id);
 						$t_specimen->set('user_id', $o_request->getUserID());
 						$t_specimen->set('url', $va_specimen_info["data"]["dcterms:references"]);
-						$t_specimen->set('collector', $va_specimen_info["indexTerms"]["collector"]);
+						$t_specimen->set('collector', strtolower($va_specimen_info["data"]["dwc:recordedBy"]));
 						$t_specimen->set('collected_on', $va_specimen_info["indexTerms"]["datecollected"]);
 						$t_specimen->set('recordset', $va_specimen_info["indexTerms"]["recordset"]);
 						if($va_specimen_info["data"]["dwc:sex"]){
@@ -828,12 +828,12 @@ class ms_specimens extends BaseModel {
 								$t_specimen->set('sex', 'M');
 							}
 						}
-						if($va_specimen_info["indexTerms"]["locality"]){
-							$t_specimen->set('locality_description', $va_specimen_info["indexTerms"]["verbatimlocality"]);
-						}elseif($va_specimen_info["indexTerms"]["verbatimlocality"]){
-							$t_specimen->set('locality_description', $va_specimen_info["indexTerms"]["locality"]);
-						}elseif($va_specimen_info["indexTerms"]["country"]){
-							$t_specimen->set('locality_description', $va_specimen_info["indexTerms"]["country"]);
+						if($va_specimen_info["data"]["dwc:locality"]){
+							$t_specimen->set('locality_description', strtolower($va_specimen_info["data"]["dwc:locality"]));
+						}elseif($va_specimen_info["data"]["dwc:verbatimLocality"]){
+							$t_specimen->set('locality_description', strtolower($va_specimen_info["data"]["dwc:verbatimLocality"]));
+						}elseif($va_specimen_info["data"]["dwc:country"]){
+							$t_specimen->set('locality_description', strtolower($va_specimen_info["data"]["dwc:country"]));
 						}
 						
 						# --- check if there is a taxonomy record in MorphoSource to link to
@@ -841,17 +841,17 @@ class ms_specimens extends BaseModel {
 						$vb_taxon_created = false;
 						$o_search = new TaxonomyNamesSearch();
 						$q_taxon_hits = $o_search->search(
-							trim($va_specimen_info["indexTerms"]["genus"]." ".
-								$va_specimen_info["indexTerms"]["specificepithet"]." ".
-								$va_specimen_info["indexTerms"]["infraspecificepithet"])."*", 
+							trim(strtolower($va_specimen_info["data"]["dwc:genus"])." ".
+								strtolower($va_specimen_info["data"]["dwc:specificEpithet"])." ".
+								strtolower($va_specimen_info["data"]["dwc:infraspecificEpithet"]))."*", 
 							array('sort' => 'ms_taxonomy_names.genus')
 						);
 					
 						if($q_taxon_hits->numHits() > 0){
 							while($q_taxon_hits->nextHit()){
-								if((strtolower($q_taxon_hits->get("genus")) == strtolower($va_specimen_info["indexTerms"]["genus"])) 
-									&& (strtolower($q_taxon_hits->get("species")) == strtolower($va_specimen_info["indexTerms"]["specificepithet"])) 
-									&& (strtolower($q_taxon_hits->get("subspecies")) == strtolower($va_specimen_info["indexTerms"]["infraspecificepithet"]))
+								if((strtolower($q_taxon_hits->get("genus")) == strtolower($va_specimen_info["data"]["dwc:genus"])) 
+									&& (strtolower($q_taxon_hits->get("species")) == strtolower($va_specimen_info["data"]["dwc:specificEpithet"])) 
+									&& (strtolower($q_taxon_hits->get("subspecies")) == strtolower($va_specimen_info["data"]["dwc:infraspecificEpithet"]))
 								){
 									$vn_taxon_id = $q_taxon_hits->get("taxon_id");
 									$vn_alt_id = $q_taxon_hits->get("alt_id");
@@ -865,14 +865,14 @@ class ms_specimens extends BaseModel {
 							$t_taxonomy = new ms_taxonomy();
 							$t_taxonomy->set('project_id', $vn_project_id);
 							$t_taxonomy->set('user_id', $o_request->getUserID());
-							$t_taxonomy->set("common_name", $va_specimen_info["indexTerms"]["commonname"]);
+							$t_taxonomy->set("common_name", $va_specimen_info["data"]["dwc:vernacularName"]);
 							$t_taxonomy->set("notes", "imported from iDigBio");
 							
 							# --- add the taxonomy_names record
 							$t_taxonomy_names = new ms_taxonomy_names();
-							$t_taxonomy_names->set("genus", ucfirst($va_specimen_info["indexTerms"]["genus"]));
-							$t_taxonomy_names->set("species", $va_specimen_info["indexTerms"]["specificepithet"]);
-							$t_taxonomy_names->set("subspecies", $va_specimen_info["indexTerms"]["infraspecificepithet"]);
+							$t_taxonomy_names->set("genus", ucfirst(strtolower($va_specimen_info["data"]["dwc:genus"])));
+							$t_taxonomy_names->set("species", strtolower($va_specimen_info["data"]["dwc:specificEpithet"]));
+							$t_taxonomy_names->set("subspecies", strtolower($va_specimen_info["data"]["dwc:infraspecificEpithet"]));
 							$t_taxonomy_names->set("source_info", "imported from iDigBio");
 							$t_taxonomy_names->set("notes", "imported from iDigBio");
 							$t_taxonomy_names->set("is_primary", 1);

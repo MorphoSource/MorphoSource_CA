@@ -131,8 +131,8 @@
  		}
  		# -------------------------------------------------------
  		public function listItems() {
-			$q_listings = $this->opo_project->getProjectMedia();
-			$this->view->setvar("listings", $q_listings);
+			$va_media = $this->opo_project->getProjectMedia();
+			$this->view->setvar("listings", $va_media);
 			$this->render('Media/list_html.php');
  		}
  		# -------------------------------------------------------

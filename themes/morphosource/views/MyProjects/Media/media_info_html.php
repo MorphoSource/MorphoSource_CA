@@ -70,8 +70,19 @@
 				}
 ?>
 				<div class="mediaImage">
-					<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;"><?php print $q_media_files->getMediaTag("media", "preview190"); ?></a>
+<?php
+					if($vs_media_tag = $q_media_files->getMediaTag("media", "preview190")) {
+?>
+						<a href="#" onclick="msMediaPanel.showPanel('<?php print caNavUrl($this->request, $this->request->getModulePath(), $this->request->getController(), 'mediaViewer', array('media_id' => $t_media->getPrimaryKey(), 'media_file_id' => $q_media_files->get("media_file_id"))); ?>'); return false;">
 <?php 
+							print($vs_media_tag);
+?>
+						</a>
+<?php
+					}else{
+						print(caGetDefaultMediaIconTag(__CA_MEDIA_3D_DEFAULT_ICON__, 190, 190));
+					} 
+ 
 					if(!$q_media_files->get('doi') && !$q_media_files->get("published")){
 						print "<div class='mediaFileButtonsDelete'>".caNavLink($this->request, "<i class='fa fa-remove'></i>", "button buttonSmall", "MyProjects", "Media", "DeleteMediaFile", array("media_file_id" => $q_media_files->get("media_file_id"), "media_id" => $pn_media_id), array("title" => _t("Delete media file")))."</div>";
 					}else{
@@ -113,8 +124,18 @@
 					print ($q_media_files->get("use_for_preview") == 1) ? "<b>used for media preview</b> " : "";
 					$vs_file_info = msGetMediaFormatDisplayString($q_media_files)."; ";
 					$va_versions = $q_media_files->getMediaVersions('media');
-					$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
-					$vs_file_info .= caFormatFilesize(isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
+
+					if(is_array($va_versions)){
+						$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
+
+					}else{
+						$va_properties = array();
+					}
+
+					$vs_filesize = caFormatFilesize(
+						isset($va_properties['FILESIZE']) ? $va_properties['FILESIZE'] : $va_properties['PROPERTIES']['filesize']);
+					$vs_file_info .= $vs_filesize;
+
 					if($q_media_files->get("title")){
 						print (mb_strlen($q_media_files->get("title")) > 60) ? mb_substr($q_media_files->get("title"), 0, 60)."..." : $q_media_files->get("title");
 						print "<br/>";
@@ -624,7 +645,10 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
 						array("width" => "368px"));
 				}		
 					//print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
-					print "<div class='formLabel' style='clear:left;'><button id='btn-save' name='save' class='btn-save button buttonSmall' onclick='return btnSaveClick(\"mediaFilesForm\");'>"._t("Save")."</button>";
+					print "<div class='formLabel' style='clear:left;'>";
+					// print "<button id='btn-save' name='save' class='btn-save button buttonSmall' onclick='return btnSaveClick(\"mediaFilesForm\");'>"._t("Save")."</button>";
+					print "<input type='submit' id='btn-save-hidden' style='display: none'>";
+        			print "<a href='#' name='save' class='btn-save button buttonSmall' onclick='btnSaveClick(\"mediaFilesForm\"); return false;'>"._t("Save")."</a>";
                     
 					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $pn_media_id), array("title" => _t("Cancel")));
 					print "</div>";

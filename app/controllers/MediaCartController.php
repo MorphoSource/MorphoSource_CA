@@ -275,14 +275,14 @@
 			$t_media = new ms_media();
 			
 			# --- get media for project
-			$q_listings = $t_project->getProjectMedia();
-			if($q_listings && $q_listings->numRows()){
-				while($q_listings->nextRow()){
+			$va_project_media = $t_project->getProjectMedia();
+			if(sizeof($va_project_media)){
+				foreach ($va_project_media as $vn_media_id => $va_media) {
 					# --- get files for the group
 					$o_db = new Db();
-					$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ?", $q_listings->get("media_id"));
+					$q_media_files = $o_db->query("SELECT media_file_id FROM ms_media_files where media_id = ?", $vn_media_id);
 					if($q_media_files->numRows()){
-						$t_media->load($q_listings->get("media_id"));
+						$t_media->load($vn_media_id);
 						while($q_media_files->nextRow()){
 							if($t_media->userCanDownloadMediaFile($this->request->getUserID(), null, $q_media_files->get("media_file_id"))){
 								$t_media_set_items = new ms_media_set_items();
