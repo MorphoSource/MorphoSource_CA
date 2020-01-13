@@ -624,7 +624,10 @@ Note: for the delete and cancel button id string regex, see jfu_customDelete fun
 						array("width" => "368px"));
 				}		
 					//print "<div class='formLabel' style='clear:left;'><a href='#' name='save' class='button buttonSmall' onclick='jQuery(\"#mediaFilesForm\").submit(); return false;'>"._t("Save")."</a>";
-					print "<div class='formLabel' style='clear:left;'><button id='btn-save' name='save' class='btn-save button buttonSmall' onclick='return btnSaveClick(\"mediaFilesForm\");'>"._t("Save")."</button>";
+					print "<div class='formLabel' style='clear:left;'>";
+					// print "<button id='btn-save' name='save' class='btn-save button buttonSmall' onclick='return btnSaveClick(\"mediaFilesForm\");'>"._t("Save")."</button>";
+					print "<input type='submit' id='btn-save-hidden' style='display: none'>";
+        			print "<a href='#' name='save' class='btn-save button buttonSmall' onclick='btnSaveClick(\"mediaFilesForm\"); return false;'>"._t("Save")."</a>";
                     
 					print "&nbsp;&nbsp;&nbsp;".caNavLink($this->request, _t("Cancel"), "button buttonSmall", "MyProjects", "Media", "MediaInfo", array("media_id" => $pn_media_id), array("title" => _t("Cancel")));
 					print "</div>";

@@ -656,7 +656,7 @@ var btnSaveClick = function(formName) {
         };
         $.loader.open($data);
 
-        $('#btn-save-hidden').trigger('click');
+        $('#' + formName).find('#btn-save-hidden').trigger('click');
         //return true;
     } else if (clientFileCount + serverFileCount === jfu_widgetCount) {
         // not ready to save, auto-save is available if all files are selected
@@ -674,7 +674,7 @@ var btnSaveClick = function(formName) {
                     console.log('jfu_widgetCount '+jfu_widgetCount);
                     */
                     console.log('after confirm ... try auto saving ...');
-                    $('#btn-save-hidden').trigger('click');
+                    $('#' + formName).find('#btn-save-hidden').trigger('click');
             } else {
                 toggleForm(formName, true);
             }
