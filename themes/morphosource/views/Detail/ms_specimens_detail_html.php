@@ -94,10 +94,10 @@
 <?php
 		print "<b>MorphoSource Identifier:</b> S".$t_specimen->get("specimen_id")."<br/>";
 		if($vs_reference_source = $t_specimen->get("reference_source", array("convertCodesToDisplayText" => true))){
-			print $vs_reference_source."<br/>";
+			print "<b>Reference Source: </b>".$vs_reference_source."<br/>";
 		}
-		if($vs_type = $t_specimen->get("type", array("convertCodesToDisplayText" => true))){
-			print "<b>Type: </b>".$vs_type."<br/>";
+		if(!is_null($t_specimen->get("type"))){
+			print "<b>Type: </b>".$t_specimen->get("type", array("convertCodesToDisplayText" => true))."<br/>";
 		}
 		if($vs_sex = $t_specimen->get("sex", array("convertCodesToDisplayText" => true))){
 			print "<b>Sex: </b>".$vs_sex."<br/>";
