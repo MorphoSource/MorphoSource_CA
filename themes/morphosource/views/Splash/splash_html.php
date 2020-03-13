@@ -26,11 +26,12 @@
  * ----------------------------------------------------------------------
  */
 ?>
-		<div id="hpImage">
-			<div id="hpImageCaption">
-				foot of <span style="font-style:normal;">Daubentonia madagascariensis</span> scanned at 38micron resolution at Duke Evolutionary Anthropology department's new high resolution microCt facility. <a href="https://smif.lab.duke.edu/Description.asp?ID=88" target="_blank">Click here if you are interested in details on the facility</a>
-			</div><!-- end hpImageCaption -->
-			<img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/homePageFeaured.jpg">
+		<div id="hpImage" style='border:1px solid #003880; border-radius:5px;'>
+			<div style='margin: 15px;'>
+				<H2 style='text-align: center;'><b>Educators Organizing Online Courses Using Biological Specimens</b></H2>
+				<p>MorphoSource has approximately 27,000 published 3D models of biological specimens (largely skeletal material). You can view all of these in your web browser with no required software. Around 13,000 of these are open access and can be freely downloaded for further visualization or measurement. We are working on better tools for browsing media by type (models, CT stacks, 2D images, etc.), but in the meantime we have created a Google Spreadsheet listing all of these web-viewable models parsed by element, species, and more. Find it here:</p>
+				<h2 style='text-align: center;'><a href="http://bit.ly/MeshSource">bit.ly/MeshSource</a></b></h2>
+			</div>
 		</div><!-- end hpImage -->
 		
 		<div id="hpFeatures">
