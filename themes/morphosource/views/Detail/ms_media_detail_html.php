@@ -16,9 +16,7 @@
 
 	$va_file_permissions = array();
 	while($q_media_files->nextRow()){
-		if($q_media_files->get("published") != null){
-			$va_file_permissions[] = $q_media_files->get("published");
-		}
+		$va_file_permissions[] = $q_media_files->get("published");
 	}
 	$q_media_files->seek(0);
 ?>
@@ -57,7 +55,10 @@
 				print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px; margin-right: 15px;'><a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "download_action" => "DownloadAllMedia"))."\"); return false;' class='button buttonMedium'>"._t("Download All Media")."</a></div>";
 		
 			}else{
-				if(($t_media->get("published") == 2) || (in_array(2, $va_file_permissions))){
+				if(
+					( ($t_media->get("published") == 2) && ( in_array(null, $va_file_permissions, true) ) ) || 
+					(in_array("2", $va_file_permissions, true))
+				){
 					if (is_array($va_prev_requests = $t_media->getDownloadRequests(null, array('user_id' => $this->request->getUserID(), 'status' => __MS_DOWNLOAD_REQUEST_NEW__))) && (sizeof($va_prev_requests) > 0)){
 						print "<div style='float:left; padding:10px 0px 0px 0px; margin-bottom: 15px;  margin-right: 15px;'><div class='button buttonMedium'>"._t("Access to Restricted Media Pending")."</div></div>";
 					} else {
@@ -254,15 +255,18 @@ print "</div>\n";
 </div>
 <?php
 				if($this->request->isLoggedIn()){
-					if($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id"))){
+					if (
+						($q_media_files->get("published") == 2) || 
+						(($q_media_files->get("published") == null) && ($t_media->get("published") == 2))
+					){
+						print "<br/><b>Please request permission to download</b>";
+					}elseif (
+						($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id")))
+					){
 						print "<div class='mediaFileButtons'>";
 						print "<a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "media_file_id" => $q_media_files->get("media_file_id"), "download_action" => "DownloadMedia"))."\", true); return false;' title='Download file' class='button buttonSmall'><i class='fa fa-download'></i></a>";
 						print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 						print "</div>";
-					}else{
-						if(($q_media_files->get("published") == 2) || (($q_media_files->get("published") == null)) && ($t_media->get("published") == 2)){
-							print "<br/><b>Please request permission to download</b>";
-						}
 					}
 				}else{
 					print "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";

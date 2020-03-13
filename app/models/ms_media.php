@@ -1068,10 +1068,7 @@ class ms_media extends BaseModel {
 		} else {
 			$t_media = new ms_media($vn_media_id);
 		}
-		# --- check that user has access to the media group
-		if(!$t_media->userCanDownloadMedia($pn_user_id)){
-			return false;
-		}
+		
 		# --- check if user has access to the project that made the media
  		$t_project = new ms_projects($t_media->get('project_id'));
  		if($t_project->isMember($pn_user_id)){
@@ -1104,6 +1101,11 @@ class ms_media extends BaseModel {
 				return true;
 			}
  		}
+ 		
+ 		# --- check that user has access to the media group
+		if(!$t_media->userCanDownloadMedia($pn_user_id)){
+			return false;
+		}
  		
  		return false;
 	}
