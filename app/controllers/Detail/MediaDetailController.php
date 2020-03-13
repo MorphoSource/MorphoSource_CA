@@ -266,7 +266,7 @@
 		 * Download all media files for media
 		 */ 
 		public function DownloadAllMedia() {
-			if (!$this->request->isLoggedIn() || !$this->opo_item->userCanDownloadMedia($this->request->getUserID())) {
+			if (!$this->request->isLoggedIn()) {
 				$this->notification->addNotification("You may not download this media", __NOTIFICATION_TYPE_ERROR__);
 				$this->show();
 				return;
