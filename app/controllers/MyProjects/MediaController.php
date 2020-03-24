@@ -137,8 +137,8 @@
  		}
  		# -------------------------------------------------------
  		public function reviewPublicationSettings() {
-			$q_listings = $this->opo_project->getProjectMedia(true);
-			$this->view->setvar("listings", $q_listings);
+			$va_media = $this->opo_project->getProjectMedia(true);
+			$this->view->setvar("listings", $va_media);
 			$this->render('Media/review_publication_status_html.php');
  		}
  		# -------------------------------------------------------
