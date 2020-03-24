@@ -3,7 +3,7 @@
 	$t_item = $this->getVar("item");
 	$ps_primary_key = $this->getVar("primary_key");
 	$pa_list_fields = $this->getVar("list_fields");
-	$q_listings = $this->getVar("listings");
+	$va_media_listings = $this->getVar("listings");
 	$t_specimen = new ms_specimens();
 	$t_project = new ms_projects($pn_project_id);
 	$o_db = new Db();
@@ -14,7 +14,7 @@
 		Media Publication Settings
 	</H1>
 <?php
-	if($q_listings->numRows()){
+	if(sizeof($va_media_listings)){
 		print caFormTag($this->request, 'batchPublicationSave', 'batchPublicationForm', null, 'post', 'multipart/form-data', '', array('disableUnsavedChangesWarning' => true));	
 		print "<p>Use the checkboxes to select media groups and/or files.  Choose a publication option from the drop down and hit save to update the publication setting of the selected media groups and/or files.</p>";
 		print "<p><b>Please note: </b>Media files will inherit the publication setting of the group.  Only assign a publication setting to individual media files if you want to override the group level setting. Selecting a user to review download requests ONLY applies to published media groups, not separately published media files.</p>";
@@ -58,26 +58,26 @@
 		
 		print "<div class='tealRule'></div>";
 		print '<div id="mediaListings">';
-		while($q_listings->nextRow()){
+		foreach ($va_media_listings as $vn_media_id => $va_media) {
 			print "<div class='projectMediaListItem'>";
 			print "<input type='checkbox' name='media_ids[]' class='".
-				((($q_listings->get("published") == 1) || ($q_listings->get("published") == 2)) ? "pub" : "unpub").
-				"' value='".$q_listings->get("media_id")."'> <b>".
-				caNavLink($this->request, "M".$q_listings->get("media_id"), "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $q_listings->get($ps_primary_key)))."</b>, ".$q_listings->get("title").", ".$t_specimen->getSpecimenName($q_listings->get("specimen_id")).(($q_listings->get("element")) ? ", ".$q_listings->get("element"): "").", <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>";
-			if ($q_listings->get("published") == 2){
+				((($va_media["published"] == 1) || ($va_media["published"] == 2)) ? "pub" : "unpub").
+				"' value='".$vn_media_id."'> <b>".
+				caNavLink($this->request, "M".$vn_media_id, "", "MyProjects", $this->request->getController(), "mediaInfo", array($ps_primary_key => $vn_media_id))."</b>, ".$va_media["title"].", ".$t_specimen->getSpecimenName($va_media["specimen_id"]).(($va_media["element"]) ? ", ".$va_media["element"]: "").", <b>".$t_item->getChoiceListValue("published", $va_media["published"])."</b>";
+			if ($va_media["published"] == 2){
 				print "<b>;</b> Download requests reviewed by ";
-				if($vn_reviewer_id = $q_listings->get('reviewer_id')){
+				if($vn_reviewer_id = $va_media["reviewer_id"]){
 					$t_reviewer = new ca_users($vn_reviewer_id);
 					print $t_reviewer->get('fname')." ".$t_reviewer->get('lname');
 				} else {
 					print "all project members";
 				}
 			} 
-			$q_media_files = $o_db->query("SELECT media, media_file_id, use_for_preview, published, side, element, title, notes FROM ms_media_files where media_id = ?", $q_listings->get("media_id"));
+			$q_media_files = $o_db->query("SELECT media, media_file_id, use_for_preview, published, side, element, title, notes FROM ms_media_files where media_id = ?", $vn_media_id);
 			if($q_media_files->numRows()){
 				while($q_media_files->nextRow()){
 					print "<div class='projectMediaListFile'>";
-					print "<input type='checkbox' name='media_file_ids[]' value='".$q_media_files->get("media_file_id")."'> <b>M".$q_listings->get("media_id")."-".$q_media_files->get("media_file_id")."</b>; ";
+					print "<input type='checkbox' name='media_file_ids[]' value='".$q_media_files->get("media_file_id")."'> <b>M".$$vn_media_id."-".$q_media_files->get("media_file_id")."</b>; ";
 					$vs_file_info = msGetMediaFormatDisplayString($q_media_files)."; ";
 					$va_versions = $q_media_files->getMediaVersions('media');
 					$va_properties = $q_media_files->getMediaInfo('media', in_array('_archive_', $va_versions) ? '_archive_' : 'original');
@@ -93,7 +93,7 @@
 					print $vs_file_info."<br/>";
 					if($q_media_files->get("published") == null){
 						# --- get the pub setting from the group
-						print "Inherits publication setting from group: <b>".$t_item->getChoiceListValue("published", $q_listings->get("published"))."</b>";
+						print "Inherits publication setting from group: <b>".$t_item->getChoiceListValue("published", $va_media["published"])."</b>";
 					}else{
 						print "<b>".$t_item->getChoiceListValue("published", $q_media_files->get("published"))."</b>";
 					}
