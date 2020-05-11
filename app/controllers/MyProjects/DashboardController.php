@@ -49,17 +49,14 @@
  		# -------------------------------------------------------
  		public function __construct(&$po_request, &$po_response, $pa_view_paths=null) {
  			parent::__construct($po_request, $po_response, $pa_view_paths);
- 			if(!$this->request->isLoggedIn()){
- 				$this->notification->addNotification("You must be logged in to access the Dashboard", __NOTIFICATION_TYPE_ERROR__);
-				$this->response->setRedirect(caNavUrl($this->request, "", "LoginReg", "form"));
- 			}
- 			$this->opo_project = new ms_projects();
- 			# --- is there a project already selected, are we selecting a project, or should we default to the list of user's projects
+ 			
  			$vn_select_project_id = $this->request->getParameter('select_project_id', pInteger);
  			if($vn_select_project_id){
  				# --- select project
  				msSelectProject($this, $this->request);
  			}
+ 			
+ 			$this->opo_project = new ms_projects();
  			if($this->request->session->getVar('current_project_id') && ($this->request->user->canDoAction("is_administrator") || $this->opo_project->isFullAccessMember($this->request->user->get("user_id"), $this->request->session->getVar('current_project_id')))){
  				$this->opn_project_id = $this->request->session->getVar('current_project_id');
 				$this->opo_project->load($this->opn_project_id);
