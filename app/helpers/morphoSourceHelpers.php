@@ -52,6 +52,17 @@
 			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
 			return;
 		}
+		if (
+			(!$o_request->isLoggedIn() && $t_project->get('publication_status')) ||
+			(!$o_request->user->canDoAction("is_administrator") && 
+				!$t_project->isMember($o_request->user->get("user_id")) && 
+				$t_project->get('publication_status')
+			)
+		) {
+			$o_controller->notification->addNotification("You do not have access to project dashboard, redirecting to public project page.", __NOTIFICATION_TYPE_ERROR__);
+			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "Detail", "ProjectDetail", "Show", array("project_id" => $t_project->getPrimaryKey())));
+			return;
+		}
 		if(!$o_request->user->canDoAction("is_administrator") && !$t_project->isMember($o_request->user->get("user_id"))){
 			$o_controller->notification->addNotification("You do not have access to the project", __NOTIFICATION_TYPE_ERROR__);
 			$o_controller->response->setRedirect(caNavUrl($o_controller->request, "", "", ""));
