@@ -2030,8 +2030,9 @@ div.jGrowl div.jGrowl-closer {
 
 .panelDialog{
 	background-color:#FFF;
-	margin-top:10%;
+	margin-top:5vh;
 	width:500px;
+	height: 490px;
 	padding:20px;
 	margin-left:auto;
 	margin-right:auto;

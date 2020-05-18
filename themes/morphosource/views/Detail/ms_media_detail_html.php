@@ -256,17 +256,17 @@ print "</div>\n";
 <?php
 				if($this->request->isLoggedIn()){
 					if (
-						($q_media_files->get("published") == 2) || 
-						(($q_media_files->get("published") == null) && ($t_media->get("published") == 2))
-					){
-						print "<br/><b>Please request permission to download</b>";
-					}elseif (
 						($t_media->userCanDownloadMediaFile($this->request->user->get("user_id"), $t_media->get("media_id"), $q_media_files->get("media_file_id")))
 					){
 						print "<div class='mediaFileButtons'>";
 						print "<a href='#' onclick='msMediaPanel.showPanel(\"".caNavUrl($this->request, 'Detail', 'MediaDetail', 'DownloadMediaSurvey', array("media_id" => $t_media->get("media_id"), "media_file_id" => $q_media_files->get("media_file_id"), "download_action" => "DownloadMedia"))."\", true); return false;' title='Download file' class='button buttonSmall'><i class='fa fa-download'></i></a>";
 						print "<span>".addToCartLink($this->request, $q_media_files->get("media_file_id"), $this->request->user->get("user_id"), null, array("class" => "button buttonSmall"))."</span>";
 						print "</div>";
+					}elseif (
+						($q_media_files->get("published") == 2) || 
+						(($q_media_files->get("published") == null) && ($t_media->get("published") == 2))
+					){
+						print "<br/><b>Please request permission to download</b>";
 					}
 				}else{
 					print "<div style='clear:left; margin-top:2px;'><a href='#' onClick='return false;' class='button buttonSmall mediaCartLogin'>"._t("add <i class='fa fa-shopping-cart'></i>")."</a></div>";
