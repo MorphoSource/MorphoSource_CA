@@ -90,7 +90,7 @@
 				</tr>
 				<tr>
 					<td>limit</td>
-					<td>Maximum number of records to return. Must be between 1 and 100. Default is 100</td>
+					<td>Maximum number of records to return. Must be between 1 and 1000. Default is 25.</td>
 				</tr>
 				<tr>
 					<td>naming</td>
