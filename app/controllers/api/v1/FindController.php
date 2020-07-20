@@ -59,9 +59,17 @@
  			
  			$ps_rewritten_q = msRewriteAPIQuery($ps_q = $this->request->getParameter('q', pString));
  			$pa_sort = explode(";", $this->request->getParameter('sort', pString));
+ 			
  			$pn_limit = $this->request->getParameter('limit', pInteger);
- 			if ($pn_limit < 1) { $pn_limit = 25; }
- 			if ($pn_limit > 25) { $pn_limit = 25; }
+ 			if (!$pn_limit) {
+ 				$pn_limit = 25;
+ 			}
+ 			else if ($pn_limit < 1) { 
+ 				$pn_limit = 25;
+ 			} else if ($pn_limit > 1000) {
+ 				$pn_limit = 1000; 
+ 			}
+
  			$pn_start = $this->request->getParameter('start', pInteger);
  			if ($pn_start < 1) { $pn_start = 0; }
  			
@@ -306,7 +314,16 @@
 					if (($pn_limit > 0) && ($vn_c >= $pn_limit)) { break; }
 				}
 		
-				$this->view->setVar('response', ['status' => 'ok', 'q' => $ps_q, 'totalResults' => $qr_res->numHits(), 'returnedResults' => sizeof($va_results), 'start' => $pn_start, 'results' => $va_results]);
+				$this->view->setVar('response', 
+					[
+						'status' => 'ok', 
+					 	'q' => $ps_q, 
+					 	'totalResults' => $qr_res->numHits(), 
+					 	'returnedResults' => sizeof($va_results), 
+					 	'start' => $pn_start, 
+					 	'results' => utf8ize($va_results)
+					]
+				);
 			} catch (Exception $e) {
 				$this->view->setVar('response', ['status' => 'err', 'message' => $e->getMessage()]);
 			}

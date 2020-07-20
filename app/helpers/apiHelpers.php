@@ -135,6 +135,20 @@
 		return $g_ms_to_darwincore_table[$ps_fieldname];
 	}
 	# -------------------------------------------------------
+	/**
+	 *
+	 */
+	function utf8ize($d) {
+	    if (is_array($d)) {
+	        foreach ($d as $k => $v) {
+	            $d[$k] = utf8ize($v);
+	        }
+	    } else if (is_string ($d)) {
+	        return mb_convert_encoding($d, 'UTF-8');
+	    }
+	    return $d;
+	}
+	# -------------------------------------------------------
 	
 	global $g_ms_to_darwincore_table; $g_ms_to_darwincore_table = [
 		"ms_specimens.absolute_age" => "earliestEonOrLowestEonothem",
