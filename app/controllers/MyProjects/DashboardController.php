@@ -258,6 +258,96 @@
  			$this->render('Dashboard/dashboard_html.php');
  		}
  		# -------------------------------------------------------
+ 		public function deleteAllMediaFiles() {
+ 			if (!$this->request->user->canDoAction("is_administrator")) {
+				$this->projectList();
+				return;
+			}
+
+			$va_errors = array();
+			
+			foreach ($this->opo_project->getProjectMedia(true, null, null) as $va_media) {
+				$t_media = new ms_media($va_media['media_id']);
+
+				foreach($t_media->getMediaFiles($va_media['media_id']) as $t_media_file) {
+					if(!$t_media_file->get("media_file_id")){
+						$va_errors["general"] = "media file id not defined";
+						$this->projectList();
+					}
+
+					# Delete ARK or make unavailable
+					if ($t_media_file->get("ark")) {
+						if ($t_media_file->get("ark_reserved")) {
+							$t_media_file->deleteARK();
+						} else {
+							$t_media_file->unpublishARK();
+						}
+					}
+
+					$t_media_file->setMode(ACCESS_WRITE);
+					$t_media_file->delete(true);
+					if ($t_media_file->numErrors()) {
+						foreach ($t_media_file->getErrors() as $vs_e) {  
+							$va_errors["general"] = $vs_e;
+						}
+						if(sizeof($va_errors) > 0){
+							$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+						}
+						$this->projectList();
+					}else{
+						$this->notification->addNotification("Deleted media file", __NOTIFICATION_TYPE_INFO__);
+						$this->projectList();
+					}
+				}
+
+				$t_media->setMode(ACCESS_WRITE);
+				$t_media->delete(true);
+			}	
+ 		}
+ 		# -------------------------------------------------------
+ 		public function deleteAllSpecimens() {
+ 			if (!$this->request->user->canDoAction("is_administrator")) {
+				$this->projectList();
+				return;
+			}
+
+			$va_errors = array();
+
+			foreach ($this->opo_project->getProjectSpecimens() as $va_specimen) {
+				$t_specimen = new ms_specimens($va_specimen['specimen_id']);
+
+				if($t_specimen->getSpecimenMediaIDs()){
+	 				$this->notification->addNotification("You cannot delete specimen with media", __NOTIFICATION_TYPE_INFO__);
+					$this->projectList();
+					return;
+	 			}
+
+				# --- check if this specimen is used by other projects
+				$o_db = new Db();
+				$q_other_projects = $o_db->query("SELECT DISTINCT project_id FROM ms_media WHERE project_id != ? and specimen_id = ?", $this->opn_project_id, $t_specimen->get('specimen_id'));
+				if($q_other_projects->numRows()){
+					$this->notification->addNotification("You can not delete this specimen because it is in use by ".$q_other_projects->numRows()." other project".(($q_other_projects->numRows() == 1) ? "" : "s").". ", __NOTIFICATION_TYPE_INFO__);
+					$this->projectList();
+				}
+
+				# proceed with deletion
+				$t_specimen->setMode(ACCESS_WRITE);
+				$t_specimen->delete(true);
+				if ($t_specimen->numErrors()) {
+					foreach ($t_specimen->getErrors() as $vs_e) {  
+						$va_errors["general"] = $vs_e;
+					}
+					if(sizeof($va_errors) > 0){
+						$this->notification->addNotification("There were errors".(($va_errors["general"]) ? ": ".$va_errors["general"] : ""), __NOTIFICATION_TYPE_INFO__);
+					}
+					$this->projectList();
+				}else{
+					$this->notification->addNotification("Deleted ".$this->ops_name_singular, __NOTIFICATION_TYPE_INFO__);
+					$this->projectList();
+				}	
+			}
+ 		}
+ 		# -------------------------------------------------------
  		public function batchGeneralSave() {
  			// Entity viewer batch edit general media group options
 
