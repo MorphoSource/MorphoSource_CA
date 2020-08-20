@@ -576,7 +576,7 @@ class ms_media_files extends BaseModel {
 			$t_media = new ms_media();
 			$t_media_file = new ms_media_files();
 			$q_media_files = $o_db->query("
-				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.ark, mf.file_type, m.*, f.name facility, i.name institution, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner, p.name project_name
+				SELECT mf.media_file_id, mf.title file_title, mf.notes file_notes, mf.side file_side, mf.element file_element, mf.media file_media, mf.doi, mf.ark, mf.file_type, m.*, f.name facility, i.name institution, s.occurrence_id, s.uuid, s.locality_description, s.relative_age, s.absolute_age, scan.name scanner, p.name project_name
 				FROM ms_media_files mf 
 				INNER JOIN ms_media as m ON mf.media_id = m.media_id
 				LEFT JOIN ms_specimens as s ON m.specimen_id = s.specimen_id
@@ -603,6 +603,8 @@ class ms_media_files extends BaseModel {
 									"title",
 									"notes",
 									"specimen",
+									"specimen_occurrence_id",
+									"specimen_idigbio_uuid",
 									"specimen taxonomy",
 									"insitution",
 									"description/element",
@@ -729,6 +731,8 @@ class ms_media_files extends BaseModel {
 					$va_media_md[] = $q_media_files->get("file_title");
 					$va_media_md[] = $q_media_files->get("file_notes");
 					$va_media_md[] = $vs_specimen_name;
+					$va_media_md[] = $q_media_files->get("occurrence_id");
+					$va_media_md[] = $q_media_files->get("uuid");
 					$va_media_md[] = $vs_specimen_taxonomy;
 					$va_media_md[] = $q_media_files->get("institution");
 					if($q_media_files->get("file_element")){
