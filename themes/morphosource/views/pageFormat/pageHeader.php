@@ -71,6 +71,7 @@
                         <div><?php print caNavLink($this->request, 'How to Cite', 'blueText', '', 'About', 'howToCite'); ?></div>
 						<div><?php print caNavLink($this->request, 'API', 'blueText', '', 'About', 'API'); ?></div>
 						<div><?php print caNavLink($this->request, 'Data Reporting', 'blueText', '', 'About', 'report'); ?></div>
+						<div><?php print caNavLink($this->request, 'MS 2.0 Launch', 'blueText', '', 'About', 'launch'); ?></div>
 					</div>
 				</li>
 				<li><?php print caNavLink($this->request, _t("Browse"), "", "", "Browse", "Index"); ?></li>
