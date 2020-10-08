@@ -54,7 +54,7 @@
 <?php
 		if(((strToLower($this->request->getController()) == "splash")) || ((strToLower($this->request->getController()) == "about") && (strToLower($this->request->getAction()) == "news"))){
 ?>
-			<div id="logoDuke"><a href="https://www.duke.edu/" target="_blank"><img src="<?php print $this->request->getThemeUrlPath(); ?>/graphics/morphosource/Duke-insignia-small.jpg"></a></div>
+			
 <?php
 		}
 ?>
@@ -201,5 +201,10 @@
 ?>
 		</div>
 		<div style="clear:both; height:1px;"><!-- empty --></div>
+		<div style="margin-top: 20px; margin-bottom: 20px; border: 1px solid #003880; border-radius: 5px; width: 860px;">
+			<div style="margin:15px">
+				<span><b>October 8th Update:</b> MorphoSource 2.0 is coming soon! We have slightly revised the release plan. The current site will remain up and accessible for now. The new and improved site will likely launch a few days after our initial target week of October 19th. We will update further when we have a solid date for bringing the current site down in advance of the launch. Currently, we estimate a gap of approximately 96 hours between bringing the current site down and launching the much improved MorphoSource 2.0.</span>
+			</div>
+		</div>
 	</div><!-- end header -->
 	<div id="pageArea">
