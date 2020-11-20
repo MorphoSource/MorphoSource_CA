@@ -203,7 +203,7 @@
 		<div style="clear:both; height:1px;"><!-- empty --></div>
 		<div style="margin-top: 20px; margin-bottom: 20px; border: 1px solid #003880; border-radius: 5px; width: 860px;">
 			<div style="margin:15px">
-				<span><b>October 8th Update:</b> MorphoSource 2.0 is coming soon! We have slightly revised the release plan. The current site will remain up and accessible for now. The new and improved site will likely launch a few days after our initial target week of October 19th. We will update further when we have a solid date for bringing the current site down in advance of the launch. Currently, we estimate a gap of approximately 96 hours between bringing the current site down and launching the much improved MorphoSource 2.0.</span>
+				<span><b>November 20th Update:</b> MorphoSource 2.0 is still coming soon! We have been working hard to finalize data ingestion and attend to all the details to bring you the next iteration of the repository, with new features like web viewing of CT data, expanded support for 3D modalities like photogrammetry, and new support for cultural heritage objects. Due to the upcoming holidays, we now anticipate that launch will occur at the beginning of January. We will update further when we have more specifics to share. Happy Holidays!</span>
 			</div>
 		</div>
 	</div><!-- end header -->
