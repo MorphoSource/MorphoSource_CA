@@ -205,7 +205,7 @@
 		<div style="margin-top: 20px; margin-bottom: 20px; border: 1px solid #003880; border-radius: 5px; width: 860px;">
 			<div style="margin:15px">
 				<h1 style="text-align: center; color: red;">MORPHOSOURCE IS TEMPORARILY UNAVAILABLE</h1>
-				<div style="margin-top: 5px;">The MorphoSource 3D Data Repository is currently unavailable as we prepare for the launch of the new and improved MorphoSource 2.0 platform. You can still browse and preview media, specimens, and projects on the current site, but for now you will not be able to log in, download, or manage data. The new version of the repository will come with a refreshed user interface and numerous new features including web viewing of CT data, expanded support for 3D modalities like photogrammetry, and support for cultural heritage objects. We expect to launch MorphoSource 2.0 Thursday, January 27th.</div>
+				<div style="margin-top: 5px;">The MorphoSource 3D Data Repository is currently unavailable as we prepare for the launch of the new and improved MorphoSource 2.0 platform. You can still browse and preview media, specimens, and projects on the current site, but for now you will not be able to log in, download, or manage data. The new version of the repository will come with a refreshed user interface and numerous new features including web viewing of CT data, expanded support for 3D modalities like photogrammetry, and support for cultural heritage objects. We expect to launch MorphoSource 2.0 Monday, February 1st.</div>
 			</div>
 		</div>
 	</div><!-- end header -->
